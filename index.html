@@ -837,9 +837,8 @@
       showError('Invalid input! Please enter info correctly'); return;
     }
 
-    // Variant must exist for this subject code
-    const validVariants = board === 'CAIE' ? caieVariants[code] : aqaVariants[code];
-    if (!validVariants || !validVariants.includes(variant)) {
+    // Variant: just check it's a 1-2 digit number
+    if (!/^\d{1,2}$/.test(variant)) {
       showError('Invalid input! Please enter info correctly'); return;
     }
 
