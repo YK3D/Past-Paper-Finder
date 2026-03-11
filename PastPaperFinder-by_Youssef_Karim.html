@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Past Paper Finder</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --border: #2a2a3a;
+    --accent: #00e5ff;
+    --accent2: #ff4d6d;
+    --text: #e8e8f0;
+    --muted: #6b6b85;
+    --success: #00ffaa;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background-image: 
+      radial-gradient(ellipse at 20% 20%, rgba(0,229,255,0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(255,77,109,0.05) 0%, transparent 50%);
+  }
+
+  .container {
+    width: 100%;
+    max-width: 560px;
+  }
+
+  header {
+    margin-bottom: 2.5rem;
+  }
+
+  .label-top {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  h1 {
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    margin-top: 0.6rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  .field-group {
+    display: grid;
+    gap: 1.2rem;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .field label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .field select,
+  .field input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.88rem;
+    padding: 0.65rem 0.9rem;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b85' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.9rem center;
+    padding-right: 2.2rem;
+    cursor: pointer;
+  }
+
+  .field select:focus,
+  .field input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,229,255,0.1);
+  }
+
+  .field select option {
+    background: #1a1a25;
+  }
+
+  .row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 1.5rem 0;
+  }
+
+  .btn-generate {
+    width: 100%;
+    padding: 0.9rem;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    margin-top: 1.5rem;
+  }
+
+  .btn-generate:hover { opacity: 0.85; }
+  .btn-generate:active { transform: scale(0.98); }
+
+  .result-box {
+    margin-top: 1.2rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .result-box.show { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--success);
+    margin-bottom: 0.5rem;
+  }
+
+  .result-url {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    word-break: break-all;
+    line-height: 1.6;
+  }
+
+  .result-actions {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 1rem;
+  }
+
+  .btn-open, .btn-copy {
+    flex: 1;
+    padding: 0.6rem;
+    border-radius: 7px;
+    border: none;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .btn-open {
+    background: var(--accent2);
+    color: #fff;
+  }
+
+  .btn-copy {
+    background: var(--border);
+    color: var(--text);
+  }
+
+  .btn-open:hover, .btn-copy:hover { opacity: 0.8; }
+
+  .error-msg {
+    margin-top: 1rem;
+    background: rgba(255,77,109,0.1);
+    border: 1px solid var(--accent2);
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent2);
+    display: none;
+  }
+
+  .error-msg.show { display: block; }
+
+  /* AQA-specific hidden field */
+  .aqa-only { display: none; }
+
+  @media (max-width: 480px) {
+    h1 { font-size: 1.8rem; }
+    .row-2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <p class="label-top">Past Paper Retrieval</p>
+    <h1>Paper<span>Finder</span></h1>
+    <p class="subtitle">// Generate & open past paper PDFs instantly</p>
+  </header>
+
+  <div class="card">
+    <div class="field-group">
+
+      <!-- Exam Board -->
+      <div class="field">
+        <label>Exam Board</label>
+        <select id="board" onchange="onBoardChange()">
+          <option value="">— Select —</option>
+          <option value="CAIE">CAIE (Cambridge)</option>
+          <option value="AQA">AQA (Oxford)</option>
+        </select>
+      </div>
+
+      <!-- Subject Code -->
+      <div class="field">
+        <label>Subject Code</label>
+        <input type="text" id="code" placeholder="e.g. 0417" maxlength="10" />
+      </div>
+
+      <div class="row-2">
+        <!-- Session -->
+        <div class="field">
+          <label>Session</label>
+          <select id="session">
+            <option value="">— Select —</option>
+            <!-- Options set dynamically -->
+          </select>
+        </div>
+
+        <!-- Year -->
+        <div class="field">
+          <label>Year (last 2 digits)</label>
+          <input type="text" id="year" placeholder="e.g. 23" maxlength="2" />
+        </div>
+      </div>
+
+      <div class="row-2">
+        <!-- Variant -->
+        <div class="field">
+          <label>Variant</label>
+          <input type="text" id="variant" placeholder="e.g. 31" maxlength="2" />
+        </div>
+
+        <!-- QP / MS -->
+        <div class="field">
+          <label>Paper Type</label>
+          <select id="papertype">
+            <option value="">— Select —</option>
+            <option value="qp">Question Paper (QP)</option>
+            <option value="ms">Mark Scheme (MS)</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="divider"></div>
+
+    <button class="btn-generate" onclick="generate()">Generate &amp; Open →</button>
+
+    <div class="error-msg" id="errorMsg"></div>
+
+    <div class="result-box" id="resultBox">
+      <p class="result-label">✓ URL Generated</p>
+      <p class="result-url" id="resultUrl"></p>
+      <div class="result-actions">
+        <button class="btn-open" onclick="openUrl()">Open in Browser</button>
+        <button class="btn-copy" onclick="copyUrl()">Copy URL</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer style="margin-top:2rem; text-align:center; font-family:'Space Mono',monospace; font-size:0.8rem; font-weight:700; letter-spacing:0.12em; color:#3a3a55;">
+  MADE BY YOUSSEF KARIM
+</footer>
+
+<script>
+  let generatedUrl = '';
+
+  const caieSessionMap = { 'O/N': 's', 'M/J': 'm', 'F/M': 'w' };
+  const aqaSessionMap  = { 'Jun': 'jun', 'Nov': 'nov' };
+
+  function onBoardChange() {
+    const board = document.getElementById('board').value;
+    const sessionSel = document.getElementById('session');
+
+    sessionSel.innerHTML = '<option value="">— Select —</option>';
+
+    if (board === 'CAIE') {
+      [['O/N (Oct/Nov)', 's'], ['M/J (May/Jun)', 'm'], ['F/M (Feb/Mar)', 'w']].forEach(([label, val]) => {
+        sessionSel.innerHTML += `<option value="${val}">${label}</option>`;
+      });
+    } else if (board === 'AQA') {
+      [['Jun', 'jun'], ['Nov', 'nov']].forEach(([label, val]) => {
+        sessionSel.innerHTML += `<option value="${val}">${label}</option>`;
+      });
+    }
+
+    hideResult();
+  }
+
+  function generate() {
+    const board     = document.getElementById('board').value;
+    const code      = document.getElementById('code').value.trim();
+    const session   = document.getElementById('session').value;
+    const year      = document.getElementById('year').value.trim();
+    const variant   = document.getElementById('variant').value.trim();
+    const papertype = document.getElementById('papertype').value;
+
+    const errEl = document.getElementById('errorMsg');
+
+    // Validation
+    if (!board || !code || !session || !year || !variant || !papertype) {
+      showError('Please fill in all fields.');
+      return;
+    }
+    if (!/^\d{2}$/.test(year)) {
+      showError('Year must be exactly 2 digits (e.g. 23).');
+      return;
+    }
+
+    let url = '';
+
+    if (board === 'CAIE') {
+      // https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/
+      // {code}_{session}{year}_{qp/ms}_{variant}.pdf
+      url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${year}_${papertype}_${variant}.pdf`;
+
+    } else if (board === 'AQA') {
+      // https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/
+      // aqa-{code}{variant}-{qp/ms}-{jun/nov}{year}.pdf
+      url = `https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/aqa-${code}${variant}-${papertype}-${session}${year}.pdf`;
+    }
+
+    generatedUrl = url;
+
+    errEl.classList.remove('show');
+    document.getElementById('resultUrl').textContent = url;
+    document.getElementById('resultBox').classList.add('show');
+
+    // Auto-open
+    window.open(url, '_blank');
+  }
+
+  function openUrl() {
+    if (generatedUrl) window.open(generatedUrl, '_blank');
+  }
+
+  function copyUrl() {
+    if (!generatedUrl) return;
+    navigator.clipboard.writeText(generatedUrl).then(() => {
+      const btn = document.querySelector('.btn-copy');
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy URL', 1800);
+    });
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.classList.add('show');
+    hideResult();
+  }
+
+  function hideResult() {
+    document.getElementById('resultBox').classList.remove('show');
+    document.getElementById('errorMsg').classList.remove('show');
+  }
+</script>
+</body>
+</html>
