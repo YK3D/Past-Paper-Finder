@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Past Paper Finder — by Youssef Karim</title>
+<title>Past Paper Finder \u2014 by Youssef Karim</title>
 
 <!-- SEO Meta -->
 <meta name="description" content="Find and open CAIE & AQA past papers and mark schemes instantly. Made by Youssef Karim.">
@@ -12,7 +12,7 @@
 <meta name="keywords" content="past papers, CAIE, AQA, Cambridge, Oxford, mark scheme, question paper, O level, A level, IGCSE, GCE, past paper finder, exam papers, revision, past paper generator, CAIE past papers, AQA past papers, Cambridge past papers, Oxford past papers, past paper link, past paper URL, past paper PDF, exam revision, A level past papers, IGCSE past papers, O level past papers, AS level past papers, A2 past papers, Cambridge International, Cambridge Assessment, AQA mark scheme, CAIE mark scheme, question paper download, mark scheme download, papacambridge, past paper search, exam board, exam session, May June, October November, February March, variant, subject code, 9709, 0417, 0580, 0620, 0610, 0625, 9701, 9702, 9706, 9708, 0450, 0455, 0460, 0470, 0478, 0500, 0510, 0520, 0544, 0546, 0547, 0606, 0607, 0610, 0620, 0625, 0648, 0653, 0654, 0680, A level biology, A level chemistry, A level physics, A level maths, A level further maths, A level economics, A level business, A level history, A level geography, A level psychology, A level sociology, A level english, A level computer science, IGCSE maths, IGCSE english, IGCSE biology, IGCSE chemistry, IGCSE physics, IGCSE computer science, IGCSE history, IGCSE geography, IGCSE economics, IGCSE business, exam preparation, exam practice, revision tool, student tool, past paper tool, free past papers, past paper website, past paper app, paper finder, paper search, grade boundaries, exam tips, exam help, student revision, GCSE revision, A level revision, university entrance, Cambridge university, Oxford university, exam season, May June 2024, October November 2024, February March 2024, May June 2023, October November 2023, qp, ms, variant 1, variant 2, variant 3, variant 11, variant 12, variant 13, variant 21, variant 22, variant 23, variant 31, variant 32, variant 33">
 
 <!-- Open Graph -->
-<meta property="og:title" content="Past Paper Finder — by Youssef Karim">
+<meta property="og:title" content="Past Paper Finder \u2014 by Youssef Karim">
 <meta property="og:description" content="Made by Youssef Karim. Open CAIE & AQA past papers and mark schemes as PDFs in one click.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://past-paper-finder.vercel.app/">
@@ -20,12 +20,12 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Past Paper Finder — by Youssef Karim">
+<meta name="twitter:title" content="Past Paper Finder \u2014 by Youssef Karim">
 <meta name="twitter:description" content="Made by Youssef Karim. Open CAIE & AQA past papers and mark schemes as PDFs in one click.">
 <meta name="twitter:image" content="https://past-paper-finder.vercel.app/og-image.png">
 
-<script defer src="/_vercel/insights/script.js"></script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0a0f'/%3E%3Crect x='7' y='5' width='13' height='17' rx='2' fill='none' stroke='%2300e5ff' stroke-width='1.8'/%3E%3Cline x1='10' y1='10' x2='17' y2='10' stroke='%2300e5ff' stroke-width='1.4' stroke-linecap='round'/%3E%3Cline x1='10' y1='13.5' x2='17' y2='13.5' stroke='%2300e5ff' stroke-width='1.4' stroke-linecap='round'/%3E%3Ccircle cx='22' cy='23' r='5' fill='%23ff4d6d'/%3E%3C/svg%3E">
+<script>if(location.protocol!=="file:"){var s=document.createElement("script");s.defer=true;s.src="/_vercel/insights/script.js";document.head.appendChild(s);}</script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
 
 <style>
@@ -52,11 +52,11 @@
       radial-gradient(ellipse at 80% 80%, rgba(255,77,109,0.05) 0%, transparent 50%);
   }
 
-  /* ── VIEWS ── */
+  /* \u2500\u2500 VIEWS \u2500\u2500 */
   .view { display: none; }
   .view.active { display: block; }
 
-  /* ── MAIN VIEW ── */
+  /* \u2500\u2500 MAIN VIEW \u2500\u2500 */
   #main-view {
     display: none;
     flex-direction: column;
@@ -230,22 +230,19 @@
   .btn-open:hover, .btn-copy:hover { opacity: 0.8; }
 
   .error-msg {
-    margin-bottom: 1rem;
-    margin-top: 0;
+    margin-top: 1rem;
     background: rgba(255,77,109,0.1);
     border: 1px solid var(--accent2);
     border-radius: 8px;
     padding: 0.8rem 1rem;
     font-family: 'Space Mono', monospace;
-    font-size: 0.85rem;
-    font-weight: 700;
+    font-size: 0.75rem;
     color: var(--accent2);
     display: none;
-    text-align: center;
   }
   .error-msg.show { display: block; }
 
-  /* ── CODES VIEW ── */
+  /* \u2500\u2500 CODES VIEW \u2500\u2500 */
   #codes-view {
     display: none;
     min-height: 100vh;
@@ -361,11 +358,89 @@
     .row-2 { grid-template-columns: 1fr; }
     .page-title { font-size: 1.2rem; }
   }
+
+  /* ── Field error highlight ── */
+  .field input.field-error,
+  .field select.field-error {
+    border-color: var(--accent2) !important;
+    box-shadow: 0 0 0 3px rgba(255,77,109,0.15) !important;
+  }
+
+  /* ── Subject name tag ── */
+  .subject-name-tag {
+    display: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    margin-top: 0.35rem;
+    padding: 0.25rem 0.5rem;
+    background: rgba(0,229,255,0.07);
+    border-radius: 4px;
+    border: 1px solid rgba(0,229,255,0.2);
+  }
+  .subject-name-tag.visible { display: inline-block; }
+
+  /* ── Recent searches ── */
+  .recent-box { margin-top: 1.2rem; display: none; }
+  .recent-box.visible { display: block; }
+  .recent-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .recent-clear {
+    background: none; border: none; color: var(--muted);
+    font-family: 'Space Mono', monospace; font-size: 0.6rem;
+    cursor: pointer; letter-spacing: 0.1em;
+  }
+  .recent-clear:hover { color: var(--accent2); }
+  .recent-list { display: flex; flex-direction: column; gap: 0.4rem; }
+  .recent-item {
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.45rem 0.7rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    gap: 0.5rem;
+  }
+  .recent-item:hover { background: rgba(0,229,255,0.05); border-color: rgba(0,229,255,0.2); }
+  .recent-item-url {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.63rem;
+    color: var(--muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    flex: 1; min-width: 0;
+  }
+  .recent-item-open {
+    font-family: 'Space Mono', monospace; font-size: 0.6rem;
+    color: var(--accent); white-space: nowrap; flex-shrink: 0;
+  }
+
+  /* ── Download btn ── */
+  .btn-download {
+    flex: 1; padding: 0.6rem; border-radius: 7px;
+    border: 1px solid var(--border);
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    cursor: pointer; transition: opacity 0.2s;
+    background: transparent; color: var(--text);
+  }
+  .btn-download:hover { opacity: 0.8; background: rgba(255,255,255,0.04); }
+
+
+
 </style>
 </head>
 <body>
 
-<!-- ══════════════ MAIN VIEW ══════════════ -->
+<!-- \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 MAIN VIEW \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 -->
 <div id="main-view" class="active">
   <div class="container">
     <header>
@@ -391,7 +466,8 @@
             <span>Subject Code</span>
             <button class="find-code-btn" onclick="showCodes()">Don't know your code? Find it here</button>
           </label>
-          <input type="text" id="code" placeholder="e.g. 0417" maxlength="4" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')" />
+          <input type="text" id="code" placeholder="e.g. 0417" maxlength="4" inputmode="numeric" oninput="onCodeInput()" />
+          <div class="subject-name-tag" id="subjectNameTag"></div>
         </div>
 
         <div class="row-2">
@@ -426,9 +502,9 @@
 
       <div class="divider"></div>
 
-      <div class="error-msg" id="errorMsg"></div>
-
       <button class="btn-generate" onclick="generate()">Generate &amp; Open →</button>
+
+      <div class="error-msg" id="errorMsg"></div>
 
       <div class="result-box" id="resultBox">
         <p class="result-label">✓ URL Generated</p>
@@ -436,7 +512,17 @@
         <div class="result-actions">
           <button class="btn-open" onclick="openUrl()">Open in Browser</button>
           <button class="btn-copy" onclick="copyUrl()">Copy URL</button>
+          <button class="btn-download" onclick="downloadUrl()">&#8659; Download</button>
         </div>
+      </div>
+    </div>
+
+      <div class="recent-box" id="recentBox">
+        <div class="recent-label">
+          <span>Recent Searches</span>
+          <button class="recent-clear" onclick="clearRecent()">Clear</button>
+        </div>
+        <div class="recent-list" id="recentList"></div>
       </div>
     </div>
   </div>
@@ -446,7 +532,7 @@
   </footer>
 </div>
 
-<!-- ══════════════ CODES VIEW ══════════════ -->
+<!-- \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 CODES VIEW \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 -->
 <div id="codes-view">
   <div class="top-bar">
     <button class="back-btn" onclick="showMain()">← Back</button>
@@ -463,7 +549,7 @@
     <div class="codes-section caie-sec">
       <div class="sec-header">
         <div class="sec-title">CAIE — Cambridge</div>
-        <div class="sec-sub">IGCSE · O Level · AS Level · A Level</div>
+        <div class="sec-sub">IGCSE \u00b7 O Level \u00b7 AS Level \u00b7 A Level</div>
       </div>
 
       <div class="cat-label">Cambridge IGCSE</div>
@@ -525,7 +611,7 @@
         <tr onclick="useCode('0695')"><td class="c-code">0695</td><td class="c-name">First Language Vietnamese</td></tr>
         <tr onclick="useCode('0696')"><td class="c-code">0696</td><td class="c-name">First Language Malay</td></tr>
         <tr onclick="useCode('0697')"><td class="c-code">0697</td><td class="c-name">Marine Science</td></tr>
-        <tr onclick="useCode('7180')"><td class="c-code">7180</td><td class="c-name">Arabic (IGCSE 9–1)</td></tr>
+        <tr onclick="useCode('7180')"><td class="c-code">7180</td><td class="c-name">Arabic (IGCSE 9\u20131)</td></tr>
       </table>
 
       <div class="cat-label">Cambridge O Level</div>
@@ -620,7 +706,7 @@
     <div class="codes-section aqa-sec">
       <div class="sec-header">
         <div class="sec-title">AQA — Oxford (OxfordAQA)</div>
-        <div class="sec-sub">International GCSE · AS &amp; A Level</div>
+        <div class="sec-sub">International GCSE \u00b7 AS &amp; A Level</div>
       </div>
 
       <div class="cat-label">International GCSE</div>
@@ -680,83 +766,131 @@
 
 <script>
   let generatedUrl = '';
-  const CURRENT_YEAR = new Date().getFullYear() % 100; // e.g. 26 for 2026
+  const CURRENT_YEAR = new Date().getFullYear() % 100;
 
-  // ── Valid CAIE variants per subject code (from timetable) ──
-  const caieVariants = {
-    '0262':['1','2'],'0408':['22','32'],'0410':['12'],'0411':['12'],
-    '0413':['12'],'0417':['12','21','22','31','32'],
-    '0445':['12','32','42','52'],'0448':['1','2'],'0450':['12','22'],
-    '0452':['12','22'],'0454':['12'],'0455':['12','22'],
-    '0457':['12'],'0460':['12','22','42'],'0470':['12','22','42'],
-    '0471':['12','22'],'0472':['12','22','42'],'0474':['12','22'],
-    '0475':['12','22','32','42'],'0478':['12','22'],'0480':['12','22'],
-    '0493':['12','22'],'0495':['12','22'],'0499':['12','22'],
-    '0500':['12','22'],'0501':['1','2'],'0502':['12','22'],
-    '0505':['1','2'],'0508':['1','2'],'0509':['12','22'],
-    '0510':['12','22'],'0511':['12','22'],'0513':['1','2'],
-    '0518':['1','2'],'0520':['12','22','42'],'0523':['1','2'],
-    '0525':['12','22','42'],'0530':['12','22','42'],'0535':['12','22','42'],
-    '0538':['1','2'],'0539':['1','2'],'0544':['12','22','42'],
-    '0546':['12','22','42'],'0547':['12','22','42'],
-    '0580':['12','22','32','42'],'0606':['12','22'],
-    '0607':['12','22','32','42','52','62'],'0610':['12','22','32','42','52','62'],
-    '0620':['12','22','32','42','52','62'],'0625':['12','22','32','42','52','62'],
-    '0648':['12'],'0653':['12','22','32','42','52','62'],
-    '0654':['12','22','32','42','52','62'],'0680':['12','22'],
-    '0695':['1','2'],'0696':['1','2'],'0697':['12','22'],'7180':['1','2'],
-    // O Level
-    '2010':['12','22'],'2035':['12','22'],'2058':['12','22'],'2059':['1','2'],
-    '2068':['12','22'],'2069':['12'],'2147':['12','22'],'2251':['12','22'],
-    '2281':['12','22'],'3180':['1','2'],'3204':['1','2'],'3205':['1','2'],
-    '3226':['1','2'],'3247':['1','2'],'3248':['1','2'],'4024':['12','22'],
-    '4037':['12','22'],'5014':['12','22'],'5054':['12','22','32','42'],
-    '5070':['12','22','32','42'],'5090':['12','22','32','42'],'6065':['12'],
-    '7094':['1','2'],'7100':['12','22'],'7115':['12','22'],'7707':['12','22'],
-    // AS Level
-    '8021':['12','22'],'8022':['12','22','32'],'8027':['12','22','32'],
-    '8028':['12','22','32'],'8238':['12','22','32'],'8291':['12','22'],
-    '8386':['12'],'8680':['22','32'],'8684':['2','3'],'8686':['2','3'],
-    '8689':['22','32'],'8695':['12','22'],
-    // A Level
-    '9084':['12','22','32','42'],'9093':['12','22','32','42'],
-    '9231':['12','22','32','42'],'9239':['12'],'9395':['12','32','42'],
-    '9481':['2'],'9482':['12'],'9483':['12'],'9484':['12','22','32','42'],
-    '9487':['1','2','3','4'],'9488':['12','22','32','42'],
-    '9489':['12','22','32','42'],'9607':['22','42'],'9609':['12','22','32','42'],
-    '9618':['12','22','32'],'9626':['12','32'],'9680':['22','32','42','52'],
-    '9686':['2','3','4'],'9689':['22','32','42','52'],'9693':['12','22','32','42'],
-    '9694':['12','22','32','42'],'9695':['12','22','32','42'],
-    '9696':['12','22','32','42'],'9699':['12','22','32','42'],
-    '9700':['12','22','33','34','42','52'],'9701':['12','22','33','34','42','52'],
-    '9702':['12','22','33','34','42','52'],'9705':['12','32'],
-    '9706':['12','22','32','42'],'9708':['12','22','32','42'],
-    '9709':['12','22','32','42','52','62'],'9718':['1','2','3','4'],
-    '9844':['12','22','32'],'9868':['12','22','32'],'9897':['12','22','32'],
-    '9898':['12','22','32'],'9990':['12','22','32','42'],
+  const subjectNames = {
+    '0262':'Swahili','0408':'World Literature','0410':'Music (Listening)','0411':'Drama',
+    '0413':'Physical Education','0417':'ICT','0445':'Design & Technology',
+    '0448':'Pakistan Studies','0450':'Business Studies','0452':'Accounting',
+    '0454':'Enterprise','0455':'Economics','0457':'Global Perspectives',
+    '0460':'Geography','0470':'History','0471':'Travel & Tourism',
+    '0472':'English (Additional Language)','0474':'Literature in Spanish',
+    '0475':'Literature in English','0478':'Computer Science','0480':'Latin',
+    '0493':'Islamiyat','0495':'Sociology','0499':'Sanskrit',
+    '0500':'First Language English','0501':'First Language French',
+    '0502':'First Language Spanish','0505':'First Language German',
+    '0508':'First Language Arabic','0509':'First Language Chinese',
+    '0510':'English as a Second Language','0511':'English as a Second Language',
+    '0513':'First Language Turkish','0518':'First Language Thai','0520':'French',
+    '0523':'Chinese as a Second Language','0525':'German','0530':'Spanish',
+    '0535':'Italian','0538':'Bahasa Indonesia','0539':'Urdu as Second Language',
+    '0544':'Arabic','0546':'Malay','0547':'Mandarin Chinese','0580':'Mathematics',
+    '0606':'Additional Mathematics','0607':'Cambridge International Mathematics',
+    '0610':'Biology','0620':'Chemistry','0625':'Physics','0648':'Food & Nutrition',
+    '0653':'Combined Science','0654':'Co-ordinated Sciences','0680':'Environmental Management',
+    '0695':'First Language Vietnamese','0696':'First Language Malay','0697':'Marine Science',
+    '7180':'Arabic',
+    '2010':'Literature in English','2035':'Biblical Studies','2058':'Islamiyat',
+    '2059':'Pakistan Studies','2068':'Islamic Studies','2069':'Global Perspectives',
+    '2147':'History','2251':'Sociology','2281':'Economics','3180':'Arabic',
+    '3204':'Bengali','3205':'Sinhala','3226':'Tamil','3247':'First Language Urdu',
+    '3248':'Second Language Urdu','4024':'Mathematics Syllabus D',
+    '4037':'Additional Mathematics','5014':'Environmental Management',
+    '5054':'Physics','5070':'Chemistry','5090':'Biology','6065':'Food & Nutrition',
+    '7094':'Bangladesh Studies','7100':'Commerce','7115':'Business Studies','7707':'Accounting',
+    '8021':'English General Paper','8022':'Spanish Language','8027':'German Language',
+    '8028':'French Language','8238':'Chinese Language','8291':'Environmental Management',
+    '8386':'Sport & Physical Education','8680':'Arabic Language',
+    '8684':'Portuguese Language','8686':'Urdu Language','8689':'Tamil Language',
+    '8695':'Language & Literature in English',
+    '9084':'Law','9093':'English Language','9231':'Further Mathematics',
+    '9239':'Global Perspectives & Research','9395':'Travel & Tourism',
+    '9481':'Digital Media & Design','9482':'Drama','9483':'Music (Listening)',
+    '9484':'Biblical Studies','9487':'Hinduism','9488':'Islamic Studies',
+    '9489':'History','9607':'Media Studies','9609':'Business',
+    '9618':'Computer Science','9626':'Information Technology','9680':'Arabic',
+    '9686':'Urdu','9689':'Tamil','9693':'Marine Science','9694':'Thinking Skills',
+    '9695':'Literature in English','9696':'Geography','9699':'Sociology',
+    '9700':'Biology','9701':'Chemistry','9702':'Physics',
+    '9705':'Design & Technology','9706':'Accounting','9708':'Economics',
+    '9709':'Mathematics','9718':'Portuguese','9844':'Spanish Language & Literature',
+    '9868':'Chinese Language & Literature','9897':'German Language & Literature',
+    '9898':'French Language & Literature','9990':'Psychology',
+    '9201':'Biology','9202':'Chemistry','9203':'Physics','9204':'Combined Science',
+    '9210':'Computer Science','9214':'Economics','9215':'Accounting','9218':'Psychology',
+    '9221':'CORE Biology','9222':'CORE Chemistry','9223':'CORE Physics','9225':'Business',
+    '9230':'Geography','9236':'Pakistan Studies','9237':'Islamiat',
+    '9252':'Design & Technology','9257':'Media Studies','9260':'Mathematics',
+    '9264':'Urdu','9265':'French','9269':'Spanish','9270':'English Language',
+    '9275':'English Literature','9280':'English as a Second Language',
+    '9285':'CORE English as a Second Language','9697':'Global Skills Projects',
+    '9610':'Biology','9615':'Accounting','9620':'Chemistry','9625':'Business',
+    '9630':'Physics','9635':'Geography','9640':'Economics','9645':'Computer Science',
+    '9660':'Mathematics','9665':'Further Mathematics','9670':'English Language',
+    '9675':'English Literature','9685':'Psychology',
   };
 
-  // AQA — variants from OxfordAQA entry codes (paper numbers like 1,2,3 etc.)
-  const aqaVariants = {
-    '9201':['1','2'],'9202':['1','2'],'9203':['1','2'],'9204':['1','2','3'],
-    '9210':['1','2'],'9214':['1','2'],'9215':['1','2'],'9218':['1','2'],
-    '9221':['1'],'9222':['1'],'9223':['1'],'9225':['1','2'],
-    '9230':['1','2','3'],'9236':['1','2'],'9237':['1','2'],
-    '9252':['1'],'9257':['1'],'9260':['1','2'],'9264':['1','2'],
-    '9265':['1','2','3','4'],'9269':['1','2','3','4'],
-    '9270':['1','2'],'9275':['1','2'],'9280':['1','2','3','4'],
-    '9285':['1','2'],'9697':['1','2'],
-    '9610':['1','2','3','4','5'],'9615':['1','2','3','4'],
-    '9620':['1','2','3','4','5'],'9625':['1','2','3','4'],
-    '9630':['1','2','3','4','5'],'9635':['1','2','3','4','5'],
-    '9640':['1','2','3','4'],'9645':['1','2','3','4'],
-    '9660':['1','2','3','4','5'],'9665':['1','2','3','4','5'],
-    '9670':['1','2','3','4'],'9675':['1','2','3','4'],
-    '9685':['1','2','3','4'],
-  };
+  const caieCodesAll = new Set(['0262','0408','0410','0411','0413','0417','0445','0448','0450','0452','0454','0455','0457','0460','0470','0471','0472','0474','0475','0478','0480','0493','0495','0499','0500','0501','0502','0505','0508','0509','0510','0511','0513','0518','0520','0523','0525','0530','0535','0538','0539','0544','0546','0547','0580','0606','0607','0610','0620','0625','0648','0653','0654','0680','0695','0696','0697','7180','2010','2035','2058','2059','2068','2069','2147','2251','2281','3180','3204','3205','3226','3247','3248','4024','4037','5014','5054','5070','5090','6065','7094','7100','7115','7707','8021','8022','8027','8028','8238','8291','8386','8680','8684','8686','8689','8695','9084','9093','9231','9239','9395','9481','9482','9483','9484','9487','9488','9489','9607','9609','9618','9626','9680','9686','9689','9693','9694','9695','9696','9699','9700','9701','9702','9705','9706','9708','9709','9718','9844','9868','9897','9898','9990']);
+  const aqaCodesAll  = new Set(['9201','9202','9203','9204','9210','9214','9215','9218','9221','9222','9223','9225','9230','9236','9237','9252','9257','9260','9264','9265','9269','9270','9275','9280','9285','9697','9610','9615','9620','9625','9630','9635','9640','9645','9660','9665','9670','9675','9685']);
 
-  const caieCodesAll = new Set(Object.keys(caieVariants));
-  const aqaCodesAll  = new Set(Object.keys(aqaVariants));
+  // ── Levenshtein for "Did you mean?" ──
+  function levenshtein(a, b) {
+    const m = a.length, n = b.length;
+    const dp = Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i||j));
+    for (let i=1;i<=m;i++) for (let j=1;j<=n;j++)
+      dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+    return dp[m][n];
+  }
+  function didYouMean(code, board) {
+    const pool = board === 'AQA' ? [...aqaCodesAll] : [...caieCodesAll];
+    let best = null, bestDist = Infinity;
+    for (const c of pool) { const d = levenshtein(code,c); if (d<bestDist){bestDist=d;best=c;} }
+    return bestDist <= 2 ? best : null;
+  }
+
+  // ── Field error helpers ──
+  function markFieldError(id) { const el=document.getElementById(id); if(el) el.classList.add('field-error'); }
+  function clearFieldErrors() { document.querySelectorAll('.field-error').forEach(el=>el.classList.remove('field-error')); }
+
+  // ── Code input handler ──
+  function onCodeInput() {
+    const input = document.getElementById('code');
+    input.value = input.value.replace(/\D/g, '');
+    const code = input.value.trim();
+    const tag = document.getElementById('subjectNameTag');
+    if (code.length === 4 && subjectNames[code]) {
+      tag.textContent = '\u2713 ' + subjectNames[code];
+      tag.classList.add('visible');
+      input.classList.remove('field-error');
+    } else {
+      tag.textContent = '';
+      tag.classList.remove('visible');
+    }
+  }
+
+  // ── Recent searches ──
+  function getRecent() { try { return JSON.parse(localStorage.getItem('pp_recent')||'[]'); } catch { return []; } }
+  function saveRecent(url) {
+    try {
+      let list = getRecent().filter(u=>u!==url);
+      list.unshift(url); list = list.slice(0,5);
+      localStorage.setItem('pp_recent', JSON.stringify(list));
+    } catch {}
+    renderRecent();
+  }
+  function clearRecent() { try { localStorage.removeItem('pp_recent'); } catch {} renderRecent(); }
+  function renderRecent() {
+    const list = getRecent();
+    const box = document.getElementById('recentBox');
+    const el = document.getElementById('recentList');
+    if (!list.length) { box.classList.remove('visible'); return; }
+    box.classList.add('visible');
+    el.innerHTML = list.map(url => `
+      <div class="recent-item" onclick="window.open('${url}','_blank')">
+        <span class="recent-item-url">${url}</span>
+        <span class="recent-item-open">Open &#8594;</span>
+      </div>`).join('');
+  }
 
   // ── View switching ──
   function showCodes() {
@@ -766,15 +900,14 @@
     filterCodes();
     window.scrollTo(0, 0);
   }
-
   function showMain() {
     document.getElementById('codes-view').classList.remove('active');
     document.getElementById('main-view').classList.add('active');
     window.scrollTo(0, 0);
   }
-
   function useCode(code) {
     document.getElementById('code').value = code;
+    onCodeInput();
     showMain();
   }
 
@@ -801,10 +934,12 @@
       });
     }
     hideResult();
+    clearFieldErrors();
   }
 
   // ── Generate ──
   function generate() {
+    clearFieldErrors();
     const board     = document.getElementById('board').value;
     const code      = document.getElementById('code').value.trim();
     const session   = document.getElementById('session').value;
@@ -812,44 +947,32 @@
     const variant   = document.getElementById('variant').value.trim();
     const papertype = document.getElementById('papertype').value;
 
-    if (!board || !code || !session || !year || !variant || !papertype) {
-      showError('Invalid input! Please enter info correctly'); return;
+    if (!board)   { markFieldError('board');     showError('Missing Exam Board! Please select an exam board.'); return; }
+    if (!code)    { markFieldError('code');      showError('Missing Subject Code! Please enter a subject code.'); return; }
+    if (!/^\d{4}$/.test(code)) { markFieldError('code'); showError('Invalid Subject Code! Code must be exactly 4 digits.'); return; }
+    if ((board==='CAIE' && !caieCodesAll.has(code)) || (board==='AQA' && !aqaCodesAll.has(code))) {
+      const s = didYouMean(code, board);
+      const hint = s ? ` Did you mean ${s}${subjectNames[s] ? ' ('+subjectNames[s]+')' : ''}?` : ' Use the code finder above.';
+      markFieldError('code');
+      showError('Invalid Subject Code!' + hint); return;
     }
-
-    // Subject code: must be 4 digits
-    if (!/^\d{4}$/.test(code)) {
-      showError('Invalid input! Please enter info correctly'); return;
-    }
-
-    // Subject code must exist for the selected board
-    if (board === 'CAIE' && !caieCodesAll.has(code)) {
-      showError('Invalid input! Please enter info correctly'); return;
-    }
-    if (board === 'AQA' && !aqaCodesAll.has(code)) {
-      showError('Invalid input! Please enter info correctly'); return;
-    }
-
-    // Year: 2 digits, not greater than current year
-    if (!/^\d{2}$/.test(year)) {
-      showError('Invalid input! Please enter info correctly'); return;
-    }
-    if (parseInt(year, 10) > CURRENT_YEAR) {
-      showError('Invalid input! Please enter info correctly'); return;
-    }
-
-    // Variant: just check it's a 1-2 digit number
-    if (!/^\d{1,2}$/.test(variant)) {
-      showError('Invalid input! Please enter info correctly'); return;
-    }
+    if (!session) { markFieldError('session');   showError('Missing Session! Please select a session.'); return; }
+    if (!year)    { markFieldError('year');      showError('Missing Year! Please enter the year.'); return; }
+    if (!/^\d{2}$/.test(year)) { markFieldError('year'); showError('Invalid Year! Must be exactly 2 digits (e.g. 23).'); return; }
+    if (parseInt(year,10) > CURRENT_YEAR) { markFieldError('year'); showError('Invalid Year! Year cannot be in the future.'); return; }
+    if (!variant) { markFieldError('variant');   showError('Missing Variant! Please enter a variant.'); return; }
+    if (!/^\d{1,2}$/.test(variant)) { markFieldError('variant'); showError('Invalid Variant! Must be a 1\u20132 digit number.'); return; }
+    if (!papertype){ markFieldError('papertype'); showError('Missing Paper Type! Please select QP or MS.'); return; }
 
     let url = '';
     if (board === 'CAIE') {
       url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${year}_${papertype}_${variant}.pdf`;
-    } else if (board === 'AQA') {
+    } else {
       url = `https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/aqa-${code}${variant}-${papertype}-${session}${year}.pdf`;
     }
 
     generatedUrl = url;
+    saveRecent(url);
     document.getElementById('errorMsg').classList.remove('show');
     document.getElementById('resultUrl').textContent = url;
     document.getElementById('resultBox').classList.add('show');
@@ -857,6 +980,32 @@
   }
 
   function openUrl() { if (generatedUrl) window.open(generatedUrl, '_blank'); }
+
+  function downloadUrl() {
+    if (!generatedUrl) return;
+    const btn = document.querySelector('.btn-download');
+    btn.textContent = 'Downloading...';
+    btn.disabled = true;
+    fetch(generatedUrl)
+      .then(r => { if (!r.ok) throw new Error('Failed'); return r.blob(); })
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = generatedUrl.split('/').pop();
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        btn.textContent = 'Downloaded!';
+        setTimeout(() => { btn.textContent = '⬇ Download'; btn.disabled = false; }, 2000);
+      })
+      .catch(() => {
+        btn.textContent = '⬇ Download';
+        btn.disabled = false;
+        window.open(generatedUrl, '_blank');
+      });
+  }
 
   function copyUrl() {
     if (!generatedUrl) return;
@@ -877,7 +1026,10 @@
   function hideResult() {
     document.getElementById('resultBox').classList.remove('show');
     document.getElementById('errorMsg').classList.remove('show');
+    clearFieldErrors();
   }
+
+  renderRecent();
 </script>
 </body>
 </html>
