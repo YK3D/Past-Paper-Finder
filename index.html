@@ -3,7 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Past Paper Finder</title>
+<title>Past Paper Finder — by Youssef Karim</title>
+
+<!-- SEO Meta -->
+<meta name="description" content="Find and open CAIE & AQA past papers and mark schemes instantly. Made by Youssef Karim.">
+<meta name="author" content="Youssef Karim">
+<meta name="robots" content="index, follow">
+<meta name="keywords" content="past papers, CAIE, AQA, Cambridge, Oxford, mark scheme, question paper, O level, A level, IGCSE, GCE, past paper finder, exam papers, revision, past paper generator, CAIE past papers, AQA past papers, Cambridge past papers, Oxford past papers, past paper link, past paper URL, past paper PDF, exam revision, A level past papers, IGCSE past papers, O level past papers, AS level past papers, A2 past papers, Cambridge International, Cambridge Assessment, AQA mark scheme, CAIE mark scheme, question paper download, mark scheme download, papacambridge, past paper search, exam board, exam session, May June, October November, February March, variant, subject code, 9709, 0417, 0580, 0620, 0610, 0625, 9701, 9702, 9706, 9707, 9708, 0450, 0455, 0460, 0470, 0478, 0500, 0510, 0520, 0522, 0524, 0526, 0540, 0544, 0546, 0547, 0549, 0550, 0557, 0560, 0570, 0574, 0575, 0580, 0581, 0582, 0600, 0610, 0620, 0625, 0627, 0628, 0629, 0630, 0640, 0648, 0650, 0652, 0653, 0654, 0655, 0657, 0660, 0680, 0700, 0705, 0706, 0707, 0708, 0710, 0715, 0720, 0721, 0725, 0730, 0736, 0737, 0740, 0743, 0744, 0745, 0746, 0747, 0748, 0749, 0750, 0755, 0760, 0765, 0770, 0772, 0775, 0779, 0780, 0781, 0785, 0786, 0787, 0790, 0794, 0800, 0803, 0804, 0805, 0806, 0808, 0809, 0810, 0814, 0816, 0817, 0818, 0819, 0820, 0821, 0825, 0827, 0830, 0832, 0833, 0834, 0836, 0837, 0838, 0841, 0842, 0843, 0844, 0845, 0848, 0849, 0850, 0854, 0855, 0856, 0858, 0859, 0860, 0861, 0862, 0863, 0864, 0865, 0866, 0867, 0868, 0869, 0870, 0871, 0875, 0876, 0877, 0878, 0880, 0882, 0883, 0884, 0885, 0886, 0887, 0888, 0890, 0891, 0892, 0893, 0894, 0895, 0896, 0897, 0898, 0899, 0900, A level biology, A level chemistry, A level physics, A level maths, A level further maths, A level economics, A level business, A level history, A level geography, A level psychology, A level sociology, A level english, A level computer science, IGCSE maths, IGCSE english, IGCSE biology, IGCSE chemistry, IGCSE physics, IGCSE computer science, IGCSE history, IGCSE geography, IGCSE economics, IGCSE business, exam preparation, exam practice, revision tool, student tool, past paper tool, free past papers, past paper website, past paper app, paper finder, paper search, grade boundaries, exam tips, exam help, student revision, GCSE revision, A level revision, university entrance, Cambridge university, Oxford university, international baccalaureate, IB, exam season, May June 2024, October November 2024, February March 2024, May June 2023, October November 2023, qp, ms, variant 1, variant 2, variant 3, variant 11, variant 12, variant 13, variant 21, variant 22, variant 23, variant 31, variant 32, variant 33">
+
+<!-- Open Graph (link preview for WhatsApp, Facebook, Discord, etc.) -->
+<meta property="og:title" content="Past Paper Finder — by Youssef Karim">
+<meta property="og:description" content="Made by Youssef Karim. Open CAIE & AQA past papers and mark schemes as PDFs in one click.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://past-paper-finder.vercel.app/">
+<meta property="og:image" content="https://past-paper-finder.vercel.app/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Past Paper Finder — by Youssef Karim">
+<meta name="twitter:description" content="Made by Youssef Karim. Open CAIE & AQA past papers and mark schemes as PDFs in one click.">
+<meta name="twitter:image" content="https://past-paper-finder.vercel.app/og-image.png">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0a0f'/%3E%3Crect x='7' y='5' width='13' height='17' rx='2' fill='none' stroke='%2300e5ff' stroke-width='1.8'/%3E%3Cline x1='10' y1='10' x2='17' y2='10' stroke='%2300e5ff' stroke-width='1.4' stroke-linecap='round'/%3E%3Cline x1='10' y1='13.5' x2='17' y2='13.5' stroke='%2300e5ff' stroke-width='1.4' stroke-linecap='round'/%3E%3Cline x1='10' y1='17' x2='14' y2='17' stroke='%2300e5ff' stroke-width='1.4' stroke-linecap='round'/%3E%3Ccircle cx='22' cy='23' r='5' fill='%23ff4d6d'/%3E%3Cline x1='22' y1='20.5' x2='22' y2='23' stroke='white' stroke-width='1.5' stroke-linecap='round'/%3E%3Ccircle cx='22' cy='23' r='1' fill='white'/%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -280,7 +302,7 @@
       <!-- Subject Code -->
       <div class="field">
         <label>Subject Code</label>
-        <input type="text" id="code" placeholder="e.g. 0417" maxlength="10" />
+        <input type="text" id="code" placeholder="e.g. 0417" maxlength="10" inputmode="numeric" />
       </div>
 
       <div class="row-2">
@@ -296,7 +318,7 @@
         <!-- Year -->
         <div class="field">
           <label>Year (last 2 digits)</label>
-          <input type="text" id="year" placeholder="e.g. 23" maxlength="2" />
+          <input type="text" id="year" placeholder="e.g. 23" maxlength="2" inputmode="numeric" />
         </div>
       </div>
 
@@ -304,7 +326,7 @@
         <!-- Variant -->
         <div class="field">
           <label>Variant</label>
-          <input type="text" id="variant" placeholder="e.g. 31" maxlength="2" />
+          <input type="text" id="variant" placeholder="e.g. 31" maxlength="2" inputmode="numeric" />
         </div>
 
         <!-- QP / MS -->
@@ -354,7 +376,7 @@
     sessionSel.innerHTML = '<option value="">— Select —</option>';
 
     if (board === 'CAIE') {
-      [['O/N (Oct/Nov)', 's'], ['M/J (May/Jun)', 'm'], ['F/M (Feb/Mar)', 'w']].forEach(([label, val]) => {
+      [['M/J (May/Jun)', 's'], ['F/M (Feb/Mar)', 'm'], ['O/N (Oct/Nov)', 'w']].forEach(([label, val]) => {
         sessionSel.innerHTML += `<option value="${val}">${label}</option>`;
       });
     } else if (board === 'AQA') {
