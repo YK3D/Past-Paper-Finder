@@ -1179,12 +1179,7 @@
       list.unshift(url); list = list.slice(0,5);
       localStorage.setItem('pp_recent', JSON.stringify(list));
     } catch {}
-    recentOpen = true;
     renderRecent();
-    const el = document.getElementById('recentList');
-    if (el) el.style.display = 'flex';
-    const chev = document.getElementById('recentChevron');
-    if (chev) chev.textContent = '▾';
   }
   function clearRecent() { try { localStorage.removeItem('pp_recent'); } catch {} renderRecent(); }
   function toggleRecent() {
@@ -1382,6 +1377,7 @@
     void rb.offsetWidth; // force reflow
     rb.classList.add('show');
     rb.classList.add('animating');
+    setTimeout(() => rb.scrollIntoView({ behavior: 'smooth', block: 'end' }), 50);
 
     // Check PDF exists via server-side proxy (avoids CORS)
     const btn = document.querySelector('.btn-generate');
