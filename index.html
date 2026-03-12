@@ -1377,7 +1377,7 @@
     void rb.offsetWidth; // force reflow
     rb.classList.add('show');
     rb.classList.add('animating');
-    setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 50);
+    setTimeout(() => smoothScrollToBottom(2000), 50);
 
     // Check PDF exists via server-side proxy (avoids CORS)
     const btn = document.querySelector('.btn-generate');
@@ -1426,6 +1426,24 @@
       generate();
     });
   })();
+
+  function smoothScrollToBottom(duration) {
+    const start = window.scrollY;
+    const end = document.body.scrollHeight;
+    const dist = end - start;
+    if (dist <= 0) return;
+    const startTime = performance.now();
+    function easeInOutSine(t) {
+      return -(Math.cos(Math.PI * t) - 1) / 2;
+    }
+    function step(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      window.scrollTo(0, start + dist * easeInOutSine(progress));
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
 
   function openUrl() { if (generatedUrl) { haptic('light'); window.open(generatedUrl, '_blank'); } }
 
