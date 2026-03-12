@@ -540,6 +540,20 @@
     letter-spacing: 0.12em;
     color: #3a3a55;
   }
+
+  .header-top-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.1rem;
+  }
+  .header-top-row .header-logo {
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .header-title-row .header-logo { display: none; }
 </style>
 </head>
 <body>
@@ -548,9 +562,11 @@
 <div id="main-view" class="active">
   <div class="container">
     <header>
-      <p class="label-top">Past Paper Retrieval</p>
-      <div class="header-title-row">
+      <div class="header-top-row">
         <img src="/favicon.png" class="header-logo" alt="logo">
+        <p class="label-top">Past Paper Retrieval</p>
+      </div>
+      <div class="header-title-row">
         <h1>Paper<span>Finder</span></h1>
         <span class="header-byline">by Youssef Karim</span>
       </div>
