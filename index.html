@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -7,14 +6,12 @@
 <title>Past Paper Finder — by Youssef Karim</title>
 
 <!-- SEO Meta -->
-
 <meta name="description" content="Find and open CAIE & AQA past papers and mark schemes instantly. Made by Youssef Karim.">
 <meta name="author" content="Youssef Karim">
 <meta name="robots" content="index, follow">
 <meta name="keywords" content="past papers, CAIE, AQA, Cambridge, Oxford, mark scheme, question paper, O level, A level, IGCSE, GCE, past paper finder, exam papers, revision, past paper generator, CAIE past papers, AQA past papers, Cambridge past papers, Oxford past papers, past paper link, past paper URL, past paper PDF, exam revision, A level past papers, IGCSE past papers, O level past papers, AS level past papers, A2 past papers, Cambridge International, Cambridge Assessment, AQA mark scheme, CAIE mark scheme, question paper download, mark scheme download, papacambridge, past paper search, exam board, exam session, May June, October November, February March, variant, subject code, 9709, 0417, 0580, 0620, 0610, 0625, 9701, 9702, 9706, 9708, 0450, 0455, 0460, 0470, 0478, 0500, 0510, 0520, 0544, 0546, 0547, 0606, 0607, 0610, 0620, 0625, 0648, 0653, 0654, 0680, A level biology, A level chemistry, A level physics, A level maths, A level further maths, A level economics, A level business, A level history, A level geography, A level psychology, A level sociology, A level english, A level computer science, IGCSE maths, IGCSE english, IGCSE biology, IGCSE chemistry, IGCSE physics, IGCSE computer science, IGCSE history, IGCSE geography, IGCSE economics, IGCSE business, exam preparation, exam practice, revision tool, student tool, past paper tool, free past papers, past paper website, past paper app, paper finder, paper search, grade boundaries, exam tips, exam help, student revision, GCSE revision, A level revision, university entrance, Cambridge university, Oxford university, exam season, May June 2024, October November 2024, February March 2024, May June 2023, October November 2023, qp, ms, variant 1, variant 2, variant 3, variant 11, variant 12, variant 13, variant 21, variant 22, variant 23, variant 31, variant 32, variant 33">
 
 <!-- Open Graph -->
-
 <meta property="og:title" content="Past Paper Finder — by Youssef Karim">
 <meta property="og:description" content="Made by Youssef Karim. Open CAIE & AQA past papers and mark schemes as PDFs in one click.">
 <meta property="og:type" content="website">
@@ -511,12 +508,10 @@
 
 
 </style>
-
 </head>
 <body>
 
 <!-- \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 MAIN VIEW \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 -->
-
 <div id="main-view" class="active">
   <div class="container">
     <header>
@@ -525,91 +520,88 @@
       <p class="subtitle">// Generate &amp; open past paper PDFs instantly</p>
     </header>
 
-```
-<div class="card">
-  <div class="field-group">
+    <div class="card">
+      <div class="field-group">
 
-    <div class="field">
-      <label>Exam Board</label>
-      <select id="board" onchange="onBoardChange()">
-        <option value="">— Select —</option>
-        <option value="CAIE">CAIE (Cambridge)</option>
-        <option value="AQA">AQA (Oxford)</option>
-      </select>
-    </div>
+        <div class="field">
+          <label>Exam Board</label>
+          <select id="board" onchange="onBoardChange()">
+            <option value="">— Select —</option>
+            <option value="CAIE">CAIE (Cambridge)</option>
+            <option value="AQA">AQA (Oxford)</option>
+          </select>
+        </div>
 
-    <div class="field" style="position:relative">
-      <label>
-        <span>Subject Code</span>
-        <button class="find-code-btn" onclick="showCodes()">Don't know your code? Find it here</button>
-      </label>
-      <input type="text" id="code" placeholder="e.g. 0417" maxlength="4" inputmode="numeric" oninput="onCodeInput()" onkeydown="onCodeKeydown(event)" onblur="hideSuggestions(event)" />
-      <div class="subject-name-tag" id="subjectNameTag"></div>
-      <div class="did-you-mean" id="didYouMeanTag" style="display:none"></div>
-      <div class="code-suggestions" id="codeSuggestions"></div>
-    </div>
+        <div class="field" style="position:relative">
+          <label>
+            <span>Subject Code</span>
+            <button class="find-code-btn" onclick="showCodes()">Don't know your code? Find it here</button>
+          </label>
+          <input type="text" id="code" placeholder="e.g. 0417" maxlength="4" inputmode="numeric" oninput="onCodeInput()" onkeydown="onCodeKeydown(event)" onblur="hideSuggestions(event)" />
+          <div class="subject-name-tag" id="subjectNameTag"></div>
+          <div class="did-you-mean" id="didYouMeanTag" style="display:none"></div>
+          <div class="code-suggestions" id="codeSuggestions"></div>
+        </div>
 
-    <div class="row-2">
-      <div class="field">
-        <label>Session</label>
-        <select id="session">
-          <option value="">— Select —</option>
-        </select>
+        <div class="row-2">
+          <div class="field">
+            <label>Session</label>
+            <select id="session">
+              <option value="">— Select —</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Year (last 2 digits)</label>
+            <input type="text" id="year" placeholder="e.g. 23" maxlength="2" inputmode="numeric" />
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label>Variant</label>
+            <input type="text" id="variant" placeholder="e.g. 31" maxlength="2" inputmode="numeric" />
+          </div>
+          <div class="field">
+            <label>Paper Type</label>
+            <select id="papertype" onchange="onPapertypeChange()">
+              <option value="">— Select —</option>
+              <option value="qp">Question Paper (QP)</option>
+              <option value="ms">Mark Scheme (MS)</option>
+              <option value="gt">Grade Thresholds (GT)</option>
+            </select>
+          </div>
+        </div>
+
       </div>
-      <div class="field">
-        <label>Year (last 2 digits)</label>
-        <input type="text" id="year" placeholder="e.g. 23" maxlength="2" inputmode="numeric" />
+
+      <div class="divider"></div>
+
+      <button class="btn-generate" onclick="generate()">Generate Link</button>
+
+      <div class="error-msg" id="errorMsg"></div>
+
+      <div class="result-box" id="resultBox">
+        <p class="result-label">✓ URL Generated</p>
+        <p class="result-url" id="resultUrl"></p>
+        <div class="result-actions">
+          <button class="btn-open" onclick="openUrl()">Open in Browser</button>
+          <button class="btn-copy" onclick="copyUrl()">Copy URL</button>
+          <button class="btn-download" onclick="downloadUrl()">&#8659; Download</button>
+        </div>
       </div>
     </div>
 
-    <div class="row-2">
-      <div class="field">
-        <label>Variant</label>
-        <input type="text" id="variant" placeholder="e.g. 31" maxlength="2" inputmode="numeric" />
-      </div>
-      <div class="field">
-        <label>Paper Type</label>
-        <select id="papertype" onchange="onPapertypeChange()">
-          <option value="">— Select —</option>
-          <option value="qp">Question Paper (QP)</option>
-          <option value="ms">Mark Scheme (MS)</option>
-          <option value="gt">Grade Thresholds (GT)</option>
-        </select>
+      <div class="recent-box" id="recentBox">
+        <div class="recent-label" onclick="toggleRecent()" style="cursor:pointer; user-select:none;">
+          <span style="display:flex; align-items:center; gap:0.4rem;">
+            <span class="recent-chevron" id="recentChevron">▸</span>
+            <span>Recent Searches</span>
+          </span>
+          <button class="recent-clear" onclick="event.stopPropagation(); clearRecent()">Clear</button>
+        </div>
+        <div class="recent-list" id="recentList" style="display:none;"></div>
       </div>
     </div>
-
-  </div>
-
-  <div class="divider"></div>
-
-  <button class="btn-generate" onclick="generate()">Generate Link</button>
-
-  <div class="error-msg" id="errorMsg"></div>
-
-  <div class="result-box" id="resultBox">
-    <p class="result-label">✓ URL Generated</p>
-    <p class="result-url" id="resultUrl"></p>
-    <div class="result-actions">
-      <button class="btn-open" onclick="openUrl()">Open in Browser</button>
-      <button class="btn-copy" onclick="copyUrl()">Copy URL</button>
-      <button class="btn-download" onclick="downloadUrl()">&#8659; Download</button>
-    </div>
-  </div>
-</div>
-
-  <div class="recent-box" id="recentBox">
-    <div class="recent-label" onclick="toggleRecent()" style="cursor:pointer; user-select:none;">
-      <span style="display:flex; align-items:center; gap:0.4rem;">
-        <span class="recent-chevron" id="recentChevron">▸</span>
-        <span>Recent Searches</span>
-      </span>
-      <button class="recent-clear" onclick="event.stopPropagation(); clearRecent()">Clear</button>
-    </div>
-    <div class="recent-list" id="recentList" style="display:none;"></div>
-  </div>
-</div>
-```
-
   </div>
 
   <footer style="margin-top:2rem; text-align:center; font-familymonospace; font-size:0.8rem; font-weight:700; letter-spacing:0.12em; color:#3a3a55;">
@@ -618,7 +610,6 @@
 </div>
 
 <!-- \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 CODES VIEW \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 -->
-
 <div id="codes-view">
   <div class="top-bar">
     <button class="back-btn" onclick="showMain()">← Back</button>
@@ -631,159 +622,157 @@
 
   <div class="codes-grid">
 
-```
-<!-- CAIE -->
-<div class="codes-section caie-sec">
-  <div class="sec-header">
-    <div class="sec-title">CAIE — Cambridge</div>
-    <div class="sec-sub">IGCSE \u00b7 O Level \u00b7 AS Level \u00b7 A Level</div>
-  </div>
+    <!-- CAIE -->
+    <div class="codes-section caie-sec">
+      <div class="sec-header">
+        <div class="sec-title">CAIE — Cambridge</div>
+        <div class="sec-sub">IGCSE \u00b7 O Level \u00b7 AS Level \u00b7 A Level</div>
+      </div>
 
-  <div class="cat-label">Cambridge IGCSE</div>
-  <table class="code-table">
-    <tr onclick="useCode('0408')"><td class="c-code">0408</td><td class="c-name">World Literature</td></tr>
-    <tr onclick="useCode('0410')"><td class="c-code">0410</td><td class="c-name">Music (Listening)</td></tr>
-    <tr onclick="useCode('0411')"><td class="c-code">0411</td><td class="c-name">Drama</td></tr>
-    <tr onclick="useCode('0413')"><td class="c-code">0413</td><td class="c-name">Physical Education</td></tr>
-    <tr onclick="useCode('0417')"><td class="c-code">0417</td><td class="c-name">Information &amp; Communication Technology</td></tr>
-    <tr onclick="useCode('0445')"><td class="c-code">0445</td><td class="c-name">Design &amp; Technology</td></tr>
-    <tr onclick="useCode('0450')"><td class="c-code">0450</td><td class="c-name">Business Studies</td></tr>
-    <tr onclick="useCode('0452')"><td class="c-code">0452</td><td class="c-name">Accounting</td></tr>
-    <tr onclick="useCode('0454')"><td class="c-code">0454</td><td class="c-name">Enterprise</td></tr>
-    <tr onclick="useCode('0455')"><td class="c-code">0455</td><td class="c-name">Economics</td></tr>
-    <tr onclick="useCode('0457')"><td class="c-code">0457</td><td class="c-name">Global Perspectives</td></tr>
-    <tr onclick="useCode('0460')"><td class="c-code">0460</td><td class="c-name">Geography</td></tr>
-    <tr onclick="useCode('0470')"><td class="c-code">0470</td><td class="c-name">History</td></tr>
-    <tr onclick="useCode('0471')"><td class="c-code">0471</td><td class="c-name">Travel &amp; Tourism</td></tr>
-    <tr onclick="useCode('0478')"><td class="c-code">0478</td><td class="c-name">Computer Science</td></tr>
-    <tr onclick="useCode('0480')"><td class="c-code">0480</td><td class="c-name">Latin</td></tr>
-    <tr onclick="useCode('0493')"><td class="c-code">0493</td><td class="c-name">Islamiyat</td></tr>
-    <tr onclick="useCode('0495')"><td class="c-code">0495</td><td class="c-name">Sociology</td></tr>
-    <tr onclick="useCode('0500')"><td class="c-code">0500</td><td class="c-name">First Language English</td></tr>
-    <tr onclick="useCode('0502')"><td class="c-code">0502</td><td class="c-name">First Language Spanish</td></tr>
-    <tr onclick="useCode('0509')"><td class="c-code">0509</td><td class="c-name">First Language Chinese</td></tr>
-    <tr onclick="useCode('0510')"><td class="c-code">0510</td><td class="c-name">English as a Second Language (Speaking Endorsement)</td></tr>
-    <tr onclick="useCode('0511')"><td class="c-code">0511</td><td class="c-name">English as a Second Language (Count-in Speaking)</td></tr>
-    <tr onclick="useCode('0520')"><td class="c-code">0520</td><td class="c-name">French</td></tr>
-    <tr onclick="useCode('0525')"><td class="c-code">0525</td><td class="c-name">German</td></tr>
-    <tr onclick="useCode('0530')"><td class="c-code">0530</td><td class="c-name">Spanish</td></tr>
-    <tr onclick="useCode('0547')"><td class="c-code">0547</td><td class="c-name">Mandarin Chinese</td></tr>
-    <tr onclick="useCode('0580')"><td class="c-code">0580</td><td class="c-name">Mathematics</td></tr>
-    <tr onclick="useCode('0606')"><td class="c-code">0606</td><td class="c-name">Additional Mathematics</td></tr>
-    <tr onclick="useCode('0607')"><td class="c-code">0607</td><td class="c-name">Cambridge International Mathematics</td></tr>
-    <tr onclick="useCode('0610')"><td class="c-code">0610</td><td class="c-name">Biology</td></tr>
-    <tr onclick="useCode('0620')"><td class="c-code">0620</td><td class="c-name">Chemistry</td></tr>
-    <tr onclick="useCode('0625')"><td class="c-code">0625</td><td class="c-name">Physics</td></tr>
-    <tr onclick="useCode('0648')"><td class="c-code">0648</td><td class="c-name">Food &amp; Nutrition</td></tr>
-    <tr onclick="useCode('0653')"><td class="c-code">0653</td><td class="c-name">Combined Science</td></tr>
-    <tr onclick="useCode('0654')"><td class="c-code">0654</td><td class="c-name">Co-ordinated Sciences (Double Award)</td></tr>
-    <tr onclick="useCode('0680')"><td class="c-code">0680</td><td class="c-name">Environmental Management</td></tr>
-  </table>
+      <div class="cat-label">Cambridge IGCSE</div>
+      <table class="code-table">
+        <tr onclick="useCode('0408')"><td class="c-code">0408</td><td class="c-name">World Literature</td></tr>
+        <tr onclick="useCode('0410')"><td class="c-code">0410</td><td class="c-name">Music (Listening)</td></tr>
+        <tr onclick="useCode('0411')"><td class="c-code">0411</td><td class="c-name">Drama</td></tr>
+        <tr onclick="useCode('0413')"><td class="c-code">0413</td><td class="c-name">Physical Education</td></tr>
+        <tr onclick="useCode('0417')"><td class="c-code">0417</td><td class="c-name">Information &amp; Communication Technology</td></tr>
+        <tr onclick="useCode('0445')"><td class="c-code">0445</td><td class="c-name">Design &amp; Technology</td></tr>
+        <tr onclick="useCode('0450')"><td class="c-code">0450</td><td class="c-name">Business Studies</td></tr>
+        <tr onclick="useCode('0452')"><td class="c-code">0452</td><td class="c-name">Accounting</td></tr>
+        <tr onclick="useCode('0454')"><td class="c-code">0454</td><td class="c-name">Enterprise</td></tr>
+        <tr onclick="useCode('0455')"><td class="c-code">0455</td><td class="c-name">Economics</td></tr>
+        <tr onclick="useCode('0457')"><td class="c-code">0457</td><td class="c-name">Global Perspectives</td></tr>
+        <tr onclick="useCode('0460')"><td class="c-code">0460</td><td class="c-name">Geography</td></tr>
+        <tr onclick="useCode('0470')"><td class="c-code">0470</td><td class="c-name">History</td></tr>
+        <tr onclick="useCode('0471')"><td class="c-code">0471</td><td class="c-name">Travel &amp; Tourism</td></tr>
+        <tr onclick="useCode('0478')"><td class="c-code">0478</td><td class="c-name">Computer Science</td></tr>
+        <tr onclick="useCode('0480')"><td class="c-code">0480</td><td class="c-name">Latin</td></tr>
+        <tr onclick="useCode('0493')"><td class="c-code">0493</td><td class="c-name">Islamiyat</td></tr>
+        <tr onclick="useCode('0495')"><td class="c-code">0495</td><td class="c-name">Sociology</td></tr>
+        <tr onclick="useCode('0500')"><td class="c-code">0500</td><td class="c-name">First Language English</td></tr>
+        <tr onclick="useCode('0502')"><td class="c-code">0502</td><td class="c-name">First Language Spanish</td></tr>
+        <tr onclick="useCode('0509')"><td class="c-code">0509</td><td class="c-name">First Language Chinese</td></tr>
+        <tr onclick="useCode('0510')"><td class="c-code">0510</td><td class="c-name">English as a Second Language (Speaking Endorsement)</td></tr>
+        <tr onclick="useCode('0511')"><td class="c-code">0511</td><td class="c-name">English as a Second Language (Count-in Speaking)</td></tr>
+        <tr onclick="useCode('0520')"><td class="c-code">0520</td><td class="c-name">French</td></tr>
+        <tr onclick="useCode('0525')"><td class="c-code">0525</td><td class="c-name">German</td></tr>
+        <tr onclick="useCode('0530')"><td class="c-code">0530</td><td class="c-name">Spanish</td></tr>
+        <tr onclick="useCode('0547')"><td class="c-code">0547</td><td class="c-name">Mandarin Chinese</td></tr>
+        <tr onclick="useCode('0580')"><td class="c-code">0580</td><td class="c-name">Mathematics</td></tr>
+        <tr onclick="useCode('0606')"><td class="c-code">0606</td><td class="c-name">Additional Mathematics</td></tr>
+        <tr onclick="useCode('0607')"><td class="c-code">0607</td><td class="c-name">Cambridge International Mathematics</td></tr>
+        <tr onclick="useCode('0610')"><td class="c-code">0610</td><td class="c-name">Biology</td></tr>
+        <tr onclick="useCode('0620')"><td class="c-code">0620</td><td class="c-name">Chemistry</td></tr>
+        <tr onclick="useCode('0625')"><td class="c-code">0625</td><td class="c-name">Physics</td></tr>
+        <tr onclick="useCode('0648')"><td class="c-code">0648</td><td class="c-name">Food &amp; Nutrition</td></tr>
+        <tr onclick="useCode('0653')"><td class="c-code">0653</td><td class="c-name">Combined Science</td></tr>
+        <tr onclick="useCode('0654')"><td class="c-code">0654</td><td class="c-name">Co-ordinated Sciences (Double Award)</td></tr>
+        <tr onclick="useCode('0680')"><td class="c-code">0680</td><td class="c-name">Environmental Management</td></tr>
+      </table>
 
-  <div class="cat-label">Cambridge O Level</div>
-  <table class="code-table">
-    <tr onclick="useCode('2010')"><td class="c-code">2010</td><td class="c-name">Literature in English</td></tr>
-    <tr onclick="useCode('2058')"><td class="c-code">2058</td><td class="c-name">Islamiyat</td></tr>
-    <tr onclick="useCode('2069')"><td class="c-code">2069</td><td class="c-name">Global Perspectives</td></tr>
-    <tr onclick="useCode('2251')"><td class="c-code">2251</td><td class="c-name">Sociology</td></tr>
-    <tr onclick="useCode('2281')"><td class="c-code">2281</td><td class="c-name">Economics</td></tr>
-    <tr onclick="useCode('4024')"><td class="c-code">4024</td><td class="c-name">Mathematics Syllabus D</td></tr>
-    <tr onclick="useCode('4037')"><td class="c-code">4037</td><td class="c-name">Additional Mathematics</td></tr>
-    <tr onclick="useCode('5014')"><td class="c-code">5014</td><td class="c-name">Environmental Management</td></tr>
-    <tr onclick="useCode('5054')"><td class="c-code">5054</td><td class="c-name">Physics</td></tr>
-    <tr onclick="useCode('5070')"><td class="c-code">5070</td><td class="c-name">Chemistry</td></tr>
-    <tr onclick="useCode('5090')"><td class="c-code">5090</td><td class="c-name">Biology</td></tr>
-    <tr onclick="useCode('6065')"><td class="c-code">6065</td><td class="c-name">Food &amp; Nutrition</td></tr>
-    <tr onclick="useCode('7100')"><td class="c-code">7100</td><td class="c-name">Commerce</td></tr>
-    <tr onclick="useCode('7115')"><td class="c-code">7115</td><td class="c-name">Business Studies</td></tr>
-  </table>
+      <div class="cat-label">Cambridge O Level</div>
+      <table class="code-table">
+        <tr onclick="useCode('2010')"><td class="c-code">2010</td><td class="c-name">Literature in English</td></tr>
+        <tr onclick="useCode('2058')"><td class="c-code">2058</td><td class="c-name">Islamiyat</td></tr>
+        <tr onclick="useCode('2069')"><td class="c-code">2069</td><td class="c-name">Global Perspectives</td></tr>
+        <tr onclick="useCode('2251')"><td class="c-code">2251</td><td class="c-name">Sociology</td></tr>
+        <tr onclick="useCode('2281')"><td class="c-code">2281</td><td class="c-name">Economics</td></tr>
+        <tr onclick="useCode('4024')"><td class="c-code">4024</td><td class="c-name">Mathematics Syllabus D</td></tr>
+        <tr onclick="useCode('4037')"><td class="c-code">4037</td><td class="c-name">Additional Mathematics</td></tr>
+        <tr onclick="useCode('5014')"><td class="c-code">5014</td><td class="c-name">Environmental Management</td></tr>
+        <tr onclick="useCode('5054')"><td class="c-code">5054</td><td class="c-name">Physics</td></tr>
+        <tr onclick="useCode('5070')"><td class="c-code">5070</td><td class="c-name">Chemistry</td></tr>
+        <tr onclick="useCode('5090')"><td class="c-code">5090</td><td class="c-name">Biology</td></tr>
+        <tr onclick="useCode('6065')"><td class="c-code">6065</td><td class="c-name">Food &amp; Nutrition</td></tr>
+        <tr onclick="useCode('7100')"><td class="c-code">7100</td><td class="c-name">Commerce</td></tr>
+        <tr onclick="useCode('7115')"><td class="c-code">7115</td><td class="c-name">Business Studies</td></tr>
+      </table>
 
-  <div class="cat-label">Cambridge AS Level</div>
-  <table class="code-table">
-    <tr onclick="useCode('8291')"><td class="c-code">8291</td><td class="c-name">Environmental Management</td></tr>
-    <tr onclick="useCode('8695')"><td class="c-code">8695</td><td class="c-name">Language &amp; Literature in English</td></tr>
-  </table>
+      <div class="cat-label">Cambridge AS Level</div>
+      <table class="code-table">
+        <tr onclick="useCode('8291')"><td class="c-code">8291</td><td class="c-name">Environmental Management</td></tr>
+        <tr onclick="useCode('8695')"><td class="c-code">8695</td><td class="c-name">Language &amp; Literature in English</td></tr>
+      </table>
 
-  <div class="cat-label">Cambridge A Level</div>
-  <table class="code-table">
-    <tr onclick="useCode('9084')"><td class="c-code">9084</td><td class="c-name">Law</td></tr>
-    <tr onclick="useCode('9093')"><td class="c-code">9093</td><td class="c-name">English Language</td></tr>
-    <tr onclick="useCode('9231')"><td class="c-code">9231</td><td class="c-name">Further Mathematics</td></tr>
-    <tr onclick="useCode('9239')"><td class="c-code">9239</td><td class="c-name">Global Perspectives &amp; Research</td></tr>
-    <tr onclick="useCode('9395')"><td class="c-code">9395</td><td class="c-name">Travel &amp; Tourism</td></tr>
-    <tr onclick="useCode('9607')"><td class="c-code">9607</td><td class="c-name">Media Studies</td></tr>
-    <tr onclick="useCode('9609')"><td class="c-code">9609</td><td class="c-name">Business</td></tr>
-    <tr onclick="useCode('9626')"><td class="c-code">9626</td><td class="c-name">Information Technology</td></tr>
-    <tr onclick="useCode('9693')"><td class="c-code">9693</td><td class="c-name">Marine Science</td></tr>
-    <tr onclick="useCode('9694')"><td class="c-code">9694</td><td class="c-name">Thinking Skills</td></tr>
-    <tr onclick="useCode('9695')"><td class="c-code">9695</td><td class="c-name">Literature in English</td></tr>
-    <tr onclick="useCode('9696')"><td class="c-code">9696</td><td class="c-name">Geography</td></tr>
-    <tr onclick="useCode('9699')"><td class="c-code">9699</td><td class="c-name">Sociology</td></tr>
-    <tr onclick="useCode('9700')"><td class="c-code">9700</td><td class="c-name">Biology</td></tr>
-    <tr onclick="useCode('9701')"><td class="c-code">9701</td><td class="c-name">Chemistry</td></tr>
-    <tr onclick="useCode('9702')"><td class="c-code">9702</td><td class="c-name">Physics</td></tr>
-    <tr onclick="useCode('9706')"><td class="c-code">9706</td><td class="c-name">Accounting</td></tr>
-    <tr onclick="useCode('9708')"><td class="c-code">9708</td><td class="c-name">Economics</td></tr>
-    <tr onclick="useCode('9709')"><td class="c-code">9709</td><td class="c-name">Mathematics</td></tr>
-    <tr onclick="useCode('9990')"><td class="c-code">9990</td><td class="c-name">Psychology</td></tr>
-  </table>
-</div>
+      <div class="cat-label">Cambridge A Level</div>
+      <table class="code-table">
+        <tr onclick="useCode('9084')"><td class="c-code">9084</td><td class="c-name">Law</td></tr>
+        <tr onclick="useCode('9093')"><td class="c-code">9093</td><td class="c-name">English Language</td></tr>
+        <tr onclick="useCode('9231')"><td class="c-code">9231</td><td class="c-name">Further Mathematics</td></tr>
+        <tr onclick="useCode('9239')"><td class="c-code">9239</td><td class="c-name">Global Perspectives &amp; Research</td></tr>
+        <tr onclick="useCode('9395')"><td class="c-code">9395</td><td class="c-name">Travel &amp; Tourism</td></tr>
+        <tr onclick="useCode('9607')"><td class="c-code">9607</td><td class="c-name">Media Studies</td></tr>
+        <tr onclick="useCode('9609')"><td class="c-code">9609</td><td class="c-name">Business</td></tr>
+        <tr onclick="useCode('9626')"><td class="c-code">9626</td><td class="c-name">Information Technology</td></tr>
+        <tr onclick="useCode('9693')"><td class="c-code">9693</td><td class="c-name">Marine Science</td></tr>
+        <tr onclick="useCode('9694')"><td class="c-code">9694</td><td class="c-name">Thinking Skills</td></tr>
+        <tr onclick="useCode('9695')"><td class="c-code">9695</td><td class="c-name">Literature in English</td></tr>
+        <tr onclick="useCode('9696')"><td class="c-code">9696</td><td class="c-name">Geography</td></tr>
+        <tr onclick="useCode('9699')"><td class="c-code">9699</td><td class="c-name">Sociology</td></tr>
+        <tr onclick="useCode('9700')"><td class="c-code">9700</td><td class="c-name">Biology</td></tr>
+        <tr onclick="useCode('9701')"><td class="c-code">9701</td><td class="c-name">Chemistry</td></tr>
+        <tr onclick="useCode('9702')"><td class="c-code">9702</td><td class="c-name">Physics</td></tr>
+        <tr onclick="useCode('9706')"><td class="c-code">9706</td><td class="c-name">Accounting</td></tr>
+        <tr onclick="useCode('9708')"><td class="c-code">9708</td><td class="c-name">Economics</td></tr>
+        <tr onclick="useCode('9709')"><td class="c-code">9709</td><td class="c-name">Mathematics</td></tr>
+        <tr onclick="useCode('9990')"><td class="c-code">9990</td><td class="c-name">Psychology</td></tr>
+      </table>
+    </div>
 
-<!-- AQA -->
-<div class="codes-section aqa-sec">
-  <div class="sec-header">
-    <div class="sec-title">AQA — Oxford (OxfordAQA)</div>
-    <div class="sec-sub">International GCSE \u00b7 AS &amp; A Level</div>
-  </div>
+    <!-- AQA -->
+    <div class="codes-section aqa-sec">
+      <div class="sec-header">
+        <div class="sec-title">AQA — Oxford (OxfordAQA)</div>
+        <div class="sec-sub">International GCSE \u00b7 AS &amp; A Level</div>
+      </div>
 
-  <div class="cat-label">International GCSE</div>
-  <table class="code-table">
-    <tr onclick="useCode('9201')"><td class="c-code">9201</td><td class="c-name">Biology</td></tr>
-    <tr onclick="useCode('9202')"><td class="c-code">9202</td><td class="c-name">Chemistry</td></tr>
-    <tr onclick="useCode('9203')"><td class="c-code">9203</td><td class="c-name">Physics</td></tr>
-    <tr onclick="useCode('9204')"><td class="c-code">9204</td><td class="c-name">Combined Science Double Award</td></tr>
-    <tr onclick="useCode('9210')"><td class="c-code">9210</td><td class="c-name">Computer Science</td></tr>
-    <tr onclick="useCode('9214')"><td class="c-code">9214</td><td class="c-name">Economics</td></tr>
-    <tr onclick="useCode('9215')"><td class="c-code">9215</td><td class="c-name">Accounting</td></tr>
-    <tr onclick="useCode('9218')"><td class="c-code">9218</td><td class="c-name">Psychology</td></tr>
-    <tr onclick="useCode('9221')"><td class="c-code">9221</td><td class="c-name">CORE Biology (Short Course)</td></tr>
-    <tr onclick="useCode('9222')"><td class="c-code">9222</td><td class="c-name">CORE Chemistry (Short Course)</td></tr>
-    <tr onclick="useCode('9223')"><td class="c-code">9223</td><td class="c-name">CORE Physics (Short Course)</td></tr>
-    <tr onclick="useCode('9225')"><td class="c-code">9225</td><td class="c-name">Business</td></tr>
-    <tr onclick="useCode('9230')"><td class="c-code">9230</td><td class="c-name">Geography</td></tr>
-    <tr onclick="useCode('9236')"><td class="c-code">9236</td><td class="c-name">Pakistan Studies</td></tr>
-    <tr onclick="useCode('9237')"><td class="c-code">9237</td><td class="c-name">Islamiat</td></tr>
-    <tr onclick="useCode('9252')"><td class="c-code">9252</td><td class="c-name">Design &amp; Technology: Product Design</td></tr>
-    <tr onclick="useCode('9257')"><td class="c-code">9257</td><td class="c-name">Media Studies</td></tr>
-    <tr onclick="useCode('9260')"><td class="c-code">9260</td><td class="c-name">Mathematics</td></tr>
-    <tr onclick="useCode('9264')"><td class="c-code">9264</td><td class="c-name">Urdu</td></tr>
-    <tr onclick="useCode('9265')"><td class="c-code">9265</td><td class="c-name">French</td></tr>
-    <tr onclick="useCode('9269')"><td class="c-code">9269</td><td class="c-name">Spanish</td></tr>
-    <tr onclick="useCode('9270')"><td class="c-code">9270</td><td class="c-name">English Language</td></tr>
-    <tr onclick="useCode('9275')"><td class="c-code">9275</td><td class="c-name">English Literature</td></tr>
-    <tr onclick="useCode('9280')"><td class="c-code">9280</td><td class="c-name">English as a Second Language</td></tr>
-    <tr onclick="useCode('9285')"><td class="c-code">9285</td><td class="c-name">CORE English as a Second Language (Short Course)</td></tr>
-    <tr onclick="useCode('9697')"><td class="c-code">9697</td><td class="c-name">Global Skills Projects</td></tr>
-  </table>
+      <div class="cat-label">International GCSE</div>
+      <table class="code-table">
+        <tr onclick="useCode('9201')"><td class="c-code">9201</td><td class="c-name">Biology</td></tr>
+        <tr onclick="useCode('9202')"><td class="c-code">9202</td><td class="c-name">Chemistry</td></tr>
+        <tr onclick="useCode('9203')"><td class="c-code">9203</td><td class="c-name">Physics</td></tr>
+        <tr onclick="useCode('9204')"><td class="c-code">9204</td><td class="c-name">Combined Science Double Award</td></tr>
+        <tr onclick="useCode('9210')"><td class="c-code">9210</td><td class="c-name">Computer Science</td></tr>
+        <tr onclick="useCode('9214')"><td class="c-code">9214</td><td class="c-name">Economics</td></tr>
+        <tr onclick="useCode('9215')"><td class="c-code">9215</td><td class="c-name">Accounting</td></tr>
+        <tr onclick="useCode('9218')"><td class="c-code">9218</td><td class="c-name">Psychology</td></tr>
+        <tr onclick="useCode('9221')"><td class="c-code">9221</td><td class="c-name">CORE Biology (Short Course)</td></tr>
+        <tr onclick="useCode('9222')"><td class="c-code">9222</td><td class="c-name">CORE Chemistry (Short Course)</td></tr>
+        <tr onclick="useCode('9223')"><td class="c-code">9223</td><td class="c-name">CORE Physics (Short Course)</td></tr>
+        <tr onclick="useCode('9225')"><td class="c-code">9225</td><td class="c-name">Business</td></tr>
+        <tr onclick="useCode('9230')"><td class="c-code">9230</td><td class="c-name">Geography</td></tr>
+        <tr onclick="useCode('9236')"><td class="c-code">9236</td><td class="c-name">Pakistan Studies</td></tr>
+        <tr onclick="useCode('9237')"><td class="c-code">9237</td><td class="c-name">Islamiat</td></tr>
+        <tr onclick="useCode('9252')"><td class="c-code">9252</td><td class="c-name">Design &amp; Technology: Product Design</td></tr>
+        <tr onclick="useCode('9257')"><td class="c-code">9257</td><td class="c-name">Media Studies</td></tr>
+        <tr onclick="useCode('9260')"><td class="c-code">9260</td><td class="c-name">Mathematics</td></tr>
+        <tr onclick="useCode('9264')"><td class="c-code">9264</td><td class="c-name">Urdu</td></tr>
+        <tr onclick="useCode('9265')"><td class="c-code">9265</td><td class="c-name">French</td></tr>
+        <tr onclick="useCode('9269')"><td class="c-code">9269</td><td class="c-name">Spanish</td></tr>
+        <tr onclick="useCode('9270')"><td class="c-code">9270</td><td class="c-name">English Language</td></tr>
+        <tr onclick="useCode('9275')"><td class="c-code">9275</td><td class="c-name">English Literature</td></tr>
+        <tr onclick="useCode('9280')"><td class="c-code">9280</td><td class="c-name">English as a Second Language</td></tr>
+        <tr onclick="useCode('9285')"><td class="c-code">9285</td><td class="c-name">CORE English as a Second Language (Short Course)</td></tr>
+        <tr onclick="useCode('9697')"><td class="c-code">9697</td><td class="c-name">Global Skills Projects</td></tr>
+      </table>
 
-  <div class="cat-label">International AS &amp; A Level</div>
-  <table class="code-table">
-    <tr onclick="useCode('9610')"><td class="c-code">9610</td><td class="c-name">Biology</td></tr>
-    <tr onclick="useCode('9615')"><td class="c-code">9615</td><td class="c-name">Accounting</td></tr>
-    <tr onclick="useCode('9620')"><td class="c-code">9620</td><td class="c-name">Chemistry</td></tr>
-    <tr onclick="useCode('9625')"><td class="c-code">9625</td><td class="c-name">Business</td></tr>
-    <tr onclick="useCode('9630')"><td class="c-code">9630</td><td class="c-name">Physics</td></tr>
-    <tr onclick="useCode('9635')"><td class="c-code">9635</td><td class="c-name">Geography</td></tr>
-    <tr onclick="useCode('9640')"><td class="c-code">9640</td><td class="c-name">Economics</td></tr>
-    <tr onclick="useCode('9645')"><td class="c-code">9645</td><td class="c-name">Computer Science</td></tr>
-    <tr onclick="useCode('9660')"><td class="c-code">9660</td><td class="c-name">Mathematics</td></tr>
-    <tr onclick="useCode('9665')"><td class="c-code">9665</td><td class="c-name">Further Mathematics</td></tr>
-    <tr onclick="useCode('9670')"><td class="c-code">9670</td><td class="c-name">English Language</td></tr>
-    <tr onclick="useCode('9675')"><td class="c-code">9675</td><td class="c-name">English Literature</td></tr>
-    <tr onclick="useCode('9685')"><td class="c-code">9685</td><td class="c-name">Psychology</td></tr>
-  </table>
-</div>
-```
+      <div class="cat-label">International AS &amp; A Level</div>
+      <table class="code-table">
+        <tr onclick="useCode('9610')"><td class="c-code">9610</td><td class="c-name">Biology</td></tr>
+        <tr onclick="useCode('9615')"><td class="c-code">9615</td><td class="c-name">Accounting</td></tr>
+        <tr onclick="useCode('9620')"><td class="c-code">9620</td><td class="c-name">Chemistry</td></tr>
+        <tr onclick="useCode('9625')"><td class="c-code">9625</td><td class="c-name">Business</td></tr>
+        <tr onclick="useCode('9630')"><td class="c-code">9630</td><td class="c-name">Physics</td></tr>
+        <tr onclick="useCode('9635')"><td class="c-code">9635</td><td class="c-name">Geography</td></tr>
+        <tr onclick="useCode('9640')"><td class="c-code">9640</td><td class="c-name">Economics</td></tr>
+        <tr onclick="useCode('9645')"><td class="c-code">9645</td><td class="c-name">Computer Science</td></tr>
+        <tr onclick="useCode('9660')"><td class="c-code">9660</td><td class="c-name">Mathematics</td></tr>
+        <tr onclick="useCode('9665')"><td class="c-code">9665</td><td class="c-name">Further Mathematics</td></tr>
+        <tr onclick="useCode('9670')"><td class="c-code">9670</td><td class="c-name">English Language</td></tr>
+        <tr onclick="useCode('9675')"><td class="c-code">9675</td><td class="c-name">English Literature</td></tr>
+        <tr onclick="useCode('9685')"><td class="c-code">9685</td><td class="c-name">Psychology</td></tr>
+      </table>
+    </div>
 
   </div>
 
@@ -1304,6 +1293,5 @@
 
   renderRecent();
 </script>
-
 </body>
 </html>
