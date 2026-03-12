@@ -41,6 +41,21 @@
     --muted: #6b6b85;
     --success: #00ffaa;
   }
+  body.light {
+    --bg: #f0f2f8;
+    --surface: #ffffff;
+    --border: #d0d4e8;
+    --accent: #0099bb;
+    --accent2: #e03050;
+    --text: #1a1a2e;
+    --muted: #7070a0;
+    --success: #009966;
+  }
+  body.light {
+    background-image:
+      radial-gradient(ellipse at 20% 20%, rgba(0,153,187,0.07) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(224,48,80,0.07) 0%, transparent 50%);
+  }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -52,6 +67,7 @@
     background-image:
       radial-gradient(ellipse at 20% 20%, rgba(0,229,255,0.05) 0%, transparent 50%),
       radial-gradient(ellipse at 80% 80%, rgba(255,77,109,0.05) 0%, transparent 50%);
+    transition: background 0.25s, color 0.25s;
   }
 
   /* \u2500\u2500 VIEWS \u2500\u2500 */
@@ -91,7 +107,7 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 2rem;
+    padding: 1.5rem;
     position: relative;
     overflow: hidden;
   }
@@ -103,7 +119,7 @@
     background: linear-gradient(90deg, var(--accent), var(--accent2));
   }
 
-  .field-group { display: grid; gap: 1.2rem; }
+  .field-group { display: grid; gap: 0.9rem; }
 
   .field { display: flex; flex-direction: column; gap: 0.4rem; }
 
@@ -118,19 +134,92 @@
     align-items: center;
   }
 
-  .find-code-btn {
+  .find-code-btn-below {
     font-family: 'Space Mono', monospace;
-    font-size: 0.62rem;
+    font-size: 0.65rem;
     color: var(--accent);
     background: none;
     border: none;
     cursor: pointer;
-    text-decoration: underline;
-    padding: 0;
-    letter-spacing: 0.05em;
-    text-transform: none;
+    padding: 0.3rem 0;
+    letter-spacing: 0.04em;
+    text-align: left;
+    opacity: 0.8;
+    margin-top: 0.3rem;
+    display: block;
   }
-  .find-code-btn:hover { opacity: 0.75; }
+  .find-code-btn-below:hover { opacity: 1; }
+
+  .field-hint {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--muted);
+    margin-top: 0.3rem;
+  }
+
+  .variant-tooltip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--border);
+    color: var(--muted);
+    font-size: 0.6rem;
+    cursor: help;
+    margin-left: 0.3rem;
+    font-style: normal;
+    vertical-align: middle;
+  }
+
+  /* ── Theme toggle ── */
+  .header-top-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.1rem;
+  }
+  .theme-toggle {
+    margin-left: auto;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    font-size: 0.9rem;
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    flex-shrink: 0;
+  }
+  .theme-toggle:hover { background: rgba(0,229,255,0.12); color: var(--accent); }
+
+  /* ── Share button ── */
+  .btn-share {
+    flex: 1; padding: 0.6rem; border-radius: 7px;
+    border: 1px solid var(--accent);
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    cursor: pointer; transition: opacity 0.2s;
+    background: transparent; color: var(--accent);
+  }
+  .btn-share:hover { opacity: 0.8; }
+
+  /* ── Spinner inside button ── */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .btn-spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(0,0,0,0.25);
+    border-top-color: #000;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  /* ── Light mode surface for suggestions ── */
+  body.light .code-suggestions { background: #fff; border-color: rgba(0,153,187,0.3); }
+  body.light .suggestion-item:hover, body.light .suggestion-item.active { background: rgba(0,153,187,0.08); }
 
   .field select, .field input {
     background: var(--bg);
@@ -176,7 +265,7 @@
     letter-spacing: 0.05em;
     cursor: pointer;
     transition: opacity 0.2s, transform 0.1s;
-    margin-top: 1.5rem;
+    margin-top: 0.8rem;
   }
   .btn-generate:hover { opacity: 0.85; }
   .btn-generate:active { transform: scale(0.98); }
@@ -447,7 +536,7 @@
   .suggestion-highlight { color: #fff; }
 
   /* ── Recent searches ── */
-  .recent-box { margin-top: 1.2rem; display: none; }
+  .recent-box { margin-bottom: 1.2rem; display: none; }
   .recent-box.visible { display: block; }
   .recent-label {
     font-family: 'Space Mono', monospace;
@@ -541,18 +630,6 @@
     color: #3a3a55;
   }
 
-  .header-top-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.1rem;
-  }
-  .header-top-row .header-logo {
-    width: 1.2rem;
-    height: 1.2rem;
-    border-radius: 3px;
-    flex-shrink: 0;
-  }
   .header-title-row .header-logo { display: none; }
 </style>
 </head>
@@ -565,13 +642,25 @@
       <div class="header-top-row">
         <img src="/favicon.png" class="header-logo" alt="logo">
         <p class="label-top">Past Paper Retrieval</p>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle light/dark mode">☀</button>
       </div>
       <div class="header-title-row">
         <h1>Paper<span>Finder</span></h1>
         <span class="header-byline">by Youssef Karim</span>
       </div>
-      <p class="subtitle">// Generate &amp; open past paper PDFs instantly</p>
+      <p class="subtitle">Find and open CAIE &amp; AQA past paper PDFs instantly</p>
     </header>
+
+    <div class="recent-box" id="recentBox">
+      <div class="recent-label" onclick="toggleRecent()" style="cursor:pointer; user-select:none;">
+        <span style="display:flex; align-items:center; gap:0.4rem;">
+          <span class="recent-chevron" id="recentChevron">▸</span>
+          <span>Recent Searches</span>
+        </span>
+        <button class="recent-clear" onclick="event.stopPropagation(); clearRecent()">Clear</button>
+      </div>
+      <div class="recent-list" id="recentList" style="display:none;"></div>
+    </div>
 
     <div class="card">
       <div class="field-group">
@@ -588,11 +677,11 @@
         <div class="field" style="position:relative">
           <label>
             <span>Subject Code</span>
-            <button class="find-code-btn" onclick="showCodes()">Don't know your code? Find it here</button>
           </label>
           <input type="text" id="code" placeholder="e.g. 0417" maxlength="4" inputmode="numeric" oninput="onCodeInput()" onkeydown="onCodeKeydown(event)" onblur="hideSuggestions(event)" />
           <div class="subject-name-tag" id="subjectNameTag"></div>
           <div class="did-you-mean" id="didYouMeanTag" style="display:none"></div>
+          <button class="find-code-btn-below" onclick="showCodes()">Don't know your code? Browse all subjects →</button>
           <div class="code-suggestions" id="codeSuggestions"></div>
         </div>
 
@@ -604,15 +693,16 @@
             </select>
           </div>
           <div class="field">
-            <label>Year (last 2 digits)</label>
-            <input type="text" id="year" placeholder="e.g. 23" maxlength="2" inputmode="numeric" />
+            <label>Year</label>
+            <input type="text" id="year" placeholder="e.g. 2023 / 23" maxlength="4" inputmode="numeric" />
           </div>
         </div>
 
         <div class="row-2">
           <div class="field">
-            <label>Variant</label>
-            <input type="text" id="variant" placeholder="e.g. 31" maxlength="2" inputmode="numeric" />
+            <label>Variant <span class="variant-tooltip" title="The last 1–2 digits of your paper number, e.g. 11, 12, 21, 32">?</span></label>
+            <input type="text" id="variant" placeholder="e.g. 11, 12, 21" maxlength="2" inputmode="numeric" />
+            <p class="field-hint">Paper no. + Variant e.g. 11, 12, 21</p>
           </div>
           <div class="field">
             <label>Paper Type</label>
@@ -640,20 +730,10 @@
           <button class="btn-open" onclick="openUrl()">Open in Browser</button>
           <button class="btn-copy" onclick="copyUrl()">Copy URL</button>
           <button class="btn-download" onclick="downloadUrl()">&#8659; Download</button>
+          <button class="btn-share" onclick="shareUrl()" id="shareBtn" style="display:none">&#8679; Share</button>
         </div>
       </div>
     </div>
-
-      <div class="recent-box" id="recentBox">
-        <div class="recent-label" onclick="toggleRecent()" style="cursor:pointer; user-select:none;">
-          <span style="display:flex; align-items:center; gap:0.4rem;">
-            <span class="recent-chevron" id="recentChevron">▸</span>
-            <span>Recent Searches</span>
-          </span>
-          <button class="recent-clear" onclick="event.stopPropagation(); clearRecent()">Clear</button>
-        </div>
-        <div class="recent-list" id="recentList" style="display:none;"></div>
-      </div>
       <p class="made-by">MADE BY YOUSSEF KARIM</p>
     </div>
   </div>
@@ -1009,6 +1089,14 @@
       const board = document.getElementById('board').value;
       const items = getSuggestions(code, board);
       renderSuggestions(items, code);
+      // Show "Did you mean?" live when user has typed 4 digits that aren't valid
+      if (code.length === 4) {
+        const codeSet = board === 'AQA' ? aqaCodesAll : board === 'CAIE' ? caieCodesAll : null;
+        if (!codeSet || !codeSet.has(code)) {
+          const suggestion = didYouMean(code, board || 'CAIE');
+          if (suggestion) showDidYouMean(suggestion);
+        }
+      }
     }
   }
 
@@ -1203,24 +1291,32 @@
     }
     if (!session) { markFieldError('session');   showError('Missing Session! Please select a session.'); return; }
     if (!year)    { markFieldError('year');      showError('Missing Year! Please enter the year.'); return; }
-    if (!/^\d{2}$/.test(year)) { markFieldError('year'); showError('Invalid Year! Must be exactly 2 digits (e.g. 23).'); return; }
-    if (parseInt(year,10) > CURRENT_YEAR) { markFieldError('year'); showError('Invalid Year! Year cannot be in the future.'); return; }
-    if (!variant) { markFieldError('variant');   showError('Missing Variant! Please enter a variant.'); return; }
-    if (!/^\d{1,2}$/.test(variant)) { markFieldError('variant'); showError('Invalid Variant! Must be a 1–2 digit number.'); return; }
-    if (!papertype){ markFieldError('papertype'); showError('Missing Paper Type! Please select QP or MS.'); return; }
+    // Accept 2-digit (23) or 4-digit (2023) year
+    let yearVal = year;
+    if (/^\d{4}$/.test(year)) {
+      yearVal = year.slice(2);
+    } else if (!/^\d{2}$/.test(year)) {
+      markFieldError('year'); showError('Invalid Year! Enter a 2 or 4-digit year (e.g. 23 or 2023).'); return;
+    }
+    if (parseInt(yearVal,10) > CURRENT_YEAR) { markFieldError('year'); showError('Invalid Year! Year cannot be in the future.'); return; }
+    if (!papertype){ markFieldError('papertype'); showError('Missing Paper Type! Please select QP, MS or GT.'); return; }
+    if (papertype !== 'gt') {
+      if (!variant) { markFieldError('variant');   showError('Missing Variant! Please enter a variant.'); return; }
+      if (!/^\d{1,2}$/.test(variant)) { markFieldError('variant'); showError('Invalid Variant! Must be a 1–2 digit number.'); return; }
+    }
 
     let url = '';
     if (board === 'CAIE') {
       if (papertype === 'gt') {
-        url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${year}_gt.pdf`;
+        url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${yearVal}_gt.pdf`;
       } else {
-        url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${year}_${papertype}_${variant}.pdf`;
+        url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${yearVal}_${papertype}_${variant}.pdf`;
       }
     } else {
       if (papertype === 'gt') {
-        url = `https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/aqa-${code}-gt-${session}${year}.pdf`;
+        url = `https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/aqa-${code}-gt-${session}${yearVal}.pdf`;
       } else {
-        url = `https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/aqa-${code}${variant}-${papertype}-${session}${year}.pdf`;
+        url = `https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/aqa-${code}${variant}-${papertype}-${session}${yearVal}.pdf`;
       }
     }
 
@@ -1230,9 +1326,13 @@
     document.getElementById('resultUrl').textContent = url;
     document.getElementById('resultBox').classList.add('show');
 
+    // Show share button only if Web Share API available
+    const shareBtn = document.getElementById('shareBtn');
+    if (shareBtn) shareBtn.style.display = navigator.share ? '' : 'none';
+
     // Check PDF exists via server-side proxy (avoids CORS)
     const btn = document.querySelector('.btn-generate');
-    btn.textContent = 'Checking…';
+    btn.innerHTML = '<span class="btn-spinner"></span>Checking…';
     btn.disabled = true;
 
     fetch('/api/check-pdf?url=' + encodeURIComponent(url))
@@ -1279,6 +1379,36 @@
   })();
 
   function openUrl() { if (generatedUrl) { haptic('light'); window.open(generatedUrl, '_blank'); } }
+
+  function shareUrl() {
+    if (!generatedUrl || !navigator.share) return;
+    haptic('light');
+    const label = urlToLabel(generatedUrl);
+    navigator.share({
+      title: 'Past Paper — ' + label,
+      text: label,
+      url: generatedUrl
+    }).catch(() => {});
+  }
+
+  function toggleTheme() {
+    const isLight = document.body.classList.toggle('light');
+    document.getElementById('themeToggle').textContent = isLight ? '☾' : '☀';
+    try { localStorage.setItem('pp_theme', isLight ? 'light' : 'dark'); } catch {}
+  }
+
+  // Restore saved theme on load
+  (function() {
+    try {
+      if (localStorage.getItem('pp_theme') === 'light') {
+        document.body.classList.add('light');
+        document.addEventListener('DOMContentLoaded', () => {
+          const btn = document.getElementById('themeToggle');
+          if (btn) btn.textContent = '☾';
+        });
+      }
+    } catch {}
+  })();
 
   function downloadUrl() {
     if (!generatedUrl) return;
