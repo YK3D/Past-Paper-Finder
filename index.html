@@ -448,11 +448,22 @@
   /* ── Hide variant when GT selected ── */
   .variant-hidden { opacity: 0.35; pointer-events: none; }
 
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    15%       { transform: translateX(-6px); }
+    30%       { transform: translateX(6px); }
+    45%       { transform: translateX(-5px); }
+    60%       { transform: translateX(5px); }
+    75%       { transform: translateX(-3px); }
+    90%       { transform: translateX(3px); }
+  }
+
   /* ── Field error highlight ── */
   .field input.field-error,
   .field select.field-error {
     border-color: var(--accent2) !important;
     box-shadow: 0 0 0 3px rgba(255,77,109,0.15) !important;
+    animation: shake 0.45s ease;
   }
 
   /* ── Subject name tag ── */
@@ -972,7 +983,13 @@
   }
 
   // ── Field error helpers ──
-  function markFieldError(id) { const el=document.getElementById(id); if(el) el.classList.add('field-error'); }
+  function markFieldError(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('field-error');
+    void el.offsetWidth; // force reflow so animation re-triggers
+    el.classList.add('field-error');
+  }
   function clearFieldErrors() {
     document.querySelectorAll('.field-error').forEach(el=>el.classList.remove('field-error'));
     const dym = document.getElementById('didYouMeanTag');
