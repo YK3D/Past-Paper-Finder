@@ -272,15 +272,28 @@
     border-radius: 10px;
     padding: 1rem;
     display: none;
-    animation: fadeIn 0.3s ease;
   }
   .result-box.show { display: block; }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
+  .result-box.animating {
+    animation: resultSlideIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
 
+  @keyframes resultSlideIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* border flash on entry */
+  .result-box.animating {
+    animation: resultSlideIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+               borderFlash 0.6s ease forwards;
+  }
+  @keyframes borderFlash {
+    0%   { border-color: var(--success); box-shadow: 0 0 0 3px rgba(0,255,170,0.2); }
+    100% { border-color: var(--border);  box-shadow: none; }
+  }
+
+  /* label pop */
   .result-label {
     font-family: 'Space Mono', monospace;
     font-size: 0.6rem;
@@ -288,17 +301,43 @@
     text-transform: uppercase;
     color: var(--success);
     margin-bottom: 0.5rem;
+    opacity: 0;
+  }
+  .result-box.animating .result-label {
+    animation: labelPop 0.3s ease 0.15s forwards;
+  }
+  @keyframes labelPop {
+    from { opacity: 0; transform: scale(0.9); letter-spacing: 0.3em; }
+    to   { opacity: 1; transform: scale(1);   letter-spacing: 0.15em; }
   }
 
+  /* URL fade in */
   .result-url {
     font-family: 'Space Mono', monospace;
     font-size: 0.72rem;
     color: var(--muted);
     word-break: break-all;
     line-height: 1.6;
+    opacity: 0;
+  }
+  .result-box.animating .result-url {
+    animation: fadeUp 0.3s ease 0.22s forwards;
   }
 
-  .result-actions { display: flex; gap: 0.6rem; margin-top: 1rem; }
+  /* buttons stagger */
+  .result-actions { display: flex; gap: 0.6rem; margin-top: 1rem; flex-wrap: wrap; }
+  .result-actions button {
+    opacity: 0;
+  }
+  .result-box.animating .result-actions button:nth-child(1) { animation: fadeUp 0.25s ease 0.30s forwards; }
+  .result-box.animating .result-actions button:nth-child(2) { animation: fadeUp 0.25s ease 0.38s forwards; }
+  .result-box.animating .result-actions button:nth-child(3) { animation: fadeUp 0.25s ease 0.46s forwards; }
+  .result-box.animating .result-actions button:nth-child(4) { animation: fadeUp 0.25s ease 0.54s forwards; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
 
   .btn-open, .btn-copy {
     flex: 1;
@@ -1338,7 +1377,11 @@
     generatedUrl = url;
     document.getElementById('errorMsg').classList.remove('show');
     document.getElementById('resultUrl').textContent = url;
-    document.getElementById('resultBox').classList.add('show');
+    const rb = document.getElementById('resultBox');
+    rb.classList.remove('animating');
+    void rb.offsetWidth; // force reflow
+    rb.classList.add('show');
+    rb.classList.add('animating');
 
     // Check PDF exists via server-side proxy (avoids CORS)
     const btn = document.querySelector('.btn-generate');
@@ -1503,7 +1546,9 @@
   }
 
   function hideResult() {
-    document.getElementById('resultBox').classList.remove('show');
+    const rb = document.getElementById('resultBox');
+    rb.classList.remove('show');
+    rb.classList.remove('animating');
     document.getElementById('errorMsg').classList.remove('show');
     clearFieldErrors();
   }
