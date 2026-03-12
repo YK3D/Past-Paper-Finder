@@ -359,6 +359,9 @@
     .page-title { font-size: 1.2rem; }
   }
 
+  /* ── Hide variant when GT selected ── */
+  .variant-hidden { opacity: 0.35; pointer-events: none; }
+
   /* ── Field error highlight ── */
   .field input.field-error,
   .field select.field-error {
@@ -400,7 +403,13 @@
     cursor: pointer; letter-spacing: 0.1em;
   }
   .recent-clear:hover { color: var(--accent2); }
-  .recent-list { display: flex; flex-direction: column; gap: 0.4rem; }
+  .recent-chevron {
+    font-size: 0.65rem;
+    color: var(--accent);
+    transition: transform 0.15s;
+    display: inline-block;
+  }
+  .recent-list { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.4rem; }
   .recent-item {
     display: flex; align-items: center; justify-content: space-between;
     background: rgba(255,255,255,0.03);
@@ -490,10 +499,11 @@
           </div>
           <div class="field">
             <label>Paper Type</label>
-            <select id="papertype">
+            <select id="papertype" onchange="onPapertypeChange()">
               <option value="">— Select —</option>
               <option value="qp">Question Paper (QP)</option>
               <option value="ms">Mark Scheme (MS)</option>
+              <option value="gt">Grade Thresholds (GT)</option>
             </select>
           </div>
         </div>
@@ -518,11 +528,14 @@
     </div>
 
       <div class="recent-box" id="recentBox">
-        <div class="recent-label">
-          <span>Recent Searches</span>
-          <button class="recent-clear" onclick="clearRecent()">Clear</button>
+        <div class="recent-label" onclick="toggleRecent()" style="cursor:pointer; user-select:none;">
+          <span style="display:flex; align-items:center; gap:0.4rem;">
+            <span class="recent-chevron" id="recentChevron">▸</span>
+            <span>Recent Searches</span>
+          </span>
+          <button class="recent-clear" onclick="event.stopPropagation(); clearRecent()">Clear</button>
         </div>
-        <div class="recent-list" id="recentList"></div>
+        <div class="recent-list" id="recentList" style="display:none;"></div>
       </div>
     </div>
   </div>
@@ -611,7 +624,6 @@
         <tr onclick="useCode('0695')"><td class="c-code">0695</td><td class="c-name">First Language Vietnamese</td></tr>
         <tr onclick="useCode('0696')"><td class="c-code">0696</td><td class="c-name">First Language Malay</td></tr>
         <tr onclick="useCode('0697')"><td class="c-code">0697</td><td class="c-name">Marine Science</td></tr>
-        <tr onclick="useCode('7180')"><td class="c-code">7180</td><td class="c-name">Arabic (IGCSE 9\u20131)</td></tr>
       </table>
 
       <div class="cat-label">Cambridge O Level</div>
@@ -789,7 +801,7 @@
     '0610':'Biology','0620':'Chemistry','0625':'Physics','0648':'Food & Nutrition',
     '0653':'Combined Science','0654':'Co-ordinated Sciences','0680':'Environmental Management',
     '0695':'First Language Vietnamese','0696':'First Language Malay','0697':'Marine Science',
-    '7180':'Arabic',
+
     '2010':'Literature in English','2035':'Biblical Studies','2058':'Islamiyat',
     '2059':'Pakistan Studies','2068':'Islamic Studies','2069':'Global Perspectives',
     '2147':'History','2251':'Sociology','2281':'Economics','3180':'Arabic',
@@ -830,7 +842,7 @@
     '9675':'English Literature','9685':'Psychology',
   };
 
-  const caieCodesAll = new Set(['0262','0408','0410','0411','0413','0417','0445','0448','0450','0452','0454','0455','0457','0460','0470','0471','0472','0474','0475','0478','0480','0493','0495','0499','0500','0501','0502','0505','0508','0509','0510','0511','0513','0518','0520','0523','0525','0530','0535','0538','0539','0544','0546','0547','0580','0606','0607','0610','0620','0625','0648','0653','0654','0680','0695','0696','0697','7180','2010','2035','2058','2059','2068','2069','2147','2251','2281','3180','3204','3205','3226','3247','3248','4024','4037','5014','5054','5070','5090','6065','7094','7100','7115','7707','8021','8022','8027','8028','8238','8291','8386','8680','8684','8686','8689','8695','9084','9093','9231','9239','9395','9481','9482','9483','9484','9487','9488','9489','9607','9609','9618','9626','9680','9686','9689','9693','9694','9695','9696','9699','9700','9701','9702','9705','9706','9708','9709','9718','9844','9868','9897','9898','9990']);
+  const caieCodesAll = new Set(['0262','0408','0410','0411','0413','0417','0445','0448','0450','0452','0454','0455','0457','0460','0470','0471','0472','0474','0475','0478','0480','0493','0495','0499','0500','0501','0502','0505','0508','0509','0510','0511','0513','0518','0520','0523','0525','0530','0535','0538','0539','0544','0546','0547','0580','0606','0607','0610','0620','0625','0648','0653','0654','0680','0695','0696','0697','2010','2035','2058','2059','2068','2069','2147','2251','2281','3180','3204','3205','3226','3247','3248','4024','4037','5014','5054','5070','5090','6065','7094','7100','7115','7707','8021','8022','8027','8028','8238','8291','8386','8680','8684','8686','8689','8695','9084','9093','9231','9239','9395','9481','9482','9483','9484','9487','9488','9489','9607','9609','9618','9626','9680','9686','9689','9693','9694','9695','9696','9699','9700','9701','9702','9705','9706','9708','9709','9718','9844','9868','9897','9898','9990']);
   const aqaCodesAll  = new Set(['9201','9202','9203','9204','9210','9214','9215','9218','9221','9222','9223','9225','9230','9236','9237','9252','9257','9260','9264','9265','9269','9270','9275','9280','9285','9697','9610','9615','9620','9625','9630','9635','9640','9645','9660','9665','9670','9675','9685']);
 
   // ── Levenshtein for "Did you mean?" ──
@@ -876,21 +888,38 @@
       list.unshift(url); list = list.slice(0,5);
       localStorage.setItem('pp_recent', JSON.stringify(list));
     } catch {}
+    recentOpen = true;
     renderRecent();
+    const el = document.getElementById('recentList');
+    if (el) el.style.display = 'flex';
+    const chev = document.getElementById('recentChevron');
+    if (chev) chev.textContent = '▾';
   }
   function clearRecent() { try { localStorage.removeItem('pp_recent'); } catch {} renderRecent(); }
+  let recentOpen = false;
+
+  function toggleRecent() {
+    recentOpen = !recentOpen;
+    document.getElementById('recentList').style.display = recentOpen ? 'flex' : 'none';
+    document.getElementById('recentChevron').textContent = recentOpen ? '▾' : '▸';
+  }
+
   function renderRecent() {
     const list = getRecent();
     const box = document.getElementById('recentBox');
     const el = document.getElementById('recentList');
-    if (!list.length) { box.classList.remove('visible'); return; }
+    if (!list.length) { box.classList.remove('visible'); recentOpen = false; return; }
     box.classList.add('visible');
     el.innerHTML = list.map(url => `
       <div class="recent-item" onclick="window.open('${url}','_blank')">
         <span class="recent-item-url">${url}</span>
         <span class="recent-item-open">Open &#8594;</span>
       </div>`).join('');
+    // Auto-expand when a new search is saved
+    if (recentOpen) el.style.display = 'flex';
   }
+
+  function saveRecent_orig(url) {}
 
   // ── View switching ──
   function showCodes() {
@@ -937,6 +966,17 @@
     clearFieldErrors();
   }
 
+  // ── Paper type change ──
+  function onPapertypeChange() {
+    const pt = document.getElementById('papertype').value;
+    const variantField = document.getElementById('variant').closest('.field');
+    if (pt === 'gt') {
+      variantField.classList.add('variant-hidden');
+    } else {
+      variantField.classList.remove('variant-hidden');
+    }
+  }
+
   // ── Generate ──
   function generate() {
     clearFieldErrors();
@@ -966,9 +1006,17 @@
 
     let url = '';
     if (board === 'CAIE') {
-      url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${year}_${papertype}_${variant}.pdf`;
+      if (papertype === 'gt') {
+        url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${year}_gt.pdf`;
+      } else {
+        url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${year}_${papertype}_${variant}.pdf`;
+      }
     } else {
-      url = `https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/aqa-${code}${variant}-${papertype}-${session}${year}.pdf`;
+      if (papertype === 'gt') {
+        url = `https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/aqa-${code}-gt-${session}${year}.pdf`;
+      } else {
+        url = `https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/aqa-${code}${variant}-${papertype}-${session}${year}.pdf`;
+      }
     }
 
     generatedUrl = url;
