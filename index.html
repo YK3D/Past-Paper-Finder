@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -576,7 +575,7 @@
 
       <div class="divider"></div>
 
-      <button class="btn-generate" onclick="generate()">Generate &amp; Open →</button>
+      <button class="btn-generate" onclick="generate()">Generate Link</button>
 
       <div class="error-msg" id="errorMsg"></div>
 
@@ -1151,7 +1150,6 @@
       .then(data => {
         if (data.exists) {
           saveRecent(url);
-          window.open(url, '_blank');
         } else {
           markFieldError('year'); markFieldError('variant'); markFieldError('session');
           showError('File not found! Make sure variant, year & session are correct.');
@@ -1160,12 +1158,11 @@
         }
       })
       .catch(() => {
-        // API unavailable (e.g. local file) — open directly
+        // API unavailable (e.g. local file) — save anyway
         saveRecent(url);
-        window.open(url, '_blank');
       })
       .finally(() => {
-        btn.textContent = 'Generate & Open →';
+        btn.textContent = 'Generate Link';
         btn.disabled = false;
       });
   }
@@ -1196,26 +1193,37 @@
   function downloadUrl() {
     if (!generatedUrl) return;
     const btn = document.querySelector('.btn-download');
-    btn.textContent = 'Downloading...';
+    btn.textContent = 'Downloading…';
     btn.disabled = true;
-    fetch(generatedUrl)
-      .then(r => { if (!r.ok) throw new Error('Failed'); return r.blob(); })
+    const filename = generatedUrl.split('/').pop();
+    // Route through server proxy so browser receives Content-Disposition: attachment
+    const proxyUrl = '/api/download-pdf?url=' + encodeURIComponent(generatedUrl);
+    fetch(proxyUrl)
+      .then(r => {
+        if (!r.ok) throw new Error('not found');
+        return r.blob();
+      })
       .then(blob => {
-        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url;
-        a.download = generatedUrl.split('/').pop();
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        btn.textContent = 'Downloaded!';
+        URL.revokeObjectURL(a.href);
+        btn.textContent = '✓ Downloaded';
         setTimeout(() => { btn.textContent = '⬇ Download'; btn.disabled = false; }, 2000);
       })
       .catch(() => {
+        // Fallback: try direct link (e.g. when running locally without API)
+        const a = document.createElement('a');
+        a.href = generatedUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
         btn.textContent = '⬇ Download';
         btn.disabled = false;
-        window.open(generatedUrl, '_blank');
       });
   }
 
