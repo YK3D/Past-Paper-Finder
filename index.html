@@ -795,6 +795,16 @@
 <script>
   let generatedUrl = '';
   let recentOpen = false;
+
+  // ── Haptic feedback (Android only, no-op on unsupported devices) ──
+  function haptic(type) {
+    if (!navigator.vibrate) return;
+    if (type === 'light')   navigator.vibrate(10);
+    else if (type === 'medium') navigator.vibrate(25);
+    else if (type === 'error')  navigator.vibrate([30, 50, 30]);
+    else if (type === 'success') navigator.vibrate([10, 30, 10]);
+  }
+
   const CURRENT_YEAR = new Date().getFullYear() % 100;
 
       const subjectNames = {
@@ -906,6 +916,7 @@
   }
 
   function pickSuggestion(code) {
+    haptic('light');
     const input = document.getElementById('code');
     input.value = code;
     onCodeInput();
@@ -971,6 +982,7 @@
   }
 
   function applyDidYouMean(code) {
+    haptic('light');
     const input = document.getElementById('code');
     input.value = code;
     onCodeInput();
@@ -1174,6 +1186,7 @@
       }
     }
 
+    haptic('success');
     generatedUrl = url;
     document.getElementById('errorMsg').classList.remove('show');
     document.getElementById('resultUrl').textContent = url;
@@ -1227,7 +1240,7 @@
     });
   })();
 
-  function openUrl() { if (generatedUrl) window.open(generatedUrl, '_blank'); }
+  function openUrl() { if (generatedUrl) { haptic('light'); window.open(generatedUrl, '_blank'); } }
 
   function downloadUrl() {
     if (!generatedUrl) return;
@@ -1253,6 +1266,7 @@
         a.click();
         document.body.removeChild(a);
         setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        haptic('medium');
         btn.textContent = '✓ Downloaded';
         setTimeout(() => { btn.textContent = '⬇ Download'; btn.disabled = false; }, 2000);
       })
@@ -1266,6 +1280,7 @@
 
   function copyUrl() {
     if (!generatedUrl) return;
+    haptic('light');
     navigator.clipboard.writeText(generatedUrl).then(() => {
       const btn = document.querySelector('.btn-copy');
       btn.textContent = 'Copied!';
@@ -1274,6 +1289,7 @@
   }
 
   function showError(msg) {
+    haptic('error');
     const el = document.getElementById('errorMsg');
     el.textContent = msg;
     el.classList.add('show');
