@@ -509,6 +509,37 @@
 
 
 
+
+  .header-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+  .header-logo {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .header-byline {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: #555570;
+    font-weight: 400;
+    align-self: flex-end;
+    padding-bottom: 0.3rem;
+    white-space: nowrap;
+  }
+  .made-by {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #3a3a55;
+  }
 </style>
 </head>
 <body>
@@ -518,7 +549,11 @@
   <div class="container">
     <header>
       <p class="label-top">Past Paper Retrieval</p>
-      <h1>Paper<span>Finder</span></h1>
+      <div class="header-title-row">
+        <img src="/favicon.png" class="header-logo" alt="logo">
+        <h1>Paper<span>Finder</span></h1>
+        <span class="header-byline">by Youssef Karim</span>
+      </div>
       <p class="subtitle">// Generate &amp; open past paper PDFs instantly</p>
     </header>
 
@@ -603,12 +638,10 @@
         </div>
         <div class="recent-list" id="recentList" style="display:none;"></div>
       </div>
+      <p class="made-by">MADE BY YOUSSEF KARIM</p>
     </div>
   </div>
 
-  <footer style="margin-top:2rem; text-align:center; font-familymonospace; font-size:0.8rem; font-weight:700; letter-spacing:0.12em; color:#3a3a55;">
-    MADE BY YOUSSEF KARIM
-  </footer>
 </div>
 
 <!-- \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 CODES VIEW \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 -->
@@ -778,9 +811,7 @@
 
   </div>
 
-  <footer style="margin-top:3rem; text-align:center; font-familymonospace; font-size:0.8rem; font-weight:700; letter-spacing:0.12em; color:#3a3a55;">
-    MADE BY YOUSSEF KARIM
-  </footer>
+
 </div>
 
 <script>
