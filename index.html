@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -397,6 +398,53 @@
   }
   .did-you-mean span:hover { color: #fff; }
 
+  .code-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0; right: 0;
+    background: #1a1a24;
+    border: 1px solid rgba(0,229,255,0.25);
+    border-radius: 6px;
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 100;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    display: none;
+  }
+  .code-suggestions.open { display: block; }
+  .code-suggestions::-webkit-scrollbar { width: 4px; }
+  .code-suggestions::-webkit-scrollbar-track { background: transparent; }
+  .code-suggestions::-webkit-scrollbar-thumb { background: rgba(0,229,255,0.2); border-radius: 2px; }
+  .suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 0.75rem;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.12s;
+  }
+  .suggestion-item:last-child { border-bottom: none; }
+  .suggestion-item:hover, .suggestion-item.active {
+    background: rgba(0,229,255,0.08);
+  }
+  .suggestion-code {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    min-width: 3rem;
+    font-weight: 700;
+  }
+  .suggestion-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.65);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .suggestion-highlight { color: #fff; }
+
   /* ── Recent searches ── */
   .recent-box { margin-top: 1.2rem; display: none; }
   .recent-box.visible { display: block; }
@@ -484,14 +532,15 @@
           </select>
         </div>
 
-        <div class="field">
+        <div class="field" style="position:relative">
           <label>
             <span>Subject Code</span>
             <button class="find-code-btn" onclick="showCodes()">Don't know your code? Find it here</button>
           </label>
-          <input type="text" id="code" placeholder="e.g. 0417" maxlength="4" inputmode="numeric" oninput="onCodeInput()" />
+          <input type="text" id="code" placeholder="e.g. 0417" maxlength="4" inputmode="numeric" oninput="onCodeInput()" onkeydown="onCodeKeydown(event)" onblur="hideSuggestions(event)" />
           <div class="subject-name-tag" id="subjectNameTag"></div>
           <div class="did-you-mean" id="didYouMeanTag" style="display:none"></div>
+          <div class="code-suggestions" id="codeSuggestions"></div>
         </div>
 
         <div class="row-2">
@@ -768,7 +817,6 @@
     '9706':'Accounting','9708':'Economics','9709':'Mathematics','9990':'Psychology'
   };
 
-  new Set(['0408','0410','0411','0413','0417','0445','0450','0452','0454','0455','0457','0460','0470','0471','0478','0480','0493','0495','0500','0502','0509','0510','0511','0520','0525','0530','0547','0580','0606','0607','0610','0620','0625','0648','0653','0654','0680','2010','2058','2069','2251','2281','4024','4037','5014','5054','5070','5090','6065','7100','7115','8291','8695','9084','9093']);
   const caieCodesAll = new Set(['0408','0410','0411','0413','0417','0445','0450','0452','0454','0455','0457','0460','0470','0471','0478','0480','0493','0495','0500','0502','0509','0510','0511','0520','0525','0530','0547','0580','0606','0607','0610','0620','0625','0648','0653','0654','0680','2010','2058','2069','2251','2281','4024','4037','5014','5054','5070','5090','6065','7100','7115','8291','8695','9084','9093','9231','9239','9395','9607','9609','9626','9693','9694','9695','9696','9699','9700','9701','9702','9706','9708','9709','9990']);
   const aqaCodesAll  = new Set(['9201','9202','9203','9204','9210','9214','9215','9218','9221','9222','9223','9225','9230','9236','9237','9252','9257','9260','9264','9265','9269','9270','9275','9280','9285','9697','9610','9615','9620','9625','9630','9635','9640','9645','9660','9665','9670','9675','9685']);
 
@@ -796,6 +844,92 @@
   }
 
   // ── Code input handler ──
+
+  // ── Code autocomplete ──
+  let suggestionIndex = -1;
+
+  function getSuggestions(query, board) {
+    if (!query) return [];
+    const pool = board === 'AQA' ? [...aqaCodesAll] : board === 'CAIE' ? [...caieCodesAll] : [...caieCodesAll, ...aqaCodesAll];
+    const q = query.toLowerCase();
+    return pool
+      .filter(c => {
+        const name = (subjectNames[c] || '').toLowerCase();
+        return c.startsWith(q) || name.includes(q);
+      })
+      .sort((a, b) => {
+        const aCode = a.startsWith(q) ? 0 : 1;
+        const bCode = b.startsWith(q) ? 0 : 1;
+        return aCode - bCode || a.localeCompare(b);
+      })
+      .slice(0, 8);
+  }
+
+  function highlightMatch(text, query) {
+    if (!query) return text;
+    const idx = text.toLowerCase().indexOf(query.toLowerCase());
+    if (idx === -1) return text;
+    return text.slice(0, idx) + '<span class="suggestion-highlight">' + text.slice(idx, idx + query.length) + '</span>' + text.slice(idx + query.length);
+  }
+
+  function renderSuggestions(items, query) {
+    const box = document.getElementById('codeSuggestions');
+    if (!items.length) { box.classList.remove('open'); return; }
+    box.innerHTML = items.map((code, i) => {
+      const name = subjectNames[code] || '';
+      return `<div class="suggestion-item" data-code="${code}" onmousedown="pickSuggestion('${code}')">`
+        + `<span class="suggestion-code">${highlightMatch(code, query)}</span>`
+        + `<span class="suggestion-name">${highlightMatch(name, query)}</span>`
+        + `</div>`;
+    }).join('');
+    suggestionIndex = -1;
+    box.classList.add('open');
+  }
+
+  function hideSuggestions(e) {
+    // onblur fires before onmousedown — delay so pickSuggestion fires first
+    setTimeout(() => {
+      document.getElementById('codeSuggestions').classList.remove('open');
+      suggestionIndex = -1;
+    }, 150);
+  }
+
+  function pickSuggestion(code) {
+    const input = document.getElementById('code');
+    input.value = code;
+    onCodeInput();
+    document.getElementById('codeSuggestions').classList.remove('open');
+    // Move focus to next field
+    document.getElementById('session').focus();
+  }
+
+  function onCodeKeydown(e) {
+    const box = document.getElementById('codeSuggestions');
+    const items = box.querySelectorAll('.suggestion-item');
+    if (!box.classList.contains('open') || !items.length) {
+      if (e.key === 'Enter') return; // handled by global Enter listener
+      return;
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      suggestionIndex = Math.min(suggestionIndex + 1, items.length - 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      suggestionIndex = Math.max(suggestionIndex - 1, -1);
+    } else if (e.key === 'Enter' && suggestionIndex >= 0) {
+      e.preventDefault();
+      e.stopPropagation();
+      pickSuggestion(items[suggestionIndex].dataset.code);
+      return;
+    } else if (e.key === 'Escape') {
+      box.classList.remove('open');
+      suggestionIndex = -1;
+      return;
+    } else { return; }
+    items.forEach((el, i) => el.classList.toggle('active', i === suggestionIndex));
+    if (suggestionIndex >= 0) items[suggestionIndex].scrollIntoView({block:'nearest'});
+  }
+
   function onCodeInput() {
     const input = document.getElementById('code');
     input.value = input.value.replace(/\D/g, '');
@@ -808,9 +942,13 @@
       tag.textContent = '\u2713 ' + subjectNames[code];
       tag.classList.add('visible');
       input.classList.remove('field-error');
+      document.getElementById('codeSuggestions').classList.remove('open');
     } else {
       tag.textContent = '';
       tag.classList.remove('visible');
+      const board = document.getElementById('board').value;
+      const items = getSuggestions(code, board);
+      renderSuggestions(items, code);
     }
   }
 
@@ -925,6 +1063,36 @@
     }
   }
 
+  // ── Enter key navigation ──
+  function setupEnterNav() {
+    const order = ['board', 'code', 'session', 'year', 'variant', 'papertype'];
+    order.forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('keydown', function(e) {
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        // Find next visible, enabled field
+        for (let j = i + 1; j < order.length; j++) {
+          const next = document.getElementById(order[j]);
+          if (!next) continue;
+          const field = next.closest('.field');
+          // Skip hidden variant field when GT is selected
+          if (field && (field.classList.contains('variant-hidden') || getComputedStyle(field).display === 'none')) continue;
+          next.focus();
+          // Open select dropdowns on focus
+          if (next.tagName === 'SELECT') {
+            next.dispatchEvent(new MouseEvent('mousedown'));
+          }
+          return;
+        }
+        // All fields done — trigger generate
+        generate();
+      });
+    });
+  }
+  document.addEventListener('DOMContentLoaded', setupEnterNav);
+
   // ── Generate ──
   function generate() {
     clearFieldErrors();
@@ -973,24 +1141,26 @@
     document.getElementById('resultUrl').textContent = url;
     document.getElementById('resultBox').classList.add('show');
 
-    // Check if PDF exists before opening
+    // Check PDF exists via server-side proxy (avoids CORS)
     const btn = document.querySelector('.btn-generate');
     btn.textContent = 'Checking…';
     btn.disabled = true;
-    fetch(url, { method: 'HEAD' })
-      .then(r => {
-        if (r.ok) {
+
+    fetch('/api/check-pdf?url=' + encodeURIComponent(url))
+      .then(r => r.json())
+      .then(data => {
+        if (data.exists) {
           saveRecent(url);
           window.open(url, '_blank');
         } else {
           markFieldError('year'); markFieldError('variant'); markFieldError('session');
-          showError('File not found! Recheck variant, year & session.');
+          showError('File not found! Make sure variant, year & session are correct.');
           document.getElementById('resultBox').classList.remove('show');
           generatedUrl = '';
         }
       })
       .catch(() => {
-        // CORS/network error - open anyway
+        // API unavailable (e.g. local file) — open directly
         saveRecent(url);
         window.open(url, '_blank');
       })
