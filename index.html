@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Past Paper Finder — by Youssef Karim</title>
+<title>Past Paper Finder</title>
 
 <!-- SEO Meta -->
 <meta name="description" content="Find and open CAIE & AQA past papers and mark schemes instantly. Made by Youssef Karim.">
@@ -1377,7 +1377,7 @@
     void rb.offsetWidth; // force reflow
     rb.classList.add('show');
     rb.classList.add('animating');
-    setTimeout(() => rb.scrollIntoView({ behavior: 'smooth', block: 'end' }), 50);
+    setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 50);
 
     // Check PDF exists via server-side proxy (avoids CORS)
     const btn = document.querySelector('.btn-generate');
