@@ -150,28 +150,6 @@
   }
   .find-code-btn-below:hover { opacity: 1; }
 
-  .field-hint {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.62rem;
-    color: var(--muted);
-    margin-top: 0.3rem;
-  }
-
-  .variant-tooltip {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 14px; height: 14px;
-    border-radius: 50%;
-    background: var(--border);
-    color: var(--muted);
-    font-size: 0.6rem;
-    cursor: help;
-    margin-left: 0.3rem;
-    font-style: normal;
-    vertical-align: middle;
-  }
-
   /* ── Theme toggle ── */
   .header-top-row {
     display: flex;
@@ -265,10 +243,27 @@
     letter-spacing: 0.05em;
     cursor: pointer;
     transition: opacity 0.2s, transform 0.1s;
-    margin-top: 0.8rem;
   }
   .btn-generate:hover { opacity: 0.85; }
   .btn-generate:active { transform: scale(0.98); }
+
+  .btn-row { display: flex; gap: 0.6rem; margin-top: 0.8rem; align-items: stretch; }
+  .btn-row .btn-generate { flex: 1; margin-top: 0; }
+  .btn-reset {
+    padding: 0.9rem 1rem;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+    white-space: nowrap;
+    align-self: stretch;
+  }
+  .btn-reset:hover { border-color: var(--accent2); color: var(--accent2); }
 
   .result-box {
     margin-top: 1.2rem;
@@ -700,9 +695,8 @@
 
         <div class="row-2">
           <div class="field">
-            <label>Variant <span class="variant-tooltip" title="The last 1–2 digits of your paper number, e.g. 11, 12, 21, 32">?</span></label>
-            <input type="text" id="variant" placeholder="e.g. 11, 12, 21" maxlength="2" inputmode="numeric" />
-            <p class="field-hint">Paper no. + Variant e.g. 11, 12, 21</p>
+            <label>Variant</label>
+            <input type="text" id="variant" placeholder="e.g. 31" maxlength="2" inputmode="numeric" />
           </div>
           <div class="field">
             <label>Paper Type</label>
@@ -719,7 +713,10 @@
 
       <div class="divider"></div>
 
-      <button class="btn-generate" onclick="generate()">Generate Link</button>
+      <div class="btn-row">
+        <button class="btn-generate" onclick="generate()">Generate Link</button>
+        <button class="btn-reset" onclick="resetForm()" title="Clear all fields">↺ Reset</button>
+      </div>
 
       <div class="error-msg" id="errorMsg"></div>
 
@@ -730,7 +727,7 @@
           <button class="btn-open" onclick="openUrl()">Open in Browser</button>
           <button class="btn-copy" onclick="copyUrl()">Copy URL</button>
           <button class="btn-download" onclick="downloadUrl()">&#8659; Download</button>
-          <button class="btn-share" onclick="shareUrl()" id="shareBtn" style="display:none">&#8679; Share</button>
+          <button class="btn-share" onclick="shareUrl()" id="shareBtn">&#8679; Share</button>
         </div>
       </div>
     </div>
@@ -1326,10 +1323,6 @@
     document.getElementById('resultUrl').textContent = url;
     document.getElementById('resultBox').classList.add('show');
 
-    // Show share button only if Web Share API available
-    const shareBtn = document.getElementById('shareBtn');
-    if (shareBtn) shareBtn.style.display = navigator.share ? '' : 'none';
-
     // Check PDF exists via server-side proxy (avoids CORS)
     const btn = document.querySelector('.btn-generate');
     btn.innerHTML = '<span class="btn-spinner"></span>Checking…';
@@ -1381,14 +1374,23 @@
   function openUrl() { if (generatedUrl) { haptic('light'); window.open(generatedUrl, '_blank'); } }
 
   function shareUrl() {
-    if (!generatedUrl || !navigator.share) return;
+    if (!generatedUrl) return;
     haptic('light');
     const label = urlToLabel(generatedUrl);
-    navigator.share({
-      title: 'Past Paper — ' + label,
-      text: label,
-      url: generatedUrl
-    }).catch(() => {});
+    if (navigator.share) {
+      navigator.share({
+        title: 'Past Paper — ' + label,
+        text: label,
+        url: generatedUrl
+      }).catch(() => {});
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(generatedUrl).then(() => {
+        const btn = document.getElementById('shareBtn');
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.innerHTML = '&#8679; Share', 1800);
+      });
+    }
   }
 
   function toggleTheme() {
@@ -1462,6 +1464,25 @@
     el.textContent = msg;
     el.classList.add('show');
     document.getElementById('resultBox').classList.remove('show');
+  }
+
+  function resetForm() {
+    haptic('light');
+    document.getElementById('board').value = '';
+    document.getElementById('code').value = '';
+    document.getElementById('session').innerHTML = '<option value="">— Select —</option>';
+    document.getElementById('year').value = '';
+    document.getElementById('variant').value = '';
+    document.getElementById('papertype').value = '';
+    document.getElementById('subjectNameTag').textContent = '';
+    document.getElementById('subjectNameTag').classList.remove('visible');
+    document.getElementById('didYouMeanTag').style.display = 'none';
+    document.getElementById('didYouMeanTag').innerHTML = '';
+    document.getElementById('codeSuggestions').classList.remove('open');
+    document.querySelector('.field').querySelector('.field')?.classList.remove('variant-hidden');
+    document.querySelectorAll('.field').forEach(f => f.classList.remove('variant-hidden'));
+    hideResult();
+    generatedUrl = '';
   }
 
   function hideResult() {
