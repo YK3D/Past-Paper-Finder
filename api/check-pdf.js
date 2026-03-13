@@ -8,13 +8,15 @@ export default async function handler(req, res) {
   try {
     const response = await fetch(url, {
       method: 'HEAD',
-      redirect: 'manual',
       headers: { 'User-Agent': 'Mozilla/5.0' }
     });
 
-    // opaqueredirect (status 0, type opaqueredirect) = redirected to homepage = not found
-    // 200 OK = file exists
-    const exists = response.status === 200 || response.ok;
+    // A real PDF returns content-type: application/pdf
+    // A soft-404 redirect to homepage returns text/html with status 200
+    // So checking content-type is more reliable than status alone
+    const contentType = response.headers.get('content-type') || '';
+    const exists = response.ok && contentType.includes('application/pdf');
+
     return res.status(200).json({ exists });
   } catch (e) {
     return res.status(200).json({ exists: false, error: e.message });
