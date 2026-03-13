@@ -1125,7 +1125,7 @@
           <div class="field" id="yearField">
             <label>Year</label>
             <input type="text" id="year" placeholder="e.g. 2023 / 23" maxlength="4" inputmode="numeric" oninput="numericOnly(this)" />
-            <select id="yearSelect" style="display:none" onchange="onYearSelectChange()"><option value="">— Select Year —</option></select>
+            <select id="yearSelect" onchange="onYearSelectChange()"><option value="">— Select Year —</option></select>
           </div>
         </div>
 
@@ -2220,11 +2220,10 @@
   // ── IGCSE smart dropdowns — fully live, no baked data ──
   let _manualMode = false;
   let _currentPapersData = null;
-  let _currentSessions = []; // [{year, sess, slug}] fetched live
+  let _currentSessions = [];
 
-  const SESS_ORDER  = { s: 0, m: 1, w: 2 };
+  const SESS_ORDER = { s: 0, m: 1, w: 2 };
 
-  // Default variant list shown before dynamic data loads
   const DEFAULT_VARIANTS = ['1','2','3','11','12','13','21','22','23','31','32','33','41','42','43','51','52','53','61','62','63'];
 
   function buildSubjectSlug(code) {
@@ -2237,7 +2236,6 @@
       + '-' + code;
   }
 
-  // Build PapaCambridge session subpage slug from sess code + full year
   function buildSessSlug(sess, fullYear) {
     const yr = parseInt(fullYear);
     if (sess === 's') return yr >= 2018 ? 'may-june' : 'jun';
@@ -2246,20 +2244,22 @@
     return '';
   }
 
-  // ── Step 1: on valid code entry — fetch available sessions live ──
+  // ── Step 1: valid IGCSE code entered — fetch available sessions ──
   async function applyIgcseDropdowns(code) {
     if (_manualMode) return;
+    _currentSessions = [];
+    _currentPapersData = null;
 
     const sessionSel = document.getElementById('session');
+    const sessField  = sessionSel.closest('.field');
     const yearField  = document.getElementById('yearField');
-    const sessField  = document.querySelector('#session').closest('.field');
 
-    // Show loading on session and year fields
+    // Loading state
     sessField.classList.add('field-loading');
     yearField.classList.add('field-loading');
+    sessionSel.innerHTML = '<option value="">Loading…</option>';
     setYearMode('select');
     document.getElementById('yearSelect').innerHTML = '<option value="">Loading…</option>';
-    sessionSel.innerHTML = '<option value="">Loading…</option>';
     resetPaperFields();
 
     try {
@@ -2275,108 +2275,59 @@
     }
 
     if (_currentSessions.length === 0) {
-      // Fallback to free text + full session list
       setYearMode('input');
       repopulateFullSessions('CAIE');
       return;
     }
 
-    // Populate session dropdown with available sessions
+    // Populate sessions
     const availSessions = [...new Set(_currentSessions.map(e => e.sess))];
     sessionSel.innerHTML = '<option value="">— Select —</option>';
     ['s','m','w'].forEach(val => {
-      if (availSessions.includes(val)) {
-        const o = document.createElement('option');
-        o.value = val; o.textContent = SESS_LABELS[val];
-        sessionSel.appendChild(o);
-      }
-    });
-
-    setYearMode('select');
-    populateYearSelect(null, null); // pass null = no filter yet
-  }
-
-  // ── Populate year dropdown from _currentSessions ──
-  function populateYearSelect(code, sess) {
-    const yearSelect = document.getElementById('yearSelect');
-    const filtered = sess
-      ? _currentSessions.filter(e => e.sess === sess)
-      : _currentSessions;
-
-    const seen = new Set();
-    const years = [];
-    filtered.forEach(e => {
-      if (!seen.has(e.year)) { seen.add(e.year); years.push(e); }
-    });
-
-    yearSelect.innerHTML = '<option value="">— Select Year —</option>';
-    years.forEach(e => {
+      if (!availSessions.includes(val)) return;
       const o = document.createElement('option');
-      o.value = e.year.slice(2);       // 2-digit for URL
-      o.dataset.full = e.year;         // 4-digit for slug
-      o.dataset.sessSlug = e.slug;     // original slug for subpage URL
-      o.textContent = e.year;
-      yearSelect.appendChild(o);
+      o.value = val; o.textContent = SESS_LABELS[val];
+      sessionSel.appendChild(o);
     });
+
+    // Year shows placeholder until session picked
+    document.getElementById('yearSelect').innerHTML = '<option value="">— Select session first —</option>';
   }
 
-  function setYearMode(mode) {
-    const yearInput  = document.getElementById('year');
+  // ── Step 2: session selected — populate year dropdown ──
+  function onSessionChange() {
+    if (_manualMode) { clearFieldErrors(); return; }
+    const sess = document.getElementById('session').value;
     const yearSelect = document.getElementById('yearSelect');
-    if (mode === 'select') {
-      yearInput.style.display  = 'none';
-      yearSelect.style.display = '';
-    } else {
-      yearInput.style.display  = '';
-      yearSelect.style.display = 'none';
+
+    if (_currentSessions.length > 0 && sess) {
+      const filtered = _currentSessions.filter(e => e.sess === sess);
+      const seen = new Set();
       yearSelect.innerHTML = '<option value="">— Select Year —</option>';
+      filtered.forEach(e => {
+        if (seen.has(e.year)) return;
+        seen.add(e.year);
+        const o = document.createElement('option');
+        o.value = e.year.slice(2);       // 2-digit for URL building
+        o.dataset.full = e.year;         // 4-digit for slug
+        o.dataset.sessSlug = e.slug;     // exact slug for subpage URL
+        o.textContent = e.year;
+        yearSelect.appendChild(o);
+      });
+    } else if (_currentSessions.length > 0) {
+      yearSelect.innerHTML = '<option value="">— Select session first —</option>';
     }
+
+    resetPaperFields();
+    clearFieldErrors();
   }
 
-  function setVariantMode(mode, variants) {
-    const vi = document.getElementById('variant');
-    const vs = document.getElementById('variantSelect');
-    if (mode === 'select') {
-      vi.style.display = 'none';
-      vs.style.display = '';
-      if (variants && variants.length > 0) {
-        const prev = vs.value;
-        vs.innerHTML = '<option value="">— Select —</option>';
-        variants.forEach(v => {
-          const o = document.createElement('option');
-          o.value = v; o.textContent = v;
-          if (v === prev) o.selected = true;
-          vs.appendChild(o);
-        });
-      } else if (vs.options.length <= 1) {
-        vs.innerHTML = '<option value="">— Select —</option>';
-        DEFAULT_VARIANTS.forEach(v => {
-          const o = document.createElement('option');
-          o.value = v; o.textContent = v;
-          vs.appendChild(o);
-        });
-      }
-    } else {
-      vi.style.display = '';
-      vs.style.display = 'none';
-      vs.innerHTML = '<option value="">— Select —</option>';
-    }
-  }
-
-  function resetPaperFields() {
-    if (_manualMode) return;
-    _currentPapersData = null;
-    const pt = document.getElementById('papertype');
-    pt.innerHTML = `<option value="">— Select —</option>
-      <option value="qp">Question Paper (QP)</option>
-      <option value="ms">Mark Scheme (MS)</option>
-      <option value="gt">Grade Thresholds (GT)</option>
-      <option value="er">Examiner Report (ER)</option>
-      <option value="ci">Confidential Instructions (CI)</option>`;
-    setVariantMode('select');
-    document.getElementById('variantSelect').value = '';
-    const variantField = document.getElementById('variant').closest('.field');
-    variantField.classList.remove('variant-hidden');
+  // ── Step 3: year selected — auto-scan for paper types & variants ──
+  function onYearSelectChange() {
+    if (_manualMode) { clearFieldErrors(); return; }
+    clearFieldErrors();
+    resetPaperFields();
+    fetchPapersForSelection();
   }
 
   async function fetchPapersForSelection() {
@@ -2385,10 +2336,9 @@
     const sess   = document.getElementById('session').value;
     const ysEl   = document.getElementById('yearSelect');
     const selOpt = ysEl.options[ysEl.selectedIndex];
-    if (!selOpt || !selOpt.dataset.full || !sess) return;
+    if (!selOpt || !selOpt.dataset || !selOpt.dataset.full || !sess) return;
 
     const fullYear = selOpt.dataset.full;
-    // Use stored sessSlug from the session entry, fallback to buildSessSlug
     const sessSlug = selOpt.dataset.sessSlug || buildSessSlug(sess, fullYear);
     const subjSlug = buildSubjectSlug(code);
     const pageUrl  = `https://pastpapers.papacambridge.com/papers/caie/${subjSlug}-${fullYear}-${sessSlug}`;
@@ -2404,7 +2354,7 @@
       _currentPapersData = data;
       applyPapersData(data);
     } catch(e) {
-      // silently fall back
+      // fall back silently to static list
     } finally {
       ptField.classList.remove('field-loading');
       vField.classList.remove('field-loading');
@@ -2436,59 +2386,87 @@
     if (_manualMode) return;
     data = data || _currentPapersData;
     if (!data) return;
-    const variants = data.variants && data.variants[type] ? data.variants[type] : [];
-    const variantField = document.getElementById('variant').closest('.field');
+    const variants = (data.variants && data.variants[type]) ? data.variants[type] : [];
+    const variantField = document.getElementById('variantField');
     if (!type || type === 'gt' || type === 'er') {
+      variantField.classList.add('variant-hidden');
       setVariantMode('select');
       document.getElementById('variantSelect').value = '';
-      variantField.classList.add('variant-hidden');
       return;
     }
     variantField.classList.remove('variant-hidden');
-    if (variants.length > 0) {
-      setVariantMode('select', variants);
+    setVariantMode('select', variants.length > 0 ? variants : null);
+  }
+
+  function setYearMode(mode) {
+    const yi = document.getElementById('year');
+    const ys = document.getElementById('yearSelect');
+    if (mode === 'select') {
+      yi.style.display = 'none';
+      ys.style.display = '';
     } else {
-      setVariantMode('select');
+      yi.style.display = '';
+      ys.style.display = 'none';
+      ys.innerHTML = '<option value="">— Select Year —</option>';
     }
   }
 
+  function setVariantMode(mode, variants) {
+    const vi = document.getElementById('variant');
+    const vs = document.getElementById('variantSelect');
+    if (mode === 'select') {
+      vi.style.display = 'none';
+      vs.style.display = '';
+      const prev = vs.value;
+      vs.innerHTML = '<option value="">— Select —</option>';
+      const list = (variants && variants.length > 0) ? variants : DEFAULT_VARIANTS;
+      list.forEach(v => {
+        const o = document.createElement('option');
+        o.value = v; o.textContent = v;
+        if (v === prev) o.selected = true;
+        vs.appendChild(o);
+      });
+    } else {
+      vi.style.display = '';
+      vs.style.display = 'none';
+      vs.innerHTML = '<option value="">— Select —</option>';
+    }
+  }
+
+  function resetPaperFields() {
+    if (_manualMode) return;
+    _currentPapersData = null;
+    const pt = document.getElementById('papertype');
+    pt.innerHTML = `<option value="">— Select —</option>
+      <option value="qp">Question Paper (QP)</option>
+      <option value="ms">Mark Scheme (MS)</option>
+      <option value="gt">Grade Thresholds (GT)</option>
+      <option value="er">Examiner Report (ER)</option>
+      <option value="ci">Confidential Instructions (CI)</option>`;
+    setVariantMode('select');
+    document.getElementById('variantSelect').value = '';
+    document.getElementById('variantField').classList.remove('variant-hidden');
+  }
+
   function repopulateFullSessions(board) {
-    const sessionSel = document.getElementById('session');
-    const curr = sessionSel.value;
-    sessionSel.innerHTML = '<option value="">— Select —</option>';
+    const s = document.getElementById('session');
+    const curr = s.value;
+    s.innerHTML = '<option value="">— Select —</option>';
     if (board === 'CAIE') {
       [['M/J (May/Jun)','s'],['F/M (Feb/Mar)','m'],['O/N (Oct/Nov)','w']].forEach(([label,val]) => {
         const o = document.createElement('option');
         o.value = val; o.textContent = label;
         if (val === curr) o.selected = true;
-        sessionSel.appendChild(o);
+        s.appendChild(o);
       });
     } else if (board === 'AQA') {
       [['Jun','jun'],['Nov','nov']].forEach(([label,val]) => {
         const o = document.createElement('option');
         o.value = val; o.textContent = label;
         if (val === curr) o.selected = true;
-        sessionSel.appendChild(o);
+        s.appendChild(o);
       });
     }
-  }
-
-  function onSessionChange() {
-    if (_manualMode) { clearFieldErrors(); return; }
-    const sess = document.getElementById('session').value;
-    if (_currentSessions.length > 0) {
-      populateYearSelect(null, sess);
-      document.getElementById('yearSelect').value = '';
-    }
-    resetPaperFields();
-    clearFieldErrors();
-  }
-
-  function onYearSelectChange() {
-    if (_manualMode) { clearFieldErrors(); return; }
-    resetPaperFields();
-    clearFieldErrors();
-    fetchPapersForSelection();
   }
 
   function toggleManualMode() {
@@ -2511,7 +2489,7 @@
         <option value="gt">Grade Thresholds (GT)</option>
         <option value="er">Examiner Report (ER)</option>
         <option value="ci">Confidential Instructions (CI)</option>`;
-      document.getElementById('variant').closest('.field').classList.remove('variant-hidden');
+      document.getElementById('variantField').classList.remove('variant-hidden');
     } else {
       btn.classList.remove('active');
       btn.textContent = '✎ Enter manually';
@@ -2527,10 +2505,11 @@
     repopulateFullSessions(board);
     setYearMode('input');
     document.getElementById('year').value = '';
-    setYearMode('input');
+    document.getElementById('yearSelect').innerHTML = '<option value="">— Select Year —</option>';
+    setVariantMode('select');
     document.getElementById('variantSelect').value = '';
-    setVariantMode('select'); // back to default dropdown
     _manualMode = false;
+    _currentSessions = [];
     _currentPapersData = null;
     const mt = document.getElementById('manualToggle');
     if (mt) { mt.classList.remove('active'); mt.textContent = '✎ Enter manually'; }
@@ -2546,8 +2525,7 @@
     if (!_manualMode && _currentPapersData) {
       updateVariantForType(pt, _currentPapersData);
     } else {
-      // Static mode: hide variant for gt/er, show for others
-      const variantField = document.getElementById('variant').closest('.field');
+      const variantField = document.getElementById('variantField');
       if (pt === 'gt' || pt === 'er') {
         variantField.classList.add('variant-hidden');
       } else {
@@ -2606,7 +2584,13 @@
     btn.addEventListener('mouseleave', () => { arrow.style.left = btn._arrowStart; });
   }
   document.addEventListener('DOMContentLoaded', setupArrow);
-  document.addEventListener('DOMContentLoaded', () => { setVariantMode('select'); });
+  document.addEventListener('DOMContentLoaded', () => {
+    setVariantMode('select');
+    // year: keep text input visible by default (setYearMode('input') is the default state)
+    // variantSelect starts visible, year input starts visible
+    document.getElementById('year').style.display = '';
+    document.getElementById('yearSelect').style.display = 'none';
+  });
   // re-run after splash in case layout shifts
   setTimeout(setupArrow, 1600);
 
@@ -2920,7 +2904,6 @@
 
   function resetForm() {
     haptic('light');
-    // spin the reset icon
     const icon = document.querySelector('.reset-icon');
     if (icon) {
       icon.classList.remove('spinning');
@@ -2931,18 +2914,25 @@
     document.getElementById('board').value = '';
     document.getElementById('code').value = '';
     document.getElementById('session').innerHTML = '<option value="">— Select —</option>';
-    document.getElementById('yearSelect').innerHTML = '<option value="">— Select Year —</option>';
-    document.getElementById('variantSelect').innerHTML = '<option value="">— Select —</option>';
     document.getElementById('year').value = '';
-    document.getElementById('variant').value = '';
+    setYearMode('input');
+    document.getElementById('yearSelect').innerHTML = '<option value="">— Select Year —</option>';
+    setVariantMode('select');
+    document.getElementById('variantSelect').value = '';
     document.getElementById('papertype').value = '';
     document.getElementById('subjectNameTag').textContent = '';
     document.getElementById('subjectNameTag').classList.remove('visible');
     document.getElementById('didYouMeanTag').style.display = 'none';
     document.getElementById('didYouMeanTag').innerHTML = '';
     document.getElementById('codeSuggestions').classList.remove('open');
-    document.querySelector('.field').querySelector('.field')?.classList.remove('variant-hidden');
-    document.querySelectorAll('.field').forEach(f => f.classList.remove('variant-hidden'));
+    document.querySelectorAll('.field').forEach(f => f.classList.remove('variant-hidden', 'field-loading'));
+    _manualMode = false;
+    _currentSessions = [];
+    _currentPapersData = null;
+    const mt = document.getElementById('manualToggle');
+    if (mt) { mt.classList.remove('active'); mt.textContent = '✎ Enter manually'; }
+    const mh = document.getElementById('manualHint');
+    if (mh) mh.style.display = 'none';
     hideResult();
     generatedUrl = '';
   }
