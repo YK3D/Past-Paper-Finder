@@ -2304,6 +2304,7 @@
 
     // Year shows placeholder until session picked
     document.getElementById('yearSelect').innerHTML = '<option value="">— Select session first —</option>';
+    setYearMode('select'); // guarantee visible
   }
 
   // ── Step 2: session selected — populate year dropdown ──
@@ -2320,14 +2321,19 @@
         if (seen.has(e.year)) return;
         seen.add(e.year);
         const o = document.createElement('option');
-        o.value = e.year.slice(2);       // 2-digit for URL building
-        o.dataset.full = e.year;         // 4-digit for slug
-        o.dataset.sessSlug = e.slug;     // exact slug for subpage URL
+        o.value = e.year.slice(2);
+        o.dataset.full = e.year;
+        o.dataset.sessSlug = e.slug;
         o.textContent = e.year;
         yearSelect.appendChild(o);
       });
+      setYearMode('select'); // ensure yearSelect is visible
     } else if (_currentSessions.length > 0) {
       yearSelect.innerHTML = '<option value="">— Select session first —</option>';
+      setYearMode('select');
+    } else {
+      // No sessions loaded — stay in text mode
+      setYearMode('input');
     }
 
     resetPaperFields();
