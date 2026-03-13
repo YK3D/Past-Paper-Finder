@@ -70,20 +70,25 @@
     transition: background 0.25s, color 0.25s;
   }
 
-  /* \u2500\u2500 VIEWS \u2500\u2500 */
-  .view { display: none; }
-  .view.active { display: block; }
-
-  /* \u2500\u2500 MAIN VIEW \u2500\u2500 */
+  /* \u2500\u2500 VIEW TRANSITIONS \u2500\u2500 */
   #main-view {
-    display: none;
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
     padding: 2rem 1rem;
+    min-height: 100vh;
+    transition: opacity 0.35s ease, transform 0.35s ease;
   }
-  #main-view.active { display: flex; }
+  #codes-view {
+    display: block;
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  .view-hidden {
+    display: none !important;
+  }
 
   .container { width: 100%; max-width: 560px; }
 
@@ -462,12 +467,7 @@
   .error-msg.show { display: block; }
 
   /* \u2500\u2500 CODES VIEW \u2500\u2500 */
-  #codes-view {
-    display: none;
-    min-height: 100vh;
-    padding: 2rem 1rem 4rem;
-  }
-  #codes-view.active { display: block; }
+  
 
   .top-bar {
     max-width: 1100px;
@@ -496,20 +496,110 @@
   .page-title { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
   .page-title span { color: var(--accent); }
 
-  .search-wrap { max-width: 1100px; margin: 0 auto 1.5rem; }
-  .search-input {
-    width: 100%;
+  /* ── Search box poda glow ── */
+  .search-wrap {
+    max-width: 1100px;
+    margin: 0 auto 1.5rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* spinning border layers */
+  .search-glow,
+  .search-border,
+  .search-dark-border {
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .search-dark-border::before,
+  .search-glow::before,
+  .search-border::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 800px; height: 800px;
+    background-repeat: no-repeat;
+  }
+  .search-dark-border {
+    inset: -1px;
+    border-radius: 10px;
+  }
+  .search-dark-border::before {
+    transform: translate(-50%, -50%) rotate(82deg);
+    background-image: conic-gradient(
+      rgba(0,0,0,0),
+      rgba(0,229,255,0.4),
+      rgba(0,0,0,0) 10%,
+      rgba(0,0,0,0) 50%,
+      rgba(255,77,109,0.4),
+      rgba(0,0,0,0) 60%
+    );
+    animation: searchSpin 4s linear infinite;
+  }
+  .search-border {
+    inset: -1px;
+    filter: blur(0.5px);
+  }
+  .search-border::before {
+    transform: translate(-50%, -50%) rotate(70deg);
+    background-image: conic-gradient(
+      var(--bg),
+      var(--accent) 5%,
+      var(--bg) 14%,
+      var(--bg) 50%,
+      var(--accent2) 60%,
+      var(--bg) 64%
+    );
+    animation: searchSpin 4s 0.1s linear infinite;
+  }
+  .search-glow {
+    inset: -3px;
+    filter: blur(8px);
+    opacity: 0.5;
+  }
+  .search-glow::before {
+    transform: translate(-50%, -50%) rotate(60deg);
+    background-image: conic-gradient(
+      #000,
+      var(--accent) 5%,
+      #000 38%,
+      #000 50%,
+      var(--accent2) 60%,
+      #000 87%
+    );
+    animation: searchSpin 4s 0.3s linear infinite;
+  }
+  /* inner mask to show only border */
+  .search-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 8px;
     background: var(--surface);
-    border: 1px solid var(--border);
+    z-index: 1;
+    pointer-events: none;
+  }
+  @keyframes searchSpin {
+    100% { transform: translate(-50%, -50%) rotate(450deg); }
+  }
+  .search-input {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    background: transparent;
+    border: none;
     border-radius: 8px;
     color: var(--text);
     font-family: 'Space Mono', monospace;
     font-size: 0.85rem;
     padding: 0.7rem 1rem;
     outline: none;
-    transition: border-color 0.2s;
   }
-  .search-input:focus { border-color: var(--accent); }
   .search-input::placeholder { color: var(--muted); }
 
   .codes-grid {
@@ -866,7 +956,8 @@
 </div>
 
 <!-- \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 MAIN VIEW \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 -->
-<div id="main-view" class="active">
+<div id="view-wrapper">
+<div id="main-view" class="view">
   <div class="container">
     <header>
       <div class="header-top-row">
@@ -979,13 +1070,16 @@
 </div>
 
 <!-- \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 CODES VIEW \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 -->
-<div id="codes-view">
+<div id="codes-view" class="view view-hidden">
   <div class="top-bar">
     <button class="back-btn" onclick="showMain()">← Back</button>
     <h2 class="page-title">Subject <span>Codes</span></h2>
   </div>
 
   <div class="search-wrap">
+    <div class="search-dark-border"></div>
+    <div class="search-border"></div>
+    <div class="search-glow"></div>
     <input class="search-input" type="text" id="searchBox" placeholder="Search by subject name or code..." oninput="filterCodes()" />
   </div>
 
@@ -1146,7 +1240,7 @@
   </div>
 
 
-</div>
+</div><!-- /#view-wrapper -->
 
 <script>
   let generatedUrl = '';
@@ -1540,17 +1634,60 @@
 
 
   // ── View switching ──
+  let _viewTransitioning = false;
+
   function showCodes() {
-    document.getElementById('main-view').classList.remove('active');
-    document.getElementById('codes-view').classList.add('active');
+    if (_viewTransitioning) return;
+    _viewTransitioning = true;
+    const main = document.getElementById('main-view');
+    const codes = document.getElementById('codes-view');
+    // fade out main
+    main.style.opacity = '0';
+    main.style.transform = 'translateX(-40px)';
+    setTimeout(() => {
+      main.classList.add('view-hidden');
+      main.style.opacity = '';
+      main.style.transform = '';
+      // show codes, start off-right
+      codes.style.transition = 'none';
+      codes.style.opacity = '0';
+      codes.style.transform = 'translateX(40px)';
+      codes.classList.remove('view-hidden');
+      void codes.offsetWidth;
+      codes.style.transition = '';
+      codes.style.opacity = '1';
+      codes.style.transform = 'translateX(0)';
+      window.scrollTo(0, 0);
+      setTimeout(() => { _viewTransitioning = false; }, 380);
+    }, 370);
     document.getElementById('searchBox').value = '';
     filterCodes();
-    window.scrollTo(0, 0);
   }
+
   function showMain() {
-    document.getElementById('codes-view').classList.remove('active');
-    document.getElementById('main-view').classList.add('active');
-    window.scrollTo(0, 0);
+    if (_viewTransitioning) return;
+    _viewTransitioning = true;
+    const main = document.getElementById('main-view');
+    const codes = document.getElementById('codes-view');
+    // fade out codes
+    codes.style.opacity = '0';
+    codes.style.transform = 'translateX(40px)';
+    setTimeout(() => {
+      codes.classList.add('view-hidden');
+      codes.style.opacity = '';
+      codes.style.transform = '';
+      // show main, start off-left
+      main.style.transition = 'none';
+      main.style.opacity = '0';
+      main.style.transform = 'translateX(-40px)';
+      main.classList.remove('view-hidden');
+      void main.offsetWidth;
+      main.style.transition = '';
+      main.style.opacity = '1';
+      main.style.transform = 'translateX(0)';
+      window.scrollTo(0, 0);
+      setTimeout(() => { _viewTransitioning = false; }, 380);
+    }, 370);
   }
   function useCode(code) {
     document.getElementById('code').value = code;
