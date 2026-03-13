@@ -1132,8 +1132,8 @@
         <div class="row-2">
           <div class="field" id="variantField">
             <label>Variant</label>
-            <input type="text" id="variant" placeholder="e.g. 31" maxlength="2" inputmode="numeric" oninput="numericOnly(this)" />
-            <select id="variantSelect" style="display:none" onchange="clearFieldErrors()"><option value="">— Select —</option></select>
+            <input type="text" id="variant" placeholder="e.g. 31" maxlength="2" inputmode="numeric" oninput="numericOnly(this)" style="display:none" />
+            <select id="variantSelect" onchange="clearFieldErrors()"><option value="">— Select —</option></select>
           </div>
           <div class="field">
             <label>Paper Type</label>
@@ -1871,8 +1871,7 @@
   ]);
   const aqaCodesAll  = new Set(['9201','9202','9203','9204','9210','9214','9215','9218','9221','9222','9223','9225','9230','9236','9237','9252','9257','9260','9264','9265','9269','9270','9275','9280','9285','9697','9610','9615','9620','9625','9630','9635','9640','9645','9660','9665','9670','9675','9685']);
 
-  // ── IGCSE available year/session data (scraped from PapaCambridge) ──
-  const IGCSE_DATA = {"0262":["2025s","2024s","2023s","2022s","2021s"],"0400":["2026s","2025m","2025s","2025w","2024m","2024s","2024w","2023m","2023s","2023w","2022m","2022s","2022w","2021m","2021s","2021w","2020m","2020w","2019m","2019s","2019w","2018m","2018s","2018w","2017s","2017w","2016s","2016w","2015s","2015w","2014w","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2004w","2003s","2003w","2002w"],"0408":["2025s","2025w","2024s","2024w","2023s","2023w","2022s","2022w","2021s","2021w","2019s","2019w","2018s","2018w","2017s","2017w","2016s","2016w","2015s","2015w","2014s","2014w","2013s","2013w","2012s"],"0409":["2025s","2024s","2024w","2023s","2022s","2021s","2021w","2020w","2019s","2019w","2018s","2018w","2017s","2017w","2016s","2016w","2015w","2014s","2014w","2013s","2013w"],"0410":["2025s","2025w","2024s","2024w","2023s","2023w","2022s","2022w","2021s","2021w","2020w","2019s","2019w","2018s","2018w","2017s","2017w","2016s","2016w","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2004w","2003s","2003w","2002w"],"0411":["2026s","2025s","2025w","2024s","2024w","2023s","2023w","2022s","2022w","2021s","2021w","2019s","2019w","2018s","2018w","2017s","2017w","2016s","2016w","2015s","2015w","2014s","2014w"],"0413":["2025s","2025w","2024s","2024w","2023s","2023w","2022s","2022w","2021s","2021w","2020w","2019s","2019w","2018s","2018w","2017s","2017w","2016s","2016w","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2004w","2003s","2003w","2002w"],"0415":[],"0416":["2018s","2018w","2017s","2017w","2016s","2016w","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2004w","2003s","2003w","2002w"],"0417":["2024m","2024s","2024w","2023m","2023s","2023w","2022m","2022s","2022w","2021m","2021s","2021w","2020m","2020w","2019m","2019s","2019w","2018m","2018s","2018w","2017m","2017s","2017w","2016m","2016s","2016w","2015m","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2004w","2003s","2003w","2002w"],"0420":["2018s","2018w","2017s","2017w","2016s","2016w","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2004w","2003s","2003w","2002w"],"0426":["2013s","2013w"],"0427":["2024s","2023s","2023w","2022s","2022w","2021s","2021w","2020w","2019s","2019w","2018s","2018w","2017s","2017w","2016s","2016w","2015s","2015w"],"0428":["2015s","2014s","2013s","2012s"],"0429":["2014s"],"0437":[],"0438":["2018s","2018w","2017s","2017w","2016s","2016w","2015s","2014s","2014w","2013s","2013w","2012w"],"0439":["2018s","2018w","2017s","2017w","2016s","2016w","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w"],"0441":[],"0442":["2015s","2014s","2014w","2013s","2013w","2012s"],"0443":["2015s","2014s","2014w","2013s"],"0444":["2024s","2023s","2023w","2022s","2022w","2021s","2021w","2020w","2019s","2019w","2018s","2018w","2017s","2017w","2016s","2016w","2015s","2015w","2014s","2014w","2013w","2012w"],"0445":["2025s","2025w","2024s","2024w","2023s","2023w","2022s","2022w","2021s","2021w","2020w","2019s","2019w","2018s","2018w","2017s","2017w","2016s","2016w","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2004w","2003s","2003w","2002w"],"0447":["2019s","2018s","2017s","2016s","2015s","2014s","2013s","2012s","2011s","2010s","2009s","2008s","2007s","2006s","2005s","2004s","2003s"],"0448":["2025s","2024s","2023s","2022s","2021s","2020w","2019s","2018s","2017s","2016s","2015s","2014s","2013s","2012s","2011s","2010s","2009s","2008s","2007s","2006s","2005s","2004s","2003s"],"0449":["2018s","2017s","2016s","2015s","2014s","2013s","2012s","2011s","2010s","2009s","2008s","2007s","2006s","2005s","2004s","2003s"],"0450":["2025m","2025s","2025w","2024m","2024s","2024w","2023m","2023s","2023w","2022m","2022s","2022w","2021m","2021s","2021w","2020m","2020w","2019m","2019s","2019w","2018m","2018s","2018w","2017m","2017s","2017w","2016m","2016s","2016w","2015m","2015s","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2004w","2003s","2003w","2002w"],"0452":["2025m","2025s","2025w","2024m","2024s","2024w","2023m","2023s","2023w","2022m","2022s","2022w","2021s","2021w","2020m","2020w","2019m","2019s","2019w","2018m","2018s","2018w","2017m","2017s","2017w","2016m","2016s","2016w","2015m","2015s","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2004w","2003s","2003w","2002w"],"0453":["2021w","2020w","2019w","2018w","2017w","2016w","2015w","2014w","2013w","2012w","2011w","2010w","2009w","2008w","2007w","2006w","2005w","2004w","2003w","2002w"],"0454":["2025s","2025w","2024s","2024w","2023s","2023w","2022s","2022w","2021s","2021w","2020w","2019s","2019w","2018s","2018w","2017s","2017w","2016s","2016w","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w"],"0455":["2025m","2025s","2025w","2024m","2024s","2024w","2023m","2023s","2023w","2022m","2022s","2022w","2021m","2021s","2021w","2020m","2020w","2019m","2019s","2019w","2018m","2018s","2018w","2017m","2017s","2017w","2016m","2016s","2016w","2015m","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2004w","2003s","2003w","2002w"],"0457":["2025m","2025s","2025w","2024m","2024s","2024w","2023m","2023s","2023w","2022m","2022s","2022w","2021m","2021s","2021w","2020m","2020w","2019m","2019s","2019w","2018m","2018s","2018w","2017m","2017s","2017w","2016m","2016s","2016w","2015m","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2004w","2003s","2003w","2002w"],"0459":[],"0460":["2025s","2025w","2024m","2024s","2024w","2023m","2023s","2023w","2022m","2022s","2022w","2021m","2021s","2021w","2020m","2020w","2019m","2019s","2019w","2018m","2018s","2018w","2017s","2017w","2016s","2016w","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2004w","2003s","2003w","2002w"],"0465":["2024s"],"0470":["2025m","2025s","2025w","2024m","2024s","2024w","2023m","2023s","2023w","2022m","2022s","2022w","2021m","2021s","2021w","2020m","2020w","2019m","2019s","2019w","2018m","2018s","2018w","2017s","2017w","2016s","2016w","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2004w","2003s","2003w","2002s","2002w","2001w"],"0471":["2025s","2025w","2024s","2024w","2023s","2023w","2022s","2022w","2021s","2021w","2020w","2019s","2019w","2018s","2018w","2017s","2017w","2016s","2016w","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w"],"0472":[],"0474":["2025s","2025w"],"0475":[],"0476":[],"0477":[],"0478":["2025m","2025s","2025w","2024m","2024s","2024w","2023m","2023s","2023w","2022m","2022s","2022w","2021m","2021s","2021w","2020m","2020w","2019m","2019s","2019w","2018m","2018s","2018w","2017m","2017s","2017w","2016m","2016s","2016w","2015m","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w"],"0480":["2025s","2024s","2023s","2022s","2019s","2018s","2017s","2016s","2015s","2014s","2013s","2012s","2011s","2010s","2009s","2008s","2007s","2006s","2005s","2004s","2003s"],"0486":["2019m","2019w","2018m","2018s","2018w","2017m","2017s","2017w","2016m","2016s","2016w","2015m","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2003s"],"0488":["2024s","2024w","2023s","2023w","2022s","2022w","2021s","2021w","2020s","2020w","2019s","2019w","2018s","2018w","2017s","2017w","2016s","2016w","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s"],"0490":["2025w","2024w","2023w","2022w","2021w","2020w","2019w","2018w","2017w","2016w","2015w","2014w","2013w","2012w","2011w","2010w","2009w","2008w","2007w","2006w","2005w","2004w","2003w","2002w"],"0493":["2025s","2025w","2024s","2024w","2023s","2023w","2022s","2022w","2021s","2021w","2020w","2019s","2019w","2018s","2018w","2017s","2017w","2016s","2016w","2015s","2015w","2014s","2014w","2013w","2012w"],"0495":[],"0499":["2025s","2024s","2023s","2022s","2021s"],"0500":[],"0501":[],"0502":[],"0503":["2019s","2018s","2017s","2016s","2015s","2014s","2013s","2012s","2011s","2010s","2009s","2008s","2007s","2006s","2005s","2004s","2003s"],"0504":["2025s","2024s","2023s","2022s","2021s","2019s","2018s","2017s","2016s","2015s","2014s","2013s","2012s","2011s","2010s","2009s","2008s","2007s","2006s","2005s","2004s","2003s"],"0505":["2025s","2024s","2023s","2022s","2021s","2019s","2018s","2017s","2016s","2015s","2014s","2013s","2012s","2011s","2010s","2009s","2008s","2007s","2006s","2005s","2004s","2003s"],"0507":["2018s","2017s","2016s","2015s","2014s","2013s","2012s","2011s","2010s","2009s","2008s","2007s","2006s","2005s","2004s","2003s"],"0508":["2025s","2025w","2024s","2024w","2023s","2023w","2022s","2022w","2021s","2021w","2020w","2019s","2019w","2018s","2018w","2017s","2017w","2016s","2016w","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2003s"],"0509":[],"0510":[],"0511":[],"0512":[],"0513":["2025s","2024s","2023s","2022s","2021s","2019s","2018s","2017s","2016s","2015s","2014s","2013s","2012s","2011s","2010s","2009s","2008s","2007s","2006s","2005s","2004s","2003s"],"0514":["2019s","2018s","2017s","2016s","2015s","2014s","2013s","2012s","2011s","2010s","2009s","2008s","2007s"],"0515":["2021s","2019s","2018s","2017s","2016s","2015s","2014s","2013s","2012s","2011s","2010s","2009s","2008s","2007s","2006s","2005s","2004s","2003s"],"0516":["2021s","2018s","2017w"],"0518":["2025s","2024s","2023s","2022s","2021s","2019s","2018s","2017s","2016s","2015s","2014s","2013s","2012s","2011s","2010s","2009s","2008s","2007s","2006s","2005s","2004s","2003s"],"0519":["2021w","2020w","2019w","2018w","2017w","2016w","2015w","2014w","2013w","2012w","2011w","2010w","2009w","2008w","2007w","2006w","2005w"],"0520":["2025m","2025s","2025w","2024m","2024s","2024w","2023m","2023s","2023w","2022m","2022s","2022w","2021m","2021s","2021w","2020m","2020w","2019m","2019s","2019w","2018m","2018s","2018w","2017m","2017s","2017w","2016m","2016s","2016w","2015m","2015s","2015w","2014s","2014w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2004w","2003s","2003w","2002w"],"0521":["2021s","2018s","2017s","2016s","2015s","2014s","2013s"],"0522":[],"0523":["2025s","2024s","2023s","2022s","2021s","2020w","2019s","2018s","2017s","2016s","2015s","2014s","2013s","2012s","2011s","2010s","2009s","2008s","2007s"],"0524":["2024s","2023s","2023w","2022s","2022w","2021s","2021w","2020w","2019s","2019w","2018s","2018w","2017s","2017w","2016s","2016w","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2006s","2005s","2004s","2003s"],"0525":["2025s","2025w","2024s","2024w","2023s","2023w","2022s","2022w","2021s","2021w","2020w","2019s","2019w","2018s","2018w","2017s","2017w","2016s","2016w","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s"],"0526":[],"0527":[],"0528":[],"0529":[],"0530":["2025m","2025s","2025w","2024m","2024s","2024w","2023m","2023s","2023w","2022m","2022s","2022w","2021m","2021s","2021w","2020w","2019s","2019w","2018s","2018w","2017s","2017w","2016s","2016w","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2006s","2005s","2004s","2003s"],"0531":["2025w","2024w","2023w","2022w","2021w","2020w","2019w","2018w","2017w","2016w","2015w","2014w","2013w","2012w","2011w","2010w","2009w","2008w","2007w"],"0532":["2019s","2018s","2017s","2016s","2015s","2014s","2013s","2012s","2011s"],"0533":["2017w"],"0534":[],"0535":["2025s","2024s","2023s","2022s","2021s","2019s","2018s"],"0536":[],"0537":["2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w"],"0538":["2025s","2024s","2023s","2022s","2021s","2020w","2019s","2018s","2017s","2016s"],"0539":["2025s","2024s","2023s","2022s","2021s","2019s","2018s","2017s","2016w","2015s"],"0540":["2021s","2018s","2017s","2016s","2015s","2014s","2013s","2012s","2011s","2010s","2009s","2008s","2007s"],"0543":[],"0544":["2025s","2024s","2023s","2022s","2021s","2019s","2018s","2017s","2016s","2015s","2014s","2013s","2012s","2011s","2010s","2009s","2008s","2007s"],"0545":["2021s","2019s","2018s","2017s","2016s","2015s","2014s","2013s","2012s","2011s"],"0546":["2025s","2024s","2023s","2022s","2021s","2020w","2019s","2018s","2017s","2016s","2015s","2014s","2013s","2012s","2011s","2010s","2009s","2008s","2007s"],"0547":[],"0548":["2025w","2024w","2023w","2022w","2021s","2021w","2020w","2019w","2018w","2017w","2016w","2015w","2014w","2013w","2012w","2011w","2010w","2009w","2008w","2007w"],"0549":["2025m","2025w","2024m","2024w","2023m","2023w","2022m","2022w","2021m","2021w","2020m","2020w","2019m","2019w","2018m","2018w","2017m","2017w","2016m","2016w","2015m","2015w","2014m","2014w","2013m","2013w","2012m","2012w","2011m","2011w","2010m","2010w","2009m","2009w","2008m","2008w","2007m","2007w"],"0580":["2025m","2025s","2025w","2024m","2024s","2024w","2023m","2023s","2023w","2022m","2022s","2022w","2021m","2021s","2021w","2020m","2020w","2019m","2019s","2019w","2018m","2018s","2018w","2017m","2017s","2017w","2016m","2016s","2016w","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2004w","2003s","2003w","2002w"],"0581":["2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2004w","2003s","2003w","2002w"],"0600":["2025w","2024w","2023w","2022w","2020w","2019w","2018w","2017w","2016w","2015w","2014w","2013w","2012w","2011w","2010w","2009w","2008w","2007w","2006w","2005w","2004w","2003w","2002w"],"0606":[],"0607":[],"0608":["2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w"],"0610":["2025m","2025s","2025w","2024m","2024s","2024w","2023m","2023s","2023w","2022m","2022s","2022w","2021m","2021s","2021w","2020m","2019m","2019s","2019w","2018m","2018s","2018w","2017m","2017s","2017w","2016m","2016s","2016w","2015m","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2004w","2003s","2003w","2002w"],"0620":["2025m","2025s","2025w","2024m","2024s","2024w","2023m","2023s","2023w","2022m","2022s","2022w","2021m","2021s","2021w","2020m","2020w","2019m","2019s","2019w","2018m","2018s","2018w","2017m","2017s","2017w","2016m","2016s","2016w","2015m","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2004w","2003s","2003w","2002w"],"0625":["2025m","2025s","2025w","2024m","2024s","2024w","2023m","2023s","2023w","2022m","2022s","2022w","2021m","2021s","2021w","2020m","2020w","2019m","2019s","2019w","2018m","2018s","2018w","2017m","2017s","2017w","2016m","2016s","2016w","2015m","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2004w","2003s","2003w","2002w"],"0626":["2019w","2018s","2018w"],"0627":["2021s","2021w","2020w","2019s","2019w","2018s","2018w"],"0637":["2019w","2018s","2018w","2017s","2017w","2016s","2016w","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2004w","2003s","2003w","2002w"],"0648":["2025s","2025w","2024s","2024w","2023s","2023w","2022s","2022w","2021s","2021w","2020w","2019s","2019w","2018s","2018w","2017s","2017w","2016s","2016w","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2004w"],"0652":["2025w","2024w","2023w","2022w","2021w","2020w","2019w","2018w","2017w","2016w","2015w","2014w","2013w","2012w","2011w","2010w","2009w","2008w","2007w","2006w","2005w","2004s","2004w","2003s","2003w","2002w"],"0653":[],"0654":[],"0678":[],"0680":["2025m","2025s","2025w","2024m","2024w","2023m","2023s","2023w","2022m","2022s","2022w","2021m","2021s","2021w","2020m","2020w","2019m","2019s","2019w","2018m","2018s","2018w","2017m","2017s","2017w","2016m","2016s","2016w","2015m","2015s","2015w","2014s","2014w","2013s","2013w","2012s","2012w","2011s","2011w","2010s","2010w","2009s","2009w","2008s","2008w","2007s","2007w","2006s","2006w","2005s","2005w","2004s","2004w"],"0695":["2025s"],"0696":["2025s","2024s","2023s","2022s","2021s"],"0697":[],"0698":["2025w"],"0985":["2025s","2025w","2024s","2024w","2023s","2023w","2022s","2022w","2021s","2021w","2020w"]};
+
 
   const SESS_LABELS = { s: 'M/J (May/Jun)', w: 'O/N (Oct/Nov)', m: 'F/M (Feb/Mar)' };
 
@@ -2040,11 +2039,14 @@
       document.getElementById('codeSuggestions').classList.remove('open');
       // Apply IGCSE smart dropdowns if board is CAIE
       const board = document.getElementById('board').value;
-      if (board === 'CAIE' && IGCSE_DATA[code] !== undefined) {
+      if (board === 'CAIE' && code.startsWith('0')) {
+        // IGCSE code — fetch sessions live
         applyIgcseDropdowns(code);
       } else if (board === 'CAIE') {
+        // Non-IGCSE — free text year, full session list
         setYearMode('input');
         repopulateFullSessions('CAIE');
+        resetPaperFields();
       }
     } else {
       tag.textContent = '';
@@ -2215,21 +2217,17 @@
 
   // ── Board change ──
 
-  // ── IGCSE smart dropdowns ──
+  // ── IGCSE smart dropdowns — fully live, no baked data ──
   let _manualMode = false;
-  let _currentPapersData = null; // cached result from /api/get-papers
+  let _currentPapersData = null;
+  let _currentSessions = []; // [{year, sess, slug}] fetched live
 
-  // Build PapaCambridge session slug from sess code + full 4-digit year
-  function buildSessSlug(sess, fullYear) {
-    const yr = parseInt(fullYear);
-    if (sess === 's') return yr >= 2018 ? 'may-june' : 'jun';
-    if (sess === 'w') return yr >= 2018 ? 'oct-nov' : 'nov';
-    if (sess === 'm') return yr >= 2022 ? (yr === 2022 ? 'feb-march' : 'march') : 'mar';
-    return '';
-  }
+  const SESS_ORDER  = { s: 0, m: 1, w: 2 };
+
+  // Default variant list shown before dynamic data loads
+  const DEFAULT_VARIANTS = ['1','2','3','11','12','13','21','22','23','31','32','33','41','42','43','51','52','53','61','62','63'];
 
   function buildSubjectSlug(code) {
-    // Build slug from subjectNames
     const name = subjectNames[code] || '';
     return 'igcse-' + name.toLowerCase()
       .replace(/&/g, 'and')
@@ -2239,34 +2237,87 @@
       + '-' + code;
   }
 
-  function applyIgcseDropdowns(code) {
-    if (_manualMode) return;
-    const data = IGCSE_DATA[code];
-    const sessionSel = document.getElementById('session');
+  // Build PapaCambridge session subpage slug from sess code + full year
+  function buildSessSlug(sess, fullYear) {
+    const yr = parseInt(fullYear);
+    if (sess === 's') return yr >= 2018 ? 'may-june' : 'jun';
+    if (sess === 'w') return yr >= 2018 ? 'oct-nov' : 'nov';
+    if (sess === 'm') return yr >= 2022 ? (yr === 2022 ? 'feb-march' : 'march') : 'mar';
+    return '';
+  }
 
-    if (!data || data.length === 0) {
+  // ── Step 1: on valid code entry — fetch available sessions live ──
+  async function applyIgcseDropdowns(code) {
+    if (_manualMode) return;
+
+    const sessionSel = document.getElementById('session');
+    const yearField  = document.getElementById('yearField');
+    const sessField  = document.querySelector('#session').closest('.field');
+
+    // Show loading on session and year fields
+    sessField.classList.add('field-loading');
+    yearField.classList.add('field-loading');
+    setYearMode('select');
+    document.getElementById('yearSelect').innerHTML = '<option value="">Loading…</option>';
+    sessionSel.innerHTML = '<option value="">Loading…</option>';
+    resetPaperFields();
+
+    try {
+      const slug = buildSubjectSlug(code);
+      const r = await fetch('/api/get-sessions?code=' + code + '&slug=' + encodeURIComponent(slug));
+      const data = await r.json();
+      _currentSessions = data.sessions || [];
+    } catch(e) {
+      _currentSessions = [];
+    } finally {
+      sessField.classList.remove('field-loading');
+      yearField.classList.remove('field-loading');
+    }
+
+    if (_currentSessions.length === 0) {
+      // Fallback to free text + full session list
       setYearMode('input');
       repopulateFullSessions('CAIE');
       return;
     }
 
-    // Derive available sessions
-    const availSessions = [...new Set(data.map(e => e.slice(-1)))];
-    const currentSess = sessionSel.value;
+    // Populate session dropdown with available sessions
+    const availSessions = [...new Set(_currentSessions.map(e => e.sess))];
     sessionSel.innerHTML = '<option value="">— Select —</option>';
-    [['s','M/J (May/Jun)'],['m','F/M (Feb/Mar)'],['w','O/N (Oct/Nov)']].forEach(([val, label]) => {
+    ['s','m','w'].forEach(val => {
       if (availSessions.includes(val)) {
         const o = document.createElement('option');
-        o.value = val; o.textContent = label;
-        if (val === currentSess) o.selected = true;
+        o.value = val; o.textContent = SESS_LABELS[val];
         sessionSel.appendChild(o);
       }
     });
 
     setYearMode('select');
-    populateYearSelect(code, sessionSel.value);
-    // Reset downstream fields
-    resetPaperFields();
+    populateYearSelect(null, null); // pass null = no filter yet
+  }
+
+  // ── Populate year dropdown from _currentSessions ──
+  function populateYearSelect(code, sess) {
+    const yearSelect = document.getElementById('yearSelect');
+    const filtered = sess
+      ? _currentSessions.filter(e => e.sess === sess)
+      : _currentSessions;
+
+    const seen = new Set();
+    const years = [];
+    filtered.forEach(e => {
+      if (!seen.has(e.year)) { seen.add(e.year); years.push(e); }
+    });
+
+    yearSelect.innerHTML = '<option value="">— Select Year —</option>';
+    years.forEach(e => {
+      const o = document.createElement('option');
+      o.value = e.year.slice(2);       // 2-digit for URL
+      o.dataset.full = e.year;         // 4-digit for slug
+      o.dataset.sessSlug = e.slug;     // original slug for subpage URL
+      o.textContent = e.year;
+      yearSelect.appendChild(o);
+    });
   }
 
   function setYearMode(mode) {
@@ -2282,12 +2333,29 @@
     }
   }
 
-  function setVariantMode(mode) {
+  function setVariantMode(mode, variants) {
     const vi = document.getElementById('variant');
     const vs = document.getElementById('variantSelect');
     if (mode === 'select') {
       vi.style.display = 'none';
       vs.style.display = '';
+      if (variants && variants.length > 0) {
+        const prev = vs.value;
+        vs.innerHTML = '<option value="">— Select —</option>';
+        variants.forEach(v => {
+          const o = document.createElement('option');
+          o.value = v; o.textContent = v;
+          if (v === prev) o.selected = true;
+          vs.appendChild(o);
+        });
+      } else if (vs.options.length <= 1) {
+        vs.innerHTML = '<option value="">— Select —</option>';
+        DEFAULT_VARIANTS.forEach(v => {
+          const o = document.createElement('option');
+          o.value = v; o.textContent = v;
+          vs.appendChild(o);
+        });
+      }
     } else {
       vi.style.display = '';
       vs.style.display = 'none';
@@ -2295,30 +2363,9 @@
     }
   }
 
-  function populateYearSelect(code, sess) {
-    const yearSelect = document.getElementById('yearSelect');
-    const data = IGCSE_DATA[code] || [];
-    const filtered = sess ? data.filter(e => e.slice(-1) === sess) : data;
-    const seen = new Set();
-    const years = [];
-    filtered.forEach(e => {
-      const yr = e.slice(0, 4);
-      if (!seen.has(yr)) { seen.add(yr); years.push(yr); }
-    });
-    yearSelect.innerHTML = '<option value="">— Select Year —</option>';
-    years.forEach(yr => {
-      const o = document.createElement('option');
-      o.value = yr.slice(2); // 2-digit for URL
-      o.dataset.full = yr;   // 4-digit for slug building
-      o.textContent = yr;
-      yearSelect.appendChild(o);
-    });
-  }
-
   function resetPaperFields() {
     if (_manualMode) return;
     _currentPapersData = null;
-    // Reset papertype to static list
     const pt = document.getElementById('papertype');
     pt.innerHTML = `<option value="">— Select —</option>
       <option value="qp">Question Paper (QP)</option>
@@ -2326,27 +2373,26 @@
       <option value="gt">Grade Thresholds (GT)</option>
       <option value="er">Examiner Report (ER)</option>
       <option value="ci">Confidential Instructions (CI)</option>`;
-    // Reset variant
-    setVariantMode('input');
-    document.getElementById('variant').value = '';
+    setVariantMode('select');
+    document.getElementById('variantSelect').value = '';
     const variantField = document.getElementById('variant').closest('.field');
     variantField.classList.remove('variant-hidden');
   }
 
   async function fetchPapersForSelection() {
     if (_manualMode) return;
-    const code    = document.getElementById('code').value.trim();
-    const sess    = document.getElementById('session').value;
-    const ysEl    = document.getElementById('yearSelect');
-    const selOpt  = ysEl.options[ysEl.selectedIndex];
+    const code   = document.getElementById('code').value.trim();
+    const sess   = document.getElementById('session').value;
+    const ysEl   = document.getElementById('yearSelect');
+    const selOpt = ysEl.options[ysEl.selectedIndex];
     if (!selOpt || !selOpt.dataset.full || !sess) return;
 
-    const fullYear  = selOpt.dataset.full; // e.g. "2023"
-    const sessSlug  = buildSessSlug(sess, fullYear);
-    const subjSlug  = buildSubjectSlug(code);
-    const pageUrl   = `https://pastpapers.papacambridge.com/papers/caie/${subjSlug}-${fullYear}-${sessSlug}`;
+    const fullYear = selOpt.dataset.full;
+    // Use stored sessSlug from the session entry, fallback to buildSessSlug
+    const sessSlug = selOpt.dataset.sessSlug || buildSessSlug(sess, fullYear);
+    const subjSlug = buildSubjectSlug(code);
+    const pageUrl  = `https://pastpapers.papacambridge.com/papers/caie/${subjSlug}-${fullYear}-${sessSlug}`;
 
-    // Show loading on papertype and variant fields
     const ptField = document.getElementById('papertype').closest('.field');
     const vField  = document.getElementById('variantField');
     ptField.classList.add('field-loading');
@@ -2358,7 +2404,7 @@
       _currentPapersData = data;
       applyPapersData(data);
     } catch(e) {
-      // silently fall back to static list
+      // silently fall back
     } finally {
       ptField.classList.remove('field-loading');
       vField.classList.remove('field-loading');
@@ -2367,14 +2413,11 @@
 
   function applyPapersData(data) {
     if (_manualMode || !data || !data.types || data.types.length === 0) return;
-
     const TYPE_LABELS = {
       qp: 'Question Paper (QP)', ms: 'Mark Scheme (MS)',
       gt: 'Grade Thresholds (GT)', er: 'Examiner Report (ER)',
       ci: 'Confidential Instructions (CI)'
     };
-
-    // Populate papertype
     const pt = document.getElementById('papertype');
     const prevPt = pt.value;
     pt.innerHTML = '<option value="">— Select —</option>';
@@ -2385,44 +2428,28 @@
       if (t === prevPt) o.selected = true;
       pt.appendChild(o);
     });
-
-    // Trigger variant update for currently selected type
     updateVariantForType(pt.value, data);
-    onPapertypeChange(); // handle GT variant-hidden
+    onPapertypeChange();
   }
 
   function updateVariantForType(type, data) {
     if (_manualMode) return;
     data = data || _currentPapersData;
     if (!data) return;
-
     const variants = data.variants && data.variants[type] ? data.variants[type] : [];
     const variantField = document.getElementById('variant').closest('.field');
-
-    if (!type || type === 'gt' || type === 'er' || variants.length === 0) {
-      // No variant needed
-      setVariantMode('input');
-      document.getElementById('variant').value = '';
-      if (type === 'gt' || type === 'er') {
-        variantField.classList.add('variant-hidden');
-      } else {
-        variantField.classList.remove('variant-hidden');
-      }
+    if (!type || type === 'gt' || type === 'er') {
+      setVariantMode('select');
+      document.getElementById('variantSelect').value = '';
+      variantField.classList.add('variant-hidden');
       return;
     }
-
     variantField.classList.remove('variant-hidden');
-    setVariantMode('select');
-    const vs = document.getElementById('variantSelect');
-    const prev = vs.value;
-    vs.innerHTML = '<option value="">— Select —</option>';
-    variants.forEach(v => {
-      const o = document.createElement('option');
-      o.value = v;
-      o.textContent = v;
-      if (v === prev) o.selected = true;
-      vs.appendChild(o);
-    });
+    if (variants.length > 0) {
+      setVariantMode('select', variants);
+    } else {
+      setVariantMode('select');
+    }
   }
 
   function repopulateFullSessions(board) {
@@ -2448,10 +2475,9 @@
 
   function onSessionChange() {
     if (_manualMode) { clearFieldErrors(); return; }
-    const code = document.getElementById('code').value.trim();
     const sess = document.getElementById('session').value;
-    if (IGCSE_DATA[code] && IGCSE_DATA[code].length > 0) {
-      populateYearSelect(code, sess);
+    if (_currentSessions.length > 0) {
+      populateYearSelect(null, sess);
       document.getElementById('yearSelect').value = '';
     }
     resetPaperFields();
@@ -2462,24 +2488,21 @@
     if (_manualMode) { clearFieldErrors(); return; }
     resetPaperFields();
     clearFieldErrors();
-    // Fetch available papers for this year+session
     fetchPapersForSelection();
   }
 
   function toggleManualMode() {
     _manualMode = !_manualMode;
-    const btn = document.getElementById('manualToggle');
+    const btn  = document.getElementById('manualToggle');
     const hint = document.getElementById('manualHint');
-    const code = document.getElementById('code').value.trim();
     const board = document.getElementById('board').value;
-
+    const code  = document.getElementById('code').value.trim();
     if (_manualMode) {
       btn.classList.add('active');
       btn.textContent = '✎ Using dropdowns';
       hint.style.display = 'inline';
-      // Restore all fields to free-text / full lists
       setYearMode('input');
-      setVariantMode('input');
+      setVariantMode('select');
       repopulateFullSessions(board);
       const pt = document.getElementById('papertype');
       pt.innerHTML = `<option value="">— Select —</option>
@@ -2488,20 +2511,16 @@
         <option value="gt">Grade Thresholds (GT)</option>
         <option value="er">Examiner Report (ER)</option>
         <option value="ci">Confidential Instructions (CI)</option>`;
-      const vf = document.getElementById('variant').closest('.field');
-      vf.classList.remove('variant-hidden');
+      document.getElementById('variant').closest('.field').classList.remove('variant-hidden');
     } else {
       btn.classList.remove('active');
       btn.textContent = '✎ Enter manually';
       hint.style.display = 'none';
-      // Re-apply smart dropdowns if code is valid IGCSE
-      if (board === 'CAIE' && IGCSE_DATA[code] !== undefined) {
+      if (board === 'CAIE' && caieCodesAll.has(code) && code.startsWith('0')) {
         applyIgcseDropdowns(code);
       }
     }
   }
-
-
 
   function onBoardChange() {
     const board = document.getElementById('board').value;
@@ -2509,8 +2528,8 @@
     setYearMode('input');
     document.getElementById('year').value = '';
     setYearMode('input');
-    document.getElementById('variant').value = '';
-    setVariantMode('input');
+    document.getElementById('variantSelect').value = '';
+    setVariantMode('select'); // back to default dropdown
     _manualMode = false;
     _currentPapersData = null;
     const mt = document.getElementById('manualToggle');
@@ -2587,6 +2606,7 @@
     btn.addEventListener('mouseleave', () => { arrow.style.left = btn._arrowStart; });
   }
   document.addEventListener('DOMContentLoaded', setupArrow);
+  document.addEventListener('DOMContentLoaded', () => { setVariantMode('select'); });
   // re-run after splash in case layout shifts
   setTimeout(setupArrow, 1600);
 
@@ -2617,7 +2637,7 @@
       // build a best-guess URL for bypass
       const sv = document.getElementById('session').value;
       const yv = document.getElementById('year').value;
-      const vv = document.getElementById('variant').value;
+      const vv = document.getElementById('variantSelect').style.display !== 'none' ? document.getElementById('variantSelect').value : document.getElementById('variant').value;
       const pt = document.getElementById('papertype').value;
       let guessUrl = '';
       if (sv && yv && pt) {
