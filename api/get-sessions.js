@@ -46,4 +46,4 @@ return res.status(200).json({ sessions });
 } catch (e) {
 return res.status(200).json({ sessions: [], error: e.message });
 }
-}
+} 
