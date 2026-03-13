@@ -2408,8 +2408,15 @@
       if (t === prevPt) o.selected = true;
       pt.appendChild(o);
     });
-    updateVariantForType(pt.value, data);
-    onPapertypeChange();
+    // If a paper type was previously selected and is still available, update variants
+    // Otherwise hide variant until paper type is picked
+    if (pt.value) {
+      updateVariantForType(pt.value, data);
+    } else {
+      // No paper type selected yet — hide variant with placeholder
+      document.getElementById('variantField').classList.add('variant-hidden');
+      document.getElementById('variantSelect').innerHTML = '<option value="">— Select paper type first —</option>';
+    }
   }
 
   function updateVariantForType(type, data) {
@@ -2482,9 +2489,9 @@
       <option value="gt">Grade Thresholds (GT)</option>
       <option value="er">Examiner Report (ER)</option>
       <option value="ci">Confidential Instructions (CI)</option>`;
-    setVariantMode('select');
-    document.getElementById('variantSelect').value = '';
-    document.getElementById('variantField').classList.remove('variant-hidden');
+    // Hide variant until paper type is selected
+    document.getElementById('variantField').classList.add('variant-hidden');
+    document.getElementById('variantSelect').innerHTML = '<option value="">— Select paper type first —</option>';
   }
 
   function repopulateFullSessions(board) {
@@ -2564,14 +2571,21 @@
   // ── Paper type change ──
   function onPapertypeChange() {
     const pt = document.getElementById('papertype').value;
+    const variantField = document.getElementById('variantField');
+    if (!pt) {
+      // Nothing selected — hide variant
+      variantField.classList.add('variant-hidden');
+      return;
+    }
     if (!_manualMode && _currentPapersData) {
       updateVariantForType(pt, _currentPapersData);
     } else {
-      const variantField = document.getElementById('variantField');
+      // No scanned data — use defaults
       if (pt === 'gt' || pt === 'er') {
         variantField.classList.add('variant-hidden');
       } else {
         variantField.classList.remove('variant-hidden');
+        setVariantMode('select', null); // default list
       }
     }
   }
@@ -2627,9 +2641,9 @@
   }
   document.addEventListener('DOMContentLoaded', setupArrow);
   document.addEventListener('DOMContentLoaded', () => {
-    setVariantMode('select');
-    // Year starts in SELECT mode — text input hidden, yearSelect visible
-    // For non-IGCSE boards, setYearMode('input') will swap them
+    // Variant hidden until paper type selected
+    document.getElementById('variantField').classList.add('variant-hidden');
+    document.getElementById('variantSelect').innerHTML = '<option value="">— Select paper type first —</option>';
   });
   // re-run after splash in case layout shifts
   setTimeout(setupArrow, 1600);
