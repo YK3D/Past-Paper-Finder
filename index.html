@@ -103,21 +103,7 @@
 
   .subtitle { margin-top: 0.6rem; color: var(--muted); font-size: 0.9rem; font-family: 'Space Mono', monospace; }
 
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 1.5rem;
-    position: relative;
-    overflow: hidden;
-  }
-  .card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-  }
+  /* card styles defined below with poda glow */
 
   .field-group { display: grid; gap: 0.9rem; }
 
@@ -199,6 +185,7 @@
   body.light .code-suggestions { background: #fff; border-color: rgba(0,153,187,0.3); }
   body.light .suggestion-item:hover, body.light .suggestion-item.active { background: rgba(0,153,187,0.08); }
 
+  /* ── Input fields ── */
   .field select, .field input {
     background: var(--bg);
     border: 1px solid var(--border);
@@ -226,44 +213,154 @@
   }
   .field select option { background: #1a1a25; }
 
-  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .field > label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
+  /* ── Poda glow animation around card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: visible;
+  }
+  .card-glow {
+    position: absolute;
+    inset: -2px;
+    border-radius: 18px;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .card-glow::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 800px; height: 800px;
+    transform: translate(-50%, -50%) rotate(0deg);
+    background-image: conic-gradient(
+      transparent 0%,
+      var(--accent) 8%,
+      transparent 15%,
+      transparent 50%,
+      var(--accent2) 58%,
+      transparent 65%
+    );
+    animation: cardGlowRotate 5s linear infinite;
+    opacity: 0.7;
+    filter: blur(2px);
+  }
+  .card-glow::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 16px;
+    background: var(--surface);
+  }
+  @keyframes cardGlowRotate {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
   .divider { height: 1px; background: var(--border); margin: 1.5rem 0; }
 
+  /* ── Generate button (animated fill) ── */
   .btn-generate {
-    width: 100%;
-    padding: 0.9rem;
-    background: var(--accent);
-    color: #000;
-    border: none;
-    border-radius: 8px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.9rem 2rem;
+    border: 2px solid var(--accent);
+    font-size: 0.95rem;
+    background-color: transparent;
+    border-radius: 10px;
     font-family: 'Syne', sans-serif;
     font-weight: 700;
-    font-size: 0.95rem;
     letter-spacing: 0.05em;
+    color: var(--accent);
     cursor: pointer;
-    transition: opacity 0.2s, transform 0.1s;
+    overflow: hidden;
+    transition: color 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+                background-color 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   }
-  .btn-generate:hover { opacity: 0.85; }
-  .btn-generate:active { transform: scale(0.98); }
+  .btn-generate .btn-arrow {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+    /* start to the left of centre */
+    left: calc(50% - 60px);
+    transition: left 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+                opacity 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    opacity: 0;
+  }
+  .btn-generate .btn-text {
+    position: relative;
+    z-index: 1;
+  }
+  .btn-generate .arr-1,
+  .btn-generate .arr-2,
+  .btn-generate .circle { display: none; }
+  .btn-generate:hover {
+    background-color: var(--accent);
+    color: #000;
+  }
+  .btn-generate:hover .btn-arrow {
+    /* end to the right of centre */
+    left: calc(50% + 42px);
+    opacity: 1;
+  }
+  .btn-generate:active { scale: 0.97; }
+  .btn-generate:disabled { opacity: 0.6; pointer-events: none; }
 
   .btn-row { display: flex; gap: 0.6rem; margin-top: 0.8rem; align-items: stretch; }
   .btn-row .btn-generate { flex: 1; margin-top: 0; }
   .btn-reset {
-    padding: 0.9rem 1rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.9rem 1.2rem;
     background: transparent;
-    color: var(--muted);
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    color: var(--accent2);
+    border: 2px solid var(--accent2);
+    border-radius: 10px;
     font-family: 'Syne', sans-serif;
     font-weight: 700;
     font-size: 0.85rem;
     cursor: pointer;
-    transition: border-color 0.2s, color 0.2s;
     white-space: nowrap;
-    align-self: stretch;
+    overflow: hidden;
+    transition: color 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+                background-color 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   }
-  .btn-reset:hover { border-color: var(--accent2); color: var(--accent2); }
+  .btn-reset:hover {
+    background-color: var(--accent2);
+    color: #000;
+  }
+  .btn-reset:active { scale: 0.97; }
+  .btn-reset .reset-icon {
+    display: inline-block;
+    transform: scaleX(-1);
+  }
+  .btn-reset .reset-icon.spinning {
+    animation: resetSpin 0.9s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  }
+  @keyframes resetSpin {
+    from { transform: scaleX(-1) rotate(0deg); }
+    to   { transform: scaleX(-1) rotate(-360deg); }
+  }
 
   .result-box {
     margin-top: 1.2rem;
@@ -683,10 +780,92 @@
     margin-top: 0.25rem;
   }
 
+  /* ── STARTUP ANIMATION ── */
+  #splash {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    pointer-events: none;
+    gap: 1rem;
+  }
+  #splash.done { }
+  @keyframes splashFadeOut { }
+  .splash-logo {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    opacity: 0;
+    transform: scale(0.5);
+    animation: splashLogoIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s forwards;
+  }
+  @keyframes splashLogoIn {
+    from { opacity: 0; transform: scale(0.4) rotate(-8deg); }
+    to   { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+  .splash-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    opacity: 0;
+    animation: splashTitleIn 0.45s ease 0.4s forwards;
+  }
+  .splash-title span { color: var(--accent); }
+  @keyframes splashTitleIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .splash-bar {
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    animation: splashBarGrow 0.5s ease 0.65s forwards;
+  }
+  @keyframes splashBarGrow {
+    from { width: 0; opacity: 0; }
+    to   { width: 120px; opacity: 1; }
+  }
+  .splash-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0;
+    animation: splashSubIn 0.4s ease 0.9s forwards;
+  }
+  @keyframes splashSubIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* page content hidden until splash done */
+  .container { opacity: 0; }
+  .container.revealed {
+    animation: pageReveal 0.5s ease forwards;
+  }
+  @keyframes pageReveal {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
   .header-title-row .header-logo { display: none; }
 </style>
 </head>
 <body>
+
+<div id="splash">
+  <img src="/favicon.png" class="splash-logo" alt="logo">
+  <div class="splash-title">Paper<span>Finder</span></div>
+  <div class="splash-bar"></div>
+  <div class="splash-sub">Past Paper Retrieval</div>
+</div>
 
 <!-- \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 MAIN VIEW \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 -->
 <div id="main-view" class="active">
@@ -716,6 +895,7 @@
     </div>
 
     <div class="card">
+      <div class="card-glow"></div>
       <div class="field-group">
 
         <div class="field">
@@ -728,9 +908,7 @@
         </div>
 
         <div class="field" style="position:relative">
-          <label>
-            <span>Subject Code</span>
-          </label>
+          <label>Subject Code</label>
           <input type="text" id="code" placeholder="e.g. 0417" maxlength="4" inputmode="numeric" oninput="onCodeInput()" onkeydown="onCodeKeydown(event)" onblur="hideSuggestions(event)" />
           <div class="subject-name-tag" id="subjectNameTag"></div>
           <div class="did-you-mean" id="didYouMeanTag" style="display:none"></div>
@@ -747,14 +925,14 @@
           </div>
           <div class="field">
             <label>Year</label>
-            <input type="text" id="year" placeholder="e.g. 2023 / 23" maxlength="4" inputmode="numeric" />
+            <input type="text" id="year" placeholder="e.g. 2023 / 23" maxlength="4" inputmode="numeric" oninput="numericOnly(this)" />
           </div>
         </div>
 
         <div class="row-2">
           <div class="field">
             <label>Variant</label>
-            <input type="text" id="variant" placeholder="e.g. 31" maxlength="2" inputmode="numeric" />
+            <input type="text" id="variant" placeholder="e.g. 31" maxlength="2" inputmode="numeric" oninput="numericOnly(this)" />
           </div>
           <div class="field">
             <label>Paper Type</label>
@@ -772,8 +950,14 @@
       <div class="divider"></div>
 
       <div class="btn-row">
-        <button class="btn-generate" onclick="generate()">Generate Link</button>
-        <button class="btn-reset" onclick="resetForm()" title="Clear all fields">↺ Reset</button>
+        <button class="btn-generate" onclick="generate()" id="generateBtn">
+          <svg class="arr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"/></svg>
+          <svg class="btn-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"/></svg>
+          <span class="btn-text">Generate Link</span>
+          <div class="circle"></div>
+          <svg class="arr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"/></svg>
+        </button>
+        <button class="btn-reset" onclick="resetForm()" title="Clear all fields"><span class="reset-icon">↺</span> Reset</button>
       </div>
 
       <div class="error-msg" id="errorMsg"></div>
@@ -970,6 +1154,103 @@
   let generatedUrl = '';
   let recentOpen = false;
 
+  // ── Startup splash ──
+  (function() {
+    const splash      = document.getElementById('splash');
+    const splashTitle = splash.querySelector('.splash-title');
+    const splashLogo  = splash.querySelector('.splash-logo');
+    const container   = document.querySelector('.container');
+    const h1          = document.querySelector('h1');
+    const headerLogo  = document.querySelector('.header-logo');
+
+    // Keep h1 and header logo invisible until morphs land
+    h1.style.opacity         = '0';
+    headerLogo.style.opacity = '0';
+
+    setTimeout(() => {
+      // 1. Measure splash elements
+      const fromTitle = splashTitle.getBoundingClientRect();
+      const fromLogo  = splashLogo.getBoundingClientRect();
+
+      // 2. Reveal container so targets have real positions
+      container.classList.add('revealed');
+
+      // 3. Measure destinations
+      const toTitle = h1.getBoundingClientRect();
+      const toLogo  = headerLogo.getBoundingClientRect();
+
+      const ease = 'cubic-bezier(0.65, 0, 0.35, 1)';
+      const dur  = '0.65s';
+
+      // 4a. Flying title clone
+      const titleClone = splashTitle.cloneNode(true);
+      titleClone.style.cssText = `
+        position: fixed;
+        top: ${fromTitle.top}px; left: ${fromTitle.left}px;
+        width: ${fromTitle.width}px; height: ${fromTitle.height}px;
+        margin: 0;
+        font-family: 'Syne', sans-serif;
+        font-size: ${parseFloat(getComputedStyle(splashTitle).fontSize)}px;
+        font-weight: 800; letter-spacing: -0.02em;
+        color: var(--text);
+        z-index: 10000; pointer-events: none; opacity: 1;
+        transition: top ${dur} ${ease}, left ${dur} ${ease},
+                    font-size ${dur} ${ease}, width ${dur} ${ease},
+                    height ${dur} ${ease}, opacity 0.2s ease 0.5s;
+      `;
+      document.body.appendChild(titleClone);
+
+      // 4b. Flying logo clone
+      const logoClone = document.createElement('img');
+      logoClone.src = '/favicon.png';
+      logoClone.style.cssText = `
+        position: fixed;
+        top: ${fromLogo.top}px; left: ${fromLogo.left}px;
+        width: ${fromLogo.width}px; height: ${fromLogo.height}px;
+        border-radius: 6px; object-fit: cover;
+        z-index: 10000; pointer-events: none; opacity: 1;
+        transition: top ${dur} ${ease}, left ${dur} ${ease},
+                    width ${dur} ${ease}, height ${dur} ${ease},
+                    border-radius ${dur} ${ease}, opacity 0.2s ease 0.5s;
+      `;
+      document.body.appendChild(logoClone);
+
+      // 5. Fade out splash background
+      splash.style.transition = 'opacity 0.5s ease';
+      splash.style.opacity = '0';
+      setTimeout(() => splash.remove(), 500);
+
+      // 6. Animate both clones to their destinations
+      const toTitleFontSize = parseFloat(getComputedStyle(h1).fontSize);
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        // Title → h1
+        titleClone.style.top      = `${toTitle.top}px`;
+        titleClone.style.left     = `${toTitle.left}px`;
+        titleClone.style.width    = `${toTitle.width}px`;
+        titleClone.style.height   = `${toTitle.height}px`;
+        titleClone.style.fontSize = `${toTitleFontSize}px`;
+        titleClone.style.opacity  = '0';
+
+        // Logo → header logo
+        logoClone.style.top          = `${toLogo.top}px`;
+        logoClone.style.left         = `${toLogo.left}px`;
+        logoClone.style.width        = `${toLogo.width}px`;
+        logoClone.style.height       = `${toLogo.height}px`;
+        logoClone.style.borderRadius = '6px';
+        logoClone.style.opacity      = '0';
+
+        // 7. When morphs land, reveal real elements
+        setTimeout(() => {
+          h1.style.transition         = 'opacity 0.15s ease';
+          h1.style.opacity            = '1';
+          headerLogo.style.transition = 'opacity 0.15s ease';
+          headerLogo.style.opacity    = '1';
+          setTimeout(() => { titleClone.remove(); logoClone.remove(); }, 200);
+        }, 620);
+      }));
+    }, 1400);
+  })();
+
   // ── Haptic feedback (Android only, no-op on unsupported devices) ──
   function haptic(type) {
     if (!navigator.vibrate) return;
@@ -1031,6 +1312,19 @@
   }
 
   // ── Field error helpers ──
+  function numericOnly(el) {
+    const before = el.value;
+    const cleaned = before.replace(/\D/g, '');
+    if (cleaned !== before) {
+      el.value = cleaned;
+      // shake the field
+      el.classList.remove('field-error');
+      void el.offsetWidth;
+      el.classList.add('field-error');
+      setTimeout(() => el.classList.remove('field-error'), 500);
+    }
+  }
+
   function markFieldError(id) {
     const el = document.getElementById(id);
     if (!el) return;
@@ -1134,7 +1428,14 @@
 
   function onCodeInput() {
     const input = document.getElementById('code');
+    const before = input.value;
     input.value = input.value.replace(/\D/g, '');
+    if (input.value !== before) {
+      input.classList.remove('field-error');
+      void input.offsetWidth;
+      input.classList.add('field-error');
+      setTimeout(() => input.classList.remove('field-error'), 500);
+    }
     const code = input.value.trim();
     const tag = document.getElementById('subjectNameTag');
     const dym = document.getElementById('didYouMeanTag');
@@ -1390,7 +1691,8 @@
 
     // Check PDF exists via server-side proxy (avoids CORS)
     const btn = document.querySelector('.btn-generate');
-    btn.innerHTML = '<span class="btn-spinner"></span>Checking…';
+    const btnText = btn.querySelector('.btn-text');
+    btnText.innerHTML = '<span class="btn-spinner"></span>Checking…';
     btn.disabled = true;
 
     fetch('/api/check-pdf?url=' + encodeURIComponent(url))
@@ -1410,7 +1712,7 @@
         saveRecent(url);
       })
       .finally(() => {
-        btn.textContent = 'Generate Link';
+        btnText.textContent = 'Generate Link';
         btn.disabled = false;
       });
   }
@@ -1551,6 +1853,14 @@
 
   function resetForm() {
     haptic('light');
+    // spin the reset icon
+    const icon = document.querySelector('.reset-icon');
+    if (icon) {
+      icon.classList.remove('spinning');
+      void icon.offsetWidth;
+      icon.classList.add('spinning');
+      icon.addEventListener('animationend', () => icon.classList.remove('spinning'), { once: true });
+    }
     document.getElementById('board').value = '';
     document.getElementById('code').value = '';
     document.getElementById('session').innerHTML = '<option value="">— Select —</option>';
