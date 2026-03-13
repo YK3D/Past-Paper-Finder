@@ -1125,7 +1125,6 @@
           </div>
           <div class="field" id="yearField">
             <label>Year</label>
-            <input type="text" id="year" placeholder="e.g. 2023 / 23" maxlength="4" inputmode="numeric" oninput="numericOnly(this)" style="display:none" />
             <select id="yearSelect" onchange="onYearSelectChange()"><option value="">— Select Year —</option></select>
           </div>
         </div>
@@ -1911,8 +1910,7 @@
     // When year/variant in select mode, mark the select instead
     let targetId = id;
     if (id === 'year') {
-      const ys = document.getElementById('yearSelect');
-      if (ys && ys.style.display !== 'none') targetId = 'yearSelect';
+      targetId = 'yearSelect'; // yearSelect is always the year field
     }
     if (id === 'variant') {
       const vs = document.getElementById('variantSelect');
@@ -2044,8 +2042,8 @@
         // IGCSE code — fetch sessions live
         applyIgcseDropdowns(code);
       } else if (board === 'CAIE') {
-        // Non-IGCSE — free text year, full session list
-        setYearMode('input');
+        // Non-IGCSE — populate year range, full session list
+        populateYearRange(1990);
         repopulateFullSessions('CAIE');
         resetPaperFields();
       }
@@ -2276,7 +2274,7 @@
     }
 
     if (_currentSessions.length === 0) {
-      setYearMode('input');
+      populateYearRange(1990); // full range for manual mode
       repopulateFullSessions('CAIE');
       return;
     }
@@ -2291,9 +2289,24 @@
       sessionSel.appendChild(o);
     });
 
-    // Year shows placeholder until session picked
-    document.getElementById('yearSelect').innerHTML = '<option value="">— Select session first —</option>';
-    setYearMode('select'); // guarantee visible
+    // Populate ALL available years immediately (unfiltered by session)
+    // Picking a session will filter them; this way user sees it's a real list
+    const ys = document.getElementById('yearSelect');
+    const allYears = [];
+    const seenYrs = new Set();
+    _currentSessions.forEach(e => {
+      if (!seenYrs.has(e.year)) { seenYrs.add(e.year); allYears.push(e); }
+    });
+    ys.innerHTML = '<option value="">— Select Year —</option>';
+    allYears.forEach(e => {
+      const o = document.createElement('option');
+      o.value = e.year.slice(2);
+      o.dataset.full = e.year;
+      o.dataset.sessSlug = e.slug;
+      o.textContent = e.year;
+      ys.appendChild(o);
+    });
+    setYearMode('select');
   }
 
   // ── Step 2: session selected — populate year dropdown ──
@@ -2322,7 +2335,7 @@
       setYearMode('select');
     } else {
       // No sessions loaded — stay in text mode
-      setYearMode('input');
+      populateYearRange(1990); // full range for manual mode
     }
 
     resetPaperFields();
@@ -2405,15 +2418,24 @@
     setVariantMode('select', variants.length > 0 ? variants : null);
   }
 
-  function setYearMode(mode) {
-    const yi = document.getElementById('year');
+
+  function populateYearRange(startYear) {
     const ys = document.getElementById('yearSelect');
-    if (mode === 'select') {
-      yi.style.display = 'none';
-      ys.style.display = 'block';
-    } else {
-      yi.style.display = 'block';
-      ys.style.display = 'none';
+    const currentYear = new Date().getFullYear();
+    ys.innerHTML = '<option value="">— Select Year —</option>';
+    for (let y = currentYear; y >= startYear; y--) {
+      const o = document.createElement('option');
+      o.value = String(y).slice(2); // 2-digit
+      o.dataset.full = String(y);
+      o.textContent = String(y);
+      ys.appendChild(o);
+    }
+  }
+
+  function setYearMode(mode) {
+    // yearSelect is always shown — mode only controls placeholder text
+    const ys = document.getElementById('yearSelect');
+    if (mode !== 'select') {
       ys.innerHTML = '<option value="">— Select Year —</option>';
     }
   }
@@ -2486,7 +2508,7 @@
       btn.classList.add('active');
       btn.textContent = '✎ Using dropdowns';
       hint.style.display = 'inline';
-      setYearMode('input');
+      populateYearRange(1990); // full range for manual mode
       setVariantMode('select');
       repopulateFullSessions(board);
       const pt = document.getElementById('papertype');
@@ -2510,15 +2532,13 @@
   function onBoardChange() {
     const board = document.getElementById('board').value;
     repopulateFullSessions(board);
-    // CAIE uses yearSelect (live scan); AQA uses free text
+    // CAIE IGCSE: sessions load dynamically; AQA/other: full year range
     if (board === 'AQA') {
-      setYearMode('input');
+      populateYearRange(1990);
     } else {
-      setYearMode('select');
-      document.getElementById('yearSelect').innerHTML = '<option value="">— Select Year —</option>';
+      setYearMode('select'); // reset to placeholder until code entered
     }
-    document.getElementById('year').value = '';
-    setVariantMode('select');
+        setVariantMode('select');
     document.getElementById('variantSelect').value = '';
     _manualMode = false;
     _currentSessions = [];
@@ -2610,11 +2630,7 @@
     const board     = document.getElementById('board').value;
     const code      = document.getElementById('code').value.trim();
     const session   = document.getElementById('session').value;
-    const _yearInput  = document.getElementById('year');
-    const _yearSelect = document.getElementById('yearSelect');
-    const year = (_yearSelect.style.display !== 'none')
-      ? _yearSelect.value.trim()
-      : _yearInput.value.trim();
+    const year = document.getElementById('yearSelect').value.trim();
     const _varInput  = document.getElementById('variant');
     const _varSelect = document.getElementById('variantSelect');
     const variant = (_varSelect.style.display !== 'none')
@@ -2924,8 +2940,7 @@
     document.getElementById('board').value = '';
     document.getElementById('code').value = '';
     document.getElementById('session').innerHTML = '<option value="">— Select —</option>';
-    document.getElementById('year').value = '';
-    setYearMode('input');
+        populateYearRange(1990); // full range for manual mode
     document.getElementById('yearSelect').innerHTML = '<option value="">— Select Year —</option>';
     setVariantMode('select');
     document.getElementById('variantSelect').value = '';
