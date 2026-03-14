@@ -3061,48 +3061,28 @@
 </div>
 
 <script>
-  // ── State ──
   let _myId = null;
   let _myName = null;
-  const STORAGE_KEY = 'leaderboard';
+  const API = '/api/leaderboard-data';
 
-  // ── Init ──
   document.addEventListener('DOMContentLoaded', async () => {
-    // Restore saved identity
     try {
       _myId = localStorage.getItem('lb_id');
       _myName = localStorage.getItem('lb_name');
     } catch {}
 
-    if (_myName) {
+    if (_myName && _myId) {
       document.getElementById('nameInput').value = _myName;
       document.getElementById('registerSection').style.display = 'none';
       showYouCard();
     }
-
     await renderLeaderboard();
   });
 
-  // ── Storage helpers ──
-  async function getAll() {
-    try {
-      const r = await window.storage.get(STORAGE_KEY, true);
-      return r ? JSON.parse(r.value) : {};
-    } catch { return {}; }
-  }
-
-  async function saveAll(data) {
-    try {
-      await window.storage.set(STORAGE_KEY, JSON.stringify(data), true);
-    } catch {}
-  }
-
-  // ── Join / set name ──
   async function joinLeaderboard() {
     const name = document.getElementById('nameInput').value.trim();
     if (!name) return;
 
-    // Generate or reuse ID
     if (!_myId) {
       _myId = Date.now().toString(36) + Math.random().toString(36).slice(2);
     }
@@ -3112,51 +3092,54 @@
       localStorage.setItem('lb_name', _myName);
     } catch {}
 
-    // Create entry if new
-    const data = await getAll();
-    if (!data[_myId]) data[_myId] = { name, count: 0 };
-    else data[_myId].name = name;
-    await saveAll(data);
+    await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: _myId, name: _myName, increment: false })
+    });
 
     document.getElementById('registerSection').style.display = 'none';
     showYouCard();
     await renderLeaderboard();
   }
 
-  // ── Render ──
   async function renderLeaderboard() {
-    const data = await getAll();
     const list = document.getElementById('lbList');
+    try {
+      const r = await fetch(API);
+      const data = await r.json();
 
-    const entries = Object.entries(data)
-      .map(([id, v]) => ({ id, name: v.name, count: v.count || 0 }))
-      .sort((a, b) => b.count - a.count);
+      const entries = Object.entries(data)
+        .map(([id, v]) => ({ id, name: v.name, count: v.count || 0 }))
+        .sort((a, b) => b.count - a.count);
 
-    if (!entries.length) {
-      list.innerHTML = '<div class="lb-empty">No entries yet. Be the first!</div>';
-      return;
-    }
-
-    list.innerHTML = entries.map((e, i) => {
-      const rank = i + 1;
-      const isYou = e.id === _myId;
-      const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
-      return `<div class="lb-row rank-${rank <= 3 ? rank : 'n'}${isYou ? ' lb-you' : ''}">
-        <div class="lb-rank">${medal}</div>
-        <div class="lb-name">${escHtml(e.name)}${isYou ? ' <span style="font-size:0.65rem;color:var(--accent);font-family:Space Mono,monospace">(you)</span>' : ''}</div>
-        <div class="lb-count"><span>${e.count.toLocaleString()}</span> viewed</div>
-      </div>`;
-    }).join('');
-
-    // Update your card rank
-    if (_myId) {
-      const myRank = entries.findIndex(e => e.id === _myId) + 1;
-      const myEntry = entries.find(e => e.id === _myId);
-      if (myEntry) {
-        document.getElementById('youRank').textContent = myRank === 1 ? '🥇' : myRank === 2 ? '🥈' : myRank === 3 ? '🥉' : '#' + myRank;
-        document.getElementById('youName').textContent = myEntry.name;
-        document.getElementById('youCount').textContent = myEntry.count.toLocaleString() + ' viewed';
+      if (!entries.length) {
+        list.innerHTML = '<div class="lb-empty">No entries yet. Be the first!</div>';
+        return;
       }
+
+      list.innerHTML = entries.map((e, i) => {
+        const rank = i + 1;
+        const isYou = e.id === _myId;
+        const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+        return `<div class="lb-row ${rank <= 3 ? 'rank-' + rank : ''}${isYou ? ' lb-you' : ''}">
+          <div class="lb-rank">${medal}</div>
+          <div class="lb-name">${escHtml(e.name)}${isYou ? ' <span style="font-size:0.65rem;color:var(--accent);font-family:Space Mono,monospace">(you)</span>' : ''}</div>
+          <div class="lb-count"><span>${e.count.toLocaleString()}</span> viewed</div>
+        </div>`;
+      }).join('');
+
+      if (_myId) {
+        const myRank = entries.findIndex(e => e.id === _myId) + 1;
+        const myEntry = entries.find(e => e.id === _myId);
+        if (myEntry) {
+          document.getElementById('youRank').textContent = myRank === 1 ? '🥇' : myRank === 2 ? '🥈' : myRank === 3 ? '🥉' : '#' + myRank;
+          document.getElementById('youName').textContent = myEntry.name;
+          document.getElementById('youCount').textContent = myEntry.count.toLocaleString() + ' viewed';
+        }
+      }
+    } catch {
+      list.innerHTML = '<div class="lb-empty">Could not load leaderboard.</div>';
     }
   }
 
@@ -3164,16 +3147,6 @@
     document.getElementById('youCard').classList.add('show');
     document.getElementById('youName').textContent = _myName || '';
     document.getElementById('youCount').textContent = '0 viewed';
-  }
-
-  // ── Called from index.html when a paper is viewed ──
-  async function incrementCount() {
-    if (!_myId) return;
-    const data = await getAll();
-    if (!data[_myId]) data[_myId] = { name: _myName || 'Anonymous', count: 0 };
-    data[_myId].count = (data[_myId].count || 0) + 1;
-    await saveAll(data);
-    await renderLeaderboard();
   }
 
   function escHtml(s) {
