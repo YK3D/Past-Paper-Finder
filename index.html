@@ -2278,7 +2278,15 @@
     return '';
   }
 
-  // ── Step 1: valid IGCSE code entered — fetch available sessions ──
+  // ══════════════════════════════════════════════════════════════════
+  // DETECTION CHAIN
+  // Step 1: code entered  → fetch sessions   → populate session dropdown
+  // Step 2: session picked → fetch years     → populate year dropdown
+  // Step 3: year picked   → fetch papers     → populate paper type dropdown
+  // Step 4: type picked   → extract variants → populate variant dropdown
+  // ══════════════════════════════════════════════════════════════════
+
+  // ── Step 1: code entered ──
   async function applyIgcseDropdowns(code) {
     if (_manualMode) return;
     _currentSessions = [];
@@ -2286,15 +2294,13 @@
 
     const sessionSel = document.getElementById('session');
     const sessField  = sessionSel.closest('.field');
-    const yearField  = document.getElementById('yearField');
 
-    // Loading state
-    sessField.classList.add('field-loading');
-    yearField.classList.add('field-loading');
+    // Reset downstream fields
     sessionSel.innerHTML = '<option value="">Loading…</option>';
-    setYearMode('select');
-    document.getElementById('yearSelect').innerHTML = '<option value="">Loading…</option>';
-    resetPaperFields();
+    sessField.classList.add('field-loading');
+    document.getElementById('yearSelect').innerHTML = '<option value="">— Select session first —</option>';
+    document.getElementById('papertype').innerHTML = '<option value="">— Select year first —</option>';
+    document.getElementById('variantField').classList.add('variant-hidden');
 
     try {
       const slug = buildSubjectSlug(code);
@@ -2305,16 +2311,17 @@
       _currentSessions = [];
     } finally {
       sessField.classList.remove('field-loading');
-      yearField.classList.remove('field-loading');
     }
 
     if (_currentSessions.length === 0) {
-      populateYearRange(1990); // full range for manual mode
+      // No data — fall back to full static lists
       repopulateFullSessions('CAIE');
+      populateYearRange(1990);
+      resetPapertypeStatic();
       return;
     }
 
-    // Populate sessions
+    // Populate session dropdown with only available sessions
     const availSessions = [...new Set(_currentSessions.map(e => e.sess))];
     sessionSel.innerHTML = '<option value="">— Select —</option>';
     ['s','m','w'].forEach(val => {
@@ -2324,64 +2331,57 @@
       sessionSel.appendChild(o);
     });
 
-    // Populate ALL available years immediately (unfiltered by session)
-    // Picking a session will filter them; this way user sees it's a real list
-    const ys = document.getElementById('yearSelect');
-    const allYears = [];
-    const seenYrs = new Set();
-    _currentSessions.forEach(e => {
-      if (!seenYrs.has(e.year)) { seenYrs.add(e.year); allYears.push(e); }
-    });
-    ys.innerHTML = '<option value="">— Select Year —</option>';
-    allYears.forEach(e => {
-      const o = document.createElement('option');
-      o.value = e.year.slice(2);
-      o.dataset.full = e.year;
-      o.dataset.sessSlug = e.slug;
-      o.textContent = e.year;
-      ys.appendChild(o);
-    });
-    setYearMode('select');
+    // Year stays as "Select session first" until session is picked
+    document.getElementById('yearSelect').innerHTML = '<option value="">— Select session —</option>';
   }
 
-  // ── Step 2: session selected — populate year dropdown ──
+  // ── Step 2: session selected → populate years ──
   function onSessionChange() {
     if (_manualMode) { clearFieldErrors(); return; }
     const sess = document.getElementById('session').value;
     const yearSelect = document.getElementById('yearSelect');
 
-    if (_currentSessions.length > 0 && sess) {
+    // Reset downstream
+    document.getElementById('papertype').innerHTML = '<option value="">— Select year first —</option>';
+    document.getElementById('variantField').classList.add('variant-hidden');
+    _currentPapersData = null;
+    clearFieldErrors();
+
+    if (!sess) {
+      yearSelect.innerHTML = '<option value="">— Select session —</option>';
+      return;
+    }
+
+    if (_currentSessions.length > 0) {
+      // Filter years to those that have this session
       const filtered = _currentSessions.filter(e => e.sess === sess);
       const seen = new Set();
-      yearSelect.innerHTML = '<option value="">— Select Year —</option>';
+      yearSelect.innerHTML = '<option value="">— Select year —</option>';
       filtered.forEach(e => {
         if (seen.has(e.year)) return;
         seen.add(e.year);
         const o = document.createElement('option');
-        o.value = e.year.slice(2);
-        o.dataset.full = e.year;
-        o.dataset.sessSlug = e.slug;
+        o.value = e.year.slice(2);  // 2-digit for URL
+        o.dataset.full = e.year;    // 4-digit for slug
         o.textContent = e.year;
         yearSelect.appendChild(o);
       });
-      setYearMode('select'); // ensure yearSelect is visible
-    } else if (_currentSessions.length > 0) {
-      yearSelect.innerHTML = '<option value="">— Select session first —</option>';
-      setYearMode('select');
     } else {
-      // No sessions loaded — stay in text mode
-      populateYearRange(1990); // full range for manual mode
+      // No session data — fall back to full year range
+      populateYearRange(1990);
     }
-
-    resetPaperFields();
-    clearFieldErrors();
   }
 
-  // ── Step 3: year selected — auto-scan for paper types & variants ──
+  // ── Step 3: year selected → scan for paper types ──
   function onYearSelectChange() {
     if (_manualMode) { clearFieldErrors(); return; }
     clearFieldErrors();
-    resetPaperFields();
+    _currentPapersData = null;
+
+    // Reset downstream
+    document.getElementById('papertype').innerHTML = '<option value="">Scanning…</option>';
+    document.getElementById('variantField').classList.add('variant-hidden');
+
     fetchPapersForSelection();
   }
 
@@ -2391,140 +2391,91 @@
     const sess   = document.getElementById('session').value;
     const ysEl   = document.getElementById('yearSelect');
     const selOpt = ysEl.options[ysEl.selectedIndex];
-    if (!selOpt || !selOpt.dataset || !selOpt.dataset.full || !sess) return;
+
+    if (!selOpt || !selOpt.dataset || !selOpt.dataset.full || !sess || !code) {
+      resetPapertypeStatic();
+      return;
+    }
 
     const fullYear = selOpt.dataset.full;
-    // Always derive sessSlug from current session value + year — don't trust option dataset
-    // (option may have been set before session was selected)
     const sessSlug = buildSessSlug(sess, fullYear);
     const subjSlug = buildSubjectSlug(code);
     const pageUrl  = `https://pastpapers.papacambridge.com/papers/caie/${subjSlug}-${fullYear}-${sessSlug}`;
 
     const ptField = document.getElementById('papertype').closest('.field');
-    const vField  = document.getElementById('variantField');
     ptField.classList.add('field-loading');
-    vField.classList.add('field-loading');
 
     try {
       const r = await fetch('/api/get-papers?url=' + encodeURIComponent(pageUrl));
       const data = await r.json();
-      _currentPapersData = data;
-      applyPapersData(data);
+      if (data.types && data.types.length > 0) {
+        _currentPapersData = data;
+        applyPapersData(data);
+      } else {
+        _currentPapersData = null;
+        resetPapertypeStatic();
+      }
     } catch(e) {
-      // fall back silently to static list
+      _currentPapersData = null;
+      resetPapertypeStatic();
     } finally {
       ptField.classList.remove('field-loading');
-      vField.classList.remove('field-loading');
     }
   }
 
   function applyPapersData(data) {
-    if (_manualMode || !data || !data.types || data.types.length === 0) return;
     const TYPE_LABELS = {
-      qp: 'Question Paper (QP)',
-      ms: 'Mark Scheme (MS)',
-      gt: 'Grade Thresholds (GT)',
-      gb: 'Grade Boundaries (GB)',
-      er: 'Examiner Report (ER)',
-      ci: 'Confidential Instructions (CI)',
-      in: 'Insert (IN)',
-      sf: 'Source File (SF)',
-      sg: 'Supplementary Guide (SG)',
-      sp: 'Specimen Paper (SP)',
-      sm: 'Specimen Mark Scheme (SM)',
+      qp: 'Question Paper (QP)', ms: 'Mark Scheme (MS)',
+      gt: 'Grade Thresholds (GT)', gb: 'Grade Boundaries (GB)',
+      er: 'Examiner Report (ER)', ci: 'Confidential Instructions (CI)',
+      in: 'Insert (IN)', sf: 'Source File (SF)',
+      sg: 'Supplementary Guide (SG)', sp: 'Specimen Paper (SP)', sm: 'Specimen Mark Scheme (SM)',
     };
     const pt = document.getElementById('papertype');
-    const prevPt = pt.value;
-    pt.innerHTML = '<option value="">— Select —</option>';
+    pt.innerHTML = '<option value="">— Select paper type —</option>';
     data.types.forEach(t => {
       const o = document.createElement('option');
       o.value = t;
       o.textContent = TYPE_LABELS[t] || t.toUpperCase();
-      if (t === prevPt) o.selected = true;
       pt.appendChild(o);
     });
-    // If a paper type was previously selected and is still available, update variants
-    // Otherwise hide variant until paper type is picked
-    if (pt.value) {
-      updateVariantForType(pt.value, data);
-    } else {
-      // No paper type selected yet — hide variant with placeholder
-      document.getElementById('variantField').classList.add('variant-hidden');
-      document.getElementById('variantSelect').innerHTML = '<option value="">— Select paper type first —</option>';
-    }
+    // Variant stays hidden until paper type is picked
+    document.getElementById('variantField').classList.add('variant-hidden');
   }
 
+  // ── Step 4: paper type selected → show variants for that type ──
   function updateVariantForType(type, data) {
     if (_manualMode) return;
     data = data || _currentPapersData;
-    if (!data) return;
-    const variants = (data.variants && data.variants[type]) ? data.variants[type] : [];
     const variantField = document.getElementById('variantField');
     const NO_VARIANT_TYPES = new Set(['gt','gb','er','sp','sm','sg','sf','in']);
+
     if (!type || NO_VARIANT_TYPES.has(type)) {
       variantField.classList.add('variant-hidden');
-      setVariantMode('select');
-      document.getElementById('variantSelect').value = '';
       return;
     }
+
+    const variants = (data && data.variants && data.variants[type]) ? data.variants[type] : [];
+
     if (variants.length > 0) {
       variantField.classList.remove('variant-hidden');
-      setVariantMode('select', variants);
+      const vs = document.getElementById('variantSelect');
+      vs.innerHTML = '<option value="">— Select variant —</option>';
+      variants.forEach(v => {
+        const o = document.createElement('option');
+        o.value = v; o.textContent = v;
+        vs.appendChild(o);
+      });
+      vs.style.display = 'block';
+      document.getElementById('variant').style.display = 'none';
     } else {
-      // Scanned data has no variants for this type — keep hidden
+      // No variants found for this type — keep hidden
       variantField.classList.add('variant-hidden');
     }
   }
 
-
-  function populateYearRange(startYear) {
-    const ys = document.getElementById('yearSelect');
-    const currentYear = new Date().getFullYear();
-    ys.innerHTML = '<option value="">— Select Year —</option>';
-    for (let y = currentYear; y >= startYear; y--) {
-      const o = document.createElement('option');
-      o.value = String(y).slice(2); // 2-digit
-      o.dataset.full = String(y);
-      o.textContent = String(y);
-      ys.appendChild(o);
-    }
-  }
-
-  function setYearMode(mode) {
-    // yearSelect is always shown — mode only controls placeholder text
-    const ys = document.getElementById('yearSelect');
-    if (mode !== 'select') {
-      ys.innerHTML = '<option value="">— Select Year —</option>';
-    }
-  }
-
-  function setVariantMode(mode, variants) {
-    const vi = document.getElementById('variant');
-    const vs = document.getElementById('variantSelect');
-    if (mode === 'select') {
-      vi.style.display = 'none';
-      vs.style.display = 'block';
-      const prev = vs.value;
-      vs.innerHTML = '<option value="">— Select —</option>';
-      if (variants && variants.length > 0) {
-        variants.forEach(v => {
-          const o = document.createElement('option');
-          o.value = v; o.textContent = v;
-          if (v === prev) o.selected = true;
-          vs.appendChild(o);
-        });
-      }
-      // No variants passed = just show placeholder, not DEFAULT_VARIANTS
-    } else {
-      vi.style.display = 'block';
-      vs.style.display = 'none';
-      vs.innerHTML = '<option value="">— Select —</option>';
-    }
-  }
-
-  function resetPaperFields() {
-    if (_manualMode) return;
-    _currentPapersData = null;
+  // Static paper type list (fallback when no scan data)
+  function resetPapertypeStatic() {
     const pt = document.getElementById('papertype');
     pt.innerHTML = `<option value="">— Select —</option>
       <option value="qp">Question Paper (QP)</option>
@@ -2533,9 +2484,14 @@
       <option value="gb">Grade Boundaries (GB)</option>
       <option value="er">Examiner Report (ER)</option>
       <option value="ci">Confidential Instructions (CI)</option>`;
-    // Hide variant until paper type is selected
+  }
+
+  function resetPaperFields() {
+    if (_manualMode) return;
+    _currentPapersData = null;
+    document.getElementById('papertype').innerHTML = '<option value="">— Select year first —</option>';
     document.getElementById('variantField').classList.add('variant-hidden');
-    document.getElementById('variantSelect').innerHTML = '<option value="">— Select paper type first —</option>';
+    document.getElementById('variantSelect').innerHTML = '<option value="">— Select —</option>';
   }
 
   function repopulateFullSessions(board) {
@@ -2569,17 +2525,11 @@
       btn.classList.add('active');
       btn.textContent = '✎ Using dropdowns';
       hint.style.display = 'inline';
-      populateYearRange(1990); // full range for manual mode
-      setVariantMode('select', DEFAULT_VARIANTS); // show full list in manual mode
+      populateYearRange(1990);
       repopulateFullSessions(board);
-      const pt = document.getElementById('papertype');
-      pt.innerHTML = `<option value="">— Select —</option>
-        <option value="qp">Question Paper (QP)</option>
-        <option value="ms">Mark Scheme (MS)</option>
-        <option value="gt">Grade Thresholds (GT)</option>
-        <option value="er">Examiner Report (ER)</option>
-        <option value="ci">Confidential Instructions (CI)</option>`;
+      resetPapertypeStatic();
       document.getElementById('variantField').classList.remove('variant-hidden');
+      setVariantMode('select', DEFAULT_VARIANTS);
     } else {
       btn.classList.remove('active');
       btn.textContent = '✎ Enter manually';
@@ -2590,17 +2540,17 @@
     }
   }
 
+
   function onBoardChange() {
     const board = document.getElementById('board').value;
     repopulateFullSessions(board);
-    // CAIE IGCSE: sessions load dynamically; AQA/other: full year range
     if (board === 'AQA') {
       populateYearRange(1990);
     } else {
-      setYearMode('select'); // reset to placeholder until code entered
+      document.getElementById('yearSelect').innerHTML = '<option value="">— Enter code first —</option>';
     }
-        document.getElementById('variantField').classList.add('variant-hidden');
-    document.getElementById('variantSelect').innerHTML = '<option value="">— Select —</option>';
+    document.getElementById('papertype').innerHTML = '<option value="">— Select year first —</option>';
+    document.getElementById('variantField').classList.add('variant-hidden');
     _manualMode = false;
     _currentSessions = [];
     _currentPapersData = null;
@@ -2615,22 +2565,17 @@
   // ── Paper type change ──
   function onPapertypeChange() {
     const pt = document.getElementById('papertype').value;
-    const variantField = document.getElementById('variantField');
-    if (!pt) {
-      // Nothing selected — hide variant
-      variantField.classList.add('variant-hidden');
-      return;
-    }
     if (!_manualMode && _currentPapersData) {
       updateVariantForType(pt, _currentPapersData);
     } else {
-      // No scanned data (non-IGCSE or manual mode) — use default list
+      // No scanned data — static fallback
       const NO_VARIANT_TYPES = new Set(['gt','gb','er','sp','sm','sg','sf','in']);
-      if (NO_VARIANT_TYPES.has(pt)) {
+      const variantField = document.getElementById('variantField');
+      if (!pt || NO_VARIANT_TYPES.has(pt)) {
         variantField.classList.add('variant-hidden');
       } else {
         variantField.classList.remove('variant-hidden');
-        setVariantMode('select', DEFAULT_VARIANTS); // show full default list
+        setVariantMode('select', DEFAULT_VARIANTS);
       }
     }
   }
@@ -3005,22 +2950,21 @@
       icon.classList.remove('spinning');
       void icon.offsetWidth;
       icon.classList.add('spinning');
-      icon.addEventListener('animationend', () => icon.classList.remove('spinning'), { once: true });
+      icon.addEventListener('animationend', () => icon.classList.remove('spinning'), {once:true});
     }
     document.getElementById('board').value = '';
     document.getElementById('code').value = '';
     document.getElementById('session').innerHTML = '<option value="">— Select —</option>';
-        populateYearRange(1990); // full range for manual mode
-    document.getElementById('yearSelect').innerHTML = '<option value="">— Select Year —</option>';
+    document.getElementById('yearSelect').innerHTML = '<option value="">— Enter code first —</option>';
+    document.getElementById('papertype').innerHTML = '<option value="">— Select year first —</option>';
     document.getElementById('variantField').classList.add('variant-hidden');
     document.getElementById('variantSelect').innerHTML = '<option value="">— Select —</option>';
-    document.getElementById('papertype').value = '';
     document.getElementById('subjectNameTag').textContent = '';
     document.getElementById('subjectNameTag').classList.remove('visible');
     document.getElementById('didYouMeanTag').style.display = 'none';
     document.getElementById('didYouMeanTag').innerHTML = '';
     document.getElementById('codeSuggestions').classList.remove('open');
-    document.querySelectorAll('.field').forEach(f => f.classList.remove('variant-hidden', 'field-loading'));
+    document.querySelectorAll('.field').forEach(f => f.classList.remove('field-loading'));
     _manualMode = false;
     _currentSessions = [];
     _currentPapersData = null;
