@@ -1,7 +1,8 @@
 {
   "outputDirectory": ".",
   "rewrites": [
-    { "source": "/codes", "destination": "/codes.html" },
-    { "source": "/leaderboard", "destination": "/leaderboard.html" }
+    { "source": "/codes",       "destination": "/codes.html" },
+    { "source": "/leaderboard", "destination": "/leaderboard.html" },
+    { "source": "/viewer",      "destination": "/viewer.html" }
   ]
 }
