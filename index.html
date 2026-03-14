@@ -1003,6 +1003,39 @@
 
   .header-title-row .header-logo { display: none; }
 
+  /* ── Board selector buttons ── */
+  .board-btn-row {
+    display: flex;
+    gap: 0.6rem;
+  }
+  .board-btn {
+    flex: 1;
+    padding: 0.6rem 0;
+    background: transparent;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+  }
+  .board-btn:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+  .board-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0, 229, 255, 0.08);
+  }
+  #code:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
   /* ── Manual override & dynamic loading ── */
   .manual-override-row {
     display: flex;
@@ -1092,16 +1125,17 @@
 
         <div class="field">
           <label>Exam Board</label>
-          <select id="board" onchange="onBoardChange()">
-            <option value="">— Select —</option>
-            <option value="CAIE">CAIE (Cambridge)</option>
-            <option value="AQA">AQA (Oxford)</option>
-          </select>
+          <div class="board-btn-row">
+            <button type="button" class="board-btn" id="boardBtn-CAIE" onclick="selectBoard('CAIE')">CAIE</button>
+            <button type="button" class="board-btn" id="boardBtn-AQA"  onclick="selectBoard('AQA')">AQA</button>
+          </div>
+          <!-- hidden input keeps the rest of the JS working unchanged -->
+          <input type="hidden" id="board" value="">
         </div>
 
         <div class="field" style="position:relative">
           <label>Subject Code</label>
-          <input type="text" id="code" placeholder="e.g. 0417" maxlength="4" inputmode="numeric" oninput="onCodeInput()" onkeydown="onCodeKeydown(event)" onblur="hideSuggestions(event)" />
+          <input type="text" id="code" placeholder="Select exam board first" maxlength="4" inputmode="numeric" oninput="onCodeInput()" onkeydown="onCodeKeydown(event)" onblur="hideSuggestions(event)" disabled />
           <div class="subject-name-tag" id="subjectNameTag"></div>
           <div class="did-you-mean" id="didYouMeanTag" style="display:none"></div>
           <button class="find-code-btn-below" onclick="showCodes()">Don't know your code? Browse all subjects →</button>
@@ -2713,6 +2747,22 @@
   }
 
 
+  function selectBoard(val) {
+    // Update hidden input
+    document.getElementById('board').value = val;
+    // Toggle active state on buttons
+    document.querySelectorAll('.board-btn').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById('boardBtn-' + val);
+    if (activeBtn) activeBtn.classList.add('active');
+    // Enable code input
+    const codeEl = document.getElementById('code');
+    codeEl.disabled = false;
+    codeEl.placeholder = 'e.g. 0417';
+    codeEl.focus();
+    // Run existing board change logic
+    onBoardChange();
+  }
+
   function onBoardChange() {
     const board = document.getElementById('board').value;
     repopulateFullSessions(board);
@@ -2811,7 +2861,16 @@
     if (_fromCodes && _savedState) {
       // Returning from codes page — restore full form state instantly
       const st = JSON.parse(_savedState);
-      if (st.board) { document.getElementById('board').value = st.board; onBoardChange(); }
+      if (st.board) {
+        document.getElementById('board').value = st.board;
+        document.querySelectorAll('.board-btn').forEach(btn => btn.classList.remove('active'));
+        const activeBtn = document.getElementById('boardBtn-' + st.board);
+        if (activeBtn) activeBtn.classList.add('active');
+        const codeEl = document.getElementById('code');
+        codeEl.disabled = false;
+        codeEl.placeholder = 'e.g. 0417';
+        onBoardChange();
+      }
       if (st.code)  { document.getElementById('code').value = st.code; onCodeInput(); }
       // Restore session/year/papertype/variant after detection runs
       setTimeout(() => {
@@ -3219,6 +3278,10 @@
       icon.addEventListener('animationend', () => icon.classList.remove('spinning'), {once:true});
     }
     document.getElementById('board').value = '';
+    document.querySelectorAll('.board-btn').forEach(btn => btn.classList.remove('active'));
+    const codeEl = document.getElementById('code');
+    codeEl.disabled = true;
+    codeEl.placeholder = 'Select exam board first';
     document.getElementById('code').value = '';
     document.getElementById('session').innerHTML = '<option value="">— Select —</option>';
     document.getElementById('yearSelect').innerHTML = '<option value="">— Enter code first —</option>';
