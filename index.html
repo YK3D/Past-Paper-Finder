@@ -730,7 +730,7 @@
   }
 
   /* ── Hide variant when GT selected ── */
-  .variant-hidden { opacity: 0.35; pointer-events: none; }
+  .variant-hidden { display: none !important; }
 
   @keyframes shake {
     0%, 100% { transform: translateX(0); }
@@ -2467,8 +2467,13 @@
       document.getElementById('variantSelect').value = '';
       return;
     }
-    variantField.classList.remove('variant-hidden');
-    setVariantMode('select', variants.length > 0 ? variants : null);
+    if (variants.length > 0) {
+      variantField.classList.remove('variant-hidden');
+      setVariantMode('select', variants);
+    } else {
+      // Scanned data has no variants for this type — keep hidden
+      variantField.classList.add('variant-hidden');
+    }
   }
 
 
@@ -2501,13 +2506,15 @@
       vs.style.display = 'block';
       const prev = vs.value;
       vs.innerHTML = '<option value="">— Select —</option>';
-      const list = (variants && variants.length > 0) ? variants : DEFAULT_VARIANTS;
-      list.forEach(v => {
-        const o = document.createElement('option');
-        o.value = v; o.textContent = v;
-        if (v === prev) o.selected = true;
-        vs.appendChild(o);
-      });
+      if (variants && variants.length > 0) {
+        variants.forEach(v => {
+          const o = document.createElement('option');
+          o.value = v; o.textContent = v;
+          if (v === prev) o.selected = true;
+          vs.appendChild(o);
+        });
+      }
+      // No variants passed = just show placeholder, not DEFAULT_VARIANTS
     } else {
       vi.style.display = 'block';
       vs.style.display = 'none';
@@ -2563,7 +2570,7 @@
       btn.textContent = '✎ Using dropdowns';
       hint.style.display = 'inline';
       populateYearRange(1990); // full range for manual mode
-      setVariantMode('select');
+      setVariantMode('select', DEFAULT_VARIANTS); // show full list in manual mode
       repopulateFullSessions(board);
       const pt = document.getElementById('papertype');
       pt.innerHTML = `<option value="">— Select —</option>
@@ -2592,8 +2599,8 @@
     } else {
       setYearMode('select'); // reset to placeholder until code entered
     }
-        setVariantMode('select');
-    document.getElementById('variantSelect').value = '';
+        document.getElementById('variantField').classList.add('variant-hidden');
+    document.getElementById('variantSelect').innerHTML = '<option value="">— Select —</option>';
     _manualMode = false;
     _currentSessions = [];
     _currentPapersData = null;
@@ -2617,13 +2624,13 @@
     if (!_manualMode && _currentPapersData) {
       updateVariantForType(pt, _currentPapersData);
     } else {
-      // No scanned data — use defaults
+      // No scanned data (non-IGCSE or manual mode) — use default list
       const NO_VARIANT_TYPES = new Set(['gt','gb','er','sp','sm','sg','sf','in']);
       if (NO_VARIANT_TYPES.has(pt)) {
         variantField.classList.add('variant-hidden');
       } else {
         variantField.classList.remove('variant-hidden');
-        setVariantMode('select', null); // default list
+        setVariantMode('select', DEFAULT_VARIANTS); // show full default list
       }
     }
   }
@@ -3005,8 +3012,8 @@
     document.getElementById('session').innerHTML = '<option value="">— Select —</option>';
         populateYearRange(1990); // full range for manual mode
     document.getElementById('yearSelect').innerHTML = '<option value="">— Select Year —</option>';
-    setVariantMode('select');
-    document.getElementById('variantSelect').value = '';
+    document.getElementById('variantField').classList.add('variant-hidden');
+    document.getElementById('variantSelect').innerHTML = '<option value="">— Select —</option>';
     document.getElementById('papertype').value = '';
     document.getElementById('subjectNameTag').textContent = '';
     document.getElementById('subjectNameTag').classList.remove('visible');
