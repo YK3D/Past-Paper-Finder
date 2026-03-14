@@ -1497,6 +1497,14 @@
 
   // ── Startup splash ──
   (function() {
+    // Skip splash when returning from codes page
+    if (sessionStorage.getItem('fromCodes')) {
+      const splash = document.getElementById('splash');
+      if (splash) splash.remove();
+      const container = document.querySelector('.container');
+      if (container) { container.style.opacity = '1'; container.style.transform = 'none'; }
+      return;
+    }
     const splash      = document.getElementById('splash');
     const splashTitle = splash.querySelector('.splash-title');
     const splashLogo  = splash.querySelector('.splash-logo');
@@ -2149,6 +2157,18 @@
   let _viewTransitioning = false;
 
   function showCodes() {
+    // Save full form state so it can be restored on return
+    const state = {
+      board:     document.getElementById('board').value,
+      code:      document.getElementById('code').value,
+      session:   document.getElementById('session').value,
+      year:      document.getElementById('yearSelect').value,
+      yearFull:  document.getElementById('yearSelect').options[document.getElementById('yearSelect').selectedIndex]?.dataset?.full || '',
+      papertype: document.getElementById('papertype').value,
+      variant:   document.getElementById('variantSelect').value || document.getElementById('variant').value,
+    };
+    sessionStorage.setItem('pfState', JSON.stringify(state));
+    sessionStorage.setItem('fromCodes', '1');
     window.location.href = '/codes.html';
   }
 
@@ -2783,25 +2803,49 @@
   }
   document.addEventListener('DOMContentLoaded', setupArrow);
   document.addEventListener('DOMContentLoaded', () => {
-    // Handle ?code=X&board=Y params from codes.html
-    (function() {
+    const _fromCodes = sessionStorage.getItem('fromCodes');
+    const _savedState = sessionStorage.getItem('pfState');
+    sessionStorage.removeItem('fromCodes');
+    sessionStorage.removeItem('pfState');
+
+    if (_fromCodes && _savedState) {
+      // Returning from codes page — restore full form state instantly
+      const st = JSON.parse(_savedState);
+      if (st.board) { document.getElementById('board').value = st.board; onBoardChange(); }
+      if (st.code)  { document.getElementById('code').value = st.code; onCodeInput(); }
+      // Restore session/year/papertype/variant after detection runs
+      setTimeout(() => {
+        if (st.session) { document.getElementById('session').value = st.session; }
+        if (st.year)    { document.getElementById('yearSelect').value = st.year; }
+        if (st.papertype) {
+          document.getElementById('papertype').value = st.papertype;
+          onPapertypeChange();
+        }
+        if (st.variant) {
+          const vs = document.getElementById('variantSelect');
+          const vi = document.getElementById('variant');
+          if (vs) vs.value = st.variant;
+          if (vi) vi.value = st.variant;
+        }
+      }, 100);
+    } else {
+      // Handle ?code=X&board=Y params (legacy fallback)
       const p = new URLSearchParams(window.location.search);
       const code = p.get('code');
       const board = p.get('board');
       if (code) {
-        if (board) {
-          document.getElementById('board').value = board;
-          onBoardChange();
-        }
+        if (board) { document.getElementById('board').value = board; onBoardChange(); }
         document.getElementById('code').value = code;
         onCodeInput();
-        // Clean URL without reload
         window.history.replaceState({}, '', '/');
       }
-    })();
-    // Variant hidden until paper type selected
-    document.getElementById('variantField').classList.add('variant-hidden');
-    document.getElementById('variantSelect').innerHTML = '<option value="">— Select paper type first —</option>';
+    }
+
+    // Variant hidden until paper type selected (only if not restoring)
+    if (!_fromCodes) {
+      document.getElementById('variantField').classList.add('variant-hidden');
+      document.getElementById('variantSelect').innerHTML = '<option value="">— Select paper type first —</option>';
+    }
   });
   // re-run after splash in case layout shifts
   setTimeout(setupArrow, 1600);
