@@ -81,13 +81,11 @@
     justify-content: center;
     padding: 2rem 1rem;
     min-height: 100vh;
-    transition: opacity 0.35s ease, transform 0.35s ease;
   }
   #codes-view {
     display: block;
     min-height: 100vh;
     padding: 2rem 1rem 4rem;
-    transition: opacity 0.35s ease, transform 0.35s ease;
   }
   .view-hidden {
     display: none !important;
@@ -2396,7 +2394,9 @@
     if (!selOpt || !selOpt.dataset || !selOpt.dataset.full || !sess) return;
 
     const fullYear = selOpt.dataset.full;
-    const sessSlug = selOpt.dataset.sessSlug || buildSessSlug(sess, fullYear);
+    // Always derive sessSlug from current session value + year — don't trust option dataset
+    // (option may have been set before session was selected)
+    const sessSlug = buildSessSlug(sess, fullYear);
     const subjSlug = buildSubjectSlug(code);
     const pageUrl  = `https://pastpapers.papacambridge.com/papers/caie/${subjSlug}-${fullYear}-${sessSlug}`;
 
