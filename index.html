@@ -1000,13 +1000,6 @@
 
   /* page content hidden until splash done */
   .container { opacity: 0; }
-  .container.revealed {
-    animation: pageReveal 0.5s ease forwards;
-  }
-  @keyframes pageReveal {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
 
   .header-title-row .header-logo { display: none; }
 
@@ -1500,92 +1493,94 @@
     const h1          = document.querySelector('h1');
     const headerLogo  = document.querySelector('.header-logo');
 
-    // Keep h1 and header logo invisible until morphs land
-    h1.style.opacity         = '0';
-    headerLogo.style.opacity = '0';
-
+    // Ensure fonts are loaded before measuring, then start animation
+    (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => {
     setTimeout(() => {
-      // 1. Measure splash elements
+      // 1. Measure splash elements BEFORE container reveal
       const fromTitle = splashTitle.getBoundingClientRect();
       const fromLogo  = splashLogo.getBoundingClientRect();
 
-      // 2. Reveal container so targets have real positions
-      container.classList.add('revealed');
+      // 2. Reveal container instantly so h1 is at its true final position
+      container.style.opacity   = '1';
+      container.style.transform = 'none';
+      void container.offsetHeight; // force layout commit
 
-      // 3. Measure destinations
+      // 3. Measure destinations — now at true final positions
       const toTitle = h1.getBoundingClientRect();
       const toLogo  = headerLogo.getBoundingClientRect();
 
       const ease = 'cubic-bezier(0.65, 0, 0.35, 1)';
-      const dur  = '0.65s';
+      const dur  = '0.6s';
 
-      // 4a. Flying title clone
+      // 4a. Title clone — fixed at FROM position, uses transform to fly to TO
+      const scaleX = fromTitle.width  / (toTitle.width  || 1);
+      const scaleY = fromTitle.height / (toTitle.height || 1);
+
       const titleClone = splashTitle.cloneNode(true);
       titleClone.style.cssText = `
         position: fixed;
-        top: ${fromTitle.top}px; left: ${fromTitle.left}px;
-        width: ${fromTitle.width}px; height: ${fromTitle.height}px;
-        margin: 0;
+        top: ${toTitle.top}px;
+        left: ${toTitle.left}px;
+        width: ${toTitle.width}px;
+        height: ${toTitle.height}px;
+        margin: 0; padding: 0;
         font-family: 'Syne', sans-serif;
-        font-size: ${parseFloat(getComputedStyle(splashTitle).fontSize)}px;
+        font-size: ${parseFloat(getComputedStyle(h1).fontSize)}px;
         font-weight: 800; letter-spacing: -0.02em;
         color: var(--text);
+        transform-origin: top left;
+        transform: translate(${fromTitle.left - toTitle.left}px, ${fromTitle.top - toTitle.top}px) scale(${scaleX}, ${scaleY});
         z-index: 10000; pointer-events: none; opacity: 1;
-        transition: top ${dur} ${ease}, left ${dur} ${ease},
-                    font-size ${dur} ${ease}, width ${dur} ${ease},
-                    height ${dur} ${ease}, opacity 0.2s ease 0.5s;
+        transition: transform ${dur} ${ease}, opacity 0.2s ease 0.45s;
+        will-change: transform, opacity;
       `;
       document.body.appendChild(titleClone);
 
-      // 4b. Flying logo clone
+      // 4b. Logo clone — same approach
+      const logoScaleX = fromLogo.width  / (toLogo.width  || 1);
+      const logoScaleY = fromLogo.height / (toLogo.height || 1);
+
       const logoClone = document.createElement('img');
       logoClone.src = '/favicon.png';
       logoClone.style.cssText = `
         position: fixed;
-        top: ${fromLogo.top}px; left: ${fromLogo.left}px;
-        width: ${fromLogo.width}px; height: ${fromLogo.height}px;
+        top: ${toLogo.top}px;
+        left: ${toLogo.left}px;
+        width: ${toLogo.width}px;
+        height: ${toLogo.height}px;
         border-radius: 6px; object-fit: cover;
+        transform-origin: top left;
+        transform: translate(${fromLogo.left - toLogo.left}px, ${fromLogo.top - toLogo.top}px) scale(${logoScaleX}, ${logoScaleY});
         z-index: 10000; pointer-events: none; opacity: 1;
-        transition: top ${dur} ${ease}, left ${dur} ${ease},
-                    width ${dur} ${ease}, height ${dur} ${ease},
-                    border-radius ${dur} ${ease}, opacity 0.2s ease 0.5s;
+        transition: transform ${dur} ${ease}, opacity 0.2s ease 0.45s;
+        will-change: transform, opacity;
       `;
       document.body.appendChild(logoClone);
 
       // 5. Fade out splash background
-      splash.style.transition = 'opacity 0.5s ease';
+      splash.style.transition = 'opacity 0.4s ease';
       splash.style.opacity = '0';
-      setTimeout(() => splash.remove(), 500);
+      setTimeout(() => splash.remove(), 400);
 
-      // 6. Animate both clones to their destinations
-      const toTitleFontSize = parseFloat(getComputedStyle(h1).fontSize);
+      // 6. Trigger animations on next two frames to ensure styles committed
       requestAnimationFrame(() => requestAnimationFrame(() => {
-        // Title → h1
-        titleClone.style.top      = `${toTitle.top}px`;
-        titleClone.style.left     = `${toTitle.left}px`;
-        titleClone.style.width    = `${toTitle.width}px`;
-        titleClone.style.height   = `${toTitle.height}px`;
-        titleClone.style.fontSize = `${toTitleFontSize}px`;
-        titleClone.style.opacity  = '0';
+        titleClone.style.transform = 'translate(0, 0) scale(1, 1)';
+        titleClone.style.opacity   = '0';
 
-        // Logo → header logo
-        logoClone.style.top          = `${toLogo.top}px`;
-        logoClone.style.left         = `${toLogo.left}px`;
-        logoClone.style.width        = `${toLogo.width}px`;
-        logoClone.style.height       = `${toLogo.height}px`;
-        logoClone.style.borderRadius = '6px';
-        logoClone.style.opacity      = '0';
+        logoClone.style.transform  = 'translate(0, 0) scale(1, 1)';
+        logoClone.style.opacity    = '0';
 
-        // 7. When morphs land, reveal real elements
+        // 7. Reveal real elements as clones finish
         setTimeout(() => {
           h1.style.transition         = 'opacity 0.15s ease';
           h1.style.opacity            = '1';
           headerLogo.style.transition = 'opacity 0.15s ease';
           headerLogo.style.opacity    = '1';
           setTimeout(() => { titleClone.remove(); logoClone.remove(); }, 200);
-        }, 620);
+        }, 580);
       }));
     }, 1400);
+    }); // fonts.ready
   })();
 
   // ── Haptic feedback (Android only, no-op on unsupported devices) ──
