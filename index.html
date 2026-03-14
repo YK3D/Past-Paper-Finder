@@ -315,6 +315,18 @@
     box-shadow: 0 6px 20px rgba(0,229,255,0.3);
   }
   .btn-share:active { transform: translateY(0); box-shadow: none; }
+  .btn-view-chat {
+    flex: 1; padding: 0.6rem; border-radius: 7px;
+    border: 1px solid var(--accent2);
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    cursor: pointer;
+    background: transparent; color: var(--accent2);
+    transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), background 0.2s, color 0.2s;
+  }
+  .btn-view-chat:hover {
+    background: var(--accent2); color: #fff;
+    transform: translateY(-2px);
+  }
 
   /* ── Spinner inside button ── */
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -1726,6 +1738,7 @@
           <button class="btn-copy" onclick="copyUrl()">Copy URL</button>
           <button class="btn-download" onclick="downloadUrl()">&#8659; Download</button>
           <button class="btn-share" onclick="shareUrl()" id="shareBtn">&#8679; Share</button>
+          <button class="btn-view-chat" onclick="openViewer()">&#128172; View &amp; Chat</button>
         </div>
       </div>
     </div>
@@ -3915,6 +3928,11 @@
   }
 
   function openUrl() { if (generatedUrl) { haptic('light'); window.open(generatedUrl, '_blank'); } }
+  function openViewer() {
+    if (generatedUrl) {
+      window.location.href = '/viewer.html?url=' + encodeURIComponent(generatedUrl);
+    }
+  }
 
   function shareUrl() {
     if (!generatedUrl) return;
