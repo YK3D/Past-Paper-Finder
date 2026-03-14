@@ -1048,6 +1048,7 @@
 
 </style>
   <script defer src="/_vercel/speed-insights/script.js"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1496392952885490" crossorigin="anonymous"></script>
   <title>Subject Codes — PaperFinder</title>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1496392952885490" crossorigin="anonymous"></script>
 </head>
@@ -1353,29 +1354,132 @@
 </div>
 
 <script>
+const DEFAULT_VARIANTS = ['1','2','3','11','12','13','21','22','23','31','32','33','41','42','43','51','52','53','61','62','63'];
 
-  let generatedUrl = '';
-  let recentOpen = false;
+const AL_SLUG_MAP = {
+    '8021': 'as-and-a-level-english-general-paper-8021',
+    '8028': 'as-and-a-level-french-language-as-level-only-8028',
+    '8238': 'as-and-a-level-chinese-8238',
+    '8274': 'as-and-a-level-english8274',
+    '8287': 'as-and-a-level-english-8287',
+    '8291': 'as-and-a-level-environmental-management-8291',
+    '8669': 'as-and-a-level-chinese-8669',
+    '8679': 'as-and-a-level-afrikaan-8679',
+    '8680': 'as-and-a-level-arabic-8680',
+    '8681': 'as-and-a-level-chinese-8681',
+    '8682': 'as-and-a-level-french-8682',
+    '8693': 'as-and-a-level-english-8693',
+    '8695': 'as-and-a-level-english-8695',
+    '8779': 'as-and-a-level-afrikaans-8779',
+    '9011': 'as-and-a-level-divinity-9011-and-8041',
+    '9084': 'as-and-a-level-law-9084',
+    '9093': 'as-and-a-level-english-9093',
+    '9184': 'as-and-a-level-biology-9184',
+    '9185': 'as-and-a-level-chemistry-9185',
+    '9231': 'as-and-a-level-mathematics-further-9231',
+    '9239': 'as-and-a-level-marine-science-9239',
+    '9274': 'as-and-a-level-classical-studies-9274',
+    '9276': 'as-and-a-level-english-literature-9276',
+    '9279': 'as-and-a-level-french-9279',
+    '9280': 'as-and-a-level-german-9280',
+    '9281': 'as-and-a-level-spanish-9281',
+    '9282': 'as-and-a-level-portuguese-9282',
+    '9336': 'as-and-a-level-food-studies-9336',
+    '9395': 'as-and-a-level-travel-and-tourism-9395',
+    '9396': 'as-and-a-level-physical-education-9396',
+    '9479': 'as-and-a-level-art-and-design-9479',
+    '9481': 'as-and-a-level-design-and-technology-9481',
+    '9482': 'as-and-a-level-drama-9482',
+    '9483': 'as-and-a-level-music-9483',
+    '9484': 'as-and-a-level-biblical-studies-9484',
+    '9487': 'as-and-a-level-hindi-9487',
+    '9488': 'as-and-a-level-hinduism-9488',
+    '9489': 'as-and-a-level-islamiyat-9489',
+    '9607': 'as-and-a-level-applied-information-and-communication-technology-9607',
+    '9608': 'as-and-a-level-computer-science-9608',
+    '9609': 'as-and-a-level-business9609',
+    '9618': 'as-and-a-level-computer-science-for-first-examination-in-2021-9618',
+    '9626': 'as-and-a-level-law-9626',
+    '9631': 'as-and-a-level-design-and-textiles-9631',
+    '9679': 'as-and-a-level-afrikaans-9679',
+    '9680': 'as-and-a-level-arabic-9680',
+    '9686': 'as-and-a-level-portuguese-9686',
+    '9687': 'as-and-a-level-hindi-9687',
+    '9689': 'as-and-a-level-history-9489',
+    '9691': 'as-and-a-level-computing-9691',
+    '9693': 'as-and-a-level-ancient-history-9693',
+    '9694': 'as-and-a-level-thinking-skills-9694',
+    '9695': 'as-and-a-level-english-literature-9695',
+    '9696': 'as-and-a-level-geography-9696',
+    '9697': 'as-and-a-level-history-9697',
+    '9698': 'as-and-a-level-history-9698',
+    '9699': 'as-and-a-level-history-9699',
+    '9700': 'as-and-a-level-biology-9700',
+    '9701': 'as-and-a-level-chemistry-9701',
+    '9702': 'as-and-a-level-physics-9702',
+    '9703': 'as-and-a-level-literature-in-english-9703',
+    '9704': 'as-and-a-level-art-and-design-9704',
+    '9705': 'as-and-a-level-design-and-technology-9705',
+    '9706': 'as-and-a-level-accounting-9706',
+    '9707': 'as-and-a-level-business-studies-9707',
+    '9708': 'as-and-a-level-economics-9708',
+    '9709': 'as-and-a-level-mathematics-9709',
+    '9713': 'as-and-a-level-applied-ict-9713',
+    '9715': 'as-and-a-level-chinese-9715',
+    '9716': 'as-and-a-level-french-9716',
+    '9717': 'as-and-a-level-german-9717',
+    '9718': 'as-and-a-level-japanese-9718',
+    '9719': 'as-and-a-level-spanish-9719',
+    '9844': 'as-and-a-level-global-perspectives-and-research-9844',
+    '9868': 'as-and-a-level-chinese-9868',
+    '9980': 'as-and-a-level-cambridge-international-project-qualification-9980',
+    '9990': 'as-and-a-level-environmental-management-9990',
+  };
 
-  // codes.html has no splash — reveal page immediately
-  document.addEventListener('DOMContentLoaded', () => {
-    const container = document.querySelector('.container');
-    if (container) { container.style.opacity = '1'; container.style.transform = 'none'; }
-  });
+const OL_SLUG_MAP = {
+    '1123': 'o-level-english-language-1123',
+    '2035': 'o-level-biblical-studies-2035',
+    '2055': 'o-level-hinduism-2055',
+    '2056': 'o-level-islamic-religion-and-culture-2056',
+    '2058': 'o-level-islamiyat-2058',
+    '2068': 'o-level-islamic-studies-2068',
+    '2069': 'o-level-global-perspectives-2069',
+    '2134': 'o-level-history-modern-world-affairs-2134',
+    '2147': 'o-level-history-2147',
+    '2158': 'o-level-history-world-affairs-1917-1991-2158',
+    '2210': 'o-level-computer-science-2210',
+    '2217': 'o-level-geography-2217',
+    '2251': 'o-level-sociology-2251',
+    '2281': 'o-level-economics-2281',
+    '3015': 'o-level-french-3015',
+    '3025': 'o-level-german-3025',
+    '3180': 'o-level-arabic-3180',
+    '3195': 'o-level-hindi-3195',
+    '3204': 'o-level-bengali-3204',
+    '4024': 'o-level-mathematics-4024',
+    '4037': 'o-level-additional-mathematics-4037',
+    '5014': 'o-level-environmental-management-5014',
+    '5038': 'o-level-agriculture-5038',
+    '5054': 'o-level-physics-5054',
+    '5070': 'o-level-chemistry-5070',
+    '5090': 'o-level-biology-5090',
+    '5096': 'o-level-human-and-social-biology-5096',
+    '6010': 'o-level-art-6010',
+    '6043': 'o-level-design-and-technology-6043',
+    '6050': 'o-level-fashion-and-fabrics-6050',
+    '6065': 'o-level-food-and-nutrition-6065',
+    '6090': 'o-level-art-and-design-6090',
+    '6130': 'o-level-fashion-and-textiles-6130',
+    '7010': 'o-level-computer-studies-7010',
+    '7048': 'o-level-cdt-design-and-communication-7048',
+    '7094': 'o-level-bangladesh-studies-7094',
+    '7100': 'o-level-commerce-7100',
+    '7101': 'o-level-commercial-studies-7101',
+    '7115': 'o-level-business-studies-7115',
+    '7707': 'o-level-accounting-7707',
+  };
 
-
-  // ── Haptic feedback (Android only, no-op on unsupported devices) ──
-  function haptic(type) {
-    if (!navigator.vibrate) return;
-    if (type === 'light')   navigator.vibrate(10);
-    else if (type === 'medium') navigator.vibrate(25);
-    else if (type === 'error')  navigator.vibrate([30, 50, 30]);
-    else if (type === 'success') navigator.vibrate([10, 30, 10]);
-  }
-
-  const CURRENT_YEAR = new Date().getFullYear() % 100;
-
-      const subjectNames = {
+const subjectNames = {
     '0262':'Swahili',
     '0400':'Art & Design',
     '0408':'World Literature',
@@ -1614,9 +1718,9 @@
     '9868':'Chinese Language & Literature',
     '9980':'Cambridge International Project Qualification',
     '9990':'Psychology'
-  }
+  };
 
-  const caieCodesAll = new Set([
+const caieCodesAll = new Set([
     '0262', '0400', '0408', '0409', '0410', '0411', '0413', '0415',
     '0416', '0417', '0420', '0426', '0427', '0428', '0429', '0437',
     '0438', '0439', '0441', '0442', '0443', '0444', '0445', '0447',
@@ -1644,521 +1748,12 @@
     '9715', '9716', '9717', '9718', '9719', '9844', '9868', '9980',
     '9990'
   ]);
-  const alCodesAll = new Set(['8021','8028','8238','8274','8287','8291','8669','8679','8680','8681','8682','8693','8695','8779','9011','9084','9093','9184','9185','9231','9239','9274','9276','9279','9280','9281','9282','9336','9395','9396','9479','9481','9482','9483','9484','9487','9488','9489','9607','9608','9609','9618','9626','9631','9679','9680','9686','9687','9689','9691','9693','9694','9695','9696','9697','9698','9699','9700','9701','9702','9703','9704','9705','9706','9707','9708','9709','9713','9715','9716','9717','9718','9719','9844','9868','9980','9990']);
-  const olCodesAll = new Set(['1123','2035','2055','2056','2058','2068','2069','2134','2147','2158','2210','2217','2251','2281','3015','3025','3180','3195','3204','4024','4037','5014','5038','5054','5070','5090','5096','6010','6043','6050','6065','6090','6130','7010','7048','7094','7100','7101','7115','7707']);
-  const aqaCodesAll  = new Set(['9201','9202','9203','9204','9210','9214','9215','9218','9221','9222','9223','9225','9230','9236','9237','9252','9257','9260','9264','9265','9269','9270','9275','9280','9285','9697','9610','9615','9620','9625','9630','9635','9640','9645','9660','9665','9670','9675','9685']);
 
+const alCodesAll = new Set(['8021','8028','8238','8274','8287','8291','8669','8679','8680','8681','8682','8693','8695','8779','9011','9084','9093','9184','9185','9231','9239','9274','9276','9279','9280','9281','9282','9336','9395','9396','9479','9481','9482','9483','9484','9487','9488','9489','9607','9608','9609','9618','9626','9631','9679','9680','9686','9687','9689','9691','9693','9694','9695','9696','9697','9698','9699','9700','9701','9702','9703','9704','9705','9706','9707','9708','9709','9713','9715','9716','9717','9718','9719','9844','9868','9980','9990']);
 
+const olCodesAll = new Set(['1123','2035','2055','2056','2058','2068','2069','2134','2147','2158','2210','2217','2251','2281','3015','3025','3180','3195','3204','4024','4037','5014','5038','5054','5070','5090','5096','6010','6043','6050','6065','6090','6130','7010','7048','7094','7100','7101','7115','7707']);
 
-  const SESS_LABELS = { s: 'M/J (May/Jun)', w: 'O/N (Oct/Nov)', m: 'F/M (Feb/Mar)' };
-
-
-
-  // ── Levenshtein for "Did you mean?" ──
-  function levenshtein(a, b) {
-    const m = a.length, n = b.length;
-    const dp = Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i||j));
-    for (let i=1;i<=m;i++) for (let j=1;j<=n;j++)
-      dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
-    return dp[m][n];
-  }
-  function didYouMean(code, board) {
-    const pool = board === 'AQA' ? [...aqaCodesAll] : [...caieCodesAll];
-    let best = null, bestDist = Infinity;
-    for (const c of pool) { const d = levenshtein(code,c); if (d<bestDist){bestDist=d;best=c;} }
-    return bestDist <= 2 ? best : null;
-  }
-
-  // ── Field error helpers ──
-  function numericOnly(el) {
-    const before = el.value;
-    const cleaned = before.replace(/\D/g, '');
-    if (cleaned !== before) {
-      el.value = cleaned;
-      // shake the field
-      el.classList.remove('field-error');
-      void el.offsetWidth;
-      el.classList.add('field-error');
-      setTimeout(() => el.classList.remove('field-error'), 500);
-    }
-  }
-
-  function markFieldError(id) {
-    // When year/variant in select mode, mark the select instead
-    let targetId = id;
-    if (id === 'year') {
-      targetId = 'yearSelect'; // yearSelect is always the year field
-    }
-    if (id === 'variant') {
-      const vs = document.getElementById('variantSelect');
-      if (vs && vs.style.display !== 'none') targetId = 'variantSelect';
-    }
-    const el = document.getElementById(targetId);
-    if (!el) return;
-    el.classList.remove('field-error');
-    void el.offsetWidth;
-    el.classList.add('field-error');
-  }
-  function clearFieldErrors() {
-    document.querySelectorAll('.field-error').forEach(el=>el.classList.remove('field-error'));
-    const dym = document.getElementById('didYouMeanTag');
-    if (dym) { dym.style.display = 'none'; dym.innerHTML = ''; }
-  }
-
-  // ── Code input handler ──
-
-  // ── Code autocomplete ──
-  let suggestionIndex = -1;
-
-  function getSuggestions(query, board) {
-    if (!query) return [];
-    const pool = board === 'AQA' ? [...aqaCodesAll] : board === 'CAIE' ? [...caieCodesAll, ...alCodesAll, ...olCodesAll] : [...caieCodesAll, ...alCodesAll, ...olCodesAll, ...aqaCodesAll];
-    const q = query.toLowerCase();
-    return pool
-      .filter(c => {
-        const name = (subjectNames[c] || '').toLowerCase();
-        return c.startsWith(q) || name.includes(q);
-      })
-      .sort((a, b) => {
-        const aCode = a.startsWith(q) ? 0 : 1;
-        const bCode = b.startsWith(q) ? 0 : 1;
-        return aCode - bCode || a.localeCompare(b);
-      })
-      .slice(0, 8);
-  }
-
-  function highlightMatch(text, query) {
-    if (!query) return text;
-    const idx = text.toLowerCase().indexOf(query.toLowerCase());
-    if (idx === -1) return text;
-    return text.slice(0, idx) + '<span class="suggestion-highlight">' + text.slice(idx, idx + query.length) + '</span>' + text.slice(idx + query.length);
-  }
-
-  function renderSuggestions(items, query) {
-    const box = document.getElementById('codeSuggestions');
-    if (!items.length) { box.classList.remove('open'); return; }
-    box.innerHTML = items.map((code, i) => {
-      const name = subjectNames[code] || '';
-      return `<div class="suggestion-item" data-code="${code}" onmousedown="pickSuggestion('${code}')">`
-        + `<span class="suggestion-code">${highlightMatch(code, query)}</span>`
-        + `<span class="suggestion-name">${highlightMatch(name, query)}</span>`
-        + `</div>`;
-    }).join('');
-    suggestionIndex = -1;
-    box.classList.add('open');
-  }
-
-  function hideSuggestions(e) {
-    // onblur fires before onmousedown — delay so pickSuggestion fires first
-    setTimeout(() => {
-      document.getElementById('codeSuggestions').classList.remove('open');
-      suggestionIndex = -1;
-    }, 150);
-  }
-
-  function pickSuggestion(code) {
-    haptic('light');
-    const input = document.getElementById('code');
-    input.value = code;
-    onCodeInput();
-    document.getElementById('codeSuggestions').classList.remove('open');
-    // Move focus to next field
-    document.getElementById('session').focus();
-  }
-
-  function onCodeKeydown(e) {
-    const box = document.getElementById('codeSuggestions');
-    const items = box.querySelectorAll('.suggestion-item');
-    if (!box.classList.contains('open') || !items.length) {
-      if (e.key === 'Enter') return; // handled by global Enter listener
-      return;
-    }
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      suggestionIndex = Math.min(suggestionIndex + 1, items.length - 1);
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      suggestionIndex = Math.max(suggestionIndex - 1, -1);
-    } else if (e.key === 'Enter' && suggestionIndex >= 0) {
-      e.preventDefault();
-      e.stopPropagation();
-      pickSuggestion(items[suggestionIndex].dataset.code);
-      return;
-    } else if (e.key === 'Escape') {
-      box.classList.remove('open');
-      suggestionIndex = -1;
-      return;
-    } else { return; }
-    items.forEach((el, i) => el.classList.toggle('active', i === suggestionIndex));
-    if (suggestionIndex >= 0) items[suggestionIndex].scrollIntoView({block:'nearest'});
-  }
-
-  function onCodeInput() {
-    const input = document.getElementById('code');
-    const before = input.value;
-    input.value = input.value.replace(/\D/g, '');
-    if (input.value !== before) {
-      input.classList.remove('field-error');
-      void input.offsetWidth;
-      input.classList.add('field-error');
-      setTimeout(() => input.classList.remove('field-error'), 500);
-    }
-    const code = input.value.trim();
-    const tag = document.getElementById('subjectNameTag');
-    const dym = document.getElementById('didYouMeanTag');
-    dym.style.display = 'none';
-    dym.innerHTML = '';
-    if (code.length === 4 && subjectNames[code]) {
-      tag.textContent = '\u2713 ' + subjectNames[code];
-      tag.classList.add('visible');
-      input.classList.remove('field-error');
-      document.getElementById('codeSuggestions').classList.remove('open');
-    }
-    if (code.length === 4) {
-      const board = document.getElementById('board').value;
-      if (board === 'CAIE') {
-        applyIgcseDropdowns(code); // works for IGCSE, AL, OL — slug auto-detected
-      }
-    }
-    if (code.length === 4 && !subjectNames[code]) {
-      tag.textContent = '';
-      tag.classList.remove('visible');
-      const board = document.getElementById('board').value;
-      const items = getSuggestions(code, board);
-      renderSuggestions(items, code);
-      // Show "Did you mean?" live when user has typed 4 digits that aren't valid
-      if (code.length === 4) {
-        const codeSet = board === 'AQA' ? aqaCodesAll : board === 'CAIE' ? caieCodesAll : null;
-        if (!codeSet || !codeSet.has(code)) {
-          const suggestion = didYouMean(code, board || 'CAIE');
-          if (suggestion) showDidYouMean(suggestion);
-        }
-      }
-    }
-  }
-
-  function showDidYouMean(suggestion) {
-    const dym = document.getElementById('didYouMeanTag');
-    const name = subjectNames[suggestion] ? ` (${subjectNames[suggestion]})` : '';
-    dym.innerHTML = `Did you mean <span onclick="applyDidYouMean('${suggestion}')">${suggestion}${name}</span>?`;
-    dym.style.display = 'block';
-  }
-
-  function applyDidYouMean(code) {
-    haptic('light');
-    const input = document.getElementById('code');
-    input.value = code;
-    onCodeInput();
-    document.getElementById('didYouMeanTag').style.display = 'none';
-    // Clear field error
-    input.classList.remove('field-error');
-    document.getElementById('errorMsg').classList.remove('show');
-  }
-
-  // ── Recent searches ──
-  function getRecent() { try { return JSON.parse(localStorage.getItem('pp_recent')||'[]'); } catch { return []; } }
-  function saveRecent(url) {
-    try {
-      let list = getRecent().filter(u=>u!==url);
-      list.unshift(url); list = list.slice(0,5);
-      localStorage.setItem('pp_recent', JSON.stringify(list));
-    } catch {}
-    renderRecent();
-  }
-  function clearRecent() { try { localStorage.removeItem('pp_recent'); } catch {} renderRecent(); }
-  function toggleRecent() {
-    recentOpen = !recentOpen;
-    document.getElementById('recentList').style.display = recentOpen ? 'flex' : 'none';
-    document.getElementById('recentChevron').textContent = recentOpen ? '▾' : '▸';
-  }
-
-  function urlToLabel(url) {
-    const file = url.split('/').pop().replace('.pdf','');
-    // CAIE: 0417_s18_qp_11  or  0417_s18_gt
-    const caie = file.match(/^(\d{4})_([smw])(\d{2})_(qp|ms|gt)(?:_(\d{1,2}))?$/);
-    if (caie) {
-      const [, code, sess, year, type, variant] = caie;
-      const sessMap = {s:'M/J', w:'O/N', m:'F/M'};
-      const sessLabel = sessMap[sess] || sess.toUpperCase();
-      const typeLabel = type.toUpperCase();
-      const name = subjectNames[code] ? ` (${subjectNames[code]})` : '';
-      if (type === 'gt') return `${code}${name} · ${sessLabel}/${year} · ${typeLabel}`;
-      return `${code}/${variant}${name} · ${sessLabel}/${year} · ${typeLabel}`;
-    }
-    // AQA: aqa-9260-qp-jun25  or  aqa-9260-gt-jun25  or  aqa-926011-qp-jun25
-    const aqa = file.match(/^aqa-(\d{4})(\d{2})?-(qp|ms|gt)-(\w+)(\d{2})$/);
-    if (aqa) {
-      const [, code, variant, type, sess, year] = aqa;
-      const sessLabel = sess.charAt(0).toUpperCase() + sess.slice(1);
-      const typeLabel = type.toUpperCase();
-      const name = subjectNames[code] ? ` (${subjectNames[code]})` : '';
-      if (type === 'gt') return `${code}${name} · ${sessLabel}/${year} · ${typeLabel}`;
-      return `${code}/${variant}${name} · ${sessLabel}/${year} · ${typeLabel}`;
-    }
-    // Fallback: just show filename
-    return file;
-  }
-
-  function renderRecent() {
-    const list = getRecent();
-    const box = document.getElementById('recentBox');
-    const el = document.getElementById('recentList');
-    if (!list.length) { box.classList.remove('visible'); recentOpen = false; return; }
-    box.classList.add('visible');
-    el.innerHTML = list.map(url => `
-      <div class="recent-item" onclick="window.open('${url}','_blank')">
-        <span class="recent-item-url">${urlToLabel(url)}</span>
-        <span class="recent-item-open">Open →</span>
-      </div>`).join('');
-    // Auto-expand when a new search is saved
-    if (recentOpen) el.style.display = 'flex';
-  }
-
-
-  // ── View switching ──
-  let _viewTransitioning = false;
-
-  function showCodes() {
-    if (_viewTransitioning) return;
-    _viewTransitioning = true;
-    const main = document.getElementById('main-view');
-    const codes = document.getElementById('codes-view');
-    const DUR = '0.35s';
-    const EASE = 'ease';
-
-    // Pre-position codes behind main (invisible, off-right)
-    codes.style.transition = 'none';
-    codes.style.opacity = '0';
-    codes.style.transform = 'translateX(40px)';
-    codes.classList.remove('view-hidden');
-    void codes.offsetWidth; // commit
-
-    // Slide main out and codes in simultaneously
-    main.style.transition = `opacity ${DUR} ${EASE}, transform ${DUR} ${EASE}`;
-    main.style.opacity = '0';
-    main.style.transform = 'translateX(-40px)';
-    codes.style.transition = `opacity ${DUR} ${EASE}, transform ${DUR} ${EASE}`;
-    codes.style.opacity = '1';
-    codes.style.transform = 'translateX(0)';
-    window.scrollTo(0, 0);
-
-    setTimeout(() => {
-      main.classList.add('view-hidden');
-      main.style.transition = '';
-      main.style.opacity = '';
-      main.style.transform = '';
-      codes.style.transition = '';
-      _viewTransitioning = false;
-    }, 380);
-
-    document.getElementById('searchBox').value = '';
-    filterCodes();
-  }
-
-  function showMain() {
-    if (_viewTransitioning) return;
-    _viewTransitioning = true;
-    const main = document.getElementById('main-view');
-    const codes = document.getElementById('codes-view');
-    const DUR = '0.35s';
-    const EASE = 'ease';
-
-    // Pre-position main behind codes (invisible, off-left) BEFORE codes starts fading
-    main.style.transition = 'none';
-    main.style.opacity = '0';
-    main.style.transform = 'translateX(-40px)';
-    main.classList.remove('view-hidden');
-    void main.offsetWidth; // commit
-
-    // Now slide codes out AND main in simultaneously
-    codes.style.transition = `opacity ${DUR} ${EASE}, transform ${DUR} ${EASE}`;
-    codes.style.opacity = '0';
-    codes.style.transform = 'translateX(40px)';
-    main.style.transition = `opacity ${DUR} ${EASE}, transform ${DUR} ${EASE}`;
-    main.style.opacity = '1';
-    main.style.transform = 'translateX(0)';
-    window.scrollTo(0, 0);
-
-    setTimeout(() => {
-      codes.classList.add('view-hidden');
-      codes.style.transition = '';
-      codes.style.opacity = '';
-      codes.style.transform = '';
-      main.style.transition = '';
-      _viewTransitioning = false;
-    }, 380);
-  }
-  function useCode(code, board) {
-    if (!code) return;
-    if (board) {
-      const boardEl = document.getElementById('board');
-      boardEl.value = board;
-      onBoardChange();
-    }
-    document.getElementById('code').value = code;
-    onCodeInput();
-    showMain();
-  }
-
-  // ── Search ──
-  function filterCodes() {
-    const q = document.getElementById('searchBox').value.toLowerCase().trim();
-    document.querySelectorAll('.code-table tr').forEach(row => {
-      row.style.display = (!q || row.textContent.toLowerCase().includes(q)) ? '' : 'none';
-    });
-  }
-
-  // ── Board change ──
-
-  // ── IGCSE smart dropdowns — fully live, no baked data ──
-  let _manualMode = false;
-  let _currentPapersData = null;
-  let _currentSessions = [];
-
-  const SESS_ORDER = { s: 0, m: 1, w: 2 };
-
-  const DEFAULT_VARIANTS = ['1','2','3','11','12','13','21','22','23','31','32','33','41','42','43','51','52','53','61','62','63'];
-
-  // Exact slugs scraped from PapaCambridge — overrides generated ones where they differ
-  const IGCSE_SLUG_OVERRIDES = {
-    // Confirmed mismatches between generated slug and PapaCambridge's actual slug
-    '0417':'igcse-ict0417',           // ICT (no hyphen before code)
-    '0475':'igcse-english0475',       // no hyphen before code
-    '0495':'igcse-sociology0495',     // no hyphen before code
-    '0500':'igcse-english-0500',      // "First Language English" → english
-    '0501':'igcse-french-0501',       // "First Language French" → french
-    '0502':'igcse-spanish-0502',      // "First Language Spanish" → spanish  
-    '0509':'igcse-chinese-0509',      // "First Language Chinese" → chinese
-    '0510':'igcse-english-0510',      // long name → english
-    '0511':'igcse-english-0511',      // long name → english
-    '0512':'igcse-afrikaans0512',     // no hyphen before code
-    '0678':'igcse-spanish0678',       // no hyphen before code
-  };
-
-  const AL_SLUG_MAP = {
-    '8021': 'as-and-a-level-english-general-paper-8021',
-    '8028': 'as-and-a-level-french-language-as-level-only-8028',
-    '8238': 'as-and-a-level-chinese-8238',
-    '8274': 'as-and-a-level-english8274',
-    '8287': 'as-and-a-level-english-8287',
-    '8291': 'as-and-a-level-environmental-management-8291',
-    '8669': 'as-and-a-level-chinese-8669',
-    '8679': 'as-and-a-level-afrikaan-8679',
-    '8680': 'as-and-a-level-arabic-8680',
-    '8681': 'as-and-a-level-chinese-8681',
-    '8682': 'as-and-a-level-french-8682',
-    '8693': 'as-and-a-level-english-8693',
-    '8695': 'as-and-a-level-english-8695',
-    '8779': 'as-and-a-level-afrikaans-8779',
-    '9011': 'as-and-a-level-divinity-9011-and-8041',
-    '9084': 'as-and-a-level-law-9084',
-    '9093': 'as-and-a-level-english-9093',
-    '9184': 'as-and-a-level-biology-9184',
-    '9185': 'as-and-a-level-chemistry-9185',
-    '9231': 'as-and-a-level-mathematics-further-9231',
-    '9239': 'as-and-a-level-marine-science-9239',
-    '9274': 'as-and-a-level-classical-studies-9274',
-    '9276': 'as-and-a-level-english-literature-9276',
-    '9279': 'as-and-a-level-french-9279',
-    '9280': 'as-and-a-level-german-9280',
-    '9281': 'as-and-a-level-spanish-9281',
-    '9282': 'as-and-a-level-portuguese-9282',
-    '9336': 'as-and-a-level-food-studies-9336',
-    '9395': 'as-and-a-level-travel-and-tourism-9395',
-    '9396': 'as-and-a-level-physical-education-9396',
-    '9479': 'as-and-a-level-art-and-design-9479',
-    '9481': 'as-and-a-level-design-and-technology-9481',
-    '9482': 'as-and-a-level-drama-9482',
-    '9483': 'as-and-a-level-music-9483',
-    '9484': 'as-and-a-level-biblical-studies-9484',
-    '9487': 'as-and-a-level-hindi-9487',
-    '9488': 'as-and-a-level-hinduism-9488',
-    '9489': 'as-and-a-level-islamiyat-9489',
-    '9607': 'as-and-a-level-applied-information-and-communication-technology-9607',
-    '9608': 'as-and-a-level-computer-science-9608',
-    '9609': 'as-and-a-level-business9609',
-    '9618': 'as-and-a-level-computer-science-for-first-examination-in-2021-9618',
-    '9626': 'as-and-a-level-law-9626',
-    '9631': 'as-and-a-level-design-and-textiles-9631',
-    '9679': 'as-and-a-level-afrikaans-9679',
-    '9680': 'as-and-a-level-arabic-9680',
-    '9686': 'as-and-a-level-portuguese-9686',
-    '9687': 'as-and-a-level-hindi-9687',
-    '9689': 'as-and-a-level-history-9489',
-    '9691': 'as-and-a-level-computing-9691',
-    '9693': 'as-and-a-level-ancient-history-9693',
-    '9694': 'as-and-a-level-thinking-skills-9694',
-    '9695': 'as-and-a-level-english-literature-9695',
-    '9696': 'as-and-a-level-geography-9696',
-    '9697': 'as-and-a-level-history-9697',
-    '9698': 'as-and-a-level-history-9698',
-    '9699': 'as-and-a-level-history-9699',
-    '9700': 'as-and-a-level-biology-9700',
-    '9701': 'as-and-a-level-chemistry-9701',
-    '9702': 'as-and-a-level-physics-9702',
-    '9703': 'as-and-a-level-literature-in-english-9703',
-    '9704': 'as-and-a-level-art-and-design-9704',
-    '9705': 'as-and-a-level-design-and-technology-9705',
-    '9706': 'as-and-a-level-accounting-9706',
-    '9707': 'as-and-a-level-business-studies-9707',
-    '9708': 'as-and-a-level-economics-9708',
-    '9709': 'as-and-a-level-mathematics-9709',
-    '9713': 'as-and-a-level-applied-ict-9713',
-    '9715': 'as-and-a-level-chinese-9715',
-    '9716': 'as-and-a-level-french-9716',
-    '9717': 'as-and-a-level-german-9717',
-    '9718': 'as-and-a-level-japanese-9718',
-    '9719': 'as-and-a-level-spanish-9719',
-    '9844': 'as-and-a-level-global-perspectives-and-research-9844',
-    '9868': 'as-and-a-level-chinese-9868',
-    '9980': 'as-and-a-level-cambridge-international-project-qualification-9980',
-    '9990': 'as-and-a-level-environmental-management-9990',
-  };
-
-  const OL_SLUG_MAP = {
-    '1123': 'o-level-english-language-1123',
-    '2035': 'o-level-biblical-studies-2035',
-    '2055': 'o-level-hinduism-2055',
-    '2056': 'o-level-islamic-religion-and-culture-2056',
-    '2058': 'o-level-islamiyat-2058',
-    '2068': 'o-level-islamic-studies-2068',
-    '2069': 'o-level-global-perspectives-2069',
-    '2134': 'o-level-history-modern-world-affairs-2134',
-    '2147': 'o-level-history-2147',
-    '2158': 'o-level-history-world-affairs-1917-1991-2158',
-    '2210': 'o-level-computer-science-2210',
-    '2217': 'o-level-geography-2217',
-    '2251': 'o-level-sociology-2251',
-    '2281': 'o-level-economics-2281',
-    '3015': 'o-level-french-3015',
-    '3025': 'o-level-german-3025',
-    '3180': 'o-level-arabic-3180',
-    '3195': 'o-level-hindi-3195',
-    '3204': 'o-level-bengali-3204',
-    '4024': 'o-level-mathematics-4024',
-    '4037': 'o-level-additional-mathematics-4037',
-    '5014': 'o-level-environmental-management-5014',
-    '5038': 'o-level-agriculture-5038',
-    '5054': 'o-level-physics-5054',
-    '5070': 'o-level-chemistry-5070',
-    '5090': 'o-level-biology-5090',
-    '5096': 'o-level-human-and-social-biology-5096',
-    '6010': 'o-level-art-6010',
-    '6043': 'o-level-design-and-technology-6043',
-    '6050': 'o-level-fashion-and-fabrics-6050',
-    '6065': 'o-level-food-and-nutrition-6065',
-    '6090': 'o-level-art-and-design-6090',
-    '6130': 'o-level-fashion-and-textiles-6130',
-    '7010': 'o-level-computer-studies-7010',
-    '7048': 'o-level-cdt-design-and-communication-7048',
-    '7094': 'o-level-bangladesh-studies-7094',
-    '7100': 'o-level-commerce-7100',
-    '7101': 'o-level-commercial-studies-7101',
-    '7115': 'o-level-business-studies-7115',
-    '7707': 'o-level-accounting-7707',
-  };
-
-  function buildSubjectSlug(code) {
+function buildSubjectSlug(code) {
     // Auto-detect level from code — check each map in order
     if (IGCSE_SLUG_OVERRIDES[code]) return IGCSE_SLUG_OVERRIDES[code];
     if (AL_SLUG_MAP[code]) return AL_SLUG_MAP[code];
@@ -2176,831 +1771,37 @@
       + '-' + code;
   }
 
-  function populateYearRange(startYear) {
-    const ys = document.getElementById('yearSelect');
-    const currentYear = new Date().getFullYear();
-    ys.innerHTML = '<option value="">— Select year —</option>';
-    for (let y = currentYear; y >= startYear; y--) {
-      const o = document.createElement('option');
-      o.value = String(y).slice(2); // 2-digit for URL
-      o.dataset.full = String(y);
-      o.textContent = String(y);
-      ys.appendChild(o);
-    }
+function highlightMatch(text, query) {
+    if (!query) return text;
+    const idx = text.toLowerCase().indexOf(query.toLowerCase());
+    if (idx === -1) return text;
+    return text.slice(0, idx) + '<span class="suggestion-highlight">' + text.slice(idx, idx + query.length) + '</span>' + text.slice(idx + query.length);
   }
 
-  function setYearMode(mode) {
-    // yearSelect is always shown — mode only controls placeholder text
-    const ys = document.getElementById('yearSelect');
-    if (mode !== 'select') {
-      ys.innerHTML = '<option value="">— Select Year —</option>';
-    }
+function getSuggestions(query, board) {
+    if (!query) return [];
+    const pool = board === 'AQA' ? [...aqaCodesAll] : board === 'CAIE' ? [...caieCodesAll, ...alCodesAll, ...olCodesAll] : [...caieCodesAll, ...alCodesAll, ...olCodesAll, ...aqaCodesAll];
+    const q = query.toLowerCase();
+    return pool
+      .filter(c => {
+        const name = (subjectNames[c] || '').toLowerCase();
+        return c.startsWith(q) || name.includes(q);
+      })
+      .sort((a, b) => {
+        const aCode = a.startsWith(q) ? 0 : 1;
+        const bCode = b.startsWith(q) ? 0 : 1;
+        return aCode - bCode || a.localeCompare(b);
+      })
+      .slice(0, 8);
   }
 
-  function setVariantMode(mode, variants) {
-    const vi = document.getElementById('variant');
-    const vs = document.getElementById('variantSelect');
-    if (mode === 'select') {
-      if (vi) vi.style.display = 'none';
-      vs.style.display = 'block';
-      const prev = vs.value;
-      vs.innerHTML = '<option value="">— Select —</option>';
-      if (variants && variants.length > 0) {
-        variants.forEach(v => {
-          const o = document.createElement('option');
-          o.value = v; o.textContent = v;
-          if (v === prev) o.selected = true;
-          vs.appendChild(o);
-        });
-      }
-    } else {
-      if (vi) vi.style.display = 'block';
-      vs.style.display = 'none';
-      vs.innerHTML = '<option value="">— Select —</option>';
-    }
-  }
-
-  function buildSessSlug(sess, fullYear) {
-    const yr = parseInt(fullYear);
-    if (sess === 's') return yr >= 2018 ? 'may-june' : 'jun';
-    if (sess === 'w') return yr >= 2018 ? 'oct-nov' : 'nov';
-    if (sess === 'm') return yr >= 2022 ? (yr === 2022 ? 'feb-march' : 'march') : 'mar';
-    return '';
-  }
-
-  // ══════════════════════════════════════════════════════════════════
-  // DETECTION CHAIN
-  // Step 1: code entered  → fetch sessions   → populate session dropdown
-  // Step 2: session picked → fetch years     → populate year dropdown
-  // Step 3: year picked   → fetch papers     → populate paper type dropdown
-  // Step 4: type picked   → extract variants → populate variant dropdown
-  // ══════════════════════════════════════════════════════════════════
-
-  // ── Step 1: code entered ──
-  async function applyIgcseDropdowns(code) {
-    if (_manualMode) return;
-    _currentSessions = [];
-    _currentPapersData = null;
-
-    const sessionSel = document.getElementById('session');
-    const sessField  = sessionSel.closest('.field');
-
-    // Reset downstream fields
-    sessionSel.innerHTML = '<option value="">Loading…</option>';
-    sessField.classList.add('field-loading');
-    document.getElementById('yearSelect').innerHTML = '<option value="">— Select session first —</option>';
-    document.getElementById('papertype').innerHTML = '<option value="">— Select year first —</option>';
-    document.getElementById('variantField').classList.add('variant-hidden');
-
-    try {
-      const slug = buildSubjectSlug(code);
-      const r = await fetch('/api/get-sessions?code=' + code + '&slug=' + encodeURIComponent(slug));
-      const data = await r.json();
-      _currentSessions = data.sessions || [];
-    } catch(e) {
-      _currentSessions = [];
-    } finally {
-      sessField.classList.remove('field-loading');
-    }
-
-    if (_currentSessions.length === 0) {
-      // No data — fall back to full static lists
-      repopulateFullSessions('CAIE');
-      populateYearRange(1990);
-      resetPapertypeStatic();
-      return;
-    }
-
-    // Populate session dropdown with only available sessions
-    const availSessions = [...new Set(_currentSessions.map(e => e.sess))];
-    sessionSel.innerHTML = '<option value="">— Select —</option>';
-    ['s','m','w'].forEach(val => {
-      if (!availSessions.includes(val)) return;
-      const o = document.createElement('option');
-      o.value = val; o.textContent = SESS_LABELS[val];
-      sessionSel.appendChild(o);
-    });
-
-    // Year stays as "Select session first" until session is picked
-    document.getElementById('yearSelect').innerHTML = '<option value="">— Select session —</option>';
-  }
-
-  // ── Step 2: session selected → populate years ──
-  function onSessionChange() {
-    if (_manualMode) { clearFieldErrors(); return; }
-    const sess = document.getElementById('session').value;
-    const yearSelect = document.getElementById('yearSelect');
-
-    // Reset downstream
-    document.getElementById('papertype').innerHTML = '<option value="">— Select year first —</option>';
-    document.getElementById('variantField').classList.add('variant-hidden');
-    _currentPapersData = null;
-    clearFieldErrors();
-
-    if (!sess) {
-      yearSelect.innerHTML = '<option value="">— Select session —</option>';
-      return;
-    }
-
-    if (_currentSessions.length > 0) {
-      // Filter years to those that have this session
-      const filtered = _currentSessions.filter(e => e.sess === sess);
-      const seen = new Set();
-      yearSelect.innerHTML = '<option value="">— Select year —</option>';
-      filtered.forEach(e => {
-        if (seen.has(e.year)) return;
-        seen.add(e.year);
-        const o = document.createElement('option');
-        o.value = e.year.slice(2);  // 2-digit for URL
-        o.dataset.full = e.year;    // 4-digit for slug
-        o.textContent = e.year;
-        yearSelect.appendChild(o);
-      });
-    } else {
-      // No session data — fall back to full year range
-      populateYearRange(1990);
-    }
-  }
-
-  // ── Step 3: year selected → scan for paper types ──
-  function onYearSelectChange() {
-    if (_manualMode) { clearFieldErrors(); return; }
-    clearFieldErrors();
-    _currentPapersData = null;
-
-    // Reset downstream
-    document.getElementById('papertype').innerHTML = '<option value="">Scanning…</option>';
-    document.getElementById('variantField').classList.add('variant-hidden');
-
-    fetchPapersForSelection();
-  }
-
-  async function fetchPapersForSelection() {
-    if (_manualMode) return;
-    const code   = document.getElementById('code').value.trim();
-    const sess   = document.getElementById('session').value;
-    const ysEl   = document.getElementById('yearSelect');
-    const selOpt = ysEl.options[ysEl.selectedIndex];
-
-    if (!selOpt || !selOpt.dataset || !selOpt.dataset.full || !sess || !code) {
-      resetPapertypeStatic();
-      return;
-    }
-
-    const fullYear = selOpt.dataset.full;
-    const sessSlug = buildSessSlug(sess, fullYear);
-    const subjSlug = buildSubjectSlug(code);
-    const pageUrl  = `https://pastpapers.papacambridge.com/papers/caie/${subjSlug}-${fullYear}-${sessSlug}`;
-
-    const ptField = document.getElementById('papertype').closest('.field');
-    ptField.classList.add('field-loading');
-
-    try {
-      const r = await fetch('/api/get-papers?url=' + encodeURIComponent(pageUrl));
-      const data = await r.json();
-      if (data.types && data.types.length > 0) {
-        _currentPapersData = data;
-        applyPapersData(data);
-      } else {
-        _currentPapersData = null;
-        resetPapertypeStatic();
-      }
-    } catch(e) {
-      _currentPapersData = null;
-      resetPapertypeStatic();
-    } finally {
-      ptField.classList.remove('field-loading');
-    }
-  }
-
-  function applyPapersData(data) {
-    const TYPE_LABELS = {
-      qp: 'Question Paper (QP)', ms: 'Mark Scheme (MS)',
-      gt: 'Grade Thresholds (GT)', gb: 'Grade Boundaries (GB)',
-      er: 'Examiner Report (ER)', ci: 'Confidential Instructions (CI)',
-      in: 'Insert (IN)', qr: 'Transcript (QR)', rp: 'Role Play Card (RPC)', sf: 'Sound File (SF)', tn: 'Teacher Notes (TN)',
-      sg: 'Supplementary Guide (SG)', sp: 'Specimen Paper (SP)', sm: 'Specimen Mark Scheme (SM)',
-    };
-    const pt = document.getElementById('papertype');
-    pt.innerHTML = '<option value="">— Select paper type —</option>';
-    data.types.forEach(t => {
-      const o = document.createElement('option');
-      o.value = t;
-      o.textContent = TYPE_LABELS[t] || t.toUpperCase();
-      pt.appendChild(o);
-    });
-    // Variant stays hidden until paper type is picked
-    document.getElementById('variantField').classList.add('variant-hidden');
-  }
-
-  // ── Step 4: paper type selected → show variants for that type ──
-  function updateVariantForType(type, data) {
-    if (_manualMode) return;
-    data = data || _currentPapersData;
-    const variantField = document.getElementById('variantField');
-    const NO_VARIANT_TYPES = new Set(['gt','gb','er','sp','sm','sg']);
-
-    if (!type || NO_VARIANT_TYPES.has(type)) {
-      variantField.classList.add('variant-hidden');
-      return;
-    }
-
-    const variants = (data && data.variants && data.variants[type]) ? data.variants[type] : [];
-
-    if (variants.length > 0) {
-      variantField.classList.remove('variant-hidden');
-      const vs = document.getElementById('variantSelect');
-      vs.innerHTML = '<option value="">— Select variant —</option>';
-      variants.forEach(v => {
-        const o = document.createElement('option');
-        o.value = v; o.textContent = v;
-        vs.appendChild(o);
-      });
-      vs.style.display = 'block';
-      document.getElementById('variant').style.display = 'none';
-    } else {
-      // No variants found for this type — keep hidden
-      variantField.classList.add('variant-hidden');
-    }
-  }
-
-  // Static paper type list (fallback when no scan data)
-  function resetPapertypeStatic() {
-    const pt = document.getElementById('papertype');
-    pt.innerHTML = `<option value="">— Select —</option>
-      <option value="qp">Question Paper (QP)</option>
-      <option value="ms">Mark Scheme (MS)</option>
-      <option value="gt">Grade Thresholds (GT)</option>
-      <option value="gb">Grade Boundaries (GB)</option>
-      <option value="er">Examiner Report (ER)</option>
-      <option value="ci">Confidential Instructions (CI)</option>
-      <option value="in">Insert (IN)</option>
-      <option value="qr">Transcript (QR)</option>
-      <option value="rp">Role Play Card (RPC)</option>
-      <option value="sf">Sound File (SF)</option>
-      <option value="tn">Teacher Notes (TN)</option>`;
-  }
-
-  function resetPaperFields() {
-    if (_manualMode) return;
-    _currentPapersData = null;
-    document.getElementById('papertype').innerHTML = '<option value="">— Select year first —</option>';
-    document.getElementById('variantField').classList.add('variant-hidden');
-    document.getElementById('variantSelect').innerHTML = '<option value="">— Select —</option>';
-  }
-
-  function repopulateFullSessions(board) {
-    const s = document.getElementById('session');
-    const curr = s.value;
-    s.innerHTML = '<option value="">— Select —</option>';
-    if (board === 'CAIE') {
-      [['M/J (May/Jun)','s'],['F/M (Feb/Mar)','m'],['O/N (Oct/Nov)','w']].forEach(([label,val]) => {
-        const o = document.createElement('option');
-        o.value = val; o.textContent = label;
-        if (val === curr) o.selected = true;
-        s.appendChild(o);
-      });
-    } else if (board === 'AQA') {
-      [['Jun','jun'],['Nov','nov']].forEach(([label,val]) => {
-        const o = document.createElement('option');
-        o.value = val; o.textContent = label;
-        if (val === curr) o.selected = true;
-        s.appendChild(o);
-      });
-    }
-  }
-
-  function toggleManualMode() {
-    _manualMode = !_manualMode;
-    const btn  = document.getElementById('manualToggle');
-    const hint = document.getElementById('manualHint');
-    const board = document.getElementById('board').value;
-    const code  = document.getElementById('code').value.trim();
-    if (_manualMode) {
-      btn.classList.add('active');
-      btn.textContent = '✎ Using dropdowns';
-      hint.style.display = 'inline';
-      populateYearRange(1990);
-      repopulateFullSessions(board);
-      resetPapertypeStatic();
-      document.getElementById('variantField').classList.remove('variant-hidden');
-      setVariantMode('select', DEFAULT_VARIANTS);
-    } else {
-      btn.classList.remove('active');
-      btn.textContent = '✎ Enter manually';
-      hint.style.display = 'none';
-      if (board === 'CAIE' && caieCodesAll.has(code) && code.startsWith('0')) {
-        applyIgcseDropdowns(code);
-      }
-    }
-  }
-
-
-  function onBoardChange() {
-    const board = document.getElementById('board').value;
-    repopulateFullSessions(board);
-    if (board === 'AQA') {
-      populateYearRange(1990);
-    } else {
-      document.getElementById('yearSelect').innerHTML = '<option value="">— Enter code first —</option>';
-    }
-    document.getElementById('papertype').innerHTML = '<option value="">— Select year first —</option>';
-    document.getElementById('variantField').classList.add('variant-hidden');
-    _manualMode = false;
-    _currentSessions = [];
-    _currentPapersData = null;
-    const mt = document.getElementById('manualToggle');
-    if (mt) { mt.classList.remove('active'); mt.textContent = '✎ Enter manually'; }
-    const mh = document.getElementById('manualHint');
-    if (mh) mh.style.display = 'none';
-    hideResult();
-    clearFieldErrors();
-  }
-
-  // ── Paper type change ──
-  function onPapertypeChange() {
-    const pt = document.getElementById('papertype').value;
-    if (!_manualMode && _currentPapersData) {
-      updateVariantForType(pt, _currentPapersData);
-    } else {
-      // No scanned data — static fallback
-      const NO_VARIANT_TYPES = new Set(['gt','gb','er','sp','sm','sg']);
-      const variantField = document.getElementById('variantField');
-      if (!pt || NO_VARIANT_TYPES.has(pt)) {
-        variantField.classList.add('variant-hidden');
-      } else {
-        variantField.classList.remove('variant-hidden');
-        setVariantMode('select', DEFAULT_VARIANTS);
-      }
-    }
-  }
-
-  // ── Enter key navigation ──
-  function setupEnterNav() {
-    const order = ['board', 'code', 'session', 'year', 'variant', 'papertype'];
-    order.forEach((id, i) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.addEventListener('keydown', function(e) {
-        if (e.key !== 'Enter') return;
-        e.preventDefault();
-        // Find next visible, enabled field
-        for (let j = i + 1; j < order.length; j++) {
-          const next = document.getElementById(order[j]);
-          if (!next) continue;
-          const field = next.closest('.field');
-          // Skip hidden variant field when GT is selected
-          if (field && (field.classList.contains('variant-hidden') || getComputedStyle(field).display === 'none')) continue;
-          next.focus();
-          // Open select dropdowns on focus
-          if (next.tagName === 'SELECT') {
-            next.dispatchEvent(new MouseEvent('mousedown'));
-          }
-          return;
-        }
-        // All fields done — trigger generate
-        generate();
-      });
+function filterCodes() {
+    const q = document.getElementById('searchBox').value.toLowerCase().trim();
+    document.querySelectorAll('.code-table tr').forEach(row => {
+      row.style.display = (!q || row.textContent.toLowerCase().includes(q)) ? '' : 'none';
     });
   }
-  document.addEventListener('DOMContentLoaded', setupEnterNav);
 
-  // ── Arrow position: measure text, set start/end precisely ──
-  function setupArrow() {
-    const btn = document.getElementById('generateBtn');
-    const arrow = btn.querySelector('.btn-arrow');
-    const text = btn.querySelector('.btn-text');
-    const btnRect = btn.getBoundingClientRect();
-    const textRect = text.getBoundingClientRect();
-    const arrowW = 18;
-    const gap = 8;
-    // start: left edge of text minus arrow width and gap
-    const startLeft = textRect.left - btnRect.left - arrowW - gap;
-    // end: right edge of text plus gap
-    const endLeft = textRect.right - btnRect.left + gap;
-    arrow.style.left = startLeft + 'px';
-    btn._arrowStart = startLeft + 'px';
-    btn._arrowEnd = endLeft + 'px';
-    btn.addEventListener('mouseenter', () => { arrow.style.left = btn._arrowEnd; });
-    btn.addEventListener('mouseleave', () => { arrow.style.left = btn._arrowStart; });
-  }
-  document.addEventListener('DOMContentLoaded', setupArrow);
-  document.addEventListener('DOMContentLoaded', () => {
-    // Variant hidden until paper type selected
-    document.getElementById('variantField').classList.add('variant-hidden');
-    document.getElementById('variantSelect').innerHTML = '<option value="">— Select paper type first —</option>';
-  });
-  // re-run after splash in case layout shifts
-  setTimeout(setupArrow, 1600);
-
-  // ── Generate ──
-  function generate() {
-    clearFieldErrors();
-    const board     = document.getElementById('board').value;
-    const code      = document.getElementById('code').value.trim();
-    const session   = document.getElementById('session').value;
-    const year = document.getElementById('yearSelect').value.trim();
-    const _varInput  = document.getElementById('variant');
-    const _varSelect = document.getElementById('variantSelect');
-    const variant = (_varSelect.style.display !== 'none')
-      ? _varSelect.value.trim()
-      : _varInput.value.trim();
-    const papertype = document.getElementById('papertype').value;
-
-    if (!board)   { markFieldError('board');     showError('Missing Exam Board! Please select an exam board.'); return; }
-    if (!code)    { markFieldError('code');      showError('Missing Subject Code! Please enter a subject code.'); return; }
-    if (!/^\d{4}$/.test(code)) { markFieldError('code'); showError('Invalid Subject Code! Code must be exactly 4 digits.'); return; }
-    if ((board==='CAIE' && !caieCodesAll.has(code)) || (board==='AQA' && !aqaCodesAll.has(code))) {
-      const s = didYouMean(code, board);
-      markFieldError('code');
-      // build a best-guess URL for bypass
-      const sv = document.getElementById('session').value;
-      const yv = document.getElementById('year').value;
-      const vv = document.getElementById('variantSelect').style.display !== 'none' ? document.getElementById('variantSelect').value : document.getElementById('variant').value;
-      const pt = document.getElementById('papertype').value;
-      let guessUrl = '';
-      if (sv && yv && pt) {
-        const yr = yv.length === 4 ? yv.slice(-2) : yv;
-        if (board === 'CAIE') {
-          guessUrl = pt === 'gt'
-            ? `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${sv}${yr}_gt.pdf`
-            : `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${sv}${yr}_${pt}_${vv}.pdf`;
-        } else {
-          guessUrl = pt === 'gt'
-            ? `https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/aqa-${code}-gt-${sv}${yr}.pdf`
-            : `https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/aqa-${code}${vv}-${pt}-${sv}${yr}.pdf`;
-        }
-      }
-      const otherBoard = board === 'CAIE' ? 'AQA' : 'CAIE';
-      const otherSet   = board === 'CAIE' ? aqaCodesAll : caieCodesAll;
-      if (otherSet.has(code)) {
-        showError(`Invalid Subject Code! This code belongs to ${otherBoard}, not ${board}.`, guessUrl || null);
-      } else {
-        showError('Invalid Subject Code! ' + (s ? 'See suggestion below.' : 'Use the code finder above.'), guessUrl || null);
-        if (s) showDidYouMean(s);
-      }
-      return;
-    }
-    if (!session) { markFieldError('session');   showError('Missing Session! Please select a session.'); return; }
-    if (!year)    { markFieldError('year');      showError('Missing Year! Please enter the year.'); return; }
-    // Accept 2-digit (23) or 4-digit (2023) year
-    let yearVal = year;
-    if (/^\d{4}$/.test(year)) {
-      yearVal = year.slice(2);
-    } else if (!/^\d{2}$/.test(year)) {
-      markFieldError('year'); showError('Invalid Year! Enter a 2 or 4-digit year (e.g. 23 or 2023).'); return;
-    }
-    if (parseInt(yearVal,10) > CURRENT_YEAR) { markFieldError('year'); showError('Invalid Year! Year cannot be in the future.'); return; }
-    if (!papertype){ markFieldError('papertype'); showError('Missing Paper Type! Please select QP, MS or GT.'); return; }
-    if (papertype !== 'gt') {
-      const _noVarTypes = new Set(['gt','gb','er','sp','sm','sg']);
-      if (!variant && !_noVarTypes.has(papertype)) { markFieldError('variant'); showError('Missing Variant! Please enter a variant.'); return; }
-      if (variant && !/^\d{1,2}$/.test(variant)) { markFieldError('variant'); showError('Invalid Variant! Must be a 1–2 digit number.'); return; }
-    }
-
-    // Strip leading zero from variant (e.g. "01" → "1", "11" stays "11")
-    // Single digit variants need leading zero in URL: "1" → "01", "11" stays "11"
-    const variantForUrl = /^\d$/.test(variant) ? '0' + variant : variant;
-
-    // Types with no variant in URL
-    const noVariantTypes = ['gt','gb','er','sp','sm','sg'];
-
-    // sf (Sound File) uses .mp3; everything else uses .pdf
-    const ext = papertype === 'sf' ? 'mp3' : 'pdf';
-    let url = '';
-    if (board === 'CAIE') {
-      if (noVariantTypes.includes(papertype)) {
-        url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${yearVal}_${papertype}.${ext}`;
-      } else {
-        url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${yearVal}_${papertype}_${variantForUrl}.${ext}`;
-      }
-    } else {
-      if (papertype === 'gt') {
-        url = `https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/aqa-${code}-gt-${session}${yearVal}.pdf`;
-      } else {
-        url = `https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/aqa-${code}${variantForUrl}-${papertype}-${session}${yearVal}.pdf`;
-      }
-    }
-
-    document.getElementById('errorMsg').classList.remove('show');
-
-    // Check PDF exists before showing result
-    const btn = document.querySelector('.btn-generate');
-    const btnText = btn.querySelector('.btn-text');
-    btnText.innerHTML = '<span class="btn-spinner"></span>Checking…';
-    btn.disabled = true;
-
-    fetch('/api/check-pdf?url=' + encodeURIComponent(url))
-      .then(r => r.json())
-      .then(data => {
-        if (data.exists) {
-          haptic('success');
-          generatedUrl = url;
-          document.getElementById('resultUrl').textContent = url;
-          const rb = document.getElementById('resultBox');
-          rb.classList.remove('show', 'animating');
-          void rb.offsetWidth;
-          rb.classList.add('show', 'animating');
-          saveRecent(url);
-          setTimeout(() => smoothScrollToBottom(2000), 50);
-        } else {
-          // If variant has leading zero, retry without it (some older papers omit it)
-          const variantEl = document.getElementById('variantSelect').style.display !== 'none'
-            ? document.getElementById('variantSelect').value
-            : document.getElementById('variant').value;
-          const hasLeadingZero = /^0\d$/.test(variantEl);
-          const altUrl = hasLeadingZero ? url.replace('_' + variantEl + '.', '_' + variantEl.slice(1) + '.') : null;
-
-          if (altUrl && altUrl !== url) {
-            // Try the alternate URL (without leading zero)
-            fetch('/api/check-pdf?url=' + encodeURIComponent(altUrl))
-              .then(r => r.json())
-              .then(altData => {
-                if (altData.exists) {
-                  haptic('success');
-                  generatedUrl = altUrl;
-                  document.getElementById('resultUrl').textContent = altUrl;
-                  const rb = document.getElementById('resultBox');
-                  rb.classList.remove('show', 'animating');
-                  void rb.offsetWidth;
-                  rb.classList.add('show', 'animating');
-                  saveRecent(altUrl);
-                  setTimeout(() => smoothScrollToBottom(2000), 50);
-                } else {
-                  haptic('error');
-                  markFieldError('year'); markFieldError('variant'); markFieldError('session');
-                  showError('File not found! Make sure variant, year & session are correct.', url);
-                  document.getElementById('resultBox').classList.remove('show', 'animating');
-                  generatedUrl = '';
-                }
-              })
-              .catch(() => {
-                haptic('error');
-                markFieldError('year'); markFieldError('variant'); markFieldError('session');
-                showError('File not found! Make sure variant, year & session are correct.', url);
-                document.getElementById('resultBox').classList.remove('show', 'animating');
-                generatedUrl = '';
-              });
-          } else {
-            haptic('error');
-            markFieldError('year'); markFieldError('variant'); markFieldError('session');
-            showError('File not found! Make sure variant, year & session are correct.', url);
-            document.getElementById('resultBox').classList.remove('show', 'animating');
-            generatedUrl = '';
-          }
-        }
-      })
-      .catch(() => {
-        // API unavailable (e.g. local file) — show result anyway
-        haptic('success');
-        generatedUrl = url;
-        document.getElementById('resultUrl').textContent = url;
-        const rb = document.getElementById('resultBox');
-        rb.classList.remove('show', 'animating');
-        void rb.offsetWidth;
-        rb.classList.add('show', 'animating');
-        saveRecent(url);
-        setTimeout(() => smoothScrollToBottom(2000), 50);
-      })
-      .finally(() => {
-        btnText.textContent = 'Generate Link';
-        btn.disabled = false;
-      });
-  }
-
-  // ── Enter key navigation ──
-  (function() {
-    const order = ['board','code','session','year','variant','papertype'];
-    document.addEventListener('keydown', function(e) {
-      if (e.key !== 'Enter') return;
-      const active = document.activeElement;
-      if (!active) return;
-      const idx = order.indexOf(active.id);
-      if (idx === -1) return;
-      e.preventDefault();
-      for (let i = idx + 1; i < order.length; i++) {
-        const next = document.getElementById(order[i]);
-        if (next && !next.disabled && next.offsetParent !== null) {
-          next.focus();
-          return;
-        }
-      }
-      generate();
-    });
-  })();
-
-  function smoothScrollToBottom(duration) {
-    const start = window.scrollY;
-    // Scroll to the version tag, not the very bottom (blank lines are below it)
-    const versionEl = document.querySelector('.version-tag');
-    const end = versionEl
-      ? window.scrollY + versionEl.getBoundingClientRect().bottom - window.innerHeight + 16
-      : document.body.scrollHeight;
-    const dist = end - start;
-    if (dist <= 0) return;
-    const startTime = performance.now();
-    function easeInOutSine(t) {
-      return -(Math.cos(Math.PI * t) - 1) / 2;
-    }
-    function step(now) {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      window.scrollTo(0, start + dist * easeInOutSine(progress));
-      if (progress < 1) requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-  }
-
-  function openUrl() { if (generatedUrl) { haptic('light'); window.open(generatedUrl, '_blank'); } }
-
-  function shareUrl() {
-    if (!generatedUrl) return;
-    haptic('light');
-    const label = urlToLabel(generatedUrl);
-    if (navigator.share) {
-      navigator.share({
-        title: 'Past Paper — ' + label,
-        text: label,
-        url: generatedUrl
-      }).catch(() => {});
-    } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(generatedUrl).then(() => {
-        const btn = document.getElementById('shareBtn');
-        btn.textContent = 'Copied!';
-        setTimeout(() => btn.innerHTML = '&#8679; Share', 1800);
-      });
-    }
-  }
-
-  function toggleTheme() {
-    const isLight = document.body.classList.toggle('light');
-    document.getElementById('themeToggle').textContent = isLight ? '☾' : '☀';
-    try { localStorage.setItem('pp_theme', isLight ? 'light' : 'dark'); } catch {}
-  }
-
-  // Restore saved theme on load
-  (function() {
-    try {
-      if (localStorage.getItem('pp_theme') === 'light') {
-        document.body.classList.add('light');
-        document.addEventListener('DOMContentLoaded', () => {
-          const btn = document.getElementById('themeToggle');
-          if (btn) btn.textContent = '☾';
-        });
-      }
-    } catch {}
-  })();
-
-  function downloadUrl() {
-    if (!generatedUrl) return;
-    const btn = document.querySelector('.btn-download');
-    const filename = generatedUrl.split('/').pop();
-
-    // Try proxy first (works when deployed on Vercel with api/download-pdf.js)
-    const proxyUrl = '/api/download-pdf?url=' + encodeURIComponent(generatedUrl);
-    btn.textContent = 'Downloading…';
-    btn.disabled = true;
-
-    fetch(proxyUrl)
-      .then(r => {
-        if (!r.ok) throw new Error('proxy unavailable');
-        return r.blob();
-      })
-      .then(blob => {
-        // Proxy returned the PDF — trigger native save dialog
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-        haptic('medium');
-        btn.textContent = '✓ Downloaded';
-        setTimeout(() => { btn.textContent = '⬇ Download'; btn.disabled = false; }, 2000);
-      })
-      .catch(() => {
-        // Proxy not available — open in new tab (browser PDF viewer has its own download button)
-        btn.textContent = '⬇ Download';
-        btn.disabled = false;
-        window.open(generatedUrl, '_blank');
-      });
-  }
-
-  function copyUrl() {
-    if (!generatedUrl) return;
-    haptic('light');
-    const btn = document.querySelector('.btn-copy');
-    function onSuccess() {
-      btn.textContent = 'Copied!';
-      setTimeout(() => btn.textContent = 'Copy URL', 1800);
-    }
-    function fallback() {
-      try {
-        const ta = document.createElement('textarea');
-        ta.value = generatedUrl;
-        ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
-        document.body.appendChild(ta);
-        ta.focus();
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        onSuccess();
-      } catch(e) {
-        btn.textContent = 'Failed';
-        setTimeout(() => btn.textContent = 'Copy URL', 1800);
-      }
-    }
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(generatedUrl).then(onSuccess).catch(fallback);
-    } else {
-      fallback();
-    }
-  }
-
-  function showError(msg, bypassUrl) {
-    haptic('error');
-    const el = document.getElementById('errorMsg');
-    el.innerHTML = '';
-    const msgNode = document.createTextNode(msg);
-    el.appendChild(msgNode);
-    if (bypassUrl) {
-      const row = document.createElement('div');
-      row.className = 'bypass-row';
-      const btn = document.createElement('button');
-      btn.className = 'btn-bypass';
-      btn.textContent = '⚠ Force Generate';
-      btn.onclick = () => {
-        generatedUrl = bypassUrl;
-        document.getElementById('resultUrl').textContent = bypassUrl;
-        const rb = document.getElementById('resultBox');
-        rb.classList.remove('show', 'animating');
-        void rb.offsetWidth;
-        rb.classList.add('show', 'animating');
-        el.classList.remove('show');
-        setTimeout(() => smoothScrollToBottom(2000), 50);
-      };
-      const warn = document.createElement('span');
-      warn.className = 'bypass-warning';
-      warn.textContent = 'link may not work';
-      row.appendChild(btn);
-      row.appendChild(warn);
-      el.appendChild(row);
-    }
-    el.classList.add('show');
-    document.getElementById('resultBox').classList.remove('show');
-  }
-
-  function resetForm() {
-    haptic('light');
-    const icon = document.querySelector('.reset-icon');
-    if (icon) {
-      icon.classList.remove('spinning');
-      void icon.offsetWidth;
-      icon.classList.add('spinning');
-      icon.addEventListener('animationend', () => icon.classList.remove('spinning'), {once:true});
-    }
-    document.getElementById('board').value = '';
-    document.getElementById('code').value = '';
-    document.getElementById('session').innerHTML = '<option value="">— Select —</option>';
-    document.getElementById('yearSelect').innerHTML = '<option value="">— Enter code first —</option>';
-    document.getElementById('papertype').innerHTML = '<option value="">— Select year first —</option>';
-    document.getElementById('variantField').classList.add('variant-hidden');
-    document.getElementById('variantSelect').innerHTML = '<option value="">— Select —</option>';
-    document.getElementById('subjectNameTag').textContent = '';
-    document.getElementById('subjectNameTag').classList.remove('visible');
-    document.getElementById('didYouMeanTag').style.display = 'none';
-    document.getElementById('didYouMeanTag').innerHTML = '';
-    document.getElementById('codeSuggestions').classList.remove('open');
-    document.querySelectorAll('.field').forEach(f => f.classList.remove('field-loading'));
-    _manualMode = false;
-    _currentSessions = [];
-    _currentPapersData = null;
-    const mt = document.getElementById('manualToggle');
-    if (mt) { mt.classList.remove('active'); mt.textContent = '✎ Enter manually'; }
-    const mh = document.getElementById('manualHint');
-    if (mh) mh.style.display = 'none';
-    hideResult();
-    generatedUrl = '';
-  }
-
-  function hideResult() {
-    const rb = document.getElementById('resultBox');
-    rb.classList.remove('show');
-    rb.classList.remove('animating');
-    document.getElementById('errorMsg').classList.remove('show');
-    clearFieldErrors();
-  }
-
-  renderRecent();
-
-
-  function goBack() {
-    window.location.href = '/';
-  }
-
-  // Override useCode to pass code back to main page
   function useCode(code, board) {
     if (!code) return;
     let url = '/?code=' + encodeURIComponent(code);
@@ -3008,14 +1809,12 @@
     window.location.href = url;
   }
 
-  // Pre-fill search from URL param
-  (function() {
+  function goBack() { window.location.href = '/'; }
+
+  document.addEventListener('DOMContentLoaded', () => {
     const q = new URLSearchParams(window.location.search).get('q');
-    if (q) {
-      const sb = document.getElementById('searchBox');
-      if (sb) { sb.value = q; filterCodes(); }
-    }
-  })();
+    if (q) { const sb = document.getElementById('searchBox'); if (sb) { sb.value = q; filterCodes(); } }
+  });
 </script>
 
 </body>
