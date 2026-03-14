@@ -1174,16 +1174,16 @@
     </div>
       <p class="made-by">MADE BY YOUSSEF KARIM</p>
       <p class="version-tag">Version 18.0</p>
-      <p class="version-tag">&nbsp;</p>
-      <p class="version-tag">&nbsp;</p>
-      <p class="version-tag">&nbsp;</p>
-      <p class="version-tag">&nbsp;</p>
-      <p class="version-tag">&nbsp;</p>
-      <p class="version-tag">&nbsp;</p>
-      <p class="version-tag">&nbsp;</p>
-      <p class="version-tag">&nbsp;</p>
-      <p class="version-tag">&nbsp;</p>
-      <p class="version-tag">&nbsp;</p>
+      <p class="version-tag">‎</p>
+      <p class="version-tag">‎</p>
+      <p class="version-tag">‎</p>
+      <p class="version-tag">‎</p>
+      <p class="version-tag">‎</p>
+      <p class="version-tag">‎</p>
+      <p class="version-tag">‎</p>
+      <p class="version-tag">‎</p>
+      <p class="version-tag">‎</p>
+      <p class="version-tag">‎</p>
     </div>
   </div>
 
@@ -3020,7 +3020,11 @@
 
   function smoothScrollToBottom(duration) {
     const start = window.scrollY;
-    const end = document.body.scrollHeight;
+    // Scroll to the version tag, not the very bottom (blank lines are below it)
+    const versionEl = document.querySelector('.version-tag');
+    const end = versionEl
+      ? window.scrollY + versionEl.getBoundingClientRect().bottom - window.innerHeight + 16
+      : document.body.scrollHeight;
     const dist = end - start;
     if (dist <= 0) return;
     const startTime = performance.now();
