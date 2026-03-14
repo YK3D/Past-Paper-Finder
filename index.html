@@ -1189,7 +1189,7 @@
   </div>
 </div>
   <p class="made-by">MADE BY YOUSSEF KARIM</p>
-  <p class="version-tag">Version 17.2</p>
+  <p class="version-tag">Version 18.0</p>
 </div>
 ```
 
@@ -2162,24 +2162,32 @@
     _viewTransitioning = true;
     const main = document.getElementById('main-view');
     const codes = document.getElementById('codes-view');
-    // fade out main
+    const DUR = '0.35s';
+    const EASE = 'ease';
+    // Slide main out to the left
+    main.style.transition = `opacity ${DUR} ${EASE}, transform ${DUR} ${EASE}`;
     main.style.opacity = '0';
     main.style.transform = 'translateX(-40px)';
     setTimeout(() => {
       main.classList.add('view-hidden');
+      main.style.transition = '';
       main.style.opacity = '';
       main.style.transform = '';
-      // show codes, start off-right
+      // Position codes off-right instantly
       codes.style.transition = 'none';
       codes.style.opacity = '0';
       codes.style.transform = 'translateX(40px)';
       codes.classList.remove('view-hidden');
       void codes.offsetWidth;
-      codes.style.transition = '';
+      // Slide codes in from right
+      codes.style.transition = `opacity ${DUR} ${EASE}, transform ${DUR} ${EASE}`;
       codes.style.opacity = '1';
       codes.style.transform = 'translateX(0)';
       window.scrollTo(0, 0);
-      setTimeout(() => { _viewTransitioning = false; }, 380);
+      setTimeout(() => {
+        codes.style.transition = '';
+        _viewTransitioning = false;
+      }, 380);
     }, 370);
     document.getElementById('searchBox').value = '';
     filterCodes();
@@ -2190,26 +2198,33 @@
     _viewTransitioning = true;
     const main = document.getElementById('main-view');
     const codes = document.getElementById('codes-view');
+    const DUR = '0.35s';
+    const EASE = 'ease';
     // Step 1: slide codes out to the right
+    codes.style.transition = `opacity ${DUR} ${EASE}, transform ${DUR} ${EASE}`;
     codes.style.opacity = '0';
     codes.style.transform = 'translateX(40px)';
     setTimeout(() => {
-      // Step 2: hide codes, reset its inline styles
+      // Step 2: hide codes, reset inline styles
       codes.classList.add('view-hidden');
+      codes.style.transition = '';
       codes.style.opacity = '';
       codes.style.transform = '';
-      // Step 3: position main off-left with no transition
+      // Step 3: position main off-left instantly (no transition)
       main.style.transition = 'none';
       main.style.opacity = '0';
       main.style.transform = 'translateX(-40px)';
       main.classList.remove('view-hidden');
-      void main.offsetWidth; // force reflow
-      // Step 4: slide main in from left
-      main.style.transition = '';
+      void main.offsetWidth; // commit the off-left state
+      // Step 4: animate main in from left
+      main.style.transition = `opacity ${DUR} ${EASE}, transform ${DUR} ${EASE}`;
       main.style.opacity = '1';
       main.style.transform = 'translateX(0)';
       window.scrollTo(0, 0);
-      setTimeout(() => { _viewTransitioning = false; }, 380);
+      setTimeout(() => {
+        main.style.transition = '';
+        _viewTransitioning = false;
+      }, 380);
     }, 370);
   }
   function useCode(code) {
