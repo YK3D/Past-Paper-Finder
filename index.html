@@ -3120,7 +3120,7 @@
           void rb.offsetWidth;
           rb.classList.add('show', 'animating');
           saveRecent(url);
-          setTimeout(() => smoothScrollToBottom(2000), 50);
+          setTimeout(() => smoothScrollToBottom(), 50);
         } else {
           // If variant has leading zero, retry without it (some older papers omit it)
           const variantEl = document.getElementById('variantSelect').style.display !== 'none'
@@ -3143,7 +3143,7 @@
                   void rb.offsetWidth;
                   rb.classList.add('show', 'animating');
                   saveRecent(altUrl);
-                  setTimeout(() => smoothScrollToBottom(2000), 50);
+                  setTimeout(() => smoothScrollToBottom(), 50);
                 } else {
                   haptic('error');
                   markFieldError('year'); markFieldError('variant'); markFieldError('session');
@@ -3178,7 +3178,7 @@
         void rb.offsetWidth;
         rb.classList.add('show', 'animating');
         saveRecent(url);
-        setTimeout(() => smoothScrollToBottom(2000), 50);
+        setTimeout(() => smoothScrollToBottom(), 50);
       })
       .finally(() => {
         btnText.textContent = 'Generate Link';
@@ -3207,7 +3207,7 @@
     });
   })();
 
-  function smoothScrollToBottom(duration) {
+  function smoothScrollToBottom() {
     const start = window.scrollY;
     // Scroll to the version tag, not the very bottom (blank lines are below it)
     const versionEl = document.querySelector('.version-tag');
@@ -3215,7 +3215,9 @@
       ? window.scrollY + versionEl.getBoundingClientRect().bottom - window.innerHeight + 16
       : document.body.scrollHeight;
     const dist = end - start;
-    if (dist <= 0) return;
+    if (Math.abs(dist) < 2) return;
+    // Constant speed: ~600px per second, min 120ms, max 600ms
+    const duration = Math.min(Math.max(Math.abs(dist) / 0.6, 120), 600);
     const startTime = performance.now();
     function easeInOutSine(t) {
       return -(Math.cos(Math.PI * t) - 1) / 2;
@@ -3357,7 +3359,7 @@
         void rb.offsetWidth;
         rb.classList.add('show', 'animating');
         el.classList.remove('show');
-        setTimeout(() => smoothScrollToBottom(2000), 50);
+        setTimeout(() => smoothScrollToBottom(), 50);
       };
       const warn = document.createElement('span');
       warn.className = 'bypass-warning';
