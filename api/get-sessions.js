@@ -5,66 +5,49 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing code or slug' });
   }
 
-  const BASE = 'https://pastpapers.papacambridge.com/papers/caie/';
-  const currentYear = new Date().getFullYear();
+  // One single fetch of the subject page — it lists all available year/session links
+  const url = `https://pastpapers.papacambridge.com/papers/caie/${slug}`;
 
-  // Build all session URL candidates for a given year
-  const getCandidates = (year) => {
-    const y = parseInt(year);
-    if (y === 2022) return [
-      { sess: 's', sessSlug: 'may-june' },
-      { sess: 'w', sessSlug: 'oct-nov' },
-      { sess: 'm', sessSlug: 'feb-march' },
-    ];
-    if (y >= 2018) return [
-      { sess: 's', sessSlug: 'may-june' },
-      { sess: 'w', sessSlug: 'oct-nov' },
-      { sess: 'm', sessSlug: 'march' },
-    ];
-    if (y >= 2016) return [
-      { sess: 's', sessSlug: 'jun' },
-      { sess: 'w', sessSlug: 'nov' },
-      { sess: 'm', sessSlug: 'mar' },
-    ];
-    return [
-      { sess: 's', sessSlug: 'jun' },
-      { sess: 'w', sessSlug: 'nov' },
-    ];
-  };
+  try {
+    const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+    if (!r.ok) return res.status(200).json({ sessions: [] });
+    const html = await r.text();
 
-  // Fire all years 2000→current in one parallel batch
-  // Then only go back to 1990 if we found results in 2000-2005
-  const checkYear = async (year) => {
-    const candidates = getCandidates(year);
-    const checks = await Promise.all(candidates.map(async ({ sess, sessSlug }) => {
-      try {
-        const url = `${BASE}${slug}-${year}-${sessSlug}`;
-        const r = await fetch(url, { method: 'HEAD', headers: { 'User-Agent': 'Mozilla/5.0' } });
-        return r.ok ? { year: String(year), sess, slug: sessSlug } : null;
-      } catch { return null; }
-    }));
-    return checks.filter(Boolean);
-  };
+    // Extract links like: /papers/caie/igcse-mathematics-0580-2023-may-june
+    // Escape the slug for use in regex (handle hyphens and digits safely)
+    const escapedSlug = slug.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const pattern = new RegExp(escapedSlug + '-(\\d{4})-([a-z-]+)(?=[^a-z0-9-])', 'gi');
 
-  // Scan 2000→currentYear all in parallel (fast batch)
-  const recentYears = [];
-  for (let y = 2000; y <= currentYear; y++) recentYears.push(y);
+    const seen = new Set();
+    const sessions = [];
+    let m;
 
-  const recentResults = await Promise.all(recentYears.map(y => checkYear(y)));
-  let sessions = recentResults.flat();
+    while ((m = pattern.exec(html)) !== null) {
+      const year = m[1];
+      const sessSlug = m[2].toLowerCase();
 
-  // If we have results near 2000-2005, also check 1990-1999
-  const hasOld = sessions.some(s => parseInt(s.year) <= 2005);
-  if (hasOld) {
-    const oldYears = [];
-    for (let y = 1990; y < 2000; y++) oldYears.push(y);
-    const oldResults = await Promise.all(oldYears.map(y => checkYear(y)));
-    sessions = sessions.concat(oldResults.flat());
+      let sess = null;
+      if (sessSlug === 'may-june')   sess = 's';
+      else if (sessSlug === 'jun')   sess = 's';
+      else if (sessSlug === 'oct-nov') sess = 'w';
+      else if (sessSlug === 'nov')   sess = 'w';
+      else if (sessSlug === 'march') sess = 'm';
+      else if (sessSlug === 'feb-march') sess = 'm';
+      else if (sessSlug === 'mar')   sess = 'm';
+
+      if (!sess) continue;
+      const key = year + sess;
+      if (!seen.has(key)) {
+        seen.add(key);
+        sessions.push({ year, sess, slug: sessSlug });
+      }
+    }
+
+    const ORDER = { s: 0, m: 1, w: 2 };
+    sessions.sort((a, b) => parseInt(b.year) - parseInt(a.year) || ORDER[a.sess] - ORDER[b.sess]);
+
+    return res.status(200).json({ sessions });
+  } catch (e) {
+    return res.status(200).json({ sessions: [], error: e.message });
   }
-
-  // Sort: newest first, then s/m/w
-  const ORDER = { s: 0, m: 1, w: 2 };
-  sessions.sort((a, b) => parseInt(b.year) - parseInt(a.year) || ORDER[a.sess] - ORDER[b.sess]);
-
-  return res.status(200).json({ sessions });
 }
