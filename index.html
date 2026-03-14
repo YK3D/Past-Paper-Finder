@@ -1100,8 +1100,10 @@
           <label>Exam Board</label>
           <select id="board" onchange="onBoardChange()">
             <option value="">— Select —</option>
-            <option value="CAIE">CAIE (Cambridge)</option>
-            <option value="AQA">AQA (Oxford)</option>
+            <option value="CAIE">CAIE IGCSE</option>
+            <option value="AL">CAIE AS & A Level</option>
+            <option value="OL">CAIE O Level</option>
+            <option value="AQA">AQA</option>
           </select>
         </div>
 
@@ -1333,98 +1335,98 @@
 
       <div class="cat-label">Cambridge O Level</div>
       <table class="code-table">
-        <tr onclick="useCode('2010')"><td class="c-code">2010</td><td class="c-name">Literature in English</td></tr>
-        <tr onclick="useCode('2058')"><td class="c-code">2058</td><td class="c-name">Islamiyat</td></tr>
-        <tr onclick="useCode('2069')"><td class="c-code">2069</td><td class="c-name">Global Perspectives</td></tr>
-        <tr onclick="useCode('2251')"><td class="c-code">2251</td><td class="c-name">Sociology</td></tr>
-        <tr onclick="useCode('2281')"><td class="c-code">2281</td><td class="c-name">Economics</td></tr>
-        <tr onclick="useCode('4024')"><td class="c-code">4024</td><td class="c-name">Mathematics Syllabus D</td></tr>
-        <tr onclick="useCode('4037')"><td class="c-code">4037</td><td class="c-name">Additional Mathematics</td></tr>
-        <tr onclick="useCode('5014')"><td class="c-code">5014</td><td class="c-name">Environmental Management</td></tr>
-        <tr onclick="useCode('5054')"><td class="c-code">5054</td><td class="c-name">Physics</td></tr>
-        <tr onclick="useCode('5070')"><td class="c-code">5070</td><td class="c-name">Chemistry</td></tr>
-        <tr onclick="useCode('5090')"><td class="c-code">5090</td><td class="c-name">Biology</td></tr>
-        <tr onclick="useCode('6065')"><td class="c-code">6065</td><td class="c-name">Food &amp; Nutrition</td></tr>
-        <tr onclick="useCode('7100')"><td class="c-code">7100</td><td class="c-name">Commerce</td></tr>
-        <tr onclick="useCode('7115')"><td class="c-code">7115</td><td class="c-name">Business Studies</td></tr>
+        <tr onclick="useCode('2010', 'OL')"><td class="c-code">2010</td><td class="c-name">Literature in English</td></tr>
+        <tr onclick="useCode('2058', 'OL')"><td class="c-code">2058</td><td class="c-name">Islamiyat</td></tr>
+        <tr onclick="useCode('2069', 'OL')"><td class="c-code">2069</td><td class="c-name">Global Perspectives</td></tr>
+        <tr onclick="useCode('2251', 'OL')"><td class="c-code">2251</td><td class="c-name">Sociology</td></tr>
+        <tr onclick="useCode('2281', 'OL')"><td class="c-code">2281</td><td class="c-name">Economics</td></tr>
+        <tr onclick="useCode('4024', 'OL')"><td class="c-code">4024</td><td class="c-name">Mathematics Syllabus D</td></tr>
+        <tr onclick="useCode('4037', 'OL')"><td class="c-code">4037</td><td class="c-name">Additional Mathematics</td></tr>
+        <tr onclick="useCode('5014', 'OL')"><td class="c-code">5014</td><td class="c-name">Environmental Management</td></tr>
+        <tr onclick="useCode('5054', 'OL')"><td class="c-code">5054</td><td class="c-name">Physics</td></tr>
+        <tr onclick="useCode('5070', 'OL')"><td class="c-code">5070</td><td class="c-name">Chemistry</td></tr>
+        <tr onclick="useCode('5090', 'OL')"><td class="c-code">5090</td><td class="c-name">Biology</td></tr>
+        <tr onclick="useCode('6065', 'OL')"><td class="c-code">6065</td><td class="c-name">Food &amp; Nutrition</td></tr>
+        <tr onclick="useCode('7100', 'OL')"><td class="c-code">7100</td><td class="c-name">Commerce</td></tr>
+        <tr onclick="useCode('7115', 'OL')"><td class="c-code">7115</td><td class="c-name">Business Studies</td></tr>
       </table>
 
       <div class="cat-label">Cambridge AS Level</div>
       <table class="code-table">
-        <tr onclick="useCode('8291')"><td class="c-code">8291</td><td class="c-name">Environmental Management</td></tr>
-        <tr onclick="useCode('8695')"><td class="c-code">8695</td><td class="c-name">Language &amp; Literature in English</td></tr>
+        <tr onclick="useCode('8291', 'AL')"><td class="c-code">8291</td><td class="c-name">Environmental Management</td></tr>
+        <tr onclick="useCode('8695', 'AL')"><td class="c-code">8695</td><td class="c-name">Language &amp; Literature in English</td></tr>
       </table>
 
       <div class="cat-label">Cambridge A Level</div>
       <table class="code-table">
-        <tr onclick="useCode('9084')"><td class="c-code">9084</td><td class="c-name">Law</td></tr>
-        <tr onclick="useCode('9184')"><td class="c-code">9184</td><td class="c-name">Biology (for first examination 2025)</td></tr>
-        <tr onclick="useCode('9185')"><td class="c-code">9185</td><td class="c-name">Chemistry (for first examination 2025)</td></tr>
-        <tr onclick="useCode('9274')"><td class="c-code">9274</td><td class="c-name">Classical Studies</td></tr>
-        <tr onclick="useCode('9276')"><td class="c-code">9276</td><td class="c-name">Classical Greek</td></tr>
+        <tr onclick="useCode('9084', 'AL')"><td class="c-code">9084</td><td class="c-name">Law</td></tr>
+        <tr onclick="useCode('9184', 'AL')"><td class="c-code">9184</td><td class="c-name">Biology (for first examination 2025)</td></tr>
+        <tr onclick="useCode('9185', 'AL')"><td class="c-code">9185</td><td class="c-name">Chemistry (for first examination 2025)</td></tr>
+        <tr onclick="useCode('9274', 'AL')"><td class="c-code">9274</td><td class="c-name">Classical Studies</td></tr>
+        <tr onclick="useCode('9276', 'AL')"><td class="c-code">9276</td><td class="c-name">Classical Greek</td></tr>
         <tr onclick="useCode()"><td class="c-code">9278</td><td class="c-name">English Language (for first examination 2025)</td></tr>
-        <tr onclick="useCode('9279')"><td class="c-code">9279</td><td class="c-name">English Literature (for first examination 2025)</td></tr>
-        <tr onclick="useCode('9280')"><td class="c-code">9280</td><td class="c-name">English Language &amp; Literature</td></tr>
+        <tr onclick="useCode('9279', 'AL')"><td class="c-code">9279</td><td class="c-name">English Literature (for first examination 2025)</td></tr>
+        <tr onclick="useCode('9280', 'AL')"><td class="c-code">9280</td><td class="c-name">English Language &amp; Literature</td></tr>
         <tr onclick="useCode()"><td class="c-code">9281</td><td class="c-name">Mathematics (for first examination 2025)</td></tr>
         <tr onclick="useCode()"><td class="c-code">9282</td><td class="c-name">Spanish</td></tr>
-        <tr onclick="useCode('9336')"><td class="c-code">9336</td><td class="c-name">Music</td></tr>
+        <tr onclick="useCode('9336', 'AL')"><td class="c-code">9336</td><td class="c-name">Music</td></tr>
         <tr onclick="useCode()"><td class="c-code">9385</td><td class="c-name">Music</td></tr>
         <tr onclick="useCode('9389')"><td class="c-code">9389</td><td class="c-name">History</td></tr>
-        <tr onclick="useCode('9396')"><td class="c-code">9396</td><td class="c-name">Physical Education</td></tr>
-        <tr onclick="useCode('9479')"><td class="c-code">9479</td><td class="c-name">Art &amp; Design</td></tr>
-        <tr onclick="useCode('9481')"><td class="c-code">9481</td><td class="c-name">Design &amp; Technology</td></tr>
-        <tr onclick="useCode('9482')"><td class="c-code">9482</td><td class="c-name">Design &amp; Technology (for first examination 2025)</td></tr>
-        <tr onclick="useCode('9483')"><td class="c-code">9483</td><td class="c-name">Music</td></tr>
-        <tr onclick="useCode('9484')"><td class="c-code">9484</td><td class="c-name">Biblical Studies</td></tr>
-        <tr onclick="useCode('9487')"><td class="c-code">9487</td><td class="c-name">Physical Education (for first examination 2025)</td></tr>
-        <tr onclick="useCode('9488')"><td class="c-code">9488</td><td class="c-name">Global Perspectives &amp; Research (for first examination 2025)</td></tr>
-        <tr onclick="useCode('9489')"><td class="c-code">9489</td><td class="c-name">Travel &amp; Tourism (for first examination 2025)</td></tr>
-        <tr onclick="useCode('9608')"><td class="c-code">9608</td><td class="c-name">Computer Science</td></tr>
-        <tr onclick="useCode('9618')"><td class="c-code">9618</td><td class="c-name">Computer Science (for first examination 2021)</td></tr>
-        <tr onclick="useCode('9631')"><td class="c-code">9631</td><td class="c-name">Design &amp; Textiles</td></tr>
+        <tr onclick="useCode('9396', 'AL')"><td class="c-code">9396</td><td class="c-name">Physical Education</td></tr>
+        <tr onclick="useCode('9479', 'AL')"><td class="c-code">9479</td><td class="c-name">Art &amp; Design</td></tr>
+        <tr onclick="useCode('9481', 'AL')"><td class="c-code">9481</td><td class="c-name">Design &amp; Technology</td></tr>
+        <tr onclick="useCode('9482', 'AL')"><td class="c-code">9482</td><td class="c-name">Design &amp; Technology (for first examination 2025)</td></tr>
+        <tr onclick="useCode('9483', 'AL')"><td class="c-code">9483</td><td class="c-name">Music</td></tr>
+        <tr onclick="useCode('9484', 'AL')"><td class="c-code">9484</td><td class="c-name">Biblical Studies</td></tr>
+        <tr onclick="useCode('9487', 'AL')"><td class="c-code">9487</td><td class="c-name">Physical Education (for first examination 2025)</td></tr>
+        <tr onclick="useCode('9488', 'AL')"><td class="c-code">9488</td><td class="c-name">Global Perspectives &amp; Research (for first examination 2025)</td></tr>
+        <tr onclick="useCode('9489', 'AL')"><td class="c-code">9489</td><td class="c-name">Travel &amp; Tourism (for first examination 2025)</td></tr>
+        <tr onclick="useCode('9608', 'AL')"><td class="c-code">9608</td><td class="c-name">Computer Science</td></tr>
+        <tr onclick="useCode('9618', 'AL')"><td class="c-code">9618</td><td class="c-name">Computer Science (for first examination 2021)</td></tr>
+        <tr onclick="useCode('9631', 'AL')"><td class="c-code">9631</td><td class="c-name">Design &amp; Textiles</td></tr>
         <tr onclick="useCode('9676')"><td class="c-code">9676</td><td class="c-name">Urdu</td></tr>
-        <tr onclick="useCode('9679')"><td class="c-code">9679</td><td class="c-name">Afrikaans</td></tr>
-        <tr onclick="useCode('9680')"><td class="c-code">9680</td><td class="c-name">Arabic</td></tr>
-        <tr onclick="useCode('9686')"><td class="c-code">9686</td><td class="c-name">Urdu</td></tr>
-        <tr onclick="useCode('9687')"><td class="c-code">9687</td><td class="c-name">Bengali</td></tr>
+        <tr onclick="useCode('9679', 'AL')"><td class="c-code">9679</td><td class="c-name">Afrikaans</td></tr>
+        <tr onclick="useCode('9680', 'AL')"><td class="c-code">9680</td><td class="c-name">Arabic</td></tr>
+        <tr onclick="useCode('9686', 'AL')"><td class="c-code">9686</td><td class="c-name">Urdu</td></tr>
+        <tr onclick="useCode('9687', 'AL')"><td class="c-code">9687</td><td class="c-name">Bengali</td></tr>
         <tr onclick="useCode('9688')"><td class="c-code">9688</td><td class="c-name">Marathi</td></tr>
-        <tr onclick="useCode('9689')"><td class="c-code">9689</td><td class="c-name">Tamil</td></tr>
+        <tr onclick="useCode('9689', 'AL')"><td class="c-code">9689</td><td class="c-name">Tamil</td></tr>
         <tr onclick="useCode('9690')"><td class="c-code">9690</td><td class="c-name">Telugu</td></tr>
-        <tr onclick="useCode('9691')"><td class="c-code">9691</td><td class="c-name">Computing</td></tr>
-        <tr onclick="useCode('9697')"><td class="c-code">9697</td><td class="c-name">Global Skills Projects</td></tr>
-        <tr onclick="useCode('9698')"><td class="c-code">9698</td><td class="c-name">Psychology</td></tr>
-        <tr onclick="useCode('9703')"><td class="c-code">9703</td><td class="c-name">Music</td></tr>
-        <tr onclick="useCode('9704')"><td class="c-code">9704</td><td class="c-name">Art &amp; Design</td></tr>
-        <tr onclick="useCode('9705')"><td class="c-code">9705</td><td class="c-name">Design &amp; Technology</td></tr>
-        <tr onclick="useCode('9707')"><td class="c-code">9707</td><td class="c-name">Business Studies</td></tr>
-        <tr onclick="useCode('9713')"><td class="c-code">9713</td><td class="c-name">Applied ICT</td></tr>
-        <tr onclick="useCode('9715')"><td class="c-code">9715</td><td class="c-name">Chinese</td></tr>
-        <tr onclick="useCode('9716')"><td class="c-code">9716</td><td class="c-name">Chinese Language &amp; Literature</td></tr>
-        <tr onclick="useCode('9717')"><td class="c-code">9717</td><td class="c-name">French</td></tr>
-        <tr onclick="useCode('9718')"><td class="c-code">9718</td><td class="c-name">Portuguese</td></tr>
-        <tr onclick="useCode('9719')"><td class="c-code">9719</td><td class="c-name">Spanish</td></tr>
-        <tr onclick="useCode('9844')"><td class="c-code">9844</td><td class="c-name">Spanish Language &amp; Literature</td></tr>
-        <tr onclick="useCode('9868')"><td class="c-code">9868</td><td class="c-name">Chinese Language &amp; Literature</td></tr>
-        <tr onclick="useCode('9980')"><td class="c-code">9980</td><td class="c-name">Cambridge International Project Qualification</td></tr>
+        <tr onclick="useCode('9691', 'AL')"><td class="c-code">9691</td><td class="c-name">Computing</td></tr>
+        <tr onclick="useCode('9697', 'AL')"><td class="c-code">9697</td><td class="c-name">Global Skills Projects</td></tr>
+        <tr onclick="useCode('9698', 'AL')"><td class="c-code">9698</td><td class="c-name">Psychology</td></tr>
+        <tr onclick="useCode('9703', 'AL')"><td class="c-code">9703</td><td class="c-name">Music</td></tr>
+        <tr onclick="useCode('9704', 'AL')"><td class="c-code">9704</td><td class="c-name">Art &amp; Design</td></tr>
+        <tr onclick="useCode('9705', 'AL')"><td class="c-code">9705</td><td class="c-name">Design &amp; Technology</td></tr>
+        <tr onclick="useCode('9707', 'AL')"><td class="c-code">9707</td><td class="c-name">Business Studies</td></tr>
+        <tr onclick="useCode('9713', 'AL')"><td class="c-code">9713</td><td class="c-name">Applied ICT</td></tr>
+        <tr onclick="useCode('9715', 'AL')"><td class="c-code">9715</td><td class="c-name">Chinese</td></tr>
+        <tr onclick="useCode('9716', 'AL')"><td class="c-code">9716</td><td class="c-name">Chinese Language &amp; Literature</td></tr>
+        <tr onclick="useCode('9717', 'AL')"><td class="c-code">9717</td><td class="c-name">French</td></tr>
+        <tr onclick="useCode('9718', 'AL')"><td class="c-code">9718</td><td class="c-name">Portuguese</td></tr>
+        <tr onclick="useCode('9719', 'AL')"><td class="c-code">9719</td><td class="c-name">Spanish</td></tr>
+        <tr onclick="useCode('9844', 'AL')"><td class="c-code">9844</td><td class="c-name">Spanish Language &amp; Literature</td></tr>
+        <tr onclick="useCode('9868', 'AL')"><td class="c-code">9868</td><td class="c-name">Chinese Language &amp; Literature</td></tr>
+        <tr onclick="useCode('9980', 'AL')"><td class="c-code">9980</td><td class="c-name">Cambridge International Project Qualification</td></tr>
         <tr onclick="useCode('9093')"><td class="c-code">9093</td><td class="c-name">English Language</td></tr>
-        <tr onclick="useCode('9231')"><td class="c-code">9231</td><td class="c-name">Further Mathematics</td></tr>
-        <tr onclick="useCode('9239')"><td class="c-code">9239</td><td class="c-name">Global Perspectives &amp; Research</td></tr>
-        <tr onclick="useCode('9395')"><td class="c-code">9395</td><td class="c-name">Travel &amp; Tourism</td></tr>
-        <tr onclick="useCode('9607')"><td class="c-code">9607</td><td class="c-name">Media Studies</td></tr>
-        <tr onclick="useCode('9609')"><td class="c-code">9609</td><td class="c-name">Business</td></tr>
-        <tr onclick="useCode('9626')"><td class="c-code">9626</td><td class="c-name">Information Technology</td></tr>
-        <tr onclick="useCode('9693')"><td class="c-code">9693</td><td class="c-name">Marine Science</td></tr>
-        <tr onclick="useCode('9694')"><td class="c-code">9694</td><td class="c-name">Thinking Skills</td></tr>
-        <tr onclick="useCode('9695')"><td class="c-code">9695</td><td class="c-name">Literature in English</td></tr>
-        <tr onclick="useCode('9696')"><td class="c-code">9696</td><td class="c-name">Geography</td></tr>
-        <tr onclick="useCode('9699')"><td class="c-code">9699</td><td class="c-name">Sociology</td></tr>
-        <tr onclick="useCode('9700')"><td class="c-code">9700</td><td class="c-name">Biology</td></tr>
-        <tr onclick="useCode('9701')"><td class="c-code">9701</td><td class="c-name">Chemistry</td></tr>
-        <tr onclick="useCode('9702')"><td class="c-code">9702</td><td class="c-name">Physics</td></tr>
-        <tr onclick="useCode('9706')"><td class="c-code">9706</td><td class="c-name">Accounting</td></tr>
-        <tr onclick="useCode('9708')"><td class="c-code">9708</td><td class="c-name">Economics</td></tr>
-        <tr onclick="useCode('9709')"><td class="c-code">9709</td><td class="c-name">Mathematics</td></tr>
-        <tr onclick="useCode('9990')"><td class="c-code">9990</td><td class="c-name">Psychology</td></tr>
+        <tr onclick="useCode('9231', 'AL')"><td class="c-code">9231</td><td class="c-name">Further Mathematics</td></tr>
+        <tr onclick="useCode('9239', 'AL')"><td class="c-code">9239</td><td class="c-name">Global Perspectives &amp; Research</td></tr>
+        <tr onclick="useCode('9395', 'AL')"><td class="c-code">9395</td><td class="c-name">Travel &amp; Tourism</td></tr>
+        <tr onclick="useCode('9607', 'AL')"><td class="c-code">9607</td><td class="c-name">Media Studies</td></tr>
+        <tr onclick="useCode('9609', 'AL')"><td class="c-code">9609</td><td class="c-name">Business</td></tr>
+        <tr onclick="useCode('9626', 'AL')"><td class="c-code">9626</td><td class="c-name">Information Technology</td></tr>
+        <tr onclick="useCode('9693', 'AL')"><td class="c-code">9693</td><td class="c-name">Marine Science</td></tr>
+        <tr onclick="useCode('9694', 'AL')"><td class="c-code">9694</td><td class="c-name">Thinking Skills</td></tr>
+        <tr onclick="useCode('9695', 'AL')"><td class="c-code">9695</td><td class="c-name">Literature in English</td></tr>
+        <tr onclick="useCode('9696', 'AL')"><td class="c-code">9696</td><td class="c-name">Geography</td></tr>
+        <tr onclick="useCode('9699', 'AL')"><td class="c-code">9699</td><td class="c-name">Sociology</td></tr>
+        <tr onclick="useCode('9700', 'AL')"><td class="c-code">9700</td><td class="c-name">Biology</td></tr>
+        <tr onclick="useCode('9701', 'AL')"><td class="c-code">9701</td><td class="c-name">Chemistry</td></tr>
+        <tr onclick="useCode('9702', 'AL')"><td class="c-code">9702</td><td class="c-name">Physics</td></tr>
+        <tr onclick="useCode('9706', 'AL')"><td class="c-code">9706</td><td class="c-name">Accounting</td></tr>
+        <tr onclick="useCode('9708', 'AL')"><td class="c-code">9708</td><td class="c-name">Economics</td></tr>
+        <tr onclick="useCode('9709', 'AL')"><td class="c-code">9709</td><td class="c-name">Mathematics</td></tr>
+        <tr onclick="useCode('9990', 'AL')"><td class="c-code">9990</td><td class="c-name">Psychology</td></tr>
       </table>
     </div>
 
@@ -1459,9 +1461,9 @@
         <tr onclick="useCode('9269')"><td class="c-code">9269</td><td class="c-name">Spanish</td></tr>
         <tr onclick="useCode('9270')"><td class="c-code">9270</td><td class="c-name">English Language</td></tr>
         <tr onclick="useCode('9275')"><td class="c-code">9275</td><td class="c-name">English Literature</td></tr>
-        <tr onclick="useCode('9280')"><td class="c-code">9280</td><td class="c-name">English as a Second Language</td></tr>
+        <tr onclick="useCode('9280', 'AL')"><td class="c-code">9280</td><td class="c-name">English as a Second Language</td></tr>
         <tr onclick="useCode('9285')"><td class="c-code">9285</td><td class="c-name">CORE English as a Second Language (Short Course)</td></tr>
-        <tr onclick="useCode('9697')"><td class="c-code">9697</td><td class="c-name">Global Skills Projects</td></tr>
+        <tr onclick="useCode('9697', 'AL')"><td class="c-code">9697</td><td class="c-name">Global Skills Projects</td></tr>
       </table>
 
       <div class="cat-label">International AS &amp; A Level</div>
@@ -1868,6 +1870,8 @@
     '9715', '9716', '9717', '9718', '9719', '9844', '9868', '9980',
     '9990'
   ]);
+  const alCodesAll = new Set(['8021','8028','8238','8274','8287','8291','8669','8679','8680','8681','8682','8693','8695','8779','9011','9084','9093','9184','9185','9231','9239','9274','9276','9279','9280','9281','9282','9336','9395','9396','9479','9481','9482','9483','9484','9487','9488','9489','9607','9608','9609','9618','9626','9631','9679','9680','9686','9687','9689','9691','9693','9694','9695','9696','9697','9698','9699','9700','9701','9702','9703','9704','9705','9706','9707','9708','9709','9713','9715','9716','9717','9718','9719','9844','9868','9980','9990']);
+  const olCodesAll = new Set(['1123','2035','2055','2056','2058','2068','2069','2134','2147','2158','2210','2217','2251','2281','3015','3025','3180','3195','3204','4024','4037','5014','5038','5054','5070','5090','5096','6010','6043','6050','6065','6090','6130','7010','7048','7094','7100','7101','7115','7707']);
   const aqaCodesAll  = new Set(['9201','9202','9203','9204','9210','9214','9215','9218','9221','9222','9223','9225','9230','9236','9237','9252','9257','9260','9264','9265','9269','9270','9275','9280','9285','9697','9610','9615','9620','9625','9630','9635','9640','9645','9660','9665','9670','9675','9685']);
 
 
@@ -1934,7 +1938,7 @@
 
   function getSuggestions(query, board) {
     if (!query) return [];
-    const pool = board === 'AQA' ? [...aqaCodesAll] : board === 'CAIE' ? [...caieCodesAll] : [...caieCodesAll, ...aqaCodesAll];
+    const pool = board === 'AQA' ? [...aqaCodesAll] : board === 'AL' || board === 'AS' ? [...alCodesAll] : board === 'OL' ? [...olCodesAll] : board === 'CAIE' ? [...caieCodesAll] : [...caieCodesAll, ...alCodesAll, ...olCodesAll, ...aqaCodesAll];
     const q = query.toLowerCase();
     return pool
       .filter(c => {
@@ -2037,14 +2041,15 @@
       document.getElementById('codeSuggestions').classList.remove('open');
     }
     if (code.length === 4) {
-      // Always trigger detection when a 4-digit code is entered (with or without subject name)
+      // Trigger detection for any 4-digit code on any board
       const board = document.getElementById('board').value;
       if (board === 'CAIE' && code.startsWith('0')) {
         applyIgcseDropdowns(code);
+      } else if (board === 'AL' || board === 'AS' || board === 'OL') {
+        applyIgcseDropdowns(code); // same flow — slug handles the prefix
       } else if (board === 'CAIE') {
-        populateYearRange(1990);
-        repopulateFullSessions('CAIE');
-        resetPaperFields();
+        // Non-IGCSE CAIE — try dynamic scan anyway
+        applyIgcseDropdowns(code);
       }
     }
     if (code.length === 4 && !subjectNames[code]) {
@@ -2215,7 +2220,13 @@
       _viewTransitioning = false;
     }, 380);
   }
-  function useCode(code) {
+  function useCode(code, board) {
+    if (!code) return;
+    if (board) {
+      const boardEl = document.getElementById('board');
+      boardEl.value = board;
+      onBoardChange();
+    }
     document.getElementById('code').value = code;
     onCodeInput();
     showMain();
@@ -2256,10 +2267,144 @@
     '0678':'igcse-spanish0678',       // no hyphen before code
   };
 
+  const AL_SLUG_MAP = {
+    '8021': 'as-and-a-level-english-general-paper-8021',
+    '8028': 'as-and-a-level-french-language-as-level-only-8028',
+    '8238': 'as-and-a-level-chinese-8238',
+    '8274': 'as-and-a-level-english8274',
+    '8287': 'as-and-a-level-english-8287',
+    '8291': 'as-and-a-level-environmental-management-8291',
+    '8669': 'as-and-a-level-chinese-8669',
+    '8679': 'as-and-a-level-afrikaan-8679',
+    '8680': 'as-and-a-level-arabic-8680',
+    '8681': 'as-and-a-level-chinese-8681',
+    '8682': 'as-and-a-level-french-8682',
+    '8693': 'as-and-a-level-english-8693',
+    '8695': 'as-and-a-level-english-8695',
+    '8779': 'as-and-a-level-afrikaans-8779',
+    '9011': 'as-and-a-level-divinity-9011-and-8041',
+    '9084': 'as-and-a-level-law-9084',
+    '9093': 'as-and-a-level-english-9093',
+    '9184': 'as-and-a-level-biology-9184',
+    '9185': 'as-and-a-level-chemistry-9185',
+    '9231': 'as-and-a-level-mathematics-further-9231',
+    '9239': 'as-and-a-level-marine-science-9239',
+    '9274': 'as-and-a-level-classical-studies-9274',
+    '9276': 'as-and-a-level-english-literature-9276',
+    '9279': 'as-and-a-level-french-9279',
+    '9280': 'as-and-a-level-german-9280',
+    '9281': 'as-and-a-level-spanish-9281',
+    '9282': 'as-and-a-level-portuguese-9282',
+    '9336': 'as-and-a-level-food-studies-9336',
+    '9395': 'as-and-a-level-travel-and-tourism-9395',
+    '9396': 'as-and-a-level-physical-education-9396',
+    '9479': 'as-and-a-level-art-and-design-9479',
+    '9481': 'as-and-a-level-design-and-technology-9481',
+    '9482': 'as-and-a-level-drama-9482',
+    '9483': 'as-and-a-level-music-9483',
+    '9484': 'as-and-a-level-biblical-studies-9484',
+    '9487': 'as-and-a-level-hindi-9487',
+    '9488': 'as-and-a-level-hinduism-9488',
+    '9489': 'as-and-a-level-islamiyat-9489',
+    '9607': 'as-and-a-level-applied-information-and-communication-technology-9607',
+    '9608': 'as-and-a-level-computer-science-9608',
+    '9609': 'as-and-a-level-business9609',
+    '9618': 'as-and-a-level-computer-science-for-first-examination-in-2021-9618',
+    '9626': 'as-and-a-level-law-9626',
+    '9631': 'as-and-a-level-design-and-textiles-9631',
+    '9679': 'as-and-a-level-afrikaans-9679',
+    '9680': 'as-and-a-level-arabic-9680',
+    '9686': 'as-and-a-level-portuguese-9686',
+    '9687': 'as-and-a-level-hindi-9687',
+    '9689': 'as-and-a-level-history-9489',
+    '9691': 'as-and-a-level-computing-9691',
+    '9693': 'as-and-a-level-ancient-history-9693',
+    '9694': 'as-and-a-level-thinking-skills-9694',
+    '9695': 'as-and-a-level-english-literature-9695',
+    '9696': 'as-and-a-level-geography-9696',
+    '9697': 'as-and-a-level-history-9697',
+    '9698': 'as-and-a-level-history-9698',
+    '9699': 'as-and-a-level-history-9699',
+    '9700': 'as-and-a-level-biology-9700',
+    '9701': 'as-and-a-level-chemistry-9701',
+    '9702': 'as-and-a-level-physics-9702',
+    '9703': 'as-and-a-level-literature-in-english-9703',
+    '9704': 'as-and-a-level-art-and-design-9704',
+    '9705': 'as-and-a-level-design-and-technology-9705',
+    '9706': 'as-and-a-level-accounting-9706',
+    '9707': 'as-and-a-level-business-studies-9707',
+    '9708': 'as-and-a-level-economics-9708',
+    '9709': 'as-and-a-level-mathematics-9709',
+    '9713': 'as-and-a-level-applied-ict-9713',
+    '9715': 'as-and-a-level-chinese-9715',
+    '9716': 'as-and-a-level-french-9716',
+    '9717': 'as-and-a-level-german-9717',
+    '9718': 'as-and-a-level-japanese-9718',
+    '9719': 'as-and-a-level-spanish-9719',
+    '9844': 'as-and-a-level-global-perspectives-and-research-9844',
+    '9868': 'as-and-a-level-chinese-9868',
+    '9980': 'as-and-a-level-cambridge-international-project-qualification-9980',
+    '9990': 'as-and-a-level-environmental-management-9990',
+  };
+
+  const OL_SLUG_MAP = {
+    '1123': 'o-level-english-language-1123',
+    '2035': 'o-level-biblical-studies-2035',
+    '2055': 'o-level-hinduism-2055',
+    '2056': 'o-level-islamic-religion-and-culture-2056',
+    '2058': 'o-level-islamiyat-2058',
+    '2068': 'o-level-islamic-studies-2068',
+    '2069': 'o-level-global-perspectives-2069',
+    '2134': 'o-level-history-modern-world-affairs-2134',
+    '2147': 'o-level-history-2147',
+    '2158': 'o-level-history-world-affairs-1917-1991-2158',
+    '2210': 'o-level-computer-science-2210',
+    '2217': 'o-level-geography-2217',
+    '2251': 'o-level-sociology-2251',
+    '2281': 'o-level-economics-2281',
+    '3015': 'o-level-french-3015',
+    '3025': 'o-level-german-3025',
+    '3180': 'o-level-arabic-3180',
+    '3195': 'o-level-hindi-3195',
+    '3204': 'o-level-bengali-3204',
+    '4024': 'o-level-mathematics-4024',
+    '4037': 'o-level-additional-mathematics-4037',
+    '5014': 'o-level-environmental-management-5014',
+    '5038': 'o-level-agriculture-5038',
+    '5054': 'o-level-physics-5054',
+    '5070': 'o-level-chemistry-5070',
+    '5090': 'o-level-biology-5090',
+    '5096': 'o-level-human-and-social-biology-5096',
+    '6010': 'o-level-art-6010',
+    '6043': 'o-level-design-and-technology-6043',
+    '6050': 'o-level-fashion-and-fabrics-6050',
+    '6065': 'o-level-food-and-nutrition-6065',
+    '6090': 'o-level-art-and-design-6090',
+    '6130': 'o-level-fashion-and-textiles-6130',
+    '7010': 'o-level-computer-studies-7010',
+    '7048': 'o-level-cdt-design-and-communication-7048',
+    '7094': 'o-level-bangladesh-studies-7094',
+    '7100': 'o-level-commerce-7100',
+    '7101': 'o-level-commercial-studies-7101',
+    '7115': 'o-level-business-studies-7115',
+    '7707': 'o-level-accounting-7707',
+  };
+
   function buildSubjectSlug(code) {
+    const board = document.getElementById('board').value;
     if (IGCSE_SLUG_OVERRIDES[code]) return IGCSE_SLUG_OVERRIDES[code];
+    if (board === 'AL' || board === 'AS') {
+      if (AL_SLUG_MAP[code]) return AL_SLUG_MAP[code];
+    }
+    if (board === 'OL') {
+      if (OL_SLUG_MAP[code]) return OL_SLUG_MAP[code];
+    }
+    // Fallback: generate slug from subject name
     const name = subjectNames[code] || '';
-    return 'igcse-' + name.toLowerCase()
+    const prefix = (board === 'AL' || board === 'AS') ? 'as-and-a-level'
+                 : board === 'OL' ? 'o-level'
+                 : 'igcse';
+    return prefix + '-' + name.toLowerCase()
       .replace(/&/g, 'and')
       .replace(/[^a-z0-9\s-]/g, '')
       .replace(/[\s-]+/g, '-')
@@ -2544,7 +2689,7 @@
     const s = document.getElementById('session');
     const curr = s.value;
     s.innerHTML = '<option value="">— Select —</option>';
-    if (board === 'CAIE') {
+    if (board === 'CAIE' || board === 'AL' || board === 'OL' || board === 'AS') {
       [['M/J (May/Jun)','s'],['F/M (Feb/Mar)','m'],['O/N (Oct/Nov)','w']].forEach(([label,val]) => {
         const o = document.createElement('option');
         o.value = val; o.textContent = label;
@@ -2593,6 +2738,7 @@
     if (board === 'AQA') {
       populateYearRange(1990);
     } else {
+      // CAIE / AL / OL: year detected dynamically after code entered
       document.getElementById('yearSelect').innerHTML = '<option value="">— Enter code first —</option>';
     }
     document.getElementById('papertype').innerHTML = '<option value="">— Select year first —</option>';
@@ -2701,7 +2847,7 @@
     if (!board)   { markFieldError('board');     showError('Missing Exam Board! Please select an exam board.'); return; }
     if (!code)    { markFieldError('code');      showError('Missing Subject Code! Please enter a subject code.'); return; }
     if (!/^\d{4}$/.test(code)) { markFieldError('code'); showError('Invalid Subject Code! Code must be exactly 4 digits.'); return; }
-    if ((board==='CAIE' && !caieCodesAll.has(code)) || (board==='AQA' && !aqaCodesAll.has(code))) {
+    if ((board==='CAIE' && !caieCodesAll.has(code)) || (board==='AQA' && !aqaCodesAll.has(code)) || ((board==='AL'||board==='AS') && !alCodesAll.has(code)) || (board==='OL' && !olCodesAll.has(code))) {
       const s = didYouMean(code, board);
       markFieldError('code');
       // build a best-guess URL for bypass
@@ -2759,7 +2905,7 @@
     // sf (Sound File) uses .mp3; everything else uses .pdf
     const ext = papertype === 'sf' ? 'mp3' : 'pdf';
     let url = '';
-    if (board === 'CAIE') {
+    if (board === 'CAIE' || board === 'AL' || board === 'OL' || board === 'AS') {
       if (noVariantTypes.includes(papertype)) {
         url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${yearVal}_${papertype}.${ext}`;
       } else {
