@@ -2418,7 +2418,7 @@
       qp: 'Question Paper (QP)', ms: 'Mark Scheme (MS)',
       gt: 'Grade Thresholds (GT)', gb: 'Grade Boundaries (GB)',
       er: 'Examiner Report (ER)', ci: 'Confidential Instructions (CI)',
-      in: 'Insert (IN)', sf: 'Source File (SF)',
+      in: 'Insert (IN)', qr: 'Transcript (QR)', sf: 'Sound File (SF)',
       sg: 'Supplementary Guide (SG)', sp: 'Specimen Paper (SP)', sm: 'Specimen Mark Scheme (SM)',
     };
     const pt = document.getElementById('papertype');
@@ -2438,7 +2438,7 @@
     if (_manualMode) return;
     data = data || _currentPapersData;
     const variantField = document.getElementById('variantField');
-    const NO_VARIANT_TYPES = new Set(['gt','gb','er','sp','sm','sg','sf','in']);
+    const NO_VARIANT_TYPES = new Set(['gt','gb','er','sp','sm','sg']);
 
     if (!type || NO_VARIANT_TYPES.has(type)) {
       variantField.classList.add('variant-hidden');
@@ -2559,7 +2559,7 @@
       updateVariantForType(pt, _currentPapersData);
     } else {
       // No scanned data — static fallback
-      const NO_VARIANT_TYPES = new Set(['gt','gb','er','sp','sm','sg','sf','in']);
+      const NO_VARIANT_TYPES = new Set(['gt','gb','er','sp','sm','sg']);
       const variantField = document.getElementById('variantField');
       if (!pt || NO_VARIANT_TYPES.has(pt)) {
         variantField.classList.add('variant-hidden');
@@ -2688,7 +2688,7 @@
     if (parseInt(yearVal,10) > CURRENT_YEAR) { markFieldError('year'); showError('Invalid Year! Year cannot be in the future.'); return; }
     if (!papertype){ markFieldError('papertype'); showError('Missing Paper Type! Please select QP, MS or GT.'); return; }
     if (papertype !== 'gt') {
-      const _noVarTypes = new Set(['gt','gb','er','sp','sm','sg','sf','in']);
+      const _noVarTypes = new Set(['gt','gb','er','sp','sm','sg']);
       if (!variant && !_noVarTypes.has(papertype)) { markFieldError('variant'); showError('Missing Variant! Please enter a variant.'); return; }
       if (variant && !/^\d{1,2}$/.test(variant)) { markFieldError('variant'); showError('Invalid Variant! Must be a 1–2 digit number.'); return; }
     }
@@ -2698,14 +2698,16 @@
     const variantForUrl = /^\d$/.test(variant) ? '0' + variant : variant;
 
     // Types with no variant in URL
-    const noVariantTypes = ['gt','gb','er','sp','sm','sg','sf','in'];
+    const noVariantTypes = ['gt','gb','er','sp','sm','sg'];
 
+    // sf (Sound File) uses .mp3; everything else uses .pdf
+    const ext = papertype === 'sf' ? 'mp3' : 'pdf';
     let url = '';
     if (board === 'CAIE') {
       if (noVariantTypes.includes(papertype)) {
-        url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${yearVal}_${papertype}.pdf`;
+        url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${yearVal}_${papertype}.${ext}`;
       } else {
-        url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${yearVal}_${papertype}_${variantForUrl}.pdf`;
+        url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${yearVal}_${papertype}_${variantForUrl}.${ext}`;
       }
     } else {
       if (papertype === 'gt') {
@@ -2737,12 +2739,50 @@
           saveRecent(url);
           setTimeout(() => smoothScrollToBottom(2000), 50);
         } else {
-          haptic('error');
-          markFieldError('year'); markFieldError('variant'); markFieldError('session');
-          showError('File not found! Make sure variant, year & session are correct.', url);
-          const rb = document.getElementById('resultBox');
-          rb.classList.remove('show', 'animating');
-          generatedUrl = '';
+          // If variant has leading zero, retry without it (some older papers omit it)
+          const variantEl = document.getElementById('variantSelect').style.display !== 'none'
+            ? document.getElementById('variantSelect').value
+            : document.getElementById('variant').value;
+          const hasLeadingZero = /^0\d$/.test(variantEl);
+          const altUrl = hasLeadingZero ? url.replace('_' + variantEl + '.', '_' + variantEl.slice(1) + '.') : null;
+
+          if (altUrl && altUrl !== url) {
+            // Try the alternate URL (without leading zero)
+            fetch('/api/check-pdf?url=' + encodeURIComponent(altUrl))
+              .then(r => r.json())
+              .then(altData => {
+                if (altData.exists) {
+                  haptic('success');
+                  generatedUrl = altUrl;
+                  document.getElementById('resultUrl').textContent = altUrl;
+                  const rb = document.getElementById('resultBox');
+                  rb.classList.remove('show', 'animating');
+                  void rb.offsetWidth;
+                  rb.classList.add('show', 'animating');
+                  saveRecent(altUrl);
+                  setTimeout(() => smoothScrollToBottom(2000), 50);
+                } else {
+                  haptic('error');
+                  markFieldError('year'); markFieldError('variant'); markFieldError('session');
+                  showError('File not found! Make sure variant, year & session are correct.', url);
+                  document.getElementById('resultBox').classList.remove('show', 'animating');
+                  generatedUrl = '';
+                }
+              })
+              .catch(() => {
+                haptic('error');
+                markFieldError('year'); markFieldError('variant'); markFieldError('session');
+                showError('File not found! Make sure variant, year & session are correct.', url);
+                document.getElementById('resultBox').classList.remove('show', 'animating');
+                generatedUrl = '';
+              });
+          } else {
+            haptic('error');
+            markFieldError('year'); markFieldError('variant'); markFieldError('session');
+            showError('File not found! Make sure variant, year & session are correct.', url);
+            document.getElementById('resultBox').classList.remove('show', 'animating');
+            generatedUrl = '';
+          }
         }
       })
       .catch(() => {
@@ -2921,8 +2961,17 @@
       row.className = 'bypass-row';
       const btn = document.createElement('button');
       btn.className = 'btn-bypass';
-      btn.textContent = '⚠ Force Open Anyway';
-      btn.onclick = () => { window.open(bypassUrl, '_blank'); };
+      btn.textContent = '⚠ Force Generate';
+      btn.onclick = () => {
+        generatedUrl = bypassUrl;
+        document.getElementById('resultUrl').textContent = bypassUrl;
+        const rb = document.getElementById('resultBox');
+        rb.classList.remove('show', 'animating');
+        void rb.offsetWidth;
+        rb.classList.add('show', 'animating');
+        el.classList.remove('show');
+        setTimeout(() => smoothScrollToBottom(2000), 50);
+      };
       const warn = document.createElement('span');
       warn.className = 'bypass-warning';
       warn.textContent = 'link may not work';
