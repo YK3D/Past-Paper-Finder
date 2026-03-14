@@ -1,54 +1,83 @@
 export default async function handler(req, res) {
-const { code, slug } = req.query;
+  const { code, slug } = req.query;
 
-if (!code || !slug) {
-return res.status(400).json({ error: ‘Missing code or slug’ });
-}
-
-const url = `https://pastpapers.papacambridge.com/papers/caie/${slug}`;
-
-try {
-const r = await fetch(url, { headers: { ‘User-Agent’: ‘Mozilla/5.0’ } });
-if (!r.ok) return res.status(200).json({ sessions: [] });
-const html = await r.text();
-
-
-// Extract all links of the form: /papers/caie/SLUG-YYYY-SESSION
-// Use a generic pattern that captures year and session slug from any subject page link
-const linkPattern = /\/papers\/caie\/[a-z0-9-]+-(\d{4})-([a-z-]+)(?=['"\s])/gi;
-const seen = new Set();
-const sessions = [];
-let m;
-
-while ((m = linkPattern.exec(html)) !== null) {
-  const year = m[1];
-  const sessSlug = m[2].toLowerCase();
-
-  // Only include if the full link starts with our slug
-  const fullMatch = m[0].replace('/papers/caie/', '');
-  if (!fullMatch.startsWith(slug + '-')) continue;
-
-  let sess = null;
-  if (/^(oct-nov|nov)$/.test(sessSlug)) sess = 'w';
-  else if (/^(may-june|jun)$/.test(sessSlug)) sess = 's';
-  else if (/^(march|feb-march|mar)$/.test(sessSlug)) sess = 'm';
-
-  if (!sess) continue;
-  const key = year + sess;
-  if (!seen.has(key)) {
-    seen.add(key);
-    sessions.push({ year, sess, slug: sessSlug });
+  if (!code || !slug) {
+    return res.status(400).json({ error: 'Missing code or slug' });
   }
-}
 
-// Sort descending by year, then s/m/w
-const ORDER = { s: 0, m: 1, w: 2 };
-sessions.sort((a, b) => parseInt(b.year) - parseInt(a.year) || ORDER[a.sess] - ORDER[b.sess]);
+  const BASE = 'https://pastpapers.papacambridge.com/papers/caie/';
+  const currentYear = new Date().getFullYear();
 
-return res.status(200).json({ sessions });
+  // Session slugs to try for each year
+  // Modern (2018+): may-june, oct-nov, march (+ feb-march for 2022)
+  // Older: jun, nov, mar
+  const getSessionSlugs = (year) => {
+    if (year >= 2023) return [
+      { sess: 's', slug: 'may-june' },
+      { sess: 'w', slug: 'oct-nov' },
+      { sess: 'm', slug: 'march' },
+    ];
+    if (year === 2022) return [
+      { sess: 's', slug: 'may-june' },
+      { sess: 'w', slug: 'oct-nov' },
+      { sess: 'm', slug: 'feb-march' },
+    ];
+    if (year >= 2018) return [
+      { sess: 's', slug: 'may-june' },
+      { sess: 'w', slug: 'oct-nov' },
+      { sess: 'm', slug: 'march' },
+    ];
+    if (year >= 2016) return [
+      { sess: 's', slug: 'jun' },
+      { sess: 'w', slug: 'nov' },
+      { sess: 'm', slug: 'mar' },
+    ];
+    return [
+      { sess: 's', slug: 'jun' },
+      { sess: 'w', slug: 'nov' },
+    ];
+  };
 
+  // Check if a session page exists by doing a HEAD request
+  const checkUrl = async (url) => {
+    try {
+      const r = await fetch(url, { method: 'HEAD', headers: { 'User-Agent': 'Mozilla/5.0' } });
+      return r.ok;
+    } catch { return false; }
+  };
 
-} catch (e) {
-return res.status(200).json({ sessions: [], error: e.message });
-}
+  const sessions = [];
+
+  // Scan years from current down to 1990, stop when we hit 3 consecutive empty years
+  let emptyYears = 0;
+  for (let year = currentYear; year >= 1990; year--) {
+    const sessOptions = getSessionSlugs(year);
+    const yearHits = [];
+
+    // Check all sessions for this year in parallel
+    const checks = await Promise.all(
+      sessOptions.map(async ({ sess, slug: sessSlug }) => {
+        const url = `${BASE}${slug}-${year}-${sessSlug}`;
+        const exists = await checkUrl(url);
+        return exists ? { year: String(year), sess, slug: sessSlug } : null;
+      })
+    );
+
+    checks.forEach(hit => { if (hit) yearHits.push(hit); });
+
+    if (yearHits.length > 0) {
+      sessions.push(...yearHits);
+      emptyYears = 0;
+    } else {
+      emptyYears++;
+      // Stop scanning if 3 consecutive years with no results (but always scan at least 5 years back)
+      if (emptyYears >= 3 && year < currentYear - 5) break;
+    }
+  }
+
+  // Sort: newest first, then s/m/w
+  const ORDER = { s: 0, m: 1, w: 2 };
+  sessions.sort((a, b) => parseInt(b.year) - parseInt(a.year) || ORDER[a.sess] - ORDER[b.sess]);
+
+  return res.status(200).json({ sessions });
 }
