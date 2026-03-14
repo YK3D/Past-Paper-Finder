@@ -9,7 +9,7 @@ const r = await fetch(url, { headers: { ‘User-Agent’: ‘Mozilla/5.0’ } })
 if (!r.ok) return res.status(200).json({ types: [], variants: {} });
 const html = await r.text();
 
-```
+
 // Extract all upload filenames — handles any type code
 const filePattern = /upload\/(\d{4}_[smw]\d{2,4}_([a-z]+)(?:_(\d+))?\.pdf)/gi;
 const types = {};
@@ -39,7 +39,7 @@ const sortedTypes = Object.keys(result).sort((a, b) => {
 });
 
 return res.status(200).json({ types: sortedTypes, variants: result });
-```
+
 
 } catch (e) {
 return res.status(200).json({ types: [], variants: {}, error: e.message });
