@@ -2260,6 +2260,50 @@
       + '-' + code;
   }
 
+  function populateYearRange(startYear) {
+    const ys = document.getElementById('yearSelect');
+    const currentYear = new Date().getFullYear();
+    ys.innerHTML = '<option value="">— Select year —</option>';
+    for (let y = currentYear; y >= startYear; y--) {
+      const o = document.createElement('option');
+      o.value = String(y).slice(2); // 2-digit for URL
+      o.dataset.full = String(y);
+      o.textContent = String(y);
+      ys.appendChild(o);
+    }
+  }
+
+  function setYearMode(mode) {
+    // yearSelect is always shown — mode only controls placeholder text
+    const ys = document.getElementById('yearSelect');
+    if (mode !== 'select') {
+      ys.innerHTML = '<option value="">— Select Year —</option>';
+    }
+  }
+
+  function setVariantMode(mode, variants) {
+    const vi = document.getElementById('variant');
+    const vs = document.getElementById('variantSelect');
+    if (mode === 'select') {
+      if (vi) vi.style.display = 'none';
+      vs.style.display = 'block';
+      const prev = vs.value;
+      vs.innerHTML = '<option value="">— Select —</option>';
+      if (variants && variants.length > 0) {
+        variants.forEach(v => {
+          const o = document.createElement('option');
+          o.value = v; o.textContent = v;
+          if (v === prev) o.selected = true;
+          vs.appendChild(o);
+        });
+      }
+    } else {
+      if (vi) vi.style.display = 'block';
+      vs.style.display = 'none';
+      vs.innerHTML = '<option value="">— Select —</option>';
+    }
+  }
+
   function buildSessSlug(sess, fullYear) {
     const yr = parseInt(fullYear);
     if (sess === 's') return yr >= 2018 ? 'may-june' : 'jun';
