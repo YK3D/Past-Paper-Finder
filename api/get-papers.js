@@ -9,8 +9,8 @@ export default async function handler(req, res) {
     if (!r.ok) return res.status(200).json({ types: [], variants: {} });
     const html = await r.text();
 
-    // Extract all upload filenames — handles any type code
-    const filePattern = /upload\/(\d{4}_[smw]\d{2,4}_([a-z]+)(?:_(\d+))?\.pdf)/gi;
+    // Extract all upload filenames — handles both .pdf and .mp3
+    const filePattern = /upload\/(\d{4}_[smw]\d{2,4}_([a-z]+)(?:_(\d+))?\.(?:pdf|mp3))/gi;
     const types = {};
     let m;
     while ((m = filePattern.exec(html)) !== null) {
