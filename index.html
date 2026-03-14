@@ -2469,7 +2469,7 @@
       qp: 'Question Paper (QP)', ms: 'Mark Scheme (MS)',
       gt: 'Grade Thresholds (GT)', gb: 'Grade Boundaries (GB)',
       er: 'Examiner Report (ER)', ci: 'Confidential Instructions (CI)',
-      in: 'Insert (IN)', qr: 'Transcript (QR)', sf: 'Sound File (SF)',
+      in: 'Insert (IN)', qr: 'Transcript (QR)', rp: 'Role Play Card (RPC)', sf: 'Sound File (SF)', tn: 'Teacher Notes (TN)',
       sg: 'Supplementary Guide (SG)', sp: 'Specimen Paper (SP)', sm: 'Specimen Mark Scheme (SM)',
     };
     const pt = document.getElementById('papertype');
@@ -2527,7 +2527,9 @@
       <option value="ci">Confidential Instructions (CI)</option>
       <option value="in">Insert (IN)</option>
       <option value="qr">Transcript (QR)</option>
-      <option value="sf">Sound File (SF)</option>`;
+      <option value="rp">Role Play Card (RPC)</option>
+      <option value="sf">Sound File (SF)</option>
+      <option value="tn">Teacher Notes (TN)</option>`;
   }
 
   function resetPaperFields() {
