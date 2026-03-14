@@ -1047,6 +1047,7 @@
 
 </style>
   <script defer src="/_vercel/speed-insights/script.js"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1496392952885490" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -2148,40 +2149,7 @@
   let _viewTransitioning = false;
 
   function showCodes() {
-    if (_viewTransitioning) return;
-    _viewTransitioning = true;
-    const main = document.getElementById('main-view');
-    const codes = document.getElementById('codes-view');
-    const DUR = '0.35s';
-    const EASE = 'ease';
-
-    // Pre-position codes behind main (invisible, off-right)
-    codes.style.transition = 'none';
-    codes.style.opacity = '0';
-    codes.style.transform = 'translateX(40px)';
-    codes.classList.remove('view-hidden');
-    void codes.offsetWidth; // commit
-
-    // Slide main out and codes in simultaneously
-    main.style.transition = `opacity ${DUR} ${EASE}, transform ${DUR} ${EASE}`;
-    main.style.opacity = '0';
-    main.style.transform = 'translateX(-40px)';
-    codes.style.transition = `opacity ${DUR} ${EASE}, transform ${DUR} ${EASE}`;
-    codes.style.opacity = '1';
-    codes.style.transform = 'translateX(0)';
-    window.scrollTo(0, 0);
-
-    setTimeout(() => {
-      main.classList.add('view-hidden');
-      main.style.transition = '';
-      main.style.opacity = '';
-      main.style.transform = '';
-      codes.style.transition = '';
-      _viewTransitioning = false;
-    }, 380);
-
-    document.getElementById('searchBox').value = '';
-    filterCodes();
+    window.location.href = '/codes.html';
   }
 
   function showMain() {
@@ -2815,6 +2783,22 @@
   }
   document.addEventListener('DOMContentLoaded', setupArrow);
   document.addEventListener('DOMContentLoaded', () => {
+    // Handle ?code=X&board=Y params from codes.html
+    (function() {
+      const p = new URLSearchParams(window.location.search);
+      const code = p.get('code');
+      const board = p.get('board');
+      if (code) {
+        if (board) {
+          document.getElementById('board').value = board;
+          onBoardChange();
+        }
+        document.getElementById('code').value = code;
+        onCodeInput();
+        // Clean URL without reload
+        window.history.replaceState({}, '', '/');
+      }
+    })();
     // Variant hidden until paper type selected
     document.getElementById('variantField').classList.add('variant-hidden');
     document.getElementById('variantSelect').innerHTML = '<option value="">— Select paper type first —</option>';
