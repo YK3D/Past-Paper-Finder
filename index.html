@@ -1026,10 +1026,19 @@
     border-color: var(--accent);
     color: var(--text);
   }
+  .board-btn.aqa:hover {
+    border-color: var(--accent2);
+    color: var(--text);
+  }
   .board-btn.active {
     border-color: var(--accent);
     color: var(--accent);
     background: rgba(0, 229, 255, 0.08);
+  }
+  .board-btn.active.aqa {
+    border-color: var(--accent2);
+    color: var(--accent2);
+    background: rgba(255, 77, 109, 0.08);
   }
   #code:disabled {
     opacity: 0.4;
@@ -1127,7 +1136,7 @@
           <label>Exam Board</label>
           <div class="board-btn-row">
             <button type="button" class="board-btn" id="boardBtn-CAIE" onclick="selectBoard('CAIE')">CAIE</button>
-            <button type="button" class="board-btn" id="boardBtn-AQA"  onclick="selectBoard('AQA')">AQA</button>
+            <button type="button" class="board-btn aqa" id="boardBtn-AQA"  onclick="selectBoard('AQA')">AQA</button>
           </div>
           <!-- hidden input keeps the rest of the JS working unchanged -->
           <input type="hidden" id="board" value="">
