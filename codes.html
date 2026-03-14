@@ -1804,12 +1804,19 @@ function filterCodes() {
 
   function useCode(code, board) {
     if (!code) return;
-    let url = '/?code=' + encodeURIComponent(code);
-    if (board) url += '&board=' + encodeURIComponent(board);
-    window.location.href = url;
+    // Save minimal state — board and code — let index.html run detection fresh
+    const existing = JSON.parse(sessionStorage.getItem('pfState') || '{}');
+    const newState = { ...existing, code };
+    if (board) newState.board = board;
+    sessionStorage.setItem('pfState', JSON.stringify(newState));
+    sessionStorage.setItem('fromCodes', '1');
+    window.location.href = '/';
   }
 
-  function goBack() { window.location.href = '/'; }
+  function goBack() {
+    sessionStorage.setItem('fromCodes', '1');
+    window.location.href = '/';
+  }
 
   document.addEventListener('DOMContentLoaded', () => {
     const q = new URLSearchParams(window.location.search).get('q');
