@@ -2001,7 +2001,7 @@
   ]);
   const alCodesAll = new Set(['8021','8028','8238','8274','8287','8291','8669','8679','8680','8681','8682','8693','8695','8779','9011','9084','9093','9184','9185','9231','9239','9274','9276','9279','9280','9281','9282','9336','9395','9396','9479','9481','9482','9483','9484','9487','9488','9489','9607','9608','9609','9618','9626','9631','9679','9680','9686','9687','9689','9691','9693','9694','9695','9696','9697','9698','9699','9700','9701','9702','9703','9704','9705','9706','9707','9708','9709','9713','9715','9716','9717','9718','9719','9844','9868','9980','9990']);
   const olCodesAll = new Set(['1123','2035','2055','2056','2058','2068','2069','2134','2147','2158','2210','2217','2251','2281','3015','3025','3180','3195','3204','4024','4037','5014','5038','5054','5070','5090','5096','6010','6043','6050','6065','6090','6130','7010','7048','7094','7100','7101','7115','7707']);
-  const aqaCodesAll  = new Set(['9201','9202','9203','9204','9210','9214','9215','9218','9221','9222','9223','9225','9230','9236','9237','9252','9257','9260','9264','9265','9269','9270','9275','9280','9285','9697','9610','9615','9620','9625','9630','9635','9640','9645','9660','9665','9670','9675','9685']);
+  const aqaCodesAll  = new Set(['2450','2760','2765','7041','7042','7101','7131','7136','7141','7151','7152','7162','7180','7181','7182','7183','7191','7192','7201','7261','7262','7356','7357','7366','7367','7381','7382','7401','7402','7403','7404','7405','7407','7408','7581','7582','7661','7662','7681','7682','7691','7692','7701','7702','7706','7707','7711','7712','8035','8061','8062','8063','8100','8132','8136','8145','8182','8192','8201','8236','8261','8271','8300','8382','8461','8462','8463','8464','8465','8520','8552','8572','8582','8585','8633','8638','8648','8658','8668','8673','8678','8683','8688','8698','8700','8702','8852','9201','9202','9203','9204','9210','9214','9215','9218','9221','9222','9223','9225','9230','9236','9237','9252','9257','9260','9264','9265','9269','9270','9275','9280','9285','9610','9615','9620','9625','9630','9635','9640','9645','9660','9665','9670','9675','9685','9697']);
 
 
 
@@ -2171,8 +2171,8 @@
     }
     if (code.length === 4) {
       const board = document.getElementById('board').value;
-      if (board === 'CAIE') {
-        applyIgcseDropdowns(code); // works for IGCSE, AL, OL — slug auto-detected
+      if (board === 'CAIE' || board === 'AQA') {
+        applyIgcseDropdowns(code);
       }
     }
     if (code.length === 4 && !subjectNames[code]) {
@@ -2492,12 +2492,143 @@
     '7707': 'o-level-accounting-7707',
   };
 
+  const AQA_GCSE_MAP = {
+    '8035': 'gcsegeography-8035',
+    '8061': 'gcsereligious-studies-short-course-8061',
+    '8062': 'gcsereligious-studies-a-8062',
+    '8063': 'gcsereligious-studies-b-8063',
+    '8100': 'gcsecitizenship-studies-8100',
+    '8132': 'gcsebusiness-8132',
+    '8136': 'gcseeconomics-8136',
+    '8145': 'gcsehistory-8145',
+    '8182': 'gcsepsychology-8182',
+    '8192': 'gcsesociology-8192',
+    '8201': 'gcseart-and-design-8201-8202-8203-8204-8205-8206',
+    '8236': 'gcsedance-8236',
+    '8261': 'gcsedrama-8261',
+    '8271': 'gcsemusic-8271',
+    '8300': 'gcsemathematics-8300',
+    '8382': 'gcsestatistics-8382',
+    '8461': 'gcsebiology-8461',
+    '8462': 'gcsechemistry-8462',
+    '8463': 'gcsephysics-8463',
+    '8464': 'gcsecombined-science-trilogy-8464',
+    '8465': 'gcsecombined-science-synergy-8465',
+    '8520': 'gcsecomputer-science-8520',
+    '8552': 'gcsedesign-and-technology-8552',
+    '8572': 'gcsemedia-studies-8572',
+    '8582': 'gcsephysical-education-8582',
+    '8585': 'gcsefood-preparation-and-nutrition-8585',
+    '8633': 'gcseitalian-8633',
+    '8638': 'gcsebengali-8638',
+    '8648': 'gcseurdu-8648',
+    '8658': 'gcsefrench-8658',
+    '8668': 'gcsegerman-8668',
+    '8673': 'gcsechinese-spoken-mandarin-8673',
+    '8678': 'gcsemodern-hebrew-8678',
+    '8683': 'gcsepanjabi-8683',
+    '8688': 'gcsepolish-8688',
+    '8698': 'gcsespanish-8698',
+    '8700': 'gcseenglish-language-8700',
+    '8702': 'gcseenglish-literature-8702',
+    '8852': 'gcseengineering-8852',
+  };
+
+  const AQA_AL_MAP = {
+    '2450': 'a-levelphysics-a-2450',
+    '2760': 'a-levelgeneral-studies-a-2760',
+    '2765': 'a-levelgeneral-studies-b-2765',
+    '7041': 'a-levelhistory-7041',
+    '7042': 'a-levelhistory-7042',
+    '7101': 'a-levelart-and-design-7101',
+    '7131': 'a-leveleconomics-7131',
+    '7136': 'a-leveleconomics-7136',
+    '7141': 'a-levelpolitics-7141',
+    '7151': 'a-levellaw-7151',
+    '7152': 'a-levelpolitics-7152',
+    '7162': 'a-levellaw-7162',
+    '7180': 'a-levelsociology-7180',
+    '7181': 'a-levelbusiness-7181',
+    '7182': 'a-levelpsychology-7182',
+    '7183': 'a-levelpsychology-7183',
+    '7191': 'a-levelaccounting-7191',
+    '7192': 'a-levelsociology-7192',
+    '7201': 'a-levelart-and-design-7201',
+    '7261': 'a-levelcomputer-science-7261',
+    '7262': 'a-levelcomputer-science-7262',
+    '7356': 'a-levelmathematics-7356',
+    '7357': 'a-levelmathematics-7357',
+    '7366': 'a-levelfurther-mathematics-7366',
+    '7367': 'a-levelfurther-mathematics-7367',
+    '7381': 'a-levelgeography-7381',
+    '7382': 'a-levelgeography-7382',
+    '7401': 'a-levelbiology-7401',
+    '7402': 'a-levelbiology-7402',
+    '7403': 'a-levelchemistry-7403',
+    '7404': 'a-levelchemistry-7404',
+    '7405': 'a-levelchemistry-7405',
+    '7407': 'a-levelphysics-7407',
+    '7408': 'a-levelphysics-7408',
+    '7581': 'a-levelphysical-education-7581',
+    '7582': 'a-levelphysical-education-7582',
+    '7661': 'a-levelgerman-7661',
+    '7662': 'a-levelgerman-7662',
+    '7681': 'a-levelfrench-7681',
+    '7682': 'a-levelfrench-7682',
+    '7691': 'a-levelspanish-7691',
+    '7692': 'a-levelspanish-7692',
+    '7701': 'a-levelenglish-language-7701',
+    '7702': 'a-levelenglish-language-7702',
+    '7706': 'a-levelenglish-literature-a-7706',
+    '7707': 'a-levelenglish-language-and-literature-7707',
+    '7711': 'a-levelenglish-literature-b-7711',
+    '7712': 'a-levelenglish-literature-a-7712',
+  };
+
+  const AQA_AS_MAP = {
+    '7041': 'as-levelhistory-7041',
+    '7101': 'as-levelart-and-design-7101',
+    '7131': 'as-leveleconomics-7131',
+    '7141': 'as-levelpolitics-7141',
+    '7151': 'as-levellaw-7151',
+    '7180': 'as-levelsociology-7180',
+    '7181': 'as-levelbusiness-7181',
+    '7182': 'as-levelpsychology-7182',
+    '7261': 'as-levelcomputer-science-7261',
+    '7356': 'as-levelmathematics-7356',
+    '7366': 'as-levelfurther-mathematics-7366',
+    '7381': 'as-levelgeography-7381',
+    '7401': 'as-levelbiology-7401',
+    '7403': 'as-levelchemistry-7403',
+    '7407': 'as-levelphysics-7407',
+    '7581': 'as-levelphysical-education-7581',
+    '7661': 'as-levelgerman-7661',
+    '7681': 'as-levelfrench-7681',
+    '7691': 'as-levelspanish-7691',
+    '7701': 'as-levelenglish-language-7701',
+    '7706': 'as-levelenglish-literature-a-7706',
+    '7707': 'as-levelenglish-language-and-literature-7707',
+  };
+
   function buildSubjectSlug(code) {
-    // Auto-detect level from code — check each map in order
+    const board = document.getElementById('board').value;
+    // AQA — use AQA slug maps
+    if (board === 'AQA') {
+      if (AQA_GCSE_MAP[code]) return AQA_GCSE_MAP[code];
+      if (AQA_AL_MAP[code])   return AQA_AL_MAP[code];
+      if (AQA_AS_MAP[code])   return AQA_AS_MAP[code];
+      // Fallback: generate AQA slug
+      const name = subjectNames[code] || '';
+      const slug = name.toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9\s-]/g,'').replace(/[\s-]+/g,'-').replace(/^-|-$/g,'');
+      // Detect level by code range
+      const n = parseInt(code);
+      const prefix = n >= 8000 ? 'gcse' : n >= 7000 ? 'a-level' : 'as-level';
+      return prefix + slug + '-' + code;
+    }
+    // CAIE — existing logic
     if (IGCSE_SLUG_OVERRIDES[code]) return IGCSE_SLUG_OVERRIDES[code];
     if (AL_SLUG_MAP[code]) return AL_SLUG_MAP[code];
     if (OL_SLUG_MAP[code]) return OL_SLUG_MAP[code];
-    // Fallback: check which set the code belongs to and generate slug
     const name = subjectNames[code] || '';
     const prefix = code.startsWith('0') ? 'igcse'
                  : (parseInt(code) >= 8000) ? 'as-and-a-level'
@@ -2555,6 +2686,15 @@
   }
 
   function buildSessSlug(sess, fullYear) {
+    const board = document.getElementById('board').value;
+    if (board === 'AQA') {
+      // AQA uses simple session slugs
+      if (sess === 's') return 'june';
+      if (sess === 'w') return 'november';
+      if (sess === 'm') return 'march';
+      return '';
+    }
+    // CAIE
     const yr = parseInt(fullYear);
     if (sess === 's') return yr >= 2018 ? 'may-june' : 'jun';
     if (sess === 'w') return yr >= 2018 ? 'oct-nov' : 'nov';
@@ -2588,7 +2728,7 @@
 
     try {
       const slug = buildSubjectSlug(code);
-      const r = await fetch('/api/get-sessions?code=' + code + '&slug=' + encodeURIComponent(slug));
+      const r = await fetch('/api/get-sessions?code=' + code + '&slug=' + encodeURIComponent(slug) + '&board=' + encodeURIComponent(document.getElementById('board').value));
       const data = await r.json();
       _currentSessions = data.sessions || [];
     } catch(e) {
@@ -2795,7 +2935,7 @@
         s.appendChild(o);
       });
     } else if (board === 'AQA') {
-      [['Jun','jun'],['Nov','nov']].forEach(([label,val]) => {
+      [['Jun (Summer)','s'],['Nov (Winter)','w']].forEach(([label,val]) => {
         const o = document.createElement('option');
         o.value = val; o.textContent = label;
         if (val === curr) o.selected = true;
@@ -2873,14 +3013,8 @@
     // If a code is already entered, re-run detection for the new board
     const code = document.getElementById('code').value.trim();
     if (code.length === 4) {
-      if (board === 'AQA') {
-        // AQA: just populate year range, no live scan
-        populateYearRange(1990);
-        repopulateFullSessions('AQA');
-        resetPaperFields();
-      } else if (board === 'CAIE') {
-        applyIgcseDropdowns(code);
-      }
+      // Both CAIE and AQA use live scan now
+      applyIgcseDropdowns(code);
     }
   }
 
@@ -3093,10 +3227,13 @@
         url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${yearVal}_${papertype}_${variantForUrl}.${ext}`;
       }
     } else {
-      if (papertype === 'gt') {
-        url = `https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/aqa-${code}-gt-${session}${yearVal}.pdf`;
+      // AQA URL format: aqa-{code}{variant}-{type}-{session}{year}.pdf
+      // session: jun/nov (2-letter for URL, not full slug)
+      const aqaSess = (session === 's') ? 'jun' : (session === 'w') ? 'nov' : 'mar';
+      if (noVariantTypes.includes(papertype)) {
+        url = `https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/aqa-${code}-${papertype}-${aqaSess}${yearVal}.pdf`;
       } else {
-        url = `https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/aqa-${code}${variantForUrl}-${papertype}-${session}${yearVal}.pdf`;
+        url = `https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/aqa-${code}${variantForUrl}-${papertype}-${aqaSess}${yearVal}.pdf`;
       }
     }
 
