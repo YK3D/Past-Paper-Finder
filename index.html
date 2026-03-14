@@ -570,14 +570,13 @@
   }
 
   /* buttons stagger */
-  .result-actions { display: flex; gap: 0.6rem; margin-top: 1rem; flex-wrap: wrap; }
-  .result-actions button {
-    opacity: 0;
-  }
+  .result-actions { display: flex; gap: 0.6rem; margin-top: 1rem; flex-wrap: wrap; align-items: center; }
+  .result-actions button { opacity: 0; }
   .result-box.animating .result-actions button:nth-child(1) { animation: fadeUp 0.25s ease 0.30s forwards; }
   .result-box.animating .result-actions button:nth-child(2) { animation: fadeUp 0.25s ease 0.38s forwards; }
   .result-box.animating .result-actions button:nth-child(3) { animation: fadeUp 0.25s ease 0.46s forwards; }
   .result-box.animating .result-actions button:nth-child(4) { animation: fadeUp 0.25s ease 0.54s forwards; }
+  .result-box.animating .result-actions button:nth-child(5) { animation: fadeUp 0.25s ease 0.62s forwards; }
 
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(5px); }
@@ -1624,10 +1623,10 @@
       <div class="result-box" id="resultBox">
         <p class="result-label">✓ URL Generated</p>
         <p class="result-url" id="resultUrl"></p>
+        <div class="dl-loader" id="dlLoader"></div>
         <div class="result-actions">
           <button class="btn-open" onclick="openUrl()">Open in Browser</button>
           <button class="btn-copy" onclick="copyUrl()">Copy URL</button>
-          <div class="dl-loader" id="dlLoader"></div>
           <button class="btn-download" onclick="downloadUrl()">&#8659; Download</button>
           <button class="btn-share" onclick="shareUrl()" id="shareBtn">&#8679; Share</button>
         </div>
@@ -2562,16 +2561,38 @@
   // ── Recent searches ──
   function getRecent() { try { return JSON.parse(localStorage.getItem('pp_recent')||'[]'); } catch { return []; } }
   // ── Leaderboard increment ──
+  const _JSONBIN_ID  = '';
+  const _JSONBIN_KEY = '';
+  const _JSONBIN_URL = _JSONBIN_ID ? `https://api.jsonbin.io/v3/b/${_JSONBIN_ID}` : null;
+
   async function lbIncrement() {
     try {
       const id = localStorage.getItem('lb_id');
       const name = localStorage.getItem('lb_name');
       if (!id || !name) return;
-      await fetch('/api/leaderboard-data', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, name, increment: true })
-      });
+
+      // Read current store
+      let data = {};
+      if (_JSONBIN_URL && _JSONBIN_KEY) {
+        const r = await fetch(_JSONBIN_URL + '/latest', { headers: { 'X-Master-Key': _JSONBIN_KEY } });
+        data = (await r.json()).record || {};
+      } else {
+        try { data = JSON.parse(localStorage.getItem('lb_store') || '{}'); } catch {}
+      }
+
+      if (!data[id]) data[id] = { name, count: 0 };
+      data[id].count = (data[id].count || 0) + 1;
+      data[id].name = name;
+
+      // Save back
+      try { localStorage.setItem('lb_store', JSON.stringify(data)); } catch {}
+      if (_JSONBIN_URL && _JSONBIN_KEY) {
+        await fetch(_JSONBIN_URL, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'X-Master-Key': _JSONBIN_KEY },
+          body: JSON.stringify(data)
+        });
+      }
     } catch {}
   }
 
