@@ -2567,11 +2567,11 @@
       const id = localStorage.getItem('lb_id');
       const name = localStorage.getItem('lb_name');
       if (!id || !name) return;
-      const r = await window.storage.get('leaderboard', true);
-      const data = r ? JSON.parse(r.value) : {};
-      if (!data[id]) data[id] = { name, count: 0 };
-      data[id].count = (data[id].count || 0) + 1;
-      await window.storage.set('leaderboard', JSON.stringify(data), true);
+      await fetch('/api/leaderboard-data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, name, increment: true })
+      });
     } catch {}
   }
 
