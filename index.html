@@ -2162,31 +2162,32 @@
     const codes = document.getElementById('codes-view');
     const DUR = '0.35s';
     const EASE = 'ease';
-    // Slide main out to the left
+
+    // Pre-position codes behind main (invisible, off-right)
+    codes.style.transition = 'none';
+    codes.style.opacity = '0';
+    codes.style.transform = 'translateX(40px)';
+    codes.classList.remove('view-hidden');
+    void codes.offsetWidth; // commit
+
+    // Slide main out and codes in simultaneously
     main.style.transition = `opacity ${DUR} ${EASE}, transform ${DUR} ${EASE}`;
     main.style.opacity = '0';
     main.style.transform = 'translateX(-40px)';
+    codes.style.transition = `opacity ${DUR} ${EASE}, transform ${DUR} ${EASE}`;
+    codes.style.opacity = '1';
+    codes.style.transform = 'translateX(0)';
+    window.scrollTo(0, 0);
+
     setTimeout(() => {
       main.classList.add('view-hidden');
       main.style.transition = '';
       main.style.opacity = '';
       main.style.transform = '';
-      // Position codes off-right instantly
-      codes.style.transition = 'none';
-      codes.style.opacity = '0';
-      codes.style.transform = 'translateX(40px)';
-      codes.classList.remove('view-hidden');
-      void codes.offsetWidth;
-      // Slide codes in from right
-      codes.style.transition = `opacity ${DUR} ${EASE}, transform ${DUR} ${EASE}`;
-      codes.style.opacity = '1';
-      codes.style.transform = 'translateX(0)';
-      window.scrollTo(0, 0);
-      setTimeout(() => {
-        codes.style.transition = '';
-        _viewTransitioning = false;
-      }, 380);
-    }, 370);
+      codes.style.transition = '';
+      _viewTransitioning = false;
+    }, 380);
+
     document.getElementById('searchBox').value = '';
     filterCodes();
   }
@@ -2198,32 +2199,31 @@
     const codes = document.getElementById('codes-view');
     const DUR = '0.35s';
     const EASE = 'ease';
-    // Step 1: slide codes out to the right
+
+    // Pre-position main behind codes (invisible, off-left) BEFORE codes starts fading
+    main.style.transition = 'none';
+    main.style.opacity = '0';
+    main.style.transform = 'translateX(-40px)';
+    main.classList.remove('view-hidden');
+    void main.offsetWidth; // commit
+
+    // Now slide codes out AND main in simultaneously
     codes.style.transition = `opacity ${DUR} ${EASE}, transform ${DUR} ${EASE}`;
     codes.style.opacity = '0';
     codes.style.transform = 'translateX(40px)';
+    main.style.transition = `opacity ${DUR} ${EASE}, transform ${DUR} ${EASE}`;
+    main.style.opacity = '1';
+    main.style.transform = 'translateX(0)';
+    window.scrollTo(0, 0);
+
     setTimeout(() => {
-      // Step 2: hide codes, reset inline styles
       codes.classList.add('view-hidden');
       codes.style.transition = '';
       codes.style.opacity = '';
       codes.style.transform = '';
-      // Step 3: position main off-left instantly (no transition)
-      main.style.transition = 'none';
-      main.style.opacity = '0';
-      main.style.transform = 'translateX(-40px)';
-      main.classList.remove('view-hidden');
-      void main.offsetWidth; // commit the off-left state
-      // Step 4: animate main in from left
-      main.style.transition = `opacity ${DUR} ${EASE}, transform ${DUR} ${EASE}`;
-      main.style.opacity = '1';
-      main.style.transform = 'translateX(0)';
-      window.scrollTo(0, 0);
-      setTimeout(() => {
-        main.style.transition = '';
-        _viewTransitioning = false;
-      }, 380);
-    }, 370);
+      main.style.transition = '';
+      _viewTransitioning = false;
+    }, 380);
   }
   function useCode(code) {
     document.getElementById('code').value = code;
