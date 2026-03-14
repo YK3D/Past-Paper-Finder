@@ -11,11 +11,15 @@ export default async function handler(req, res) {
       headers: { 'User-Agent': 'Mozilla/5.0' }
     });
 
-    // A real PDF returns content-type: application/pdf
-    // A soft-404 redirect to homepage returns text/html with status 200
-    // So checking content-type is more reliable than status alone
+    // Real files return application/pdf or audio/mpeg
+    // Soft-404 redirects to homepage return text/html
     const contentType = response.headers.get('content-type') || '';
-    const exists = response.ok && contentType.includes('application/pdf');
+    const exists = response.ok && (
+      contentType.includes('application/pdf') ||
+      contentType.includes('audio/mpeg') ||
+      contentType.includes('audio/mp3') ||
+      contentType.includes('application/octet-stream')
+    );
 
     return res.status(200).json({ exists });
   } catch (e) {
