@@ -1008,8 +1008,86 @@
     display: flex;
     gap: 0.6rem;
   }
-  .board-btn {
+  .board-btn-wrap {
     flex: 1;
+    position: relative;
+    border-radius: 10px;
+  }
+  /* Three spinning border layers — mirrors search-wrap */
+  .bbn-dark, .bbn-border, .bbn-glow {
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .board-btn-wrap.active .bbn-dark,
+  .board-btn-wrap.active .bbn-border,
+  .board-btn-wrap.active .bbn-glow { opacity: 1; }
+  .bbn-dark::before, .bbn-border::before, .bbn-glow::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 800px; height: 800px;
+    background-repeat: no-repeat;
+  }
+  .bbn-dark   { inset: -1px; }
+  .bbn-dark::before {
+    transform: translate(-50%, -50%) rotate(82deg);
+    background-image: conic-gradient(
+      rgba(0,0,0,0),
+      rgba(0,229,255,0.4),
+      rgba(0,0,0,0) 10%,
+      rgba(0,0,0,0) 50%,
+      rgba(255,77,109,0.4),
+      rgba(0,0,0,0) 60%
+    );
+    animation: searchSpin 4s linear infinite;
+  }
+  .bbn-border { inset: -1px; filter: blur(0.5px); }
+  .bbn-border::before {
+    transform: translate(-50%, -50%) rotate(70deg);
+    background-image: conic-gradient(
+      var(--bg),
+      var(--accent) 5%,
+      var(--bg) 14%,
+      var(--bg) 50%,
+      var(--accent2) 60%,
+      var(--bg) 64%
+    );
+    animation: searchSpin 4s 0.1s linear infinite;
+  }
+  .bbn-glow   { inset: -3px; filter: blur(8px); opacity: 0; }
+  .board-btn-wrap.active .bbn-glow { opacity: 0.5; }
+  .bbn-glow::before {
+    transform: translate(-50%, -50%) rotate(60deg);
+    background-image: conic-gradient(
+      #000,
+      var(--accent) 5%,
+      #000 38%,
+      #000 50%,
+      var(--accent2) 60%,
+      #000 87%
+    );
+    animation: searchSpin 4s 0.3s linear infinite;
+  }
+  /* inner mask */
+  .board-btn-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 1.5px;
+    border-radius: 8.5px;
+    background: var(--surface);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .board-btn {
+    position: relative;
+    z-index: 2;
+    width: 100%;
     padding: 0.6rem 0;
     background: transparent;
     border: 1.5px solid var(--border);
@@ -1022,28 +1100,14 @@
     cursor: pointer;
     transition: border-color 0.2s, color 0.2s, background 0.2s;
   }
-  .board-btn:hover {
-    border-color: var(--accent);
-    color: var(--text);
+  .board-btn-wrap.active .board-btn {
+    border-color: transparent;
   }
-  .board-btn.aqa:hover {
-    border-color: var(--accent2);
-    color: var(--text);
-  }
-  .board-btn.active {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(0, 229, 255, 0.08);
-  }
-  .board-btn.active.aqa {
-    border-color: var(--accent2);
-    color: var(--accent2);
-    background: rgba(255, 77, 109, 0.08);
-  }
-  #code:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
+  .board-btn:hover { border-color: var(--accent); color: var(--text); }
+  .board-btn.aqa:hover { border-color: var(--accent2); }
+  .board-btn.active { color: var(--accent); background: rgba(0,229,255,0.06); }
+  .board-btn.active.aqa { color: var(--accent2); background: rgba(255,77,109,0.06); }
+  #code:disabled { opacity: 0.4; cursor: not-allowed; }
 
   /* ── Manual override & dynamic loading ── */
   .manual-override-row {
@@ -1135,8 +1199,18 @@
         <div class="field">
           <label>Exam Board</label>
           <div class="board-btn-row">
-            <button type="button" class="board-btn" id="boardBtn-CAIE" onclick="selectBoard('CAIE')">CAIE</button>
-            <button type="button" class="board-btn aqa" id="boardBtn-AQA"  onclick="selectBoard('AQA')">AQA</button>
+            <div class="board-btn-wrap" id="boardWrap-CAIE">
+              <div class="bbn-dark"></div>
+              <div class="bbn-border"></div>
+              <div class="bbn-glow"></div>
+              <button type="button" class="board-btn" id="boardBtn-CAIE" onclick="selectBoard('CAIE')">CAIE</button>
+            </div>
+            <div class="board-btn-wrap" id="boardWrap-AQA">
+              <div class="bbn-dark"></div>
+              <div class="bbn-border"></div>
+              <div class="bbn-glow"></div>
+              <button type="button" class="board-btn aqa" id="boardBtn-AQA" onclick="selectBoard('AQA')">AQA</button>
+            </div>
           </div>
           <!-- hidden input keeps the rest of the JS working unchanged -->
           <input type="hidden" id="board" value="">
@@ -2759,10 +2833,14 @@
   function selectBoard(val) {
     // Update hidden input
     document.getElementById('board').value = val;
-    // Toggle active state on buttons
+    // Toggle active state on buttons and wrappers
     document.querySelectorAll('.board-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.board-btn-wrap').forEach(w => w.classList.remove('active'));
+    document.querySelectorAll('.board-btn-wrap').forEach(w => w.classList.remove('active'));
     const activeBtn = document.getElementById('boardBtn-' + val);
     if (activeBtn) activeBtn.classList.add('active');
+    const activeWrap = document.getElementById('boardWrap-' + val);
+    if (activeWrap) activeWrap.classList.add('active');
     // Enable code input
     const codeEl = document.getElementById('code');
     codeEl.disabled = false;
@@ -2888,6 +2966,8 @@
         document.querySelectorAll('.board-btn').forEach(btn => btn.classList.remove('active'));
         const activeBtn = document.getElementById('boardBtn-' + st.board);
         if (activeBtn) activeBtn.classList.add('active');
+        const activeWrap = document.getElementById('boardWrap-' + st.board);
+        if (activeWrap) activeWrap.classList.add('active');
         const codeEl = document.getElementById('code');
         codeEl.disabled = false;
         codeEl.placeholder = 'e.g. 0417';
