@@ -2242,11 +2242,18 @@
 
   // Exact slugs scraped from PapaCambridge — overrides generated ones where they differ
   const IGCSE_SLUG_OVERRIDES = {
-    '0417':'igcse-ict0417',
-    '0475':'igcse-english0475',
-    '0495':'igcse-sociology0495',
-    '0512':'igcse-afrikaans0512',
-    '0678':'igcse-spanish0678',
+    // Confirmed mismatches between generated slug and PapaCambridge's actual slug
+    '0417':'igcse-ict0417',           // ICT (no hyphen before code)
+    '0475':'igcse-english0475',       // no hyphen before code
+    '0495':'igcse-sociology0495',     // no hyphen before code
+    '0500':'igcse-english-0500',      // "First Language English" → english
+    '0501':'igcse-french-0501',       // "First Language French" → french
+    '0502':'igcse-spanish-0502',      // "First Language Spanish" → spanish  
+    '0509':'igcse-chinese-0509',      // "First Language Chinese" → chinese
+    '0510':'igcse-english-0510',      // long name → english
+    '0511':'igcse-english-0511',      // long name → english
+    '0512':'igcse-afrikaans0512',     // no hyphen before code
+    '0678':'igcse-spanish0678',       // no hyphen before code
   };
 
   function buildSubjectSlug(code) {
@@ -2517,7 +2524,10 @@
       <option value="gt">Grade Thresholds (GT)</option>
       <option value="gb">Grade Boundaries (GB)</option>
       <option value="er">Examiner Report (ER)</option>
-      <option value="ci">Confidential Instructions (CI)</option>`;
+      <option value="ci">Confidential Instructions (CI)</option>
+      <option value="in">Insert (IN)</option>
+      <option value="qr">Transcript (QR)</option>
+      <option value="sf">Sound File (SF)</option>`;
   }
 
   function resetPaperFields() {
