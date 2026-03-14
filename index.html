@@ -147,20 +147,154 @@
     gap: 0.5rem;
     margin-bottom: 0.1rem;
   }
-  .theme-toggle {
+  /* ── Cosmic theme toggle ── */
+  .cosmic-toggle {
+    position: relative;
+    width: 80px;
+    height: 40px;
+    transform-style: preserve-3d;
+    perspective: 500px;
     margin-left: auto;
-    background: var(--border);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--muted);
-    font-size: 0.9rem;
-    width: 28px; height: 28px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
     flex-shrink: 0;
   }
-  .theme-toggle:hover { background: rgba(0,229,255,0.12); color: var(--accent); }
+  .toggle { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(45deg, #1a1a2e, #16213e);
+    border-radius: 35px;
+    transition: 0.5s;
+    transform-style: preserve-3d;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5), inset 0 0 15px rgba(255,255,255,0.05);
+    overflow: hidden;
+  }
+  .cosmos {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(1px 1px at 10% 10%, #fff 100%, transparent),
+      radial-gradient(1px 1px at 20% 20%, #fff 100%, transparent),
+      radial-gradient(2px 2px at 30% 30%, #fff 100%, transparent),
+      radial-gradient(1px 1px at 40% 40%, #fff 100%, transparent),
+      radial-gradient(2px 2px at 50% 50%, #fff 100%, transparent),
+      radial-gradient(1px 1px at 60% 60%, #fff 100%, transparent),
+      radial-gradient(2px 2px at 70% 70%, #fff 100%, transparent),
+      radial-gradient(1px 1px at 80% 80%, #fff 100%, transparent),
+      radial-gradient(1px 1px at 90% 90%, #fff 100%, transparent);
+    background-size: 200% 200%;
+    opacity: 0.1;
+    transition: 0.5s;
+  }
+  .toggle-orb {
+    position: absolute;
+    height: 34px; width: 34px;
+    left: 3px; bottom: 3px;
+    background: linear-gradient(145deg, #ff6b6b, #4ecdc4);
+    border-radius: 50%;
+    transition: 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    transform-style: preserve-3d;
+    z-index: 2;
+  }
+  .inner-orb {
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #fff, #e6e6e6);
+    transition: 0.5s;
+    overflow: hidden;
+  }
+  .inner-orb::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-conic-gradient(from 0deg, transparent 0deg, rgba(0,0,0,0.1) 10deg, transparent 20deg);
+    animation: patternRotate 10s linear infinite;
+  }
+  .ring {
+    position: absolute;
+    inset: -3px;
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 50%;
+    transition: 0.5s;
+  }
+  .toggle:checked + .slider { background: linear-gradient(45deg, #16213e, #1a1a2e); }
+  .toggle:checked + .slider .toggle-orb {
+    transform: translateX(40px) rotate(360deg);
+    background: linear-gradient(145deg, #4ecdc4, #45b7af);
+  }
+  .toggle:checked + .slider .inner-orb {
+    background: linear-gradient(145deg, #45b7af, #3da89f);
+    transform: scale(0.9);
+  }
+  .toggle:checked + .slider .ring {
+    border-color: rgba(78,205,196,0.3);
+    animation: ringPulse 2s infinite;
+  }
+  .energy-line {
+    position: absolute;
+    width: 100%; height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(78,205,196,0.5), transparent);
+    transform-origin: left;
+    opacity: 0;
+    transition: 0.5s;
+  }
+  .energy-line:nth-child(1) { top: 20%; transform: rotate(15deg); }
+  .energy-line:nth-child(2) { top: 50%; transform: rotate(0deg); }
+  .energy-line:nth-child(3) { top: 80%; transform: rotate(-15deg); }
+  .toggle:checked + .slider .energy-line { opacity: 1; animation: energyFlow 2s linear infinite; }
+  .particles { position: absolute; width: 100%; height: 100%; }
+  .particle {
+    position: absolute;
+    width: 4px; height: 4px;
+    background: #4ecdc4;
+    border-radius: 50%;
+    opacity: 0;
+  }
+  .toggle:checked + .slider .particle { animation: particleBurst 1s ease-out infinite; }
+  .particle:nth-child(1) { left: 20%; animation-delay: 0s; }
+  .particle:nth-child(2) { left: 40%; animation-delay: 0.2s; }
+  .particle:nth-child(3) { left: 60%; animation-delay: 0.4s; }
+  .particle:nth-child(4) { left: 80%; animation-delay: 0.6s; }
+  .particle:nth-child(5) { left: 30%; animation-delay: 0.8s; }
+  .particle:nth-child(6) { left: 70%; animation-delay: 1s; }
+  @keyframes ringPulse {
+    0%, 100% { transform: scale(1); opacity: 0.3; }
+    50% { transform: scale(1.1); opacity: 0.6; }
+  }
+  @keyframes patternRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes energyFlow {
+    0% { transform: scaleX(0) translateX(0); opacity: 0; }
+    50% { transform: scaleX(1) translateX(50%); opacity: 1; }
+    100% { transform: scaleX(0) translateX(100%); opacity: 0; }
+  }
+  @keyframes particleBurst {
+    0% { transform: translate(0,0) scale(1); opacity: 1; }
+    100% { transform: translate(0, -30px) scale(0); opacity: 0; }
+  }
+  .slider:hover .toggle-orb {
+    filter: brightness(1.2);
+    box-shadow: 0 0 20px rgba(78,205,196,0.5), 0 0 40px rgba(78,205,196,0.3);
+  }
+  .slider:hover .cosmos { opacity: 0.2; animation: cosmosPan 20s linear infinite; }
+  @keyframes cosmosPan {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 200% 200%; }
+  }
+  .toggle:checked + .slider::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 70% 50%, rgba(78,205,196,0.2), transparent 50%);
+    animation: glowFollow 2s linear infinite;
+  }
+  @keyframes glowFollow {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 0.5; }
+  }
 
   /* ── Share button ── */
   .btn-share {
@@ -930,6 +1064,23 @@
     letter-spacing: 0.12em;
     color: #3a3a55;
   }
+  .lb-link-btn {
+    display: block;
+    text-align: center;
+    margin: 0.8rem auto 0.4rem;
+    padding: 0.5rem 1.2rem;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s;
+    width: fit-content;
+  }
+  .lb-link-btn:hover { border-color: var(--accent); color: var(--accent); }
   .version-tag {
     text-align: center;
     font-family: 'Space Mono', monospace;
@@ -1189,6 +1340,132 @@
     100% { background-position: 200% 0; }
   }
 
+
+
+
+  /* ── WiFi loader (generate) ── */
+  #wifi-loader {
+    --background: #62abff;
+    --front-color: var(--accent);
+    --back-color: var(--border);
+    --text-color: var(--muted);
+    width: 64px; height: 64px;
+    border-radius: 50px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    display: none;
+    margin: 0 auto;
+  }
+  #wifi-loader.active { display: flex; }
+  #wifi-loader svg {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #wifi-loader svg circle {
+    position: absolute;
+    fill: none;
+    stroke-width: 6px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transform: rotate(-100deg);
+    transform-origin: center;
+  }
+  #wifi-loader svg circle.back { stroke: var(--back-color); }
+  #wifi-loader svg circle.front { stroke: var(--front-color); }
+  #wifi-loader svg.circle-outer { height: 86px; width: 86px; }
+  #wifi-loader svg.circle-outer circle { stroke-dasharray: 62.75 188.25; }
+  #wifi-loader svg.circle-outer circle.back  { animation: circle-outer135 1.8s ease infinite 0.3s; }
+  #wifi-loader svg.circle-outer circle.front { animation: circle-outer135 1.8s ease infinite 0.15s; }
+  #wifi-loader svg.circle-middle { height: 60px; width: 60px; }
+  #wifi-loader svg.circle-middle circle { stroke-dasharray: 42.5 127.5; }
+  #wifi-loader svg.circle-middle circle.back  { animation: circle-middle6123 1.8s ease infinite 0.25s; }
+  #wifi-loader svg.circle-middle circle.front { animation: circle-middle6123 1.8s ease infinite 0.1s; }
+  #wifi-loader svg.circle-inner { height: 34px; width: 34px; }
+  #wifi-loader svg.circle-inner circle { stroke-dasharray: 22 66; }
+  #wifi-loader svg.circle-inner circle.back  { animation: circle-inner162 1.8s ease infinite 0.2s; }
+  #wifi-loader svg.circle-inner circle.front { animation: circle-inner162 1.8s ease infinite 0.05s; }
+  #wifi-loader .text {
+    position: absolute;
+    bottom: -32px;
+    display: flex; justify-content: center; align-items: center;
+    font-weight: 500; font-size: 11px; letter-spacing: 0.2px;
+    white-space: nowrap;
+  }
+  #wifi-loader .text::before, #wifi-loader .text::after { content: attr(data-text); }
+  #wifi-loader .text::before { color: var(--text-color); }
+  #wifi-loader .text::after {
+    color: var(--front-color);
+    animation: text-animation76 3.6s ease infinite;
+    position: absolute; left: 0;
+  }
+  @keyframes circle-outer135 {
+    0%   { stroke-dashoffset: 25; }
+    25%  { stroke-dashoffset: 0; }
+    65%  { stroke-dashoffset: 301; }
+    80%  { stroke-dashoffset: 276; }
+    100% { stroke-dashoffset: 276; }
+  }
+  @keyframes circle-middle6123 {
+    0%   { stroke-dashoffset: 17; }
+    25%  { stroke-dashoffset: 0; }
+    65%  { stroke-dashoffset: 204; }
+    80%  { stroke-dashoffset: 187; }
+    100% { stroke-dashoffset: 187; }
+  }
+  @keyframes circle-inner162 {
+    0%   { stroke-dashoffset: 9; }
+    25%  { stroke-dashoffset: 0; }
+    65%  { stroke-dashoffset: 106; }
+    80%  { stroke-dashoffset: 97; }
+    100% { stroke-dashoffset: 97; }
+  }
+  @keyframes text-animation76 {
+    0%   { clip-path: inset(0 100% 0 0); }
+    50%  { clip-path: inset(0); }
+    100% { clip-path: inset(0 0 0 100%); }
+  }
+
+  /* ── Bounce loader (download) ── */
+  .dl-loader {
+    display: none;
+    position: relative;
+    width: 80px;
+    height: 60px;
+    margin: 0 auto;
+  }
+  .dl-loader.active { display: block; }
+  .dl-loader:before {
+    content: "";
+    position: absolute;
+    bottom: 20px; left: 33px;
+    height: 20px; width: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: loading-bounce 0.5s ease-in-out infinite alternate;
+  }
+  .dl-loader:after {
+    content: "";
+    position: absolute;
+    right: 0; top: 0;
+    height: 5px; width: 30px;
+    border-radius: 4px;
+    box-shadow: 0 4px 0 var(--border), -23px 33px 0 var(--border), -46px 63px 0 var(--border);
+    animation: loading-step 1s ease-in-out infinite;
+  }
+  @keyframes loading-bounce {
+    0%   { transform: scale(1, 0.7); }
+    40%  { transform: scale(0.8, 1.2); }
+    60%  { transform: scale(1, 1); }
+    100% { bottom: 90px; }
+  }
+  @keyframes loading-step {
+    0%   { box-shadow: 0 8px 0 rgba(0,0,0,0), 0 8px 0 var(--border), -23px 33px 0 var(--border), -46px 60px 0 var(--border); }
+    100% { box-shadow: 0 8px 0 var(--border), -23px 33px 0 var(--border), -46px 60px 0 var(--border), -46px 60px 0 rgba(0,0,0,0); }
+  }
 </style>
   <script defer src="/_vercel/speed-insights/script.js"></script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1496392952885490" crossorigin="anonymous"></script>
@@ -1210,7 +1487,28 @@
       <div class="header-top-row">
         <img src="/favicon.png" class="header-logo" alt="logo">
         <p class="label-top">Past Paper Retrieval</p>
-        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle light/dark mode">☀</button>
+
+        <label class="cosmic-toggle" title="Toggle light/dark mode">
+          <input type="checkbox" class="toggle" id="themeToggle" onchange="toggleTheme()">
+          <div class="slider">
+            <div class="cosmos"></div>
+            <div class="toggle-orb">
+              <div class="inner-orb"></div>
+              <div class="ring"></div>
+            </div>
+            <div class="energy-line"></div>
+            <div class="energy-line"></div>
+            <div class="energy-line"></div>
+            <div class="particles">
+              <div class="particle"></div>
+              <div class="particle"></div>
+              <div class="particle"></div>
+              <div class="particle"></div>
+              <div class="particle"></div>
+              <div class="particle"></div>
+            </div>
+          </div>
+        </label>
       </div>
       <div class="header-title-row">
         <h1>Paper<span>Finder</span></h1>
@@ -1304,6 +1602,12 @@
 
       <div class="divider"></div>
 
+      <div id="wifi-loader">
+        <svg class="circle-outer"><circle class="back" cx="43" cy="43" r="40"></circle><circle class="front" cx="43" cy="43" r="40"></circle></svg>
+        <svg class="circle-middle"><circle class="back" cx="30" cy="30" r="27"></circle><circle class="front" cx="30" cy="30" r="27"></circle></svg>
+        <svg class="circle-inner"><circle class="back" cx="17" cy="17" r="14"></circle><circle class="front" cx="17" cy="17" r="14"></circle></svg>
+        <div class="text" data-text="Checking..."></div>
+      </div>
       <div class="btn-row">
         <button class="btn-generate" onclick="generate()" id="generateBtn">
           <svg class="arr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"/></svg>
@@ -1323,11 +1627,13 @@
         <div class="result-actions">
           <button class="btn-open" onclick="openUrl()">Open in Browser</button>
           <button class="btn-copy" onclick="copyUrl()">Copy URL</button>
+          <div class="dl-loader" id="dlLoader"></div>
           <button class="btn-download" onclick="downloadUrl()">&#8659; Download</button>
           <button class="btn-share" onclick="shareUrl()" id="shareBtn">&#8679; Share</button>
         </div>
       </div>
     </div>
+      <a href="/leaderboard.html" class="lb-link-btn">🏆 Leaderboard</a>
       <p class="made-by">MADE BY YOUSSEF KARIM</p>
       <div class="contact-section">
         <p class="contact-label">Contact</p>
@@ -2255,6 +2561,20 @@
 
   // ── Recent searches ──
   function getRecent() { try { return JSON.parse(localStorage.getItem('pp_recent')||'[]'); } catch { return []; } }
+  // ── Leaderboard increment ──
+  async function lbIncrement() {
+    try {
+      const id = localStorage.getItem('lb_id');
+      const name = localStorage.getItem('lb_name');
+      if (!id || !name) return;
+      const r = await window.storage.get('leaderboard', true);
+      const data = r ? JSON.parse(r.value) : {};
+      if (!data[id]) data[id] = { name, count: 0 };
+      data[id].count = (data[id].count || 0) + 1;
+      await window.storage.set('leaderboard', JSON.stringify(data), true);
+    } catch {}
+  }
+
   function saveRecent(url) {
     try {
       let list = getRecent().filter(u=>u!==url);
@@ -3285,8 +3605,14 @@
     // Check PDF exists before showing result
     const btn = document.querySelector('.btn-generate');
     const btnText = btn.querySelector('.btn-text');
-    btnText.innerHTML = '<span class="btn-spinner"></span>Checking…';
-    btn.disabled = true;
+    const wifiLoader = document.getElementById('wifi-loader');
+    if (wifiLoader) {
+      btn.style.display = 'none';
+      wifiLoader.classList.add('active');
+    } else {
+      btnText.innerHTML = '<span class="btn-spinner"></span>Checking…';
+      btn.disabled = true;
+    }
 
     fetch('/api/check-pdf?url=' + encodeURIComponent(url))
       .then(r => r.json())
@@ -3300,6 +3626,7 @@
           void rb.offsetWidth;
           rb.classList.add('show', 'animating');
           saveRecent(url);
+          lbIncrement();
           setTimeout(() => smoothScrollToBottom(), 50);
         } else {
           // If variant has leading zero, retry without it (some older papers omit it)
@@ -3323,6 +3650,7 @@
                   void rb.offsetWidth;
                   rb.classList.add('show', 'animating');
                   saveRecent(altUrl);
+                  lbIncrement();
                   setTimeout(() => smoothScrollToBottom(), 50);
                 } else {
                   haptic('error');
@@ -3361,6 +3689,9 @@
         setTimeout(() => smoothScrollToBottom(), 50);
       })
       .finally(() => {
+        const wifiLoader2 = document.getElementById('wifi-loader');
+        if (wifiLoader2) wifiLoader2.classList.remove('active');
+        btn.style.display = '';
         btnText.textContent = 'Generate Link';
         btn.disabled = false;
       });
@@ -3434,8 +3765,9 @@
   }
 
   function toggleTheme() {
-    const isLight = document.body.classList.toggle('light');
-    document.getElementById('themeToggle').textContent = isLight ? '☾' : '☀';
+    const cb = document.getElementById('themeToggle');
+    const isLight = cb ? cb.checked : document.body.classList.contains('light');
+    document.body.classList.toggle('light', isLight);
     try { localStorage.setItem('pp_theme', isLight ? 'light' : 'dark'); } catch {}
   }
 
@@ -3445,8 +3777,8 @@
       if (localStorage.getItem('pp_theme') === 'light') {
         document.body.classList.add('light');
         document.addEventListener('DOMContentLoaded', () => {
-          const btn = document.getElementById('themeToggle');
-          if (btn) btn.textContent = '☾';
+          const cb = document.getElementById('themeToggle');
+          if (cb) cb.checked = true;
         });
       }
     } catch {}
@@ -3459,8 +3791,14 @@
 
     // Try proxy first (works when deployed on Vercel with api/download-pdf.js)
     const proxyUrl = '/api/download-pdf?url=' + encodeURIComponent(generatedUrl);
-    btn.textContent = 'Downloading…';
-    btn.disabled = true;
+    const dlLoader = document.getElementById('dlLoader');
+    if (dlLoader) {
+      btn.style.display = 'none';
+      dlLoader.classList.add('active');
+    } else {
+      btn.textContent = 'Downloading…';
+      btn.disabled = true;
+    }
 
     fetch(proxyUrl)
       .then(r => {
@@ -3477,11 +3815,17 @@
         document.body.removeChild(a);
         setTimeout(() => URL.revokeObjectURL(a.href), 1000);
         haptic('medium');
+        const dlLoader3 = document.getElementById('dlLoader');
+        if (dlLoader3) dlLoader3.classList.remove('active');
+        btn.style.display = '';
         btn.textContent = '✓ Downloaded';
         setTimeout(() => { btn.textContent = '⬇ Download'; btn.disabled = false; }, 2000);
       })
       .catch(() => {
         // Proxy not available — open in new tab (browser PDF viewer has its own download button)
+        const dlLoader4 = document.getElementById('dlLoader');
+        if (dlLoader4) dlLoader4.classList.remove('active');
+        btn.style.display = '';
         btn.textContent = '⬇ Download';
         btn.disabled = false;
         window.open(generatedUrl, '_blank');
