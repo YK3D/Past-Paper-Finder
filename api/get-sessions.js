@@ -12,7 +12,7 @@ const r = await fetch(url, { headers: { ‘User-Agent’: ‘Mozilla/5.0’ } })
 if (!r.ok) return res.status(200).json({ sessions: [] });
 const html = await r.text();
 
-```
+
 // Extract all links of the form: /papers/caie/SLUG-YYYY-SESSION
 // Use a generic pattern that captures year and session slug from any subject page link
 const linkPattern = /\/papers\/caie\/[a-z0-9-]+-(\d{4})-([a-z-]+)(?=['"\s])/gi;
@@ -46,7 +46,7 @@ const ORDER = { s: 0, m: 1, w: 2 };
 sessions.sort((a, b) => parseInt(b.year) - parseInt(a.year) || ORDER[a.sess] - ORDER[b.sess]);
 
 return res.status(200).json({ sessions });
-```
+
 
 } catch (e) {
 return res.status(200).json({ sessions: [], error: e.message });
