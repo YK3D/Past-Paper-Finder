@@ -13,20 +13,25 @@ if (!r.ok) return res.status(200).json({ sessions: [] });
 const html = await r.text();
 
 ```
-// Extract all year-session links: slug-YYYY-session-slug
-const pattern = new RegExp(`${slug}-(\\d{4})-([a-z-]+)(?=['"\\s])`, 'gi');
+// Extract all links of the form: /papers/caie/SLUG-YYYY-SESSION
+// Use a generic pattern that captures year and session slug from any subject page link
+const linkPattern = /\/papers\/caie\/[a-z0-9-]+-(\d{4})-([a-z-]+)(?=['"\s])/gi;
 const seen = new Set();
 const sessions = [];
 let m;
 
-while ((m = pattern.exec(html)) !== null) {
+while ((m = linkPattern.exec(html)) !== null) {
   const year = m[1];
   const sessSlug = m[2].toLowerCase();
 
+  // Only include if the full link starts with our slug
+  const fullMatch = m[0].replace('/papers/caie/', '');
+  if (!fullMatch.startsWith(slug + '-')) continue;
+
   let sess = null;
-  if (/oct.?nov|^nov$/.test(sessSlug)) sess = 'w';
-  else if (/may.?june|^jun$/.test(sessSlug)) sess = 's';
-  else if (/feb.?march|^march$|^mar$/.test(sessSlug)) sess = 'm';
+  if (/^(oct-nov|nov)$/.test(sessSlug)) sess = 'w';
+  else if (/^(may-june|jun)$/.test(sessSlug)) sess = 's';
+  else if (/^(march|feb-march|mar)$/.test(sessSlug)) sess = 'm';
 
   if (!sess) continue;
   const key = year + sess;
