@@ -2782,6 +2782,19 @@
     if (mh) mh.style.display = 'none';
     hideResult();
     clearFieldErrors();
+
+    // If a code is already entered, re-run detection for the new board
+    const code = document.getElementById('code').value.trim();
+    if (code.length === 4) {
+      if (board === 'AQA') {
+        // AQA: just populate year range, no live scan
+        populateYearRange(1990);
+        repopulateFullSessions('AQA');
+        resetPaperFields();
+      } else if (board === 'CAIE') {
+        applyIgcseDropdowns(code);
+      }
+    }
   }
 
   // ── Paper type change ──
