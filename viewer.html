@@ -3146,16 +3146,24 @@
     gap: 0.4rem;
   }
   .pdf-nav button {
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text);
-    font-size: 0.8rem;
-    padding: 0.3rem 0.6rem;
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    font-size: 1.2rem;
+    font-weight: 700;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    transition: border-color 0.2s;
+    transition: opacity 0.2s, transform 0.15s;
+    flex-shrink: 0;
   }
-  .pdf-nav button:hover { border-color: var(--accent); color: var(--accent); }
+  .pdf-nav button:hover { opacity: 0.85; transform: scale(1.08); }
+  .pdf-nav button:active { transform: scale(0.95); }
+  .pdf-nav button:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
   .pdf-nav span {
     font-family: 'Space Mono', monospace;
     font-size: 0.7rem;
@@ -3265,10 +3273,86 @@
     border-top: 1px solid var(--border);
     flex-shrink: 0;
   }
-  .chat-input {
+  /* Chat input — same 3-layer glow as board buttons */
+  .chat-input-wrap {
     flex: 1;
+    position: relative;
+    border-radius: 8px;
+  }
+  .cin-dark, .cin-border, .cin-glow {
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+    transition: opacity 0.3s;
+  }
+  .cin-dark::before, .cin-border::before, .cin-glow::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 600px; height: 600px;
+    background-repeat: no-repeat;
+  }
+  .cin-dark { inset: -1px; }
+  .cin-dark::before {
+    transform: translate(-50%, -50%) rotate(82deg);
+    background-image: conic-gradient(
+      rgba(0,0,0,0),
+      rgba(0,229,255,0.4),
+      rgba(0,0,0,0) 10%,
+      rgba(0,0,0,0) 50%,
+      rgba(255,77,109,0.4),
+      rgba(0,0,0,0) 60%
+    );
+    animation: chatGlowSpin 4s linear infinite;
+  }
+  .cin-border { inset: -1px; filter: blur(0.5px); }
+  .cin-border::before {
+    transform: translate(-50%, -50%) rotate(70deg);
+    background-image: conic-gradient(
+      var(--bg),
+      var(--accent) 5%,
+      var(--bg) 14%,
+      var(--bg) 50%,
+      var(--accent2) 60%,
+      var(--bg) 64%
+    );
+    animation: chatGlowSpin 4s 0.1s linear infinite;
+  }
+  .cin-glow { inset: -3px; filter: blur(8px); opacity: 0.4; }
+  .cin-glow::before {
+    transform: translate(-50%, -50%) rotate(60deg);
+    background-image: conic-gradient(
+      #000,
+      var(--accent) 5%,
+      #000 38%,
+      #000 50%,
+      var(--accent2) 60%,
+      #000 87%
+    );
+    animation: chatGlowSpin 4s 0.3s linear infinite;
+  }
+  /* inner mask */
+  .chat-input-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 1.5px;
+    border-radius: 7px;
     background: var(--bg);
-    border: 1px solid var(--border);
+    z-index: 1;
+    pointer-events: none;
+  }
+  @keyframes chatGlowSpin {
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+  .chat-input {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    background: transparent;
+    border: none;
     border-radius: 8px;
     color: var(--text);
     font-family: 'Space Mono', monospace;
@@ -3277,9 +3361,8 @@
     outline: none;
     resize: none;
     height: 60px;
-    transition: border-color 0.2s;
+    display: block;
   }
-  .chat-input:focus { border-color: var(--accent); }
   .chat-send {
     background: var(--accent);
     border: none;
@@ -3347,7 +3430,12 @@
     </div>
     <div class="chat-hint" id="chatHint"></div>
     <div class="chat-input-row">
-      <textarea class="chat-input" id="chatInput" placeholder="Ask about this paper…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
+      <div class="chat-input-wrap">
+        <div class="cin-dark"></div>
+        <div class="cin-border"></div>
+        <div class="cin-glow"></div>
+        <textarea class="chat-input" id="chatInput" placeholder="Ask about this paper…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
+      </div>
       <button class="chat-send" id="chatSend" onclick="sendMessage()">Send</button>
     </div>
   </div>
