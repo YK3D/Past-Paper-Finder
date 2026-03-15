@@ -2085,6 +2085,10 @@
 </div><!-- /#view-wrapper -->
 
 <script>
+  // Always start at top
+  if (history.scrollRestoration) history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
+
   let generatedUrl = '';
   let recentOpen = false;
 
