@@ -1,10 +1,5 @@
 {
   "outputDirectory": ".",
-  "functions": {
-    "api/*.js": {
-      "runtime": "@vercel/node@3"
-    }
-  },
   "rewrites": [
     { "source": "/codes",       "destination": "/codes.html" },
     { "source": "/leaderboard", "destination": "/leaderboard.html" },
