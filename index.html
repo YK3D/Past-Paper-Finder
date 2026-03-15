@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.01, maximum-scale=5.0">
 <title>Past Paper Finder</title>
 
 <!-- SEO Meta -->
@@ -1100,6 +1100,57 @@
     color: #2a2a40;
     margin-top: 0.25rem;
   }
+  /* ── Favourites ── */
+  .fav-wrap { position: relative; display: block; }
+  .fav-btn {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.2rem;
+    line-height: 1;
+    transition: color 0.2s, transform 0.2s;
+    z-index: 3;
+  }
+  .fav-btn:hover { color: #ffd700; transform: translateY(-50%) scale(1.2); }
+  .fav-btn.starred { color: #ffd700; }
+  .fav-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0; right: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    z-index: 100;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+  .fav-dropdown.open { display: block; }
+  .fav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.8rem;
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    transition: background 0.15s;
+    border-bottom: 1px solid var(--border);
+  }
+  .fav-item:last-child { border-bottom: none; }
+  .fav-item:hover { background: rgba(0,229,255,0.06); }
+  .fav-item-code { color: var(--accent); font-weight: 700; min-width: 2.5rem; }
+  .fav-item-name { color: var(--text); flex: 1; }
+  .fav-item-del { color: var(--muted); font-size: 0.65rem; margin-left: auto; }
+  .fav-item-del:hover { color: #ff4d6d; }
+  .fav-empty { padding: 0.8rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); text-align: center; }
+
   .contact-section {
     margin-top: 2rem;
     padding: 1rem 1.2rem;
@@ -1662,7 +1713,11 @@
 
         <div class="field" style="position:relative">
           <label>Subject Code</label>
-          <input type="text" id="code" placeholder="Select exam board first" maxlength="4" inputmode="numeric" oninput="onCodeInput()" onkeydown="onCodeKeydown(event)" onblur="hideSuggestions(event)" disabled />
+          <div class="fav-wrap">
+            <input type="text" id="code" placeholder="Select exam board first" maxlength="4" inputmode="numeric" oninput="onCodeInput()" onkeydown="onCodeKeydown(event)" onblur="hideSuggestions(event)" onfocus="openFavDropdown()" disabled style="padding-right:2.2rem" />
+            <button class="fav-btn" id="favStarBtn" onclick="toggleFavourite()" title="Add to favourites">&#9733;</button>
+            <div class="fav-dropdown" id="favDropdown"></div>
+          </div>
           <div class="subject-name-tag" id="subjectNameTag"></div>
           <div class="did-you-mean" id="didYouMeanTag" style="display:none"></div>
           <button class="find-code-btn-below" onclick="showCodes()">Don't know your code? Browse all subjects →</button>
@@ -1738,7 +1793,7 @@
           <button class="btn-copy" onclick="copyUrl()">Copy URL</button>
           <button class="btn-download" onclick="downloadUrl()">&#8659; Download</button>
           <button class="btn-share" onclick="shareUrl()" id="shareBtn">&#8679; Share</button>
-          <button class="btn-view-chat" onclick="openViewer()">&#128172; View &amp; Chat</button>
+          <button class="btn-view-chat" onclick="openViewer()">&#127381; Open with PastPaperAI</button>
         </div>
       </div>
     </div>
@@ -2110,7 +2165,8 @@
     const headerLogo  = document.querySelector('.header-logo');
 
     // Ensure fonts are loaded before measuring, then start animation
-    (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => {
+    const _fontReady = document.fonts ? Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 600))]) : Promise.resolve();
+    _fontReady.then(() => {
     setTimeout(() => {
       // 1. Measure splash elements BEFORE container reveal
       const fromTitle = splashTitle.getBoundingClientRect();
@@ -2655,6 +2711,7 @@
         applyIgcseDropdowns(code);
       }
     }
+    updateFavStar();
     if (code.length === 4 && !subjectNames[code]) {
       tag.textContent = '';
       tag.classList.remove('visible');
@@ -2727,6 +2784,81 @@
       }
     } catch {}
   })();
+
+  // ── Favourites ──
+  function getFavourites() {
+    try { return JSON.parse(localStorage.getItem('pp_favs') || '[]'); } catch { return []; }
+  }
+  function saveFavourites(list) {
+    try { localStorage.setItem('pp_favs', JSON.stringify(list)); } catch {}
+  }
+  function toggleFavourite() {
+    const code = document.getElementById('code').value.trim();
+    if (!code || code.length !== 4) return;
+    const name = subjectNames[code] || code;
+    let favs = getFavourites();
+    const idx = favs.findIndex(f => f.code === code);
+    if (idx >= 0) { favs.splice(idx, 1); }
+    else { favs.unshift({ code, name }); }
+    saveFavourites(favs);
+    updateFavStar();
+    renderFavDropdown();
+  }
+  function updateFavStar() {
+    const code = document.getElementById('code').value.trim();
+    const btn = document.getElementById('favStarBtn');
+    if (!btn) return;
+    const favs = getFavourites();
+    btn.classList.toggle('starred', favs.some(f => f.code === code));
+    btn.title = favs.some(f => f.code === code) ? 'Remove from favourites' : 'Add to favourites';
+  }
+  function openFavDropdown() {
+    const favs = getFavourites();
+    if (!favs.length) return;
+    renderFavDropdown();
+    document.getElementById('favDropdown').classList.add('open');
+    // Close on outside click
+    setTimeout(() => {
+      document.addEventListener('click', closeFavOnOutside);
+    }, 10);
+  }
+  function closeFavOnOutside(e) {
+    const dd = document.getElementById('favDropdown');
+    const wrap = dd && dd.closest('.fav-wrap');
+    if (wrap && !wrap.contains(e.target)) {
+      dd.classList.remove('open');
+      document.removeEventListener('click', closeFavOnOutside);
+    }
+  }
+  function renderFavDropdown() {
+    const favs = getFavourites();
+    const dd = document.getElementById('favDropdown');
+    if (!dd) return;
+    if (!favs.length) {
+      dd.innerHTML = '<div class="fav-empty">No favourites yet</div>';
+      return;
+    }
+    dd.innerHTML = favs.map(f => `
+      <div class="fav-item" onclick="selectFavourite('${f.code}')">
+        <span class="fav-item-code">${f.code}</span>
+        <span class="fav-item-name">${f.name}</span>
+        <span class="fav-item-del" onclick="event.stopPropagation();removeFav('${f.code}')">&#10005;</span>
+      </div>`).join('');
+  }
+  function selectFavourite(code) {
+    document.getElementById('code').value = code;
+    document.getElementById('favDropdown').classList.remove('open');
+    document.removeEventListener('click', closeFavOnOutside);
+    updateFavStar();
+    onCodeInput();
+  }
+  function removeFav(code) {
+    const favs = getFavourites().filter(f => f.code !== code);
+    saveFavourites(favs);
+    renderFavDropdown();
+    updateFavStar();
+    if (!favs.length) document.getElementById('favDropdown').classList.remove('open');
+  }
 
   // ── Leaderboard increment ──
   const _JSONBIN_ID  = '';
@@ -2813,14 +2945,79 @@
     if (!list.length) { box.classList.remove('visible'); recentOpen = false; return; }
     box.classList.add('visible');
     el.innerHTML = list.map(url => `
-      <div class="recent-item" onclick="window.open('${url}','_blank')">
+      <div class="recent-item" onclick="loadFromRecent('${url}')">
         <span class="recent-item-url">${urlToLabel(url)}</span>
-        <span class="recent-item-open">Open →</span>
+        <span class="recent-item-open">Load ↩</span>
       </div>`).join('');
     // Auto-expand when a new search is saved
     if (recentOpen) el.style.display = 'flex';
   }
 
+
+  function loadFromRecent(url) {
+    // Parse CAIE URL: .../upload/0580_s24_qp_11.pdf
+    const file = url.split('/').pop().replace('.pdf','').replace('.mp3','');
+
+    // CAIE format: CODE_SESS+YR_TYPE_VARIANT or CODE_SESS+YR_TYPE
+    const caie = file.match(/^(\d{4})_([smw])(\d{2})_([a-z]+)(?:_(\d{1,2}))?$/);
+    if (caie) {
+      const [, code, sess, yr, type, variant] = caie;
+      const fullYear = '20' + yr;
+      selectBoard('CAIE');
+      document.getElementById('code').value = code;
+      applyIgcseDropdowns(code);
+      // Wait for dropdowns to populate then set values
+      setTimeout(() => {
+        const sEl = document.getElementById('sessionSelect');
+        const yEl = document.getElementById('yearSelect');
+        if (sEl) { sEl.value = sess; onSessionChange(); }
+        setTimeout(() => {
+          if (yEl) { yEl.value = fullYear; fetchPapersForSelection(); }
+          setTimeout(() => {
+            const tEl = document.getElementById('typeSelect');
+            if (tEl) { tEl.value = type; updateVariantForType(type); }
+            setTimeout(() => {
+              const vEl = document.getElementById('variantSelect');
+              if (vEl && variant) vEl.value = variant.padStart(2,'0');
+            }, 200);
+          }, 400);
+        }, 200);
+      }, 800);
+      return;
+    }
+
+    // AQA format: aqa-CODE(VARIANT)-TYPE-SESSYR
+    const aqa = file.match(/^aqa-(\d{4})(\d{2})?-(qp|ms|gt|er|gb|in|ci|rp|tn)-([a-z]+)(\d{2})$/);
+    if (aqa) {
+      const [, code, variant, type, sessStr, yr] = aqa;
+      const fullYear = '20' + yr;
+      const sessMap = { jun: 's', nov: 'w', mar: 'm' };
+      const sess = sessMap[sessStr] || 's';
+      selectBoard('AQA');
+      document.getElementById('code').value = code;
+      applyIgcseDropdowns(code);
+      setTimeout(() => {
+        const sEl = document.getElementById('sessionSelect');
+        if (sEl) { sEl.value = sess; onSessionChange(); }
+        setTimeout(() => {
+          const yEl = document.getElementById('yearSelect');
+          if (yEl) { yEl.value = fullYear; fetchPapersForSelection(); }
+          setTimeout(() => {
+            const tEl = document.getElementById('typeSelect');
+            if (tEl) { tEl.value = type; updateVariantForType(type); }
+            setTimeout(() => {
+              const vEl = document.getElementById('variantSelect');
+              if (vEl && variant) vEl.value = variant;
+            }, 200);
+          }, 400);
+        }, 200);
+      }, 800);
+      return;
+    }
+
+    // Fallback: just open it
+    window.open(url, '_blank');
+  }
 
   // ── View switching ──
   let _viewTransitioning = false;
