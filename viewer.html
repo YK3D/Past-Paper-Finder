@@ -3543,7 +3543,11 @@
         })
       });
 
-      if (!resp.ok) throw new Error('API error ' + resp.status);
+      if (!resp.ok) {
+        if (resp.status === 429) throw new Error('Rate limit reached — wait a moment and try again.');
+        if (resp.status === 401) throw new Error('Invalid API key. Check GROQ_API_KEY in Vercel.');
+        throw new Error('API error ' + resp.status);
+      }
 
       // Stream response
       const reader = resp.body.getReader();
