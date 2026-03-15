@@ -1,77 +1,4361 @@
-export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.01, maximum-scale=5.0">
+<title>Past Paper Finder</title>
 
-  const body = req.body || {};
-  const messages = body.messages || [];
-  const context = body.context || '';
-  const url = body.url || 'unknown';
-  const apiKey = process.env.GROQ_API_KEY;
+<!-- SEO Meta -->
+<meta name="description" content="Find and open CAIE & AQA past papers and mark schemes instantly. Made by Youssef Karim.">
+<meta name="author" content="Youssef Karim">
+<meta name="robots" content="index, follow">
+<meta name="keywords" content="past papers, CAIE, AQA, Cambridge, Oxford, mark scheme, question paper, O level, A level, IGCSE, GCE, past paper finder, exam papers, revision, past paper generator, CAIE past papers, AQA past papers, Cambridge past papers, Oxford past papers, past paper link, past paper URL, past paper PDF, exam revision, A level past papers, IGCSE past papers, O level past papers, AS level past papers, A2 past papers, Cambridge International, Cambridge Assessment, AQA mark scheme, CAIE mark scheme, question paper download, mark scheme download, papacambridge, past paper search, exam board, exam session, May June, October November, February March, variant, subject code, 9709, 0417, 0580, 0620, 0610, 0625, 9701, 9702, 9706, 9708, 0450, 0455, 0460, 0470, 0478, 0500, 0510, 0520, 0544, 0546, 0547, 0606, 0607, 0610, 0620, 0625, 0648, 0653, 0654, 0680, A level biology, A level chemistry, A level physics, A level maths, A level further maths, A level economics, A level business, A level history, A level geography, A level psychology, A level sociology, A level english, A level computer science, IGCSE maths, IGCSE english, IGCSE biology, IGCSE chemistry, IGCSE physics, IGCSE computer science, IGCSE history, IGCSE geography, IGCSE economics, IGCSE business, exam preparation, exam practice, revision tool, student tool, past paper tool, free past papers, past paper website, past paper app, paper finder, paper search, grade boundaries, exam tips, exam help, student revision, GCSE revision, A level revision, university entrance, Cambridge university, Oxford university, exam season, May June 2024, October November 2024, February March 2024, May June 2023, October November 2023, qp, ms, variant 1, variant 2, variant 3, variant 11, variant 12, variant 13, variant 21, variant 22, variant 23, variant 31, variant 32, variant 33">
 
-  if (!apiKey) {
-    return res.status(500).json({ error: 'GROQ_API_KEY not set in Vercel Environment Variables.' });
+<!-- Open Graph -->
+<meta property="og:title" content="Past Paper Finder — by Youssef Karim">
+<meta property="og:description" content="Made by Youssef Karim. Open CAIE & AQA past papers and mark schemes as PDFs in one click.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://past-paper-finder.vercel.app/">
+<meta property="og:image" content="https://past-paper-finder.vercel.app/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Past Paper Finder — by Youssef Karim">
+<meta name="twitter:description" content="Made by Youssef Karim. Open CAIE & AQA past papers and mark schemes as PDFs in one click.">
+<meta name="twitter:image" content="https://past-paper-finder.vercel.app/og-image.png">
+
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+<link rel="apple-touch-icon" href="/favicon.png">
+<script>if(location.protocol!=="file:"){var s=document.createElement("script");s.defer=true;s.src="/_vercel/insights/script.js";document.head.appendChild(s);}</script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --border: #2a2a3a;
+    --accent: #00e5ff;
+    --accent2: #ff4d6d;
+    --text: #e8e8f0;
+    --muted: #6b6b85;
+    --success: #00ffaa;
+  }
+  body.light {
+    --bg: #f0f2f8;
+    --surface: #ffffff;
+    --border: #d0d4e8;
+    --accent: #0099bb;
+    --accent2: #e03050;
+    --text: #1a1a2e;
+    --muted: #7070a0;
+    --success: #009966;
+  }
+  body.light {
+    background-image:
+      radial-gradient(ellipse at 20% 20%, rgba(0,153,187,0.07) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(224,48,80,0.07) 0%, transparent 50%);
   }
 
-  const systemPrompt = 'You are an AI assistant helping a student understand a CAIE/AQA past exam paper.\n\n'
-    + context + '\n\nPaper URL: ' + url + '\n\n'
-    + 'You can use markdown formatting: **bold**, *italic*, bullet points (- item), numbered lists, headings (# Title), and emojis. Be concise, clear and educational. When answering questions, use mark scheme structure where relevant.';
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  // Build messages array for Groq (OpenAI-compatible format)
-  const groqMessages = [{ role: 'system', content: systemPrompt }];
-  const slice = messages.slice(-10);
-  for (let i = 0; i < slice.length; i++) {
-    groqMessages.push({ role: slice[i].role, content: slice[i].content });
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 20% 20%, rgba(0,229,255,0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(255,77,109,0.05) 0%, transparent 50%);
+    transition: background 0.25s, color 0.25s;
   }
 
-  try {
-    const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + apiKey
-      },
-      body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
-        messages: groqMessages,
-        max_tokens: 1024,
-        temperature: 0.7,
-        stream: true
-      })
-    });
+  /* \u2500\u2500 VIEW TRANSITIONS \u2500\u2500 */
+  #main-view {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    min-height: 100vh;
+  }
+  #codes-view {
+    display: block;
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+  .view-hidden {
+    display: none !important;
+  }
+  #variantSelect { display: none; } /* hidden until activated — yearSelect visible by default */
 
-    if (!resp.ok) {
-      const err = await resp.text();
-      return res.status(resp.status).json({ error: err });
+  .container { width: 100%; max-width: 560px; }
+
+  header { margin-bottom: 2.5rem; }
+
+  .label-top {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  h1 { font-size: 2.4rem; font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; }
+  h1 span { color: var(--accent); }
+
+  .subtitle { margin-top: 0.6rem; color: var(--muted); font-size: 0.9rem; font-family: 'Space Mono', monospace; }
+
+  /* card styles defined below with poda glow */
+
+  .field-group { display: grid; gap: 0.9rem; }
+
+  .field { display: flex; flex-direction: column; gap: 0.4rem; }
+
+  .field label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .find-code-btn-below {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.3rem 0;
+    letter-spacing: 0.04em;
+    text-align: left;
+    opacity: 0.8;
+    margin-top: 0.3rem;
+    display: block;
+  }
+  .find-code-btn-below:hover { opacity: 1; }
+
+  /* ── Theme toggle ── */
+  .header-top-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.1rem;
+  }
+  /* ── Cosmic theme toggle ── */
+  .cosmic-toggle {
+    position: relative;
+    width: 80px;
+    height: 40px;
+    transform-style: preserve-3d;
+    perspective: 500px;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+  .toggle { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(45deg, #1a1a2e, #16213e);
+    border-radius: 35px;
+    transition: 0.5s;
+    transform-style: preserve-3d;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5), inset 0 0 15px rgba(255,255,255,0.05);
+    overflow: hidden;
+  }
+  .cosmos {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(1px 1px at 10% 10%, #fff 100%, transparent),
+      radial-gradient(1px 1px at 20% 20%, #fff 100%, transparent),
+      radial-gradient(2px 2px at 30% 30%, #fff 100%, transparent),
+      radial-gradient(1px 1px at 40% 40%, #fff 100%, transparent),
+      radial-gradient(2px 2px at 50% 50%, #fff 100%, transparent),
+      radial-gradient(1px 1px at 60% 60%, #fff 100%, transparent),
+      radial-gradient(2px 2px at 70% 70%, #fff 100%, transparent),
+      radial-gradient(1px 1px at 80% 80%, #fff 100%, transparent),
+      radial-gradient(1px 1px at 90% 90%, #fff 100%, transparent);
+    background-size: 200% 200%;
+    opacity: 0.1;
+    transition: 0.5s;
+  }
+  .toggle-orb {
+    position: absolute;
+    height: 34px; width: 34px;
+    left: 3px; bottom: 3px;
+    background: linear-gradient(145deg, #ff6b6b, #4ecdc4);
+    border-radius: 50%;
+    transition: 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    transform-style: preserve-3d;
+    z-index: 2;
+  }
+  .inner-orb {
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #fff, #e6e6e6);
+    transition: 0.5s;
+    overflow: hidden;
+  }
+  .inner-orb::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-conic-gradient(from 0deg, transparent 0deg, rgba(0,0,0,0.1) 10deg, transparent 20deg);
+    animation: patternRotate 10s linear infinite;
+  }
+  .ring {
+    position: absolute;
+    inset: -3px;
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 50%;
+    transition: 0.5s;
+  }
+  .toggle:checked + .slider { background: linear-gradient(45deg, #16213e, #1a1a2e); }
+  .toggle:checked + .slider .toggle-orb {
+    transform: translateX(40px) rotate(360deg);
+    background: linear-gradient(145deg, #4ecdc4, #45b7af);
+  }
+  .toggle:checked + .slider .inner-orb {
+    background: linear-gradient(145deg, #45b7af, #3da89f);
+    transform: scale(0.9);
+  }
+  .toggle:checked + .slider .ring {
+    border-color: rgba(78,205,196,0.3);
+    animation: ringPulse 2s infinite;
+  }
+  .energy-line {
+    position: absolute;
+    width: 100%; height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(78,205,196,0.5), transparent);
+    transform-origin: left;
+    opacity: 0;
+    transition: 0.5s;
+  }
+  .energy-line:nth-child(1) { top: 20%; transform: rotate(15deg); }
+  .energy-line:nth-child(2) { top: 50%; transform: rotate(0deg); }
+  .energy-line:nth-child(3) { top: 80%; transform: rotate(-15deg); }
+  .toggle:checked + .slider .energy-line { opacity: 1; animation: energyFlow 2s linear infinite; }
+  .particles { position: absolute; width: 100%; height: 100%; }
+  .particle {
+    position: absolute;
+    width: 4px; height: 4px;
+    background: #4ecdc4;
+    border-radius: 50%;
+    opacity: 0;
+  }
+  .toggle:checked + .slider .particle { animation: particleBurst 1s ease-out infinite; }
+  .particle:nth-child(1) { left: 20%; animation-delay: 0s; }
+  .particle:nth-child(2) { left: 40%; animation-delay: 0.2s; }
+  .particle:nth-child(3) { left: 60%; animation-delay: 0.4s; }
+  .particle:nth-child(4) { left: 80%; animation-delay: 0.6s; }
+  .particle:nth-child(5) { left: 30%; animation-delay: 0.8s; }
+  .particle:nth-child(6) { left: 70%; animation-delay: 1s; }
+  @keyframes ringPulse {
+    0%, 100% { transform: scale(1); opacity: 0.3; }
+    50% { transform: scale(1.1); opacity: 0.6; }
+  }
+  @keyframes patternRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes energyFlow {
+    0% { transform: scaleX(0) translateX(0); opacity: 0; }
+    50% { transform: scaleX(1) translateX(50%); opacity: 1; }
+    100% { transform: scaleX(0) translateX(100%); opacity: 0; }
+  }
+  @keyframes particleBurst {
+    0% { transform: translate(0,0) scale(1); opacity: 1; }
+    100% { transform: translate(0, -30px) scale(0); opacity: 0; }
+  }
+  .slider:hover .toggle-orb {
+    filter: brightness(1.2);
+    box-shadow: 0 0 20px rgba(78,205,196,0.5), 0 0 40px rgba(78,205,196,0.3);
+  }
+  .slider:hover .cosmos { opacity: 0.2; animation: cosmosPan 20s linear infinite; }
+  @keyframes cosmosPan {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 200% 200%; }
+  }
+  .toggle:checked + .slider::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 70% 50%, rgba(78,205,196,0.2), transparent 50%);
+    animation: glowFollow 2s linear infinite;
+  }
+  @keyframes glowFollow {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 0.5; }
+  }
+
+  /* ── Share button ── */
+  .btn-share {
+    flex: 1; padding: 0.6rem; border-radius: 7px;
+    border: 1px solid var(--accent);
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    cursor: pointer;
+    background: transparent; color: var(--accent);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+                background 0.2s ease,
+                color 0.2s ease,
+                box-shadow 0.2s ease;
+  }
+  .btn-share:hover {
+    background: var(--accent);
+    color: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,229,255,0.3);
+  }
+  .btn-share:active { transform: translateY(0); box-shadow: none; }
+  .btn-view-chat {
+    flex: 1; padding: 0.6rem; border-radius: 7px;
+    border: 1px solid var(--accent2);
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    cursor: pointer;
+    background: transparent; color: var(--accent2);
+    transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), background 0.2s, color 0.2s;
+  }
+  .btn-view-chat:hover {
+    background: var(--accent2); color: #fff;
+    transform: translateY(-2px);
+  }
+
+  /* ── Spinner inside button ── */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .btn-spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(0,0,0,0.25);
+    border-top-color: #000;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  /* ── Light mode surface for suggestions ── */
+  body.light .code-suggestions { background: #fff; border-color: rgba(0,153,187,0.3); }
+  body.light .suggestion-item:hover, body.light .suggestion-item.active { background: rgba(0,153,187,0.08); }
+
+  /* ── Input fields ── */
+  .field select, .field input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.88rem;
+    padding: 0.65rem 0.9rem;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b85' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.9rem center;
+    padding-right: 2.2rem;
+    cursor: pointer;
+  }
+  .field select:focus, .field input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,229,255,0.1);
+  }
+  .field select option { background: #1a1a25; }
+
+  .field > label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* ── Poda glow animation around card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: visible;
+  }
+  .card-glow {
+    position: absolute;
+    inset: -2px;
+    border-radius: 18px;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .card-glow::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 800px; height: 800px;
+    transform: translate(-50%, -50%) rotate(0deg);
+    background-image: conic-gradient(
+      transparent 0%,
+      var(--accent) 8%,
+      transparent 15%,
+      transparent 50%,
+      var(--accent2) 58%,
+      transparent 65%
+    );
+    animation: cardGlowRotate 5s linear infinite;
+    opacity: 0.7;
+    filter: blur(2px);
+  }
+  .card-glow::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 16px;
+    background: var(--surface);
+  }
+  @keyframes cardGlowRotate {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+  @keyframes boardGlowRotate {
+    to { transform: translate(-50%, -50%) rotate(-360deg); }
+  }
+
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .divider { height: 1px; background: var(--border); margin: 1.5rem 0; }
+
+  /* ── Generate button (animated fill) ── */
+  .btn-generate {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.9rem 2rem;
+    border: 2px solid var(--accent);
+    font-size: 0.95rem;
+    background-color: transparent;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    cursor: pointer;
+    overflow: hidden;
+    transition: color 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+                background-color 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .btn-generate .btn-arrow {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+    left: 0;
+    opacity: 0;
+    transition: left 0.45s cubic-bezier(0.23, 1, 0.32, 1),
+                opacity 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .btn-generate .btn-text {
+    position: relative;
+    z-index: 1;
+  }
+  .btn-generate .arr-1,
+  .btn-generate .arr-2,
+  .btn-generate .circle { display: none; }
+  .btn-generate:hover {
+    background-color: var(--accent);
+    color: #000;
+  }
+  .btn-generate:hover .btn-arrow {
+    opacity: 1;
+  }
+  .btn-generate:active { scale: 0.97; }
+  .btn-generate:disabled { opacity: 0.6; pointer-events: none; }
+
+  .btn-row { display: flex; gap: 0.6rem; margin-top: 0.8rem; align-items: stretch; }
+  .btn-row .btn-generate { flex: 1; margin-top: 0; }
+  .btn-reset {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.9rem 1.2rem;
+    background: transparent;
+    color: var(--accent2);
+    border: 2px solid var(--accent2);
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    transition: color 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+                background-color 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .btn-reset:hover {
+    background-color: var(--accent2);
+    color: #000;
+  }
+  .btn-reset:active { scale: 0.97; }
+  .btn-reset .reset-icon {
+    display: inline-block;
+    transform: scaleX(-1);
+  }
+  .btn-reset .reset-icon.spinning {
+    animation: resetSpin 0.9s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  }
+  @keyframes resetSpin {
+    from { transform: scaleX(-1) rotate(0deg); }
+    to   { transform: scaleX(-1) rotate(-360deg); }
+  }
+
+  .result-box {
+    margin-top: 1.2rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    display: none;
+  }
+  .result-box.show { display: block; }
+  .result-box.animating {
+    animation: resultSlideIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  @keyframes resultSlideIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* border flash on entry */
+  .result-box.animating {
+    animation: resultSlideIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+               borderFlash 0.6s ease forwards;
+  }
+  @keyframes borderFlash {
+    0%   { border-color: var(--success); box-shadow: 0 0 0 3px rgba(0,255,170,0.2); }
+    100% { border-color: var(--border);  box-shadow: none; }
+  }
+
+  /* label pop */
+  .result-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--success);
+    margin-bottom: 0.5rem;
+    opacity: 0;
+  }
+  .result-box.animating .result-label {
+    animation: labelPop 0.3s ease 0.15s forwards;
+  }
+  @keyframes labelPop {
+    from { opacity: 0; transform: scale(0.9); letter-spacing: 0.3em; }
+    to   { opacity: 1; transform: scale(1);   letter-spacing: 0.15em; }
+  }
+
+  /* URL fade in */
+  .result-url {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    word-break: break-all;
+    line-height: 1.6;
+    opacity: 0;
+  }
+  .result-box.animating .result-url {
+    animation: fadeUp 0.3s ease 0.22s forwards;
+  }
+
+  /* buttons stagger */
+  .result-actions { display: flex; gap: 0.6rem; margin-top: 1rem; flex-wrap: wrap; align-items: center; }
+  .result-actions button { opacity: 0; }
+  .result-box.animating .result-actions button:nth-child(1) { animation: fadeUp 0.25s ease 0.30s forwards; }
+  .result-box.animating .result-actions button:nth-child(2) { animation: fadeUp 0.25s ease 0.38s forwards; }
+  .result-box.animating .result-actions button:nth-child(3) { animation: fadeUp 0.25s ease 0.46s forwards; }
+  .result-box.animating .result-actions button:nth-child(4) { animation: fadeUp 0.25s ease 0.54s forwards; }
+  .result-box.animating .result-actions button:nth-child(5) { animation: fadeUp 0.25s ease 0.62s forwards; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .btn-open, .btn-copy {
+    flex: 1;
+    padding: 0.6rem;
+    border-radius: 7px;
+    border: none;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.2s ease,
+                background 0.2s ease,
+                filter 0.2s ease;
+  }
+  .btn-open {
+    background: var(--accent2);
+    color: #fff;
+  }
+  .btn-open:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255,77,109,0.4);
+    filter: brightness(1.1);
+  }
+  .btn-open:active { transform: translateY(0); box-shadow: none; }
+
+  .btn-copy {
+    background: var(--border);
+    color: var(--text);
+  }
+  .btn-copy:hover {
+    background: var(--accent);
+    color: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,229,255,0.25);
+  }
+  .btn-copy:active { transform: translateY(0); box-shadow: none; }
+
+  .error-msg {
+    margin-top: 1rem;
+    background: rgba(255,77,109,0.1);
+    border: 1px solid var(--accent2);
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent2);
+    display: none;
+  }
+  .error-msg.show { display: block; }
+  .error-msg .bypass-row {
+    margin-top: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .btn-bypass {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.35rem 0.75rem;
+    background: transparent;
+    border: 1px solid var(--accent2);
+    border-radius: 6px;
+    color: var(--accent2);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .btn-bypass:hover { background: var(--accent2); color: #000; }
+  .bypass-warning {
+    font-size: 0.65rem;
+    color: var(--muted);
+    opacity: 0.8;
+  }
+
+  /* \u2500\u2500 CODES VIEW \u2500\u2500 */
+  
+
+  .top-bar {
+    max-width: 1100px;
+    margin: 0 auto 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .back-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    background: none;
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.9rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    white-space: nowrap;
+  }
+  .back-btn:hover { border-color: var(--accent); }
+
+  .page-title { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
+  .page-title span { color: var(--accent); }
+
+  /* ── Search box poda glow ── */
+  .search-wrap {
+    max-width: 1100px;
+    margin: 0 auto 1.5rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* spinning border layers */
+  .search-glow,
+  .search-border,
+  .search-dark-border {
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .search-dark-border::before,
+  .search-glow::before,
+  .search-border::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 800px; height: 800px;
+    background-repeat: no-repeat;
+  }
+  .search-dark-border {
+    inset: -1px;
+    border-radius: 10px;
+  }
+  .search-dark-border::before {
+    transform: translate(-50%, -50%) rotate(82deg);
+    background-image: conic-gradient(
+      rgba(0,0,0,0),
+      rgba(0,229,255,0.4),
+      rgba(0,0,0,0) 10%,
+      rgba(0,0,0,0) 50%,
+      rgba(255,77,109,0.4),
+      rgba(0,0,0,0) 60%
+    );
+    animation: searchSpin 4s linear infinite;
+  }
+  .search-border {
+    inset: -1px;
+    filter: blur(0.5px);
+  }
+  .search-border::before {
+    transform: translate(-50%, -50%) rotate(70deg);
+    background-image: conic-gradient(
+      var(--bg),
+      var(--accent) 5%,
+      var(--bg) 14%,
+      var(--bg) 50%,
+      var(--accent2) 60%,
+      var(--bg) 64%
+    );
+    animation: searchSpin 4s 0.1s linear infinite;
+  }
+  .search-glow {
+    inset: -3px;
+    filter: blur(8px);
+    opacity: 0.5;
+  }
+  .search-glow::before {
+    transform: translate(-50%, -50%) rotate(60deg);
+    background-image: conic-gradient(
+      #000,
+      var(--accent) 5%,
+      #000 38%,
+      #000 50%,
+      var(--accent2) 60%,
+      #000 87%
+    );
+    animation: searchSpin 4s 0.3s linear infinite;
+  }
+  /* inner mask to show only border */
+  .search-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 8px;
+    background: var(--surface);
+    z-index: 1;
+    pointer-events: none;
+  }
+  @keyframes searchSpin {
+    100% { transform: translate(-50%, -50%) rotate(450deg); }
+  }
+  @keyframes boardGlowSpin {
+    100% { transform: translate(-50%, -50%) rotate(-450deg); }
+  }
+  .search-input {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    padding: 0.7rem 1rem;
+    outline: none;
+  }
+  .search-input::placeholder { color: var(--muted); }
+
+  .codes-grid {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .codes-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+  }
+  .codes-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .caie-sec::before { background: linear-gradient(90deg, var(--accent), #0070ff); }
+  .aqa-sec::before  { background: linear-gradient(90deg, var(--accent2), #ff9900); }
+
+  .sec-header { padding: 1rem 1.2rem; border-bottom: 1px solid var(--border); }
+  .sec-title { font-size: 0.95rem; font-weight: 800; letter-spacing: 0.04em; }
+  .caie-sec .sec-title { color: var(--accent); }
+  .aqa-sec  .sec-title { color: var(--accent2); }
+  .sec-sub { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: var(--muted); margin-top: 0.2rem; }
+
+  .cat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0.6rem 1.2rem 0.3rem;
+    border-top: 1px solid var(--border);
+  }
+  .cat-label:first-of-type { border-top: none; }
+
+  .code-table { width: 100%; border-collapse: collapse; }
+  .code-table tr { transition: background 0.12s; cursor: pointer; }
+  .code-table tr:hover { background: rgba(255,255,255,0.04); }
+  .code-table td { padding: 0.38rem 1.2rem; font-size: 0.8rem; line-height: 1.4; }
+
+  .c-code {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.76rem;
+    width: 70px;
+    white-space: nowrap;
+  }
+  .caie-sec .c-code { color: var(--accent); }
+  .aqa-sec  .c-code { color: var(--accent2); }
+  .c-name { color: var(--text); }
+
+  .hidden-row { display: none; }
+
+  /* Responsive */
+  @media (max-width: 680px) {
+    .codes-grid { grid-template-columns: 1fr; }
+    h1 { font-size: 1.8rem; }
+    .row-2 { grid-template-columns: 1fr; }
+    .page-title { font-size: 1.2rem; }
+  }
+
+  /* ── Hide variant when GT selected ── */
+  .variant-hidden { display: none !important; }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    15%       { transform: translateX(-6px); }
+    30%       { transform: translateX(6px); }
+    45%       { transform: translateX(-5px); }
+    60%       { transform: translateX(5px); }
+    75%       { transform: translateX(-3px); }
+    90%       { transform: translateX(3px); }
+  }
+
+  /* ── Field error highlight ── */
+  .field input.field-error,
+  .field select.field-error {
+    border-color: var(--accent2) !important;
+    box-shadow: 0 0 0 3px rgba(255,77,109,0.15) !important;
+    animation: shake 0.45s ease;
+  }
+
+  /* ── Subject name tag ── */
+  .subject-name-tag {
+    display: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    margin-top: 0.35rem;
+    padding: 0.25rem 0.5rem;
+    background: rgba(0,229,255,0.07);
+    border-radius: 4px;
+    border: 1px solid rgba(0,229,255,0.2);
+  }
+  .subject-name-tag.visible { display: inline-block; }
+
+  .did-you-mean {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    margin-top: 0.35rem;
+    color: rgba(255,255,255,0.55);
+  }
+  .did-you-mean span {
+    color: var(--accent);
+    cursor: pointer;
+    text-decoration: underline;
+    font-weight: 700;
+  }
+  .did-you-mean span:hover { color: #fff; }
+
+  .code-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0; right: 0;
+    background: #1a1a24;
+    border: 1px solid rgba(0,229,255,0.25);
+    border-radius: 6px;
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 100;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    display: none;
+  }
+  .code-suggestions.open { display: block; }
+  .code-suggestions::-webkit-scrollbar { width: 4px; }
+  .code-suggestions::-webkit-scrollbar-track { background: transparent; }
+  .code-suggestions::-webkit-scrollbar-thumb { background: rgba(0,229,255,0.2); border-radius: 2px; }
+  .suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 0.75rem;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.12s;
+  }
+  .suggestion-item:last-child { border-bottom: none; }
+  .suggestion-item:hover, .suggestion-item.active {
+    background: rgba(0,229,255,0.08);
+  }
+  .suggestion-code {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    min-width: 3rem;
+    font-weight: 700;
+  }
+  .suggestion-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.65);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .suggestion-highlight { color: #fff; }
+
+  /* ── Recent searches ── */
+  .recent-box { margin-bottom: 1.2rem; display: none; }
+  .recent-box.visible { display: block; }
+  .recent-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .recent-clear {
+    background: none; border: none; color: var(--muted);
+    font-family: 'Space Mono', monospace; font-size: 0.6rem;
+    cursor: pointer; letter-spacing: 0.1em;
+  }
+  .recent-clear:hover { color: var(--accent2); }
+  .recent-chevron {
+    font-size: 0.65rem;
+    color: var(--accent);
+    transition: transform 0.15s;
+    display: inline-block;
+  }
+  .recent-list { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.4rem; }
+  .recent-item {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.45rem 0.7rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    gap: 0.5rem;
+  }
+  .recent-item:hover { background: rgba(0,229,255,0.05); border-color: rgba(0,229,255,0.2); }
+  .recent-item-url {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    flex: 1; min-width: 0;
+    letter-spacing: 0.02em;
+  }
+  .recent-item-open {
+    font-family: 'Space Mono', monospace; font-size: 0.6rem;
+    color: var(--accent); white-space: nowrap; flex-shrink: 0;
+  }
+
+  /* ── Download btn ── */
+  .btn-download {
+    flex: 1; padding: 0.6rem; border-radius: 7px;
+    border: 1px solid var(--border);
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    cursor: pointer;
+    background: transparent; color: var(--text);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+  }
+  .btn-download:hover {
+    transform: translateY(2px);
+    border-color: var(--accent);
+    box-shadow: 0 3px 12px rgba(0,229,255,0.15);
+  }
+  .btn-download:active { transform: translateY(0); }
+
+
+
+
+  .header-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+  .header-logo {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .header-byline {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: #555570;
+    font-weight: 400;
+    align-self: flex-end;
+    padding-bottom: 0.3rem;
+    white-space: nowrap;
+  }
+  .made-by {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #3a3a55;
+  }
+  .lb-link-btn {
+    display: block;
+    text-align: center;
+    margin: 0.8rem auto 0.4rem;
+    padding: 0.5rem 1.2rem;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s;
+    width: fit-content;
+  }
+  .lb-link-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .version-tag {
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    color: #2a2a40;
+    margin-top: 0.25rem;
+  }
+  /* ── Favourites ── */
+  .fav-wrap { position: relative; display: block; }
+  .fav-btn {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.2rem;
+    line-height: 1;
+    transition: color 0.2s, transform 0.2s;
+    z-index: 3;
+  }
+  .fav-btn:hover { color: #ffd700; transform: translateY(-50%) scale(1.2); }
+  .fav-btn.starred { color: #ffd700; }
+  .fav-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0; right: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    z-index: 100;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+  .fav-dropdown.open { display: block; }
+  .fav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.8rem;
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    transition: background 0.15s;
+    border-bottom: 1px solid var(--border);
+  }
+  .fav-item:last-child { border-bottom: none; }
+  .fav-item:hover { background: rgba(0,229,255,0.06); }
+  .fav-item-code { color: var(--accent); font-weight: 700; min-width: 2.5rem; }
+  .fav-item-name { color: var(--text); flex: 1; }
+  .fav-item-del { color: var(--muted); font-size: 0.65rem; margin-left: auto; }
+  .fav-item-del:hover { color: #ff4d6d; }
+  .fav-empty { padding: 0.8rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); text-align: center; }
+
+  .contact-section {
+    margin-top: 2rem;
+    padding: 1rem 1.2rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    text-align: center;
+    background: var(--surface);
+  }
+  .contact-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .contact-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+  }
+  .contact-email {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: opacity 0.2s;
+  }
+  .contact-email:hover { opacity: 0.7; }
+
+  /* ── STARTUP ANIMATION ── */
+  #splash {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    pointer-events: none;
+    gap: 1rem;
+  }
+  #splash.done { }
+  @keyframes splashFadeOut { }
+  .splash-logo {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    opacity: 0;
+    transform: scale(0.5);
+    animation: splashLogoIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s forwards;
+  }
+  @keyframes splashLogoIn {
+    from { opacity: 0; transform: scale(0.4) rotate(-8deg); }
+    to   { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+  .splash-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    opacity: 0;
+    animation: splashTitleIn 0.45s ease 0.4s forwards;
+  }
+  .splash-title span { color: var(--accent); }
+  @keyframes splashTitleIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .splash-bar {
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    animation: splashBarGrow 0.5s ease 0.65s forwards;
+  }
+  @keyframes splashBarGrow {
+    from { width: 0; opacity: 0; }
+    to   { width: 120px; opacity: 1; }
+  }
+  .splash-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0;
+    animation: splashSubIn 0.4s ease 0.9s forwards;
+  }
+  @keyframes splashSubIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* page content hidden until splash done */
+  .container { opacity: 0; }
+
+  .header-title-row .header-logo { display: none; }
+
+  /* ── Board selector buttons ── */
+  .board-btn-row {
+    display: flex;
+    gap: 0.6rem;
+  }
+  .board-btn-wrap {
+    flex: 1;
+    position: relative;
+    border-radius: 10px;
+  }
+  /* Three spinning border layers — mirrors search-wrap */
+  .bbn-dark, .bbn-border, .bbn-glow {
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .board-btn-wrap.active .bbn-dark,
+  .board-btn-wrap.active .bbn-border,
+  .board-btn-wrap.active .bbn-glow { opacity: 1; }
+  .bbn-dark::before, .bbn-border::before, .bbn-glow::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 800px; height: 800px;
+    background-repeat: no-repeat;
+  }
+  .bbn-dark   { inset: -1px; }
+  .bbn-dark::before {
+    transform: translate(-50%, -50%) rotate(82deg);
+    background-image: conic-gradient(
+      rgba(0,0,0,0),
+      rgba(0,229,255,0.4),
+      rgba(0,0,0,0) 10%,
+      rgba(0,0,0,0) 50%,
+      rgba(255,77,109,0.4),
+      rgba(0,0,0,0) 60%
+    );
+    animation: boardGlowSpin 4s linear infinite;
+  }
+  .bbn-border { inset: -1px; filter: blur(0.5px); }
+  .bbn-border::before {
+    transform: translate(-50%, -50%) rotate(70deg);
+    background-image: conic-gradient(
+      var(--bg),
+      var(--accent) 5%,
+      var(--bg) 14%,
+      var(--bg) 50%,
+      var(--accent2) 60%,
+      var(--bg) 64%
+    );
+    animation: boardGlowSpin 4s 0.1s linear infinite;
+  }
+  .bbn-glow   { inset: -3px; filter: blur(8px); opacity: 0; }
+  .board-btn-wrap.active .bbn-glow { opacity: 0.5; }
+  .bbn-glow::before {
+    transform: translate(-50%, -50%) rotate(60deg);
+    background-image: conic-gradient(
+      #000,
+      var(--accent) 5%,
+      #000 38%,
+      #000 50%,
+      var(--accent2) 60%,
+      #000 87%
+    );
+    animation: boardGlowSpin 4s 0.3s linear infinite;
+  }
+  /* inner mask */
+  .board-btn-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 1.5px;
+    border-radius: 8.5px;
+    background: var(--surface);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .board-btn {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    padding: 0.6rem 0;
+    background: transparent;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+  }
+  .board-btn-wrap.active .board-btn {
+    border-color: transparent;
+  }
+  .board-btn:hover { border-color: var(--accent); color: var(--text); }
+  .board-btn.aqa:hover { border-color: var(--accent2); }
+  .board-btn.active { color: var(--accent); background: rgba(0,229,255,0.06); }
+  .board-btn.active.aqa { color: var(--accent2); background: rgba(255,77,109,0.06); }
+  #code:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── Manual override & dynamic loading ── */
+  .manual-override-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.3rem;
+  }
+  .btn-manual-toggle {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+    letter-spacing: 0.03em;
+  }
+  .btn-manual-toggle:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-manual-toggle.active { border-color: var(--accent2); color: var(--accent2); }
+  .manual-hint {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--accent2);
+    opacity: 0.8;
+  }
+  .field-loading::after {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    background-size: 200% 100%;
+    animation: loadingBar 1.2s linear infinite;
+    border-radius: 2px;
+    margin-top: 3px;
+  }
+  @keyframes loadingBar {
+    0%   { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+
+
+
+  /* ── WiFi loader (generate) ── */
+  #wifi-loader {
+    --background: #62abff;
+    --front-color: var(--accent);
+    --back-color: var(--border);
+    --text-color: var(--muted);
+    width: 64px; height: 64px;
+    border-radius: 50px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    display: none;
+    margin: 0 auto;
+  }
+  #wifi-loader.active { display: flex; }
+  #wifi-loader svg {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #wifi-loader svg circle {
+    position: absolute;
+    fill: none;
+    stroke-width: 6px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transform: rotate(-100deg);
+    transform-origin: center;
+  }
+  #wifi-loader svg circle.back { stroke: var(--back-color); }
+  #wifi-loader svg circle.front { stroke: var(--front-color); }
+  #wifi-loader svg.circle-outer { height: 86px; width: 86px; }
+  #wifi-loader svg.circle-outer circle { stroke-dasharray: 62.75 188.25; }
+  #wifi-loader svg.circle-outer circle.back  { animation: circle-outer135 1.8s ease infinite 0.3s; }
+  #wifi-loader svg.circle-outer circle.front { animation: circle-outer135 1.8s ease infinite 0.15s; }
+  #wifi-loader svg.circle-middle { height: 60px; width: 60px; }
+  #wifi-loader svg.circle-middle circle { stroke-dasharray: 42.5 127.5; }
+  #wifi-loader svg.circle-middle circle.back  { animation: circle-middle6123 1.8s ease infinite 0.25s; }
+  #wifi-loader svg.circle-middle circle.front { animation: circle-middle6123 1.8s ease infinite 0.1s; }
+  #wifi-loader svg.circle-inner { height: 34px; width: 34px; }
+  #wifi-loader svg.circle-inner circle { stroke-dasharray: 22 66; }
+  #wifi-loader svg.circle-inner circle.back  { animation: circle-inner162 1.8s ease infinite 0.2s; }
+  #wifi-loader svg.circle-inner circle.front { animation: circle-inner162 1.8s ease infinite 0.05s; }
+  #wifi-loader .text {
+    position: absolute;
+    bottom: -32px;
+    display: flex; justify-content: center; align-items: center;
+    font-weight: 500; font-size: 11px; letter-spacing: 0.2px;
+    white-space: nowrap;
+  }
+  #wifi-loader .text::before, #wifi-loader .text::after { content: attr(data-text); }
+  #wifi-loader .text::before { color: var(--text-color); }
+  #wifi-loader .text::after {
+    color: var(--front-color);
+    animation: text-animation76 3.6s ease infinite;
+    position: absolute; left: 0;
+  }
+  @keyframes circle-outer135 {
+    0%   { stroke-dashoffset: 25; }
+    25%  { stroke-dashoffset: 0; }
+    65%  { stroke-dashoffset: 301; }
+    80%  { stroke-dashoffset: 276; }
+    100% { stroke-dashoffset: 276; }
+  }
+  @keyframes circle-middle6123 {
+    0%   { stroke-dashoffset: 17; }
+    25%  { stroke-dashoffset: 0; }
+    65%  { stroke-dashoffset: 204; }
+    80%  { stroke-dashoffset: 187; }
+    100% { stroke-dashoffset: 187; }
+  }
+  @keyframes circle-inner162 {
+    0%   { stroke-dashoffset: 9; }
+    25%  { stroke-dashoffset: 0; }
+    65%  { stroke-dashoffset: 106; }
+    80%  { stroke-dashoffset: 97; }
+    100% { stroke-dashoffset: 97; }
+  }
+  @keyframes text-animation76 {
+    0%   { clip-path: inset(0 100% 0 0); }
+    50%  { clip-path: inset(0); }
+    100% { clip-path: inset(0 0 0 100%); }
+  }
+
+  /* ── Bounce loader (download) ── */
+  .dl-loader {
+    display: none;
+    position: relative;
+    width: 80px;
+    height: 60px;
+    margin: 0 auto;
+  }
+  .dl-loader.active { display: block; }
+  .dl-loader:before {
+    content: "";
+    position: absolute;
+    bottom: 20px; left: 33px;
+    height: 20px; width: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: loading-bounce 0.5s ease-in-out infinite alternate;
+  }
+  .dl-loader:after {
+    content: "";
+    position: absolute;
+    right: 0; top: 0;
+    height: 5px; width: 30px;
+    border-radius: 4px;
+    box-shadow: 0 4px 0 var(--border), -23px 33px 0 var(--border), -46px 63px 0 var(--border);
+    animation: loading-step 1s ease-in-out infinite;
+  }
+  @keyframes loading-bounce {
+    0%   { transform: scale(1, 0.7); }
+    40%  { transform: scale(0.8, 1.2); }
+    60%  { transform: scale(1, 1); }
+    100% { bottom: 90px; }
+  }
+  @keyframes loading-step {
+    0%   { box-shadow: 0 8px 0 rgba(0,0,0,0), 0 8px 0 var(--border), -23px 33px 0 var(--border), -46px 60px 0 var(--border); }
+    100% { box-shadow: 0 8px 0 var(--border), -23px 33px 0 var(--border), -46px 60px 0 var(--border), -46px 60px 0 rgba(0,0,0,0); }
+  }
+
+  /* ── Star rating ── */
+  .rating-section {
+    margin-top: 1.2rem;
+    padding: 1rem 1.2rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    text-align: center;
+    background: var(--surface);
+  }
+  .rating-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.7rem;
+  }
+  .radio {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-direction: row-reverse;
+  }
+  .radio > input {
+    position: absolute;
+    appearance: none;
+  }
+  .radio > label {
+    cursor: pointer;
+    font-size: 30px;
+    position: relative;
+    display: inline-block;
+    transition: transform 0.3s ease;
+  }
+  .radio > label > svg { fill: #666; transition: fill 0.3s ease; }
+  /* Remove dots */
+  .radio > label::before, .radio > label::after { display: none; }
+  .radio > label:hover {
+    transform: scale(1.2);
+    animation: starPulse 0.6s infinite alternate;
+  }
+  .radio > label:hover > svg,
+  .radio > label:hover ~ label > svg {
+    fill: #ff9e0b;
+    filter: drop-shadow(0 0 15px rgba(255,158,11,0.9));
+    animation: shimmer 1s ease infinite alternate;
+  }
+  .radio > input:checked + label > svg,
+  .radio > input:checked + label ~ label > svg {
+    fill: #ff9e0b;
+    filter: drop-shadow(0 0 15px rgba(255,158,11,0.9));
+    animation: starPulse 0.8s infinite alternate;
+  }
+  .radio > input:checked + label:hover > svg,
+  .radio > input:checked + label:hover ~ label > svg { fill: #e58e09; }
+  .radio > label:hover > svg, .radio > label:hover ~ label > svg { fill: #ff9e0b; }
+  .radio input:checked ~ label svg { fill: #ffa723; }
+  @keyframes starPulse { 0%{transform:scale(1)} 100%{transform:scale(1.1)} }
+  @keyframes shimmer {
+    0%  { filter: drop-shadow(0 0 10px rgba(255,158,11,0.5)); }
+    100%{ filter: drop-shadow(0 0 20px rgba(255,158,11,1)); }
+  }
+  .rating-submit-btn {
+    margin-top: 0.8rem;
+    padding: 0.55rem 1.4rem;
+    background: transparent;
+    border: 1.5px solid var(--accent);
+    border-radius: 8px;
+    color: var(--accent);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .rating-submit-btn:hover:not(:disabled) {
+    background: var(--accent);
+    color: #000;
+  }
+  .rating-submit-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    border-color: var(--muted);
+    color: var(--muted);
+  }
+  .rating-thanks {
+    display: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    margin-top: 0.6rem;
+    letter-spacing: 0.05em;
+  }
+  .rating-thanks.show { display: block; }
+
+</style>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1496392952885490" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div id="splash">
+  <img src="/favicon.png" class="splash-logo" alt="logo">
+  <div class="splash-title">Paper<span>Finder</span></div>
+  <div class="splash-bar"></div>
+  <div class="splash-sub">Past Paper Retrieval</div>
+</div>
+
+<!-- \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 MAIN VIEW \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 -->
+<div id="view-wrapper">
+<div id="main-view" class="view">
+  <div class="container">
+    <header>
+      <div class="header-top-row">
+        <img src="/favicon.png" class="header-logo" alt="logo">
+        <p class="label-top">Past Paper Retrieval</p>
+
+        <label class="cosmic-toggle" title="Toggle light/dark mode">
+          <input type="checkbox" class="toggle" id="themeToggle" onchange="toggleTheme()">
+          <div class="slider">
+            <div class="cosmos"></div>
+            <div class="toggle-orb">
+              <div class="inner-orb"></div>
+              <div class="ring"></div>
+            </div>
+            <div class="energy-line"></div>
+            <div class="energy-line"></div>
+            <div class="energy-line"></div>
+            <div class="particles">
+              <div class="particle"></div>
+              <div class="particle"></div>
+              <div class="particle"></div>
+              <div class="particle"></div>
+              <div class="particle"></div>
+              <div class="particle"></div>
+            </div>
+          </div>
+        </label>
+      </div>
+      <div class="header-title-row">
+        <h1>Paper<span>Finder</span></h1>
+        <span class="header-byline">by Youssef Karim</span>
+      </div>
+      <p class="subtitle">Find and open CAIE &amp; AQA past paper PDFs instantly</p>
+    </header>
+
+    <div class="recent-box" id="recentBox">
+      <div class="recent-label" onclick="toggleRecent()" style="cursor:pointer; user-select:none;">
+        <span style="display:flex; align-items:center; gap:0.4rem;">
+          <span class="recent-chevron" id="recentChevron">▸</span>
+          <span>Recent Searches</span>
+        </span>
+        <button class="recent-clear" onclick="event.stopPropagation(); clearRecent()">Clear</button>
+      </div>
+      <div class="recent-list" id="recentList" style="display:none;"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-glow"></div>
+      <div class="field-group">
+
+        <div class="field">
+          <label>Exam Board</label>
+          <div class="board-btn-row">
+            <div class="board-btn-wrap" id="boardWrap-CAIE">
+              <div class="bbn-dark"></div>
+              <div class="bbn-border"></div>
+              <div class="bbn-glow"></div>
+              <button type="button" class="board-btn" id="boardBtn-CAIE" onclick="selectBoard('CAIE')">CAIE</button>
+            </div>
+            <div class="board-btn-wrap" id="boardWrap-AQA">
+              <div class="bbn-dark"></div>
+              <div class="bbn-border"></div>
+              <div class="bbn-glow"></div>
+              <button type="button" class="board-btn aqa" id="boardBtn-AQA" onclick="selectBoard('AQA')">AQA</button>
+            </div>
+          </div>
+          <!-- hidden input keeps the rest of the JS working unchanged -->
+          <input type="hidden" id="board" value="">
+        </div>
+
+        <div class="field" style="position:relative">
+          <label>Subject Code</label>
+          <div class="fav-wrap">
+            <input type="text" id="code" placeholder="Select exam board first" maxlength="4" inputmode="numeric" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="onCodeInput()" onkeydown="onCodeKeydown(event)" onblur="hideSuggestions(event)" onfocus="openFavDropdown()" disabled style="padding-right:2.2rem" />
+            <button class="fav-btn" id="favStarBtn" onclick="toggleFavourite()" title="Add to favourites">&#9733;</button>
+            <div class="fav-dropdown" id="favDropdown"></div>
+          </div>
+          <div class="subject-name-tag" id="subjectNameTag"></div>
+          <div class="did-you-mean" id="didYouMeanTag" style="display:none"></div>
+          <button class="find-code-btn-below" onclick="showCodes()">Don't know your code? Browse all subjects →</button>
+          <div class="code-suggestions" id="codeSuggestions"></div>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label>Session</label>
+            <select id="session" onchange="onSessionChange()">
+              <option value="">— Select —</option>
+            </select>
+          </div>
+          <div class="field" id="yearField">
+            <label>Year</label>
+            <select id="yearSelect" onchange="onYearSelectChange()"><option value="">— Select Year —</option></select>
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label>Paper Type</label>
+            <select id="papertype" onchange="onPapertypeChange()">
+              <option value="">— Select —</option>
+              <option value="qp">Question Paper (QP)</option>
+              <option value="ms">Mark Scheme (MS)</option>
+              <option value="gt">Grade Thresholds (GT)</option>
+              <option value="gb">Grade Boundaries (GB)</option>
+              <option value="er">Examiner Report (ER)</option>
+              <option value="ci">Confidential Instructions (CI)</option>
+            </select>
+          </div>
+          <div class="field" id="variantField">
+            <label>Variant</label>
+            <input type="text" id="variant" placeholder="e.g. 31" maxlength="2" inputmode="numeric" oninput="numericOnly(this)" style="display:none" />
+            <select id="variantSelect" onchange="clearFieldErrors()"><option value="">— Select —</option></select>
+          </div>
+        </div>
+        <div class="manual-override-row">
+          <button type="button" class="btn-manual-toggle" id="manualToggle" onclick="toggleManualMode()">✎ Enter manually</button>
+          <span class="manual-hint" id="manualHint" style="display:none">Manual mode — type any values</span>
+        </div>
+
+      </div>
+
+      <div class="divider"></div>
+
+      <div id="wifi-loader">
+        <svg class="circle-outer"><circle class="back" cx="43" cy="43" r="40"></circle><circle class="front" cx="43" cy="43" r="40"></circle></svg>
+        <svg class="circle-middle"><circle class="back" cx="30" cy="30" r="27"></circle><circle class="front" cx="30" cy="30" r="27"></circle></svg>
+        <svg class="circle-inner"><circle class="back" cx="17" cy="17" r="14"></circle><circle class="front" cx="17" cy="17" r="14"></circle></svg>
+        <div class="text" data-text="Checking..."></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-generate" onclick="generate()" id="generateBtn">
+          <svg class="arr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"/></svg>
+          <svg class="btn-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"/></svg>
+          <span class="btn-text">Generate Link</span>
+          <div class="circle"></div>
+          <svg class="arr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.1716 10.9999L10.8076 5.63589L12.2218 4.22168L20 11.9999L12.2218 19.778L10.8076 18.3638L16.1716 12.9999H4V10.9999H16.1716Z"/></svg>
+        </button>
+        <button class="btn-reset" onclick="resetForm()" title="Clear all fields"><span class="reset-icon">↺</span> Reset</button>
+      </div>
+
+      <div class="error-msg" id="errorMsg"></div>
+
+      <div class="result-box" id="resultBox">
+        <p class="result-label">✓ URL Generated</p>
+        <p class="result-url" id="resultUrl"></p>
+        <div class="dl-loader" id="dlLoader"></div>
+        <div class="result-actions">
+          <button class="btn-open" onclick="openUrl()">Open in Browser</button>
+          <button class="btn-copy" onclick="copyUrl()">Copy URL</button>
+          <button class="btn-download" onclick="downloadUrl()">&#8659; Download</button>
+          <button class="btn-share" onclick="shareUrl()" id="shareBtn">&#8679; Share</button>
+          <button class="btn-view-chat" onclick="openViewer()">&#127381; Open with PastPaperAI</button>
+        </div>
+      </div>
+    </div>
+      <a href="/leaderboard.html" class="lb-link-btn">🏆 Leaderboard</a>
+      <p class="made-by">MADE BY YOUSSEF KARIM</p>
+      <div class="contact-section">
+        <p class="contact-label">Contact</p>
+        <p class="contact-name">Youssef Karim</p>
+        <a class="contact-email" href="mailto:youssef.masoud@outlook.com">youssef.masoud@outlook.com</a>
+      </div>
+
+      <div class="rating-section">
+        <p class="rating-label">Rate this app</p>
+        <div class="radio">
+          <input type="radio" name="rating" id="s5" value="5">
+          <label for="s5"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></label>
+          <input type="radio" name="rating" id="s4" value="4">
+          <label for="s4"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></label>
+          <input type="radio" name="rating" id="s3" value="3">
+          <label for="s3"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></label>
+          <input type="radio" name="rating" id="s2" value="2">
+          <label for="s2"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></label>
+          <input type="radio" name="rating" id="s1" value="1">
+          <label for="s1"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></label>
+        </div>
+        <button class="rating-submit-btn" id="ratingSubmitBtn" onclick="submitRating()">Submit Rating</button>
+        <p class="rating-thanks" id="ratingThanks">Thanks for your feedback!</p>
+      </div>
+      <p class="version-tag">Version 18.0</p>
+      <p class="version-tag">‎</p>
+      <p class="version-tag">‎</p>
+      <p class="version-tag">‎</p>
+      <p class="version-tag">‎</p>
+      <p class="version-tag">‎</p>
+      <p class="version-tag">‎</p>
+      <p class="version-tag">‎</p>
+      <p class="version-tag">‎</p>
+      <p class="version-tag">‎</p>
+      <p class="version-tag">‎</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 CODES VIEW \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 -->
+<div id="codes-view" class="view view-hidden">
+  <div class="top-bar">
+    <button class="back-btn" onclick="showMain()">← Back</button>
+    <h2 class="page-title">Subject <span>Codes</span></h2>
+  </div>
+
+  <div class="search-wrap">
+    <div class="search-dark-border"></div>
+    <div class="search-border"></div>
+    <div class="search-glow"></div>
+    <input class="search-input" type="text" id="searchBox" placeholder="Search by subject name or code..." oninput="filterCodes()" />
+  </div>
+
+  <div class="codes-grid">
+
+    <!-- CAIE -->
+    <div class="codes-section caie-sec">
+      <div class="sec-header">
+        <div class="sec-title">CAIE — Cambridge</div>
+      </div>
+
+      <div class="cat-label">IGCSE</div>
+      <table class="code-table">
+        <tr onclick="useCode('0262')"><td class="c-code">0262</td><td class="c-name">Swahili</td></tr>
+        <tr onclick="useCode('0400')"><td class="c-code">0400</td><td class="c-name">Art & Design</td></tr>
+        <tr onclick="useCode('0408')"><td class="c-code">0408</td><td class="c-name">World Literature</td></tr>
+        <tr onclick="useCode('0409')"><td class="c-code">0409</td><td class="c-name">History - American</td></tr>
+        <tr onclick="useCode('0410')"><td class="c-code">0410</td><td class="c-name">Music</td></tr>
+        <tr onclick="useCode('0411')"><td class="c-code">0411</td><td class="c-name">Drama</td></tr>
+        <tr onclick="useCode('0413')"><td class="c-code">0413</td><td class="c-name">Physical Education</td></tr>
+        <tr onclick="useCode('0415')"><td class="c-code">0415</td><td class="c-name">Art & Design</td></tr>
+        <tr onclick="useCode('0416')"><td class="c-code">0416</td><td class="c-name">History</td></tr>
+        <tr onclick="useCode('0417')"><td class="c-code">0417</td><td class="c-name">ICT</td></tr>
+        <tr onclick="useCode('0420')"><td class="c-code">0420</td><td class="c-name">Computer Studies</td></tr>
+        <tr onclick="useCode('0426')"><td class="c-code">0426</td><td class="c-name">Global Perspectives</td></tr>
+        <tr onclick="useCode('0427')"><td class="c-code">0427</td><td class="c-name">English</td></tr>
+        <tr onclick="useCode('0428')"><td class="c-code">0428</td><td class="c-name">Drama</td></tr>
+        <tr onclick="useCode('0429')"><td class="c-code">0429</td><td class="c-name">Music</td></tr>
+        <tr onclick="useCode('0437')"><td class="c-code">0437</td><td class="c-name">Economics</td></tr>
+        <tr onclick="useCode('0438')"><td class="c-code">0438</td><td class="c-name">Biology</td></tr>
+        <tr onclick="useCode('0439')"><td class="c-code">0439</td><td class="c-name">Chemistry</td></tr>
+        <tr onclick="useCode('0441')"><td class="c-code">0441</td><td class="c-name">Computer Studies</td></tr>
+        <tr onclick="useCode('0442')"><td class="c-code">0442</td><td class="c-name">Sciences</td></tr>
+        <tr onclick="useCode('0443')"><td class="c-code">0443</td><td class="c-name">Physics</td></tr>
+        <tr onclick="useCode('0444')"><td class="c-code">0444</td><td class="c-name">Mathematics</td></tr>
+        <tr onclick="useCode('0445')"><td class="c-code">0445</td><td class="c-name">Design & Technology</td></tr>
+        <tr onclick="useCode('0447')"><td class="c-code">0447</td><td class="c-name">India Studies</td></tr>
+        <tr onclick="useCode('0448')"><td class="c-code">0448</td><td class="c-name">Pakistan Studies</td></tr>
+        <tr onclick="useCode('0449')"><td class="c-code">0449</td><td class="c-name">Bangladesh Studies</td></tr>
+        <tr onclick="useCode('0450')"><td class="c-code">0450</td><td class="c-name">Business Studies</td></tr>
+        <tr onclick="useCode('0452')"><td class="c-code">0452</td><td class="c-name">Accounting</td></tr>
+        <tr onclick="useCode('0453')"><td class="c-code">0453</td><td class="c-name">Development Studies</td></tr>
+        <tr onclick="useCode('0454')"><td class="c-code">0454</td><td class="c-name">Enterprise</td></tr>
+        <tr onclick="useCode('0455')"><td class="c-code">0455</td><td class="c-name">Economics</td></tr>
+        <tr onclick="useCode('0457')"><td class="c-code">0457</td><td class="c-name">Global Perspectives</td></tr>
+        <tr onclick="useCode('0459')"><td class="c-code">0459</td><td class="c-name">Mathematics</td></tr>
+        <tr onclick="useCode('0460')"><td class="c-code">0460</td><td class="c-name">Geography</td></tr>
+        <tr onclick="useCode('0465')"><td class="c-code">0465</td><td class="c-name">English as a Second Language</td></tr>
+        <tr onclick="useCode('0470')"><td class="c-code">0470</td><td class="c-name">History</td></tr>
+        <tr onclick="useCode('0471')"><td class="c-code">0471</td><td class="c-name">Travel & Tourism</td></tr>
+        <tr onclick="useCode('0472')"><td class="c-code">0472</td><td class="c-name">Religious Studies</td></tr>
+        <tr onclick="useCode('0474')"><td class="c-code">0474</td><td class="c-name">Spanish</td></tr>
+        <tr onclick="useCode('0475')"><td class="c-code">0475</td><td class="c-name">First Language English</td></tr>
+        <tr onclick="useCode('0476')"><td class="c-code">0476</td><td class="c-name">English Literature</td></tr>
+        <tr onclick="useCode('0477')"><td class="c-code">0477</td><td class="c-name">English Literature</td></tr>
+        <tr onclick="useCode('0478')"><td class="c-code">0478</td><td class="c-name">Computer Science</td></tr>
+        <tr onclick="useCode('0480')"><td class="c-code">0480</td><td class="c-name">Latin</td></tr>
+        <tr onclick="useCode('0486')"><td class="c-code">0486</td><td class="c-name">English</td></tr>
+        <tr onclick="useCode('0488')"><td class="c-code">0488</td><td class="c-name">Spanish Literature</td></tr>
+        <tr onclick="useCode('0490')"><td class="c-code">0490</td><td class="c-name">Religious Studies</td></tr>
+        <tr onclick="useCode('0493')"><td class="c-code">0493</td><td class="c-name">Islamiyat</td></tr>
+        <tr onclick="useCode('0495')"><td class="c-code">0495</td><td class="c-name">Sociology</td></tr>
+        <tr onclick="useCode('0499')"><td class="c-code">0499</td><td class="c-name">Sanskrit</td></tr>
+        <tr onclick="useCode('0500')"><td class="c-code">0500</td><td class="c-name">First Language English</td></tr>
+        <tr onclick="useCode('0501')"><td class="c-code">0501</td><td class="c-name">First Language French</td></tr>
+        <tr onclick="useCode('0502')"><td class="c-code">0502</td><td class="c-name">First Language Spanish</td></tr>
+        <tr onclick="useCode('0503')"><td class="c-code">0503</td><td class="c-name">Dutch</td></tr>
+        <tr onclick="useCode('0504')"><td class="c-code">0504</td><td class="c-name">Portuguese</td></tr>
+        <tr onclick="useCode('0505')"><td class="c-code">0505</td><td class="c-name">German</td></tr>
+        <tr onclick="useCode('0507')"><td class="c-code">0507</td><td class="c-name">Japanese</td></tr>
+        <tr onclick="useCode('0508')"><td class="c-code">0508</td><td class="c-name">Arabic</td></tr>
+        <tr onclick="useCode('0509')"><td class="c-code">0509</td><td class="c-name">First Language Chinese</td></tr>
+        <tr onclick="useCode('0510')"><td class="c-code">0510</td><td class="c-name">English as a Second Language (Speaking Endorsement)</td></tr>
+        <tr onclick="useCode('0511')"><td class="c-code">0511</td><td class="c-name">English as a Second Language (Count-in Speaking)</td></tr>
+        <tr onclick="useCode('0512')"><td class="c-code">0512</td><td class="c-name">Afrikaans</td></tr>
+        <tr onclick="useCode('0513')"><td class="c-code">0513</td><td class="c-name">Turkish</td></tr>
+        <tr onclick="useCode('0514')"><td class="c-code">0514</td><td class="c-name">Czech - First Language</td></tr>
+        <tr onclick="useCode('0515')"><td class="c-code">0515</td><td class="c-name">Dutch</td></tr>
+        <tr onclick="useCode('0516')"><td class="c-code">0516</td><td class="c-name">Russian</td></tr>
+        <tr onclick="useCode('0518')"><td class="c-code">0518</td><td class="c-name">Thai</td></tr>
+        <tr onclick="useCode('0519')"><td class="c-code">0519</td><td class="c-name">Japanese</td></tr>
+        <tr onclick="useCode('0520')"><td class="c-code">0520</td><td class="c-name">French</td></tr>
+        <tr onclick="useCode('0521')"><td class="c-code">0521</td><td class="c-name">Korean</td></tr>
+        <tr onclick="useCode('0522')"><td class="c-code">0522</td><td class="c-name">English</td></tr>
+        <tr onclick="useCode('0523')"><td class="c-code">0523</td><td class="c-name">Chinese</td></tr>
+        <tr onclick="useCode('0524')"><td class="c-code">0524</td><td class="c-name">English</td></tr>
+        <tr onclick="useCode('0525')"><td class="c-code">0525</td><td class="c-name">German</td></tr>
+        <tr onclick="useCode('0526')"><td class="c-code">0526</td><td class="c-name">English</td></tr>
+        <tr onclick="useCode('0527')"><td class="c-code">0527</td><td class="c-name">Arabic</td></tr>
+        <tr onclick="useCode('0528')"><td class="c-code">0528</td><td class="c-name">French</td></tr>
+        <tr onclick="useCode('0529')"><td class="c-code">0529</td><td class="c-name">German</td></tr>
+        <tr onclick="useCode('0530')"><td class="c-code">0530</td><td class="c-name">Spanish</td></tr>
+        <tr onclick="useCode('0531')"><td class="c-code">0531</td><td class="c-name">IsiZulu</td></tr>
+        <tr onclick="useCode('0532')"><td class="c-code">0532</td><td class="c-name">Kazakh</td></tr>
+        <tr onclick="useCode('0533')"><td class="c-code">0533</td><td class="c-name">Spanish</td></tr>
+        <tr onclick="useCode('0534')"><td class="c-code">0534</td><td class="c-name">Chinese</td></tr>
+        <tr onclick="useCode('0535')"><td class="c-code">0535</td><td class="c-name">Italian</td></tr>
+        <tr onclick="useCode('0536')"><td class="c-code">0536</td><td class="c-name">Greek</td></tr>
+        <tr onclick="useCode('0537')"><td class="c-code">0537</td><td class="c-name">Spanish</td></tr>
+        <tr onclick="useCode('0538')"><td class="c-code">0538</td><td class="c-name">Bahasa Indonesia</td></tr>
+        <tr onclick="useCode('0539')"><td class="c-code">0539</td><td class="c-name">Urdu</td></tr>
+        <tr onclick="useCode('0540')"><td class="c-code">0540</td><td class="c-name">Portuguese</td></tr>
+        <tr onclick="useCode('0543')"><td class="c-code">0543</td><td class="c-name">First Language Turkish</td></tr>
+        <tr onclick="useCode('0544')"><td class="c-code">0544</td><td class="c-name">Arabic</td></tr>
+        <tr onclick="useCode('0545')"><td class="c-code">0545</td><td class="c-name">Indonesian</td></tr>
+        <tr onclick="useCode('0546')"><td class="c-code">0546</td><td class="c-name">Malay</td></tr>
+        <tr onclick="useCode('0547')"><td class="c-code">0547</td><td class="c-name">Mandarin Chinese</td></tr>
+        <tr onclick="useCode('0548')"><td class="c-code">0548</td><td class="c-name">Afrikaans</td></tr>
+        <tr onclick="useCode('0549')"><td class="c-code">0549</td><td class="c-name">Hindi</td></tr>
+        <tr onclick="useCode('0580')"><td class="c-code">0580</td><td class="c-name">Mathematics</td></tr>
+        <tr onclick="useCode('0581')"><td class="c-code">0581</td><td class="c-name">Mathematics</td></tr>
+        <tr onclick="useCode('0600')"><td class="c-code">0600</td><td class="c-name">Agriculture</td></tr>
+        <tr onclick="useCode('0606')"><td class="c-code">0606</td><td class="c-name">Additional Mathematics</td></tr>
+        <tr onclick="useCode('0607')"><td class="c-code">0607</td><td class="c-name">Cambridge International Mathematics</td></tr>
+        <tr onclick="useCode('0608')"><td class="c-code">0608</td><td class="c-name">Twenty-First Century Science</td></tr>
+        <tr onclick="useCode('0610')"><td class="c-code">0610</td><td class="c-name">Biology</td></tr>
+        <tr onclick="useCode('0620')"><td class="c-code">0620</td><td class="c-name">Chemistry</td></tr>
+        <tr onclick="useCode('0625')"><td class="c-code">0625</td><td class="c-name">Physics</td></tr>
+        <tr onclick="useCode('0626')"><td class="c-code">0626</td><td class="c-name">Mathematics</td></tr>
+        <tr onclick="useCode('0627')"><td class="c-code">0627</td><td class="c-name">English</td></tr>
+        <tr onclick="useCode('0637')"><td class="c-code">0637</td><td class="c-name">Child Development</td></tr>
+        <tr onclick="useCode('0648')"><td class="c-code">0648</td><td class="c-name">Food & Nutrition</td></tr>
+        <tr onclick="useCode('0652')"><td class="c-code">0652</td><td class="c-name">Physical Science</td></tr>
+        <tr onclick="useCode('0653')"><td class="c-code">0653</td><td class="c-name">Combined Science</td></tr>
+        <tr onclick="useCode('0654')"><td class="c-code">0654</td><td class="c-name">Co-ordinated Sciences</td></tr>
+        <tr onclick="useCode('0678')"><td class="c-code">0678</td><td class="c-name">Spanish</td></tr>
+        <tr onclick="useCode('0680')"><td class="c-code">0680</td><td class="c-name">Environmental Management</td></tr>
+        <tr onclick="useCode('0695')"><td class="c-code">0695</td><td class="c-name">Vietnamese - First Language</td></tr>
+        <tr onclick="useCode('0696')"><td class="c-code">0696</td><td class="c-name">Malay - First Language</td></tr>
+        <tr onclick="useCode('0697')"><td class="c-code">0697</td><td class="c-name">Marine Science</td></tr>
+        <tr onclick="useCode('0698')"><td class="c-code">0698</td><td class="c-name">Setswana - First Language</td></tr>
+        <tr onclick="useCode('0985')"><td class="c-code">0985</td><td class="c-name">Accounting</td></tr>
+      </table>
+
+      <div class="cat-label">O Level</div>
+      <table class="code-table">
+        <tr onclick="useCode('2010')"><td class="c-code">2010</td><td class="c-name">Literature in English</td></tr>
+        <tr onclick="useCode('2058')"><td class="c-code">2058</td><td class="c-name">Islamiyat</td></tr>
+        <tr onclick="useCode('2069')"><td class="c-code">2069</td><td class="c-name">Global Perspectives</td></tr>
+        <tr onclick="useCode('2251')"><td class="c-code">2251</td><td class="c-name">Sociology</td></tr>
+        <tr onclick="useCode('2281')"><td class="c-code">2281</td><td class="c-name">Economics</td></tr>
+        <tr onclick="useCode('4024')"><td class="c-code">4024</td><td class="c-name">Mathematics Syllabus D</td></tr>
+        <tr onclick="useCode('4037')"><td class="c-code">4037</td><td class="c-name">Additional Mathematics</td></tr>
+        <tr onclick="useCode('5014')"><td class="c-code">5014</td><td class="c-name">Environmental Management</td></tr>
+        <tr onclick="useCode('5054')"><td class="c-code">5054</td><td class="c-name">Physics</td></tr>
+        <tr onclick="useCode('5070')"><td class="c-code">5070</td><td class="c-name">Chemistry</td></tr>
+        <tr onclick="useCode('5090')"><td class="c-code">5090</td><td class="c-name">Biology</td></tr>
+        <tr onclick="useCode('6065')"><td class="c-code">6065</td><td class="c-name">Food &amp; Nutrition</td></tr>
+        <tr onclick="useCode('7100')"><td class="c-code">7100</td><td class="c-name">Commerce</td></tr>
+        <tr onclick="useCode('7115')"><td class="c-code">7115</td><td class="c-name">Business Studies</td></tr>
+      </table>
+
+      <div class="cat-label">AS Level</div>
+      <table class="code-table">
+        <tr onclick="useCode('8291')"><td class="c-code">8291</td><td class="c-name">Environmental Management</td></tr>
+        <tr onclick="useCode('8695')"><td class="c-code">8695</td><td class="c-name">Language &amp; Literature in English</td></tr>
+      </table>
+
+      <div class="cat-label">A Level</div>
+      <table class="code-table">
+        <tr onclick="useCode('9084')"><td class="c-code">9084</td><td class="c-name">Law</td></tr>
+        <tr onclick="useCode('9184')"><td class="c-code">9184</td><td class="c-name">Biology (for first examination 2025)</td></tr>
+        <tr onclick="useCode('9185')"><td class="c-code">9185</td><td class="c-name">Chemistry (for first examination 2025)</td></tr>
+        <tr onclick="useCode('9274')"><td class="c-code">9274</td><td class="c-name">Classical Studies</td></tr>
+        <tr onclick="useCode('9276')"><td class="c-code">9276</td><td class="c-name">Classical Greek</td></tr>
+        <tr onclick="useCode()"><td class="c-code">9278</td><td class="c-name">English Language (for first examination 2025)</td></tr>
+        <tr onclick="useCode('9279')"><td class="c-code">9279</td><td class="c-name">English Literature (for first examination 2025)</td></tr>
+        <tr onclick="useCode('9280')"><td class="c-code">9280</td><td class="c-name">English Language &amp; Literature</td></tr>
+        <tr onclick="useCode()"><td class="c-code">9281</td><td class="c-name">Mathematics (for first examination 2025)</td></tr>
+        <tr onclick="useCode()"><td class="c-code">9282</td><td class="c-name">Spanish</td></tr>
+        <tr onclick="useCode('9336')"><td class="c-code">9336</td><td class="c-name">Music</td></tr>
+        <tr onclick="useCode()"><td class="c-code">9385</td><td class="c-name">Music</td></tr>
+        <tr onclick="useCode('9389')"><td class="c-code">9389</td><td class="c-name">History</td></tr>
+        <tr onclick="useCode('9396')"><td class="c-code">9396</td><td class="c-name">Physical Education</td></tr>
+        <tr onclick="useCode('9479')"><td class="c-code">9479</td><td class="c-name">Art &amp; Design</td></tr>
+        <tr onclick="useCode('9481')"><td class="c-code">9481</td><td class="c-name">Design &amp; Technology</td></tr>
+        <tr onclick="useCode('9482')"><td class="c-code">9482</td><td class="c-name">Design &amp; Technology (for first examination 2025)</td></tr>
+        <tr onclick="useCode('9483')"><td class="c-code">9483</td><td class="c-name">Music</td></tr>
+        <tr onclick="useCode('9484')"><td class="c-code">9484</td><td class="c-name">Biblical Studies</td></tr>
+        <tr onclick="useCode('9487')"><td class="c-code">9487</td><td class="c-name">Physical Education (for first examination 2025)</td></tr>
+        <tr onclick="useCode('9488')"><td class="c-code">9488</td><td class="c-name">Global Perspectives &amp; Research (for first examination 2025)</td></tr>
+        <tr onclick="useCode('9489')"><td class="c-code">9489</td><td class="c-name">Travel &amp; Tourism (for first examination 2025)</td></tr>
+        <tr onclick="useCode('9608')"><td class="c-code">9608</td><td class="c-name">Computer Science</td></tr>
+        <tr onclick="useCode('9618')"><td class="c-code">9618</td><td class="c-name">Computer Science (for first examination 2021)</td></tr>
+        <tr onclick="useCode('9631')"><td class="c-code">9631</td><td class="c-name">Design &amp; Textiles</td></tr>
+        <tr onclick="useCode('9676')"><td class="c-code">9676</td><td class="c-name">Urdu</td></tr>
+        <tr onclick="useCode('9679')"><td class="c-code">9679</td><td class="c-name">Afrikaans</td></tr>
+        <tr onclick="useCode('9680')"><td class="c-code">9680</td><td class="c-name">Arabic</td></tr>
+        <tr onclick="useCode('9686')"><td class="c-code">9686</td><td class="c-name">Urdu</td></tr>
+        <tr onclick="useCode('9687')"><td class="c-code">9687</td><td class="c-name">Bengali</td></tr>
+        <tr onclick="useCode('9688')"><td class="c-code">9688</td><td class="c-name">Marathi</td></tr>
+        <tr onclick="useCode('9689')"><td class="c-code">9689</td><td class="c-name">Tamil</td></tr>
+        <tr onclick="useCode('9690')"><td class="c-code">9690</td><td class="c-name">Telugu</td></tr>
+        <tr onclick="useCode('9691')"><td class="c-code">9691</td><td class="c-name">Computing</td></tr>
+        <tr onclick="useCode('9697')"><td class="c-code">9697</td><td class="c-name">Global Skills Projects</td></tr>
+        <tr onclick="useCode('9698')"><td class="c-code">9698</td><td class="c-name">Psychology</td></tr>
+        <tr onclick="useCode('9703')"><td class="c-code">9703</td><td class="c-name">Music</td></tr>
+        <tr onclick="useCode('9704')"><td class="c-code">9704</td><td class="c-name">Art &amp; Design</td></tr>
+        <tr onclick="useCode('9705')"><td class="c-code">9705</td><td class="c-name">Design &amp; Technology</td></tr>
+        <tr onclick="useCode('9707')"><td class="c-code">9707</td><td class="c-name">Business Studies</td></tr>
+        <tr onclick="useCode('9713')"><td class="c-code">9713</td><td class="c-name">Applied ICT</td></tr>
+        <tr onclick="useCode('9715')"><td class="c-code">9715</td><td class="c-name">Chinese</td></tr>
+        <tr onclick="useCode('9716')"><td class="c-code">9716</td><td class="c-name">Chinese Language &amp; Literature</td></tr>
+        <tr onclick="useCode('9717')"><td class="c-code">9717</td><td class="c-name">French</td></tr>
+        <tr onclick="useCode('9718')"><td class="c-code">9718</td><td class="c-name">Portuguese</td></tr>
+        <tr onclick="useCode('9719')"><td class="c-code">9719</td><td class="c-name">Spanish</td></tr>
+        <tr onclick="useCode('9844')"><td class="c-code">9844</td><td class="c-name">Spanish Language &amp; Literature</td></tr>
+        <tr onclick="useCode('9868')"><td class="c-code">9868</td><td class="c-name">Chinese Language &amp; Literature</td></tr>
+        <tr onclick="useCode('9980')"><td class="c-code">9980</td><td class="c-name">Cambridge International Project Qualification</td></tr>
+        <tr onclick="useCode('9093')"><td class="c-code">9093</td><td class="c-name">English Language</td></tr>
+        <tr onclick="useCode('9231')"><td class="c-code">9231</td><td class="c-name">Further Mathematics</td></tr>
+        <tr onclick="useCode('9239')"><td class="c-code">9239</td><td class="c-name">Global Perspectives &amp; Research</td></tr>
+        <tr onclick="useCode('9395')"><td class="c-code">9395</td><td class="c-name">Travel &amp; Tourism</td></tr>
+        <tr onclick="useCode('9607')"><td class="c-code">9607</td><td class="c-name">Media Studies</td></tr>
+        <tr onclick="useCode('9609')"><td class="c-code">9609</td><td class="c-name">Business</td></tr>
+        <tr onclick="useCode('9626')"><td class="c-code">9626</td><td class="c-name">Information Technology</td></tr>
+        <tr onclick="useCode('9693')"><td class="c-code">9693</td><td class="c-name">Marine Science</td></tr>
+        <tr onclick="useCode('9694')"><td class="c-code">9694</td><td class="c-name">Thinking Skills</td></tr>
+        <tr onclick="useCode('9695')"><td class="c-code">9695</td><td class="c-name">Literature in English</td></tr>
+        <tr onclick="useCode('9696')"><td class="c-code">9696</td><td class="c-name">Geography</td></tr>
+        <tr onclick="useCode('9699')"><td class="c-code">9699</td><td class="c-name">Sociology</td></tr>
+        <tr onclick="useCode('9700')"><td class="c-code">9700</td><td class="c-name">Biology</td></tr>
+        <tr onclick="useCode('9701')"><td class="c-code">9701</td><td class="c-name">Chemistry</td></tr>
+        <tr onclick="useCode('9702')"><td class="c-code">9702</td><td class="c-name">Physics</td></tr>
+        <tr onclick="useCode('9706')"><td class="c-code">9706</td><td class="c-name">Accounting</td></tr>
+        <tr onclick="useCode('9708')"><td class="c-code">9708</td><td class="c-name">Economics</td></tr>
+        <tr onclick="useCode('9709')"><td class="c-code">9709</td><td class="c-name">Mathematics</td></tr>
+        <tr onclick="useCode('9990')"><td class="c-code">9990</td><td class="c-name">Psychology</td></tr>
+      </table>
+    </div>
+
+    <!-- AQA -->
+    <div class="codes-section aqa-sec">
+      <div class="sec-header">
+        <div class="sec-title">AQA — Oxford (OxfordAQA)</div>
+      </div>
+
+      <div class="cat-label">International GCSE</div>
+      <table class="code-table">
+        <tr onclick="useCode('9201')"><td class="c-code">9201</td><td class="c-name">Biology</td></tr>
+        <tr onclick="useCode('9202')"><td class="c-code">9202</td><td class="c-name">Chemistry</td></tr>
+        <tr onclick="useCode('9203')"><td class="c-code">9203</td><td class="c-name">Physics</td></tr>
+        <tr onclick="useCode('9204')"><td class="c-code">9204</td><td class="c-name">Combined Science Double Award</td></tr>
+        <tr onclick="useCode('9210')"><td class="c-code">9210</td><td class="c-name">Computer Science</td></tr>
+        <tr onclick="useCode('9214')"><td class="c-code">9214</td><td class="c-name">Economics</td></tr>
+        <tr onclick="useCode('9215')"><td class="c-code">9215</td><td class="c-name">Accounting</td></tr>
+        <tr onclick="useCode('9218')"><td class="c-code">9218</td><td class="c-name">Psychology</td></tr>
+        <tr onclick="useCode('9221')"><td class="c-code">9221</td><td class="c-name">CORE Biology (Short Course)</td></tr>
+        <tr onclick="useCode('9222')"><td class="c-code">9222</td><td class="c-name">CORE Chemistry (Short Course)</td></tr>
+        <tr onclick="useCode('9223')"><td class="c-code">9223</td><td class="c-name">CORE Physics (Short Course)</td></tr>
+        <tr onclick="useCode('9225')"><td class="c-code">9225</td><td class="c-name">Business</td></tr>
+        <tr onclick="useCode('9230')"><td class="c-code">9230</td><td class="c-name">Geography</td></tr>
+        <tr onclick="useCode('9236')"><td class="c-code">9236</td><td class="c-name">Pakistan Studies</td></tr>
+        <tr onclick="useCode('9237')"><td class="c-code">9237</td><td class="c-name">Islamiat</td></tr>
+        <tr onclick="useCode('9252')"><td class="c-code">9252</td><td class="c-name">Design &amp; Technology: Product Design</td></tr>
+        <tr onclick="useCode('9257')"><td class="c-code">9257</td><td class="c-name">Media Studies</td></tr>
+        <tr onclick="useCode('9260')"><td class="c-code">9260</td><td class="c-name">Mathematics</td></tr>
+        <tr onclick="useCode('9264')"><td class="c-code">9264</td><td class="c-name">Urdu</td></tr>
+        <tr onclick="useCode('9265')"><td class="c-code">9265</td><td class="c-name">French</td></tr>
+        <tr onclick="useCode('9269')"><td class="c-code">9269</td><td class="c-name">Spanish</td></tr>
+        <tr onclick="useCode('9270')"><td class="c-code">9270</td><td class="c-name">English Language</td></tr>
+        <tr onclick="useCode('9275')"><td class="c-code">9275</td><td class="c-name">English Literature</td></tr>
+        <tr onclick="useCode('9280')"><td class="c-code">9280</td><td class="c-name">English as a Second Language</td></tr>
+        <tr onclick="useCode('9285')"><td class="c-code">9285</td><td class="c-name">CORE English as a Second Language (Short Course)</td></tr>
+        <tr onclick="useCode('9697')"><td class="c-code">9697</td><td class="c-name">Global Skills Projects</td></tr>
+      </table>
+
+      <div class="cat-label">International AS &amp; A Level</div>
+      <table class="code-table">
+        <tr onclick="useCode('9610')"><td class="c-code">9610</td><td class="c-name">Biology</td></tr>
+        <tr onclick="useCode('9615')"><td class="c-code">9615</td><td class="c-name">Accounting</td></tr>
+        <tr onclick="useCode('9620')"><td class="c-code">9620</td><td class="c-name">Chemistry</td></tr>
+        <tr onclick="useCode('9625')"><td class="c-code">9625</td><td class="c-name">Business</td></tr>
+        <tr onclick="useCode('9630')"><td class="c-code">9630</td><td class="c-name">Physics</td></tr>
+        <tr onclick="useCode('9635')"><td class="c-code">9635</td><td class="c-name">Geography</td></tr>
+        <tr onclick="useCode('9640')"><td class="c-code">9640</td><td class="c-name">Economics</td></tr>
+        <tr onclick="useCode('9645')"><td class="c-code">9645</td><td class="c-name">Computer Science</td></tr>
+        <tr onclick="useCode('9660')"><td class="c-code">9660</td><td class="c-name">Mathematics</td></tr>
+        <tr onclick="useCode('9665')"><td class="c-code">9665</td><td class="c-name">Further Mathematics</td></tr>
+        <tr onclick="useCode('9670')"><td class="c-code">9670</td><td class="c-name">English Language</td></tr>
+        <tr onclick="useCode('9675')"><td class="c-code">9675</td><td class="c-name">English Literature</td></tr>
+        <tr onclick="useCode('9685')"><td class="c-code">9685</td><td class="c-name">Psychology</td></tr>
+      </table>
+    </div>
+
+  </div>
+
+
+</div><!-- /#view-wrapper -->
+
+<script>
+  // Always start at top
+  if (history.scrollRestoration) history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
+
+  let generatedUrl = '';
+  let recentOpen = false;
+
+  // ── Startup splash ──
+  (function() {
+    // Skip splash when returning from codes page
+    if (sessionStorage.getItem('fromCodes')) {
+      const splash = document.getElementById('splash');
+      if (splash) splash.remove();
+      const container = document.querySelector('.container');
+      if (container) { container.style.opacity = '1'; container.style.transform = 'none'; }
+      return;
     }
+    const splash      = document.getElementById('splash');
+    const splashTitle = splash.querySelector('.splash-title');
+    const splashLogo  = splash.querySelector('.splash-logo');
+    const container   = document.querySelector('.container');
+    const h1          = document.querySelector('h1');
+    const headerLogo  = document.querySelector('.header-logo');
 
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
+    // Ensure fonts are loaded before measuring, then start animation
+    const _fontReady = document.fonts ? Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 600))]) : Promise.resolve();
+    _fontReady.then(() => {
+    setTimeout(() => {
+      // 1. Measure splash elements BEFORE container reveal
+      const fromTitle = splashTitle.getBoundingClientRect();
+      const fromLogo  = splashLogo.getBoundingClientRect();
 
-    const reader = resp.body.getReader();
-    const decoder = new TextDecoder();
+      // 2. Reveal container instantly so h1 is at its true final position
+      container.style.opacity   = '1';
+      container.style.transform = 'none';
+      void container.offsetHeight; // force layout commit
 
-    while (true) {
-      const chunk = await reader.read();
-      if (chunk.done) break;
-      const text = decoder.decode(chunk.value);
-      const lines = text.split('\n');
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        if (line.indexOf('data: ') === 0 && line !== 'data: [DONE]') {
-          try {
-            const data = JSON.parse(line.slice(6));
-            const delta = data.choices && data.choices[0] && data.choices[0].delta && data.choices[0].delta.content;
-            if (delta) {
-              res.write('data: ' + JSON.stringify({ delta: { text: delta } }) + '\n\n');
-            }
-          } catch (e) { /* skip */ }
+      // 3. Measure destinations — now at true final positions
+      const toTitle = h1.getBoundingClientRect();
+      const toLogo  = headerLogo.getBoundingClientRect();
+
+      const ease = 'cubic-bezier(0.65, 0, 0.35, 1)';
+      const dur  = '0.6s';
+
+      // 4a. Title clone — fixed at FROM position, uses transform to fly to TO
+      const scaleX = fromTitle.width  / (toTitle.width  || 1);
+      const scaleY = fromTitle.height / (toTitle.height || 1);
+
+      const titleClone = splashTitle.cloneNode(true);
+      titleClone.style.cssText = `
+        position: fixed;
+        top: ${toTitle.top}px;
+        left: ${toTitle.left}px;
+        width: ${toTitle.width}px;
+        height: ${toTitle.height}px;
+        margin: 0; padding: 0;
+        font-family: 'Syne', sans-serif;
+        font-size: ${parseFloat(getComputedStyle(h1).fontSize)}px;
+        font-weight: 800; letter-spacing: -0.02em;
+        color: var(--text);
+        transform-origin: top left;
+        transform: translate(${fromTitle.left - toTitle.left}px, ${fromTitle.top - toTitle.top}px) scale(${scaleX}, ${scaleY});
+        z-index: 10000; pointer-events: none; opacity: 1;
+        transition: transform ${dur} ${ease}, opacity 0.2s ease 0.45s;
+        will-change: transform, opacity;
+      `;
+      document.body.appendChild(titleClone);
+
+      // 4b. Logo clone — same approach
+      const logoScaleX = fromLogo.width  / (toLogo.width  || 1);
+      const logoScaleY = fromLogo.height / (toLogo.height || 1);
+
+      const logoClone = document.createElement('img');
+      logoClone.src = '/favicon.png';
+      logoClone.style.cssText = `
+        position: fixed;
+        top: ${toLogo.top}px;
+        left: ${toLogo.left}px;
+        width: ${toLogo.width}px;
+        height: ${toLogo.height}px;
+        border-radius: 6px; object-fit: cover;
+        transform-origin: top left;
+        transform: translate(${fromLogo.left - toLogo.left}px, ${fromLogo.top - toLogo.top}px) scale(${logoScaleX}, ${logoScaleY});
+        z-index: 10000; pointer-events: none; opacity: 1;
+        transition: transform ${dur} ${ease}, opacity 0.2s ease 0.45s;
+        will-change: transform, opacity;
+      `;
+      document.body.appendChild(logoClone);
+
+      // 5. Fade out splash background
+      splash.style.transition = 'opacity 0.4s ease';
+      splash.style.opacity = '0';
+      setTimeout(() => splash.remove(), 400);
+
+      // 6. Trigger animations on next two frames to ensure styles committed
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        titleClone.style.transform = 'translate(0, 0) scale(1, 1)';
+        titleClone.style.opacity   = '0';
+
+        logoClone.style.transform  = 'translate(0, 0) scale(1, 1)';
+        logoClone.style.opacity    = '0';
+
+        // 7. Reveal real elements as clones finish
+        setTimeout(() => {
+          h1.style.transition         = 'opacity 0.15s ease';
+          h1.style.opacity            = '1';
+          headerLogo.style.transition = 'opacity 0.15s ease';
+          headerLogo.style.opacity    = '1';
+          setTimeout(() => { titleClone.remove(); logoClone.remove(); }, 200);
+        }, 580);
+      }));
+    }, 1400);
+    }); // fonts.ready
+  })();
+
+  // ── Haptic feedback (Android only, no-op on unsupported devices) ──
+  function haptic(type) {
+    if (!navigator.vibrate) return;
+    if (type === 'light')   navigator.vibrate(10);
+    else if (type === 'medium') navigator.vibrate(25);
+    else if (type === 'error')  navigator.vibrate([30, 50, 30]);
+    else if (type === 'success') navigator.vibrate([10, 30, 10]);
+  }
+
+  const CURRENT_YEAR = new Date().getFullYear() % 100;
+
+      const subjectNames = {
+    '0262':'Swahili',
+    '0400':'Art & Design',
+    '0408':'World Literature',
+    '0409':'History - American',
+    '0410':'Music',
+    '0411':'Drama',
+    '0413':'Physical Education',
+    '0415':'Art & Design',
+    '0416':'History',
+    '0417':'ICT',
+    '0420':'Computer Studies',
+    '0426':'Global Perspectives',
+    '0427':'English',
+    '0428':'Drama',
+    '0429':'Music',
+    '0437':'Economics',
+    '0438':'Biology',
+    '0439':'Chemistry',
+    '0441':'Computer Studies',
+    '0442':'Sciences',
+    '0443':'Physics',
+    '0444':'Mathematics',
+    '0445':'Design & Technology',
+    '0447':'India Studies',
+    '0448':'Pakistan Studies',
+    '0449':'Bangladesh Studies',
+    '0450':'Business Studies',
+    '0452':'Accounting',
+    '0453':'Development Studies',
+    '0454':'Enterprise',
+    '0455':'Economics',
+    '0457':'Global Perspectives',
+    '0459':'Mathematics',
+    '0460':'Geography',
+    '0465':'English as a Second Language',
+    '0470':'History',
+    '0471':'Travel & Tourism',
+    '0472':'Religious Studies',
+    '0474':'Spanish',
+    '0475':'First Language English',
+    '0476':'English Literature',
+    '0477':'English Literature',
+    '0478':'Computer Science',
+    '0480':'Latin',
+    '0486':'English',
+    '0488':'Spanish Literature',
+    '0490':'Religious Studies',
+    '0493':'Islamiyat',
+    '0495':'Sociology',
+    '0499':'Sanskrit',
+    '0500':'First Language English',
+    '0501':'First Language French',
+    '0502':'First Language Spanish',
+    '0503':'Dutch',
+    '0504':'Portuguese',
+    '0505':'German',
+    '0507':'Japanese',
+    '0508':'Arabic',
+    '0509':'First Language Chinese',
+    '0510':'English as a Second Language (Speaking Endorsement)',
+    '0511':'English as a Second Language (Count-in Speaking)',
+    '0512':'Afrikaans',
+    '0513':'Turkish',
+    '0514':'Czech - First Language',
+    '0515':'Dutch',
+    '0516':'Russian',
+    '0518':'Thai',
+    '0519':'Japanese',
+    '0520':'French',
+    '0521':'Korean',
+    '0522':'English',
+    '0523':'Chinese',
+    '0524':'English',
+    '0525':'German',
+    '0526':'English',
+    '0527':'Arabic',
+    '0528':'French',
+    '0529':'German',
+    '0530':'Spanish',
+    '0531':'IsiZulu',
+    '0532':'Kazakh',
+    '0533':'Spanish',
+    '0534':'Chinese',
+    '0535':'Italian',
+    '0536':'Greek',
+    '0537':'Spanish',
+    '0538':'Bahasa Indonesia',
+    '0539':'Urdu',
+    '0540':'Portuguese',
+    '0543':'First Language Turkish',
+    '0544':'Arabic',
+    '0545':'Indonesian',
+    '0546':'Malay',
+    '0547':'Mandarin Chinese',
+    '0548':'Afrikaans',
+    '0549':'Hindi',
+    '0580':'Mathematics',
+    '0581':'Mathematics',
+    '0600':'Agriculture',
+    '0606':'Additional Mathematics',
+    '0607':'Cambridge International Mathematics',
+    '0608':'Twenty-First Century Science',
+    '0610':'Biology',
+    '0620':'Chemistry',
+    '0625':'Physics',
+    '0626':'Mathematics',
+    '0627':'English',
+    '0637':'Child Development',
+    '0648':'Food & Nutrition',
+    '0652':'Physical Science',
+    '0653':'Combined Science',
+    '0654':'Co-ordinated Sciences',
+    '0677':'Cambridge Lower Secondary English',
+    '0678':'Spanish',
+    '0680':'Environmental Management',
+    '0685':'Cambridge Lower Secondary Global Perspectives',
+    '0695':'Vietnamese - First Language',
+    '0696':'Malay - First Language',
+    '0697':'Marine Science',
+    '0698':'Setswana - First Language',
+    '0985':'Accounting',
+    '2010':'Literature in English',
+    '2058':'Islamiyat',
+    '2069':'Global Perspectives',
+    '2251':'Sociology',
+    '2281':'Economics',
+    '4024':'Mathematics Syllabus D',
+    '4037':'Additional Mathematics',
+    '5014':'Environmental Management',
+    '5054':'Physics',
+    '5070':'Chemistry',
+    '5090':'Biology',
+    '6065':'Food & Nutrition',
+    '7100':'Commerce',
+    '7115':'Business Studies',
+    '8291':'Environmental Management',
+    '8695':'Language & Literature in English',
+    '9084':'Law',
+    '9093':'English Language',
+    '9184':'Biology (2025)',
+    '9185':'Chemistry (2025)',
+    '9201':'Biology',
+    '9202':'Chemistry',
+    '9203':'Physics',
+    '9204':'Combined Science',
+    '9210':'Computer Science',
+    '9214':'Economics',
+    '9215':'Accounting',
+    '9218':'Psychology',
+    '9221':'CORE Biology',
+    '9222':'CORE Chemistry',
+    '9223':'CORE Physics',
+    '9225':'Business',
+    '9230':'Geography',
+    '9231':'Further Mathematics',
+    '9236':'Pakistan Studies',
+    '9237':'Islamiat',
+    '9239':'Global Perspectives & Research',
+    '9252':'Design & Technology',
+    '9257':'Media Studies',
+    '9260':'Mathematics',
+    '9264':'Urdu',
+    '9265':'French',
+    '9269':'Spanish',
+    '9270':'English Language',
+    '9274':'Classical Studies',
+    '9275':'English Literature',
+    '9276':'Classical Greek',
+    '9279':'English Literature (2025)',
+    '9280':'English Language & Literature',
+    '9285':'CORE English as a Second Language',
+    '9336':'Music',
+    '9389':'History',
+    '9395':'Travel & Tourism',
+    '9396':'Physical Education',
+    '9479':'Art & Design',
+    '9481':'Design & Technology',
+    '9482':'Design & Technology (2025)',
+    '9483':'Music',
+    '9484':'Biblical Studies',
+    '9487':'Physical Education (2025)',
+    '9488':'Global Perspectives & Research (2025)',
+    '9489':'Travel & Tourism (2025)',
+    '9607':'Media Studies',
+    '9608':'Computer Science',
+    '9609':'Business',
+    '9610':'Biology',
+    '9615':'Accounting',
+    '9618':'Computer Science (2021)',
+    '9620':'Chemistry',
+    '9625':'Business',
+    '9626':'Information Technology',
+    '9630':'Physics',
+    '9631':'Design & Textiles',
+    '9635':'Geography',
+    '9640':'Economics',
+    '9645':'Computer Science',
+    '9660':'Mathematics',
+    '9665':'Further Mathematics',
+    '9670':'English Language',
+    '9675':'English Literature',
+    '9676':'Urdu',
+    '9679':'Afrikaans',
+    '9680':'Arabic',
+    '9685':'Psychology',
+    '9686':'Urdu',
+    '9687':'Bengali',
+    '9688':'Marathi',
+    '9689':'Tamil',
+    '9690':'Telugu',
+    '9691':'Computing',
+    '9693':'Marine Science',
+    '9694':'Thinking Skills',
+    '9695':'Literature in English',
+    '9696':'Geography',
+    '9697':'Global Skills Projects',
+    '9698':'Psychology',
+    '9699':'Sociology',
+    '9700':'Biology',
+    '9701':'Chemistry',
+    '9702':'Physics',
+    '9703':'Music',
+    '9704':'Art & Design',
+    '9705':'Design & Technology',
+    '9706':'Accounting',
+    '9707':'Business Studies',
+    '9708':'Economics',
+    '9709':'Mathematics',
+    '9713':'Applied ICT',
+    '9715':'Chinese',
+    '9716':'Chinese Language & Literature',
+    '9717':'French',
+    '9718':'Portuguese',
+    '9719':'Spanish',
+    '9844':'Spanish Language & Literature',
+    '9868':'Chinese Language & Literature',
+    '9980':'Cambridge International Project Qualification',
+    '9990':'Psychology'
+  };
+
+  const caieCodesAll = new Set([
+    '0262', '0400', '0408', '0409', '0410', '0411', '0413', '0415',
+    '0416', '0417', '0420', '0426', '0427', '0428', '0429', '0437',
+    '0438', '0439', '0441', '0442', '0443', '0444', '0445', '0447',
+    '0448', '0449', '0450', '0452', '0453', '0454', '0455', '0457',
+    '0459', '0460', '0465', '0470', '0471', '0472', '0474', '0475',
+    '0476', '0477', '0478', '0480', '0486', '0488', '0490', '0493',
+    '0495', '0499', '0500', '0501', '0502', '0503', '0504', '0505',
+    '0507', '0508', '0509', '0510', '0511', '0512', '0513', '0514',
+    '0515', '0516', '0518', '0519', '0520', '0521', '0522', '0523',
+    '0524', '0525', '0526', '0527', '0528', '0529', '0530', '0531',
+    '0532', '0533', '0534', '0535', '0536', '0537', '0538', '0539',
+    '0540', '0543', '0544', '0545', '0546', '0547', '0548', '0549',
+    '0580', '0581', '0600', '0606', '0607', '0608', '0610', '0620',
+    '0625', '0626', '0627', '0637', '0648', '0652', '0653', '0654',
+    '0677', '0678', '0680', '0685', '0695', '0696', '0697', '0698',
+    '0985', '2010', '2058', '2069', '2251', '2281', '4024', '4037',
+    '5014', '5054', '5070', '5090', '6065', '7100', '7115', '8291',
+    '8695', '9084', '9093', '9184', '9185', '9231', '9239', '9274',
+    '9276', '9279', '9280', '9336', '9389', '9395', '9396', '9479',
+    '9481', '9482', '9483', '9484', '9487', '9488', '9489', '9607',
+    '9608', '9609', '9618', '9626', '9631', '9676', '9679', '9680',
+    '9686', '9687', '9688', '9689', '9690', '9691', '9693', '9694',
+    '9695', '9696', '9697', '9698', '9699', '9700', '9701', '9702',
+    '9703', '9704', '9705', '9706', '9707', '9708', '9709', '9713',
+    '9715', '9716', '9717', '9718', '9719', '9844', '9868', '9980',
+    '9990'
+  ]);
+  const alCodesAll = new Set(['8021','8028','8238','8274','8287','8291','8669','8679','8680','8681','8682','8693','8695','8779','9011','9084','9093','9184','9185','9231','9239','9274','9276','9279','9280','9281','9282','9336','9395','9396','9479','9481','9482','9483','9484','9487','9488','9489','9607','9608','9609','9618','9626','9631','9679','9680','9686','9687','9689','9691','9693','9694','9695','9696','9697','9698','9699','9700','9701','9702','9703','9704','9705','9706','9707','9708','9709','9713','9715','9716','9717','9718','9719','9844','9868','9980','9990']);
+  const olCodesAll = new Set(['1123','2035','2055','2056','2058','2068','2069','2134','2147','2158','2210','2217','2251','2281','3015','3025','3180','3195','3204','4024','4037','5014','5038','5054','5070','5090','5096','6010','6043','6050','6065','6090','6130','7010','7048','7094','7100','7101','7115','7707']);
+  const aqaCodesAll  = new Set(['2450','2760','2765','7041','7042','7101','7131','7136','7141','7151','7152','7162','7180','7181','7182','7183','7191','7192','7201','7261','7262','7356','7357','7366','7367','7381','7382','7401','7402','7403','7404','7405','7407','7408','7581','7582','7661','7662','7681','7682','7691','7692','7701','7702','7706','7707','7711','7712','8035','8061','8062','8063','8100','8132','8136','8145','8182','8192','8201','8236','8261','8271','8300','8382','8461','8462','8463','8464','8465','8520','8552','8572','8582','8585','8633','8638','8648','8658','8668','8673','8678','8683','8688','8698','8700','8702','8852','9201','9202','9203','9204','9210','9214','9215','9218','9221','9222','9223','9225','9230','9236','9237','9252','9257','9260','9264','9265','9269','9270','9275','9280','9285','9610','9615','9620','9625','9630','9635','9640','9645','9660','9665','9670','9675','9685','9697']);
+
+
+
+  const SESS_LABELS = { s: 'M/J (May/Jun)', w: 'O/N (Oct/Nov)', m: 'F/M (Feb/Mar)' };
+
+
+
+  // ── Levenshtein for "Did you mean?" ──
+  function levenshtein(a, b) {
+    const m = a.length, n = b.length;
+    const dp = Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i||j));
+    for (let i=1;i<=m;i++) for (let j=1;j<=n;j++)
+      dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+    return dp[m][n];
+  }
+  function didYouMean(code, board) {
+    const pool = board === 'AQA' ? [...aqaCodesAll] : [...caieCodesAll];
+    let best = null, bestDist = Infinity;
+    for (const c of pool) { const d = levenshtein(code,c); if (d<bestDist){bestDist=d;best=c;} }
+    return bestDist <= 2 ? best : null;
+  }
+
+  // ── Field error helpers ──
+  function numericOnly(el) {
+    const before = el.value;
+    const cleaned = before.replace(/\D/g, '');
+    if (cleaned !== before) {
+      el.value = cleaned;
+      // shake the field
+      el.classList.remove('field-error');
+      void el.offsetWidth;
+      el.classList.add('field-error');
+      setTimeout(() => el.classList.remove('field-error'), 500);
+    }
+  }
+
+  function markFieldError(id) {
+    // When year/variant in select mode, mark the select instead
+    let targetId = id;
+    if (id === 'year') {
+      targetId = 'yearSelect'; // yearSelect is always the year field
+    }
+    if (id === 'variant') {
+      const vs = document.getElementById('variantSelect');
+      if (vs && vs.style.display !== 'none') targetId = 'variantSelect';
+    }
+    const el = document.getElementById(targetId);
+    if (!el) return;
+    el.classList.remove('field-error');
+    void el.offsetWidth;
+    el.classList.add('field-error');
+  }
+  function clearFieldErrors() {
+    document.querySelectorAll('.field-error').forEach(el=>el.classList.remove('field-error'));
+    const dym = document.getElementById('didYouMeanTag');
+    if (dym) { dym.style.display = 'none'; dym.innerHTML = ''; }
+  }
+
+  // ── Code input handler ──
+
+  // ── Code autocomplete ──
+  let suggestionIndex = -1;
+
+  function getSuggestions(query, board) {
+    if (!query) return [];
+    const pool = board === 'AQA' ? [...aqaCodesAll] : board === 'CAIE' ? [...caieCodesAll, ...alCodesAll, ...olCodesAll] : [...caieCodesAll, ...alCodesAll, ...olCodesAll, ...aqaCodesAll];
+    const q = query.toLowerCase();
+    return pool
+      .filter(c => {
+        const name = (subjectNames[c] || '').toLowerCase();
+        return c.startsWith(q) || name.includes(q);
+      })
+      .sort((a, b) => {
+        const aCode = a.startsWith(q) ? 0 : 1;
+        const bCode = b.startsWith(q) ? 0 : 1;
+        return aCode - bCode || a.localeCompare(b);
+      })
+      .slice(0, 8);
+  }
+
+  function highlightMatch(text, query) {
+    if (!query) return text;
+    const idx = text.toLowerCase().indexOf(query.toLowerCase());
+    if (idx === -1) return text;
+    return text.slice(0, idx) + '<span class="suggestion-highlight">' + text.slice(idx, idx + query.length) + '</span>' + text.slice(idx + query.length);
+  }
+
+  function renderSuggestions(items, query) {
+    const box = document.getElementById('codeSuggestions');
+    if (!items.length) { box.classList.remove('open'); return; }
+    box.innerHTML = items.map((code, i) => {
+      const name = subjectNames[code] || '';
+      return `<div class="suggestion-item" data-code="${code}" onmousedown="pickSuggestion('${code}')">`
+        + `<span class="suggestion-code">${highlightMatch(code, query)}</span>`
+        + `<span class="suggestion-name">${highlightMatch(name, query)}</span>`
+        + `</div>`;
+    }).join('');
+    suggestionIndex = -1;
+    box.classList.add('open');
+  }
+
+  function hideSuggestions(e) {
+    // onblur fires before onmousedown — delay so pickSuggestion fires first
+    setTimeout(() => {
+      document.getElementById('codeSuggestions').classList.remove('open');
+      suggestionIndex = -1;
+    }, 150);
+  }
+
+  function pickSuggestion(code) {
+    haptic('light');
+    const input = document.getElementById('code');
+    input.value = code;
+    onCodeInput();
+    document.getElementById('codeSuggestions').classList.remove('open');
+    // Move focus to next field
+    document.getElementById('session').focus();
+  }
+
+  function onCodeKeydown(e) {
+    const box = document.getElementById('codeSuggestions');
+    const items = box.querySelectorAll('.suggestion-item');
+    if (!box.classList.contains('open') || !items.length) {
+      if (e.key === 'Enter') return; // handled by global Enter listener
+      return;
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      suggestionIndex = Math.min(suggestionIndex + 1, items.length - 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      suggestionIndex = Math.max(suggestionIndex - 1, -1);
+    } else if (e.key === 'Enter' && suggestionIndex >= 0) {
+      e.preventDefault();
+      e.stopPropagation();
+      pickSuggestion(items[suggestionIndex].dataset.code);
+      return;
+    } else if (e.key === 'Escape') {
+      box.classList.remove('open');
+      suggestionIndex = -1;
+      return;
+    } else { return; }
+    items.forEach((el, i) => el.classList.toggle('active', i === suggestionIndex));
+    if (suggestionIndex >= 0) items[suggestionIndex].scrollIntoView({block:'nearest'});
+  }
+
+  function onCodeInput() {
+    const input = document.getElementById('code');
+    const before = input.value;
+    input.value = input.value.replace(/\D/g, '');
+    if (input.value !== before) {
+      input.classList.remove('field-error');
+      void input.offsetWidth;
+      input.classList.add('field-error');
+      setTimeout(() => input.classList.remove('field-error'), 500);
+    }
+    const code = input.value.trim();
+    const tag = document.getElementById('subjectNameTag');
+    const dym = document.getElementById('didYouMeanTag');
+    dym.style.display = 'none';
+    dym.innerHTML = '';
+    if (code.length === 4 && subjectNames[code]) {
+      tag.textContent = '\u2713 ' + subjectNames[code];
+      tag.classList.add('visible');
+      input.classList.remove('field-error');
+      document.getElementById('codeSuggestions').classList.remove('open');
+    }
+    if (code.length === 4) {
+      const board = document.getElementById('board').value;
+      if (board === 'CAIE' || board === 'AQA') {
+        applyIgcseDropdowns(code);
+      }
+    }
+    updateFavStar();
+    if (code.length === 4 && !subjectNames[code]) {
+      tag.textContent = '';
+      tag.classList.remove('visible');
+      const board = document.getElementById('board').value;
+      const items = getSuggestions(code, board);
+      renderSuggestions(items, code);
+      // Show "Did you mean?" live when user has typed 4 digits that aren't valid
+      if (code.length === 4) {
+        const codeSet = board === 'AQA' ? aqaCodesAll : board === 'CAIE' ? caieCodesAll : null;
+        if (!codeSet || !codeSet.has(code)) {
+          const suggestion = didYouMean(code, board || 'CAIE');
+          if (suggestion) showDidYouMean(suggestion);
         }
       }
     }
-
-    res.write('data: [DONE]\n\n');
-    res.end();
-  } catch (e) {
-    res.status(500).json({ error: e.message });
   }
-}
+
+  function showDidYouMean(suggestion) {
+    const dym = document.getElementById('didYouMeanTag');
+    const name = subjectNames[suggestion] ? ` (${subjectNames[suggestion]})` : '';
+    dym.innerHTML = `Did you mean <span onclick="applyDidYouMean('${suggestion}')">${suggestion}${name}</span>?`;
+    dym.style.display = 'block';
+  }
+
+  function applyDidYouMean(code) {
+    haptic('light');
+    const input = document.getElementById('code');
+    input.value = code;
+    onCodeInput();
+    document.getElementById('didYouMeanTag').style.display = 'none';
+    // Clear field error
+    input.classList.remove('field-error');
+    document.getElementById('errorMsg').classList.remove('show');
+  }
+
+  // ── Recent searches ──
+  function getRecent() { try { return JSON.parse(localStorage.getItem('pp_recent')||'[]'); } catch { return []; } }
+  // ── Star rating ──
+  async function submitRating() {
+    const selected = document.querySelector('.radio input[name="rating"]:checked');
+    if (!selected) return;
+    const value = selected.value;
+    try {
+      await fetch('/api/submit-rating', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating: value, ts: Date.now() })
+      });
+    } catch {}
+    // Lock stars — disable all inputs and the button
+    document.querySelectorAll('.radio input[name="rating"]').forEach(el => el.disabled = true);
+    const btn = document.getElementById('ratingSubmitBtn');
+    if (btn) btn.disabled = true;
+    document.getElementById('ratingThanks').classList.add('show');
+    try { localStorage.setItem('pp_rating', value); } catch {}
+  }
+
+  // Restore saved rating and lock if already submitted
+  (function() {
+    try {
+      const saved = localStorage.getItem('pp_rating');
+      if (saved) {
+        const el = document.getElementById('s' + saved);
+        if (el) el.checked = true;
+        const t = document.getElementById('ratingThanks');
+        if (t) t.classList.add('show');
+        document.querySelectorAll('.radio input[name="rating"]').forEach(e => e.disabled = true);
+        const btn = document.getElementById('ratingSubmitBtn');
+        if (btn) btn.disabled = true;
+      }
+    } catch {}
+  })();
+
+  // ── Favourites ──
+  function getFavourites() {
+    try { return JSON.parse(localStorage.getItem('pp_favs') || '[]'); } catch { return []; }
+  }
+  function saveFavourites(list) {
+    try { localStorage.setItem('pp_favs', JSON.stringify(list)); } catch {}
+  }
+  function toggleFavourite() {
+    const code = document.getElementById('code').value.trim();
+    if (!code || code.length !== 4) return;
+    const name = subjectNames[code] || code;
+    let favs = getFavourites();
+    const idx = favs.findIndex(f => f.code === code);
+    if (idx >= 0) { favs.splice(idx, 1); }
+    else { favs.unshift({ code, name }); }
+    saveFavourites(favs);
+    updateFavStar();
+    renderFavDropdown();
+  }
+  function updateFavStar() {
+    const code = document.getElementById('code').value.trim();
+    const btn = document.getElementById('favStarBtn');
+    if (!btn) return;
+    const favs = getFavourites();
+    btn.classList.toggle('starred', favs.some(f => f.code === code));
+    btn.title = favs.some(f => f.code === code) ? 'Remove from favourites' : 'Add to favourites';
+  }
+  function openFavDropdown() {
+    const favs = getFavourites();
+    if (!favs.length) return;
+    renderFavDropdown();
+    document.getElementById('favDropdown').classList.add('open');
+    // Close on outside click
+    setTimeout(() => {
+      document.addEventListener('click', closeFavOnOutside);
+    }, 10);
+  }
+  function closeFavOnOutside(e) {
+    const dd = document.getElementById('favDropdown');
+    const wrap = dd && dd.closest('.fav-wrap');
+    if (wrap && !wrap.contains(e.target)) {
+      dd.classList.remove('open');
+      document.removeEventListener('click', closeFavOnOutside);
+    }
+  }
+  function renderFavDropdown() {
+    const favs = getFavourites();
+    const dd = document.getElementById('favDropdown');
+    if (!dd) return;
+    if (!favs.length) {
+      dd.innerHTML = '<div class="fav-empty">No favourites yet</div>';
+      return;
+    }
+    dd.innerHTML = favs.map(f => `
+      <div class="fav-item" onclick="selectFavourite('${f.code}')">
+        <span class="fav-item-code">${f.code}</span>
+        <span class="fav-item-name">${f.name}</span>
+        <span class="fav-item-del" onclick="event.stopPropagation();removeFav('${f.code}')">&#10005;</span>
+      </div>`).join('');
+  }
+  function selectFavourite(code) {
+    document.getElementById('code').value = code;
+    document.getElementById('favDropdown').classList.remove('open');
+    document.removeEventListener('click', closeFavOnOutside);
+    updateFavStar();
+    onCodeInput();
+  }
+  function removeFav(code) {
+    const favs = getFavourites().filter(f => f.code !== code);
+    saveFavourites(favs);
+    renderFavDropdown();
+    updateFavStar();
+    if (!favs.length) document.getElementById('favDropdown').classList.remove('open');
+  }
+
+  // ── Leaderboard increment ──
+  const _JSONBIN_ID  = '';
+  const _JSONBIN_KEY = '';
+  const _JSONBIN_URL = _JSONBIN_ID ? `https://api.jsonbin.io/v3/b/${_JSONBIN_ID}` : null;
+
+  async function lbIncrement() {
+    try {
+      const id = localStorage.getItem('lb_id');
+      const name = localStorage.getItem('lb_name');
+      if (!id || !name) return;
+
+      // Read current store
+      let data = {};
+      if (_JSONBIN_URL && _JSONBIN_KEY) {
+        const r = await fetch(_JSONBIN_URL + '/latest', { headers: { 'X-Master-Key': _JSONBIN_KEY } });
+        data = (await r.json()).record || {};
+      } else {
+        try { data = JSON.parse(localStorage.getItem('lb_store') || '{}'); } catch {}
+      }
+
+      if (!data[id]) data[id] = { name, count: 0 };
+      data[id].count = (data[id].count || 0) + 1;
+      data[id].name = name;
+
+      // Save back
+      try { localStorage.setItem('lb_store', JSON.stringify(data)); } catch {}
+      if (_JSONBIN_URL && _JSONBIN_KEY) {
+        await fetch(_JSONBIN_URL, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'X-Master-Key': _JSONBIN_KEY },
+          body: JSON.stringify(data)
+        });
+      }
+    } catch {}
+  }
+
+  function saveRecent(url) {
+    try {
+      let list = getRecent().filter(u=>u!==url);
+      list.unshift(url); list = list.slice(0,5);
+      localStorage.setItem('pp_recent', JSON.stringify(list));
+    } catch {}
+    renderRecent();
+  }
+  function clearRecent() { try { localStorage.removeItem('pp_recent'); } catch {} renderRecent(); }
+  function toggleRecent() {
+    recentOpen = !recentOpen;
+    document.getElementById('recentList').style.display = recentOpen ? 'flex' : 'none';
+    document.getElementById('recentChevron').textContent = recentOpen ? '▾' : '▸';
+  }
+
+  function urlToLabel(url) {
+    const file = url.split('/').pop().replace('.pdf','');
+    // CAIE: 0417_s18_qp_11  or  0417_s18_gt
+    const caie = file.match(/^(\d{4})_([smw])(\d{2})_(qp|ms|gt)(?:_(\d{1,2}))?$/);
+    if (caie) {
+      const [, code, sess, year, type, variant] = caie;
+      const sessMap = {s:'M/J', w:'O/N', m:'F/M'};
+      const sessLabel = sessMap[sess] || sess.toUpperCase();
+      const typeLabel = type.toUpperCase();
+      const name = subjectNames[code] ? ` (${subjectNames[code]})` : '';
+      if (type === 'gt') return `${code}${name} · ${sessLabel}/${year} · ${typeLabel}`;
+      return `${code}/${variant}${name} · ${sessLabel}/${year} · ${typeLabel}`;
+    }
+    // AQA: aqa-9260-qp-jun25  or  aqa-9260-gt-jun25  or  aqa-926011-qp-jun25
+    const aqa = file.match(/^aqa-(\d{4})(\d{2})?-(qp|ms|gt)-(\w+)(\d{2})$/);
+    if (aqa) {
+      const [, code, variant, type, sess, year] = aqa;
+      const sessLabel = sess.charAt(0).toUpperCase() + sess.slice(1);
+      const typeLabel = type.toUpperCase();
+      const name = subjectNames[code] ? ` (${subjectNames[code]})` : '';
+      if (type === 'gt') return `${code}${name} · ${sessLabel}/${year} · ${typeLabel}`;
+      return `${code}/${variant}${name} · ${sessLabel}/${year} · ${typeLabel}`;
+    }
+    // Fallback: just show filename
+    return file;
+  }
+
+  function renderRecent() {
+    const list = getRecent();
+    const box = document.getElementById('recentBox');
+    const el = document.getElementById('recentList');
+    if (!list.length) { box.classList.remove('visible'); recentOpen = false; return; }
+    box.classList.add('visible');
+    el.innerHTML = list.map(url => `
+      <div class="recent-item" onclick="loadFromRecent('${url}')">
+        <span class="recent-item-url">${urlToLabel(url)}</span>
+        <span class="recent-item-open">Load ↩</span>
+      </div>`).join('');
+    // Auto-expand when a new search is saved
+    if (recentOpen) el.style.display = 'flex';
+  }
+
+
+  function loadFromRecent(url) {
+    const file = url.split('/').pop().replace('.pdf','').replace('.mp3','');
+
+    // CAIE format: CODE_SESS+YR_TYPE_VARIANT or CODE_SESS+YR_TYPE
+    const caie = file.match(/^(\d{4})_([smw])(\d{2})_([a-z]+)(?:_(\d{1,2}))?$/);
+    if (caie) {
+      const [, code, sess, yr, type, variant] = caie;
+      const fullYear = '20' + yr;
+      selectBoard('CAIE');
+      document.getElementById('code').value = code;
+      // Activate manual mode so dropdowns are fully editable immediately
+      _manualMode = true;
+      const mt = document.getElementById('manualToggle');
+      if (mt) { mt.classList.add('active'); mt.textContent = '✎ Using dropdowns'; }
+      const mh = document.getElementById('manualHint');
+      if (mh) mh.style.display = 'inline';
+      populateYearRange(1990);
+      repopulateFullSessions('CAIE');
+      resetPapertypeStatic();
+      document.getElementById('variantField').classList.remove('variant-hidden');
+      setVariantMode('select', DEFAULT_VARIANTS);
+      applyIgcseDropdowns(code);
+      // Load fields sequentially - each waits for previous
+      const _setField = (id, val, cb, delay) => setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el && val) { el.value = val; if (cb) cb(); }
+      }, delay);
+      _setField('session', sess, onSessionChange, 1000);
+      _setField('yearSelect', fullYear, onYearSelectChange, 1400);
+      _setField('papertype', type, onPapertypeChange, 2200);
+      setTimeout(() => {
+        const vEl = document.getElementById('variantSelect');
+        if (vEl && variant) vEl.value = variant.padStart(2,'0');
+      }, 2600);
+      return;
+    }
+
+    // AQA format: aqa-CODE(VARIANT)-TYPE-SESSYR
+    const aqa = file.match(/^aqa-(\d{4})(\d{2})?-(qp|ms|gt|er|gb|in|ci|rp|tn)-([a-z]+)(\d{2})$/);
+    if (aqa) {
+      const [, code, variant, type, sessStr, yr] = aqa;
+      const fullYear = '20' + yr;
+      const sessMap = { jun: 's', nov: 'w', mar: 'm' };
+      const sess = sessMap[sessStr] || 's';
+      selectBoard('AQA');
+      document.getElementById('code').value = code;
+      _manualMode = true;
+      const mt2 = document.getElementById('manualToggle');
+      if (mt2) { mt2.classList.add('active'); mt2.textContent = '✎ Using dropdowns'; }
+      const mh2 = document.getElementById('manualHint');
+      if (mh2) mh2.style.display = 'inline';
+      populateYearRange(1990);
+      repopulateFullSessions('AQA');
+      resetPapertypeStatic();
+      document.getElementById('variantField').classList.remove('variant-hidden');
+      setVariantMode('select', DEFAULT_VARIANTS);
+      applyIgcseDropdowns(code);
+      const _setField2 = (id, val, cb, delay) => setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el && val) { el.value = val; if (cb) cb(); }
+      }, delay);
+      _setField2('session', sess, onSessionChange, 1000);
+      _setField2('yearSelect', fullYear, onYearSelectChange, 1400);
+      _setField2('papertype', type, onPapertypeChange, 2200);
+      setTimeout(() => {
+        const vEl = document.getElementById('variantSelect');
+        if (vEl && variant) vEl.value = variant;
+      }, 2600);
+      return;
+    }
+
+    // Fallback: just open it
+    window.open(url, '_blank');
+  }
+
+  // ── View switching ──
+  let _viewTransitioning = false;
+
+  function showCodes() {
+    // Save full form state so it can be restored on return
+    const state = {
+      board:     document.getElementById('board').value,
+      code:      document.getElementById('code').value,
+      session:   document.getElementById('session').value,
+      year:      document.getElementById('yearSelect').value,
+      yearFull:  document.getElementById('yearSelect').options[document.getElementById('yearSelect').selectedIndex]?.dataset?.full || '',
+      papertype: document.getElementById('papertype').value,
+      variant:   document.getElementById('variantSelect').value || document.getElementById('variant').value,
+    };
+    sessionStorage.setItem('pfState', JSON.stringify(state));
+    sessionStorage.setItem('fromCodes', '1');
+    window.location.href = '/codes.html';
+  }
+
+  function showMain() {
+    if (_viewTransitioning) return;
+    _viewTransitioning = true;
+    const main = document.getElementById('main-view');
+    const codes = document.getElementById('codes-view');
+    const DUR = '0.35s';
+    const EASE = 'ease';
+
+    // Pre-position main behind codes (invisible, off-left) BEFORE codes starts fading
+    main.style.transition = 'none';
+    main.style.opacity = '0';
+    main.style.transform = 'translateX(-40px)';
+    main.classList.remove('view-hidden');
+    void main.offsetWidth; // commit
+
+    // Now slide codes out AND main in simultaneously
+    codes.style.transition = `opacity ${DUR} ${EASE}, transform ${DUR} ${EASE}`;
+    codes.style.opacity = '0';
+    codes.style.transform = 'translateX(40px)';
+    main.style.transition = `opacity ${DUR} ${EASE}, transform ${DUR} ${EASE}`;
+    main.style.opacity = '1';
+    main.style.transform = 'translateX(0)';
+    window.scrollTo(0, 0);
+
+    setTimeout(() => {
+      codes.classList.add('view-hidden');
+      codes.style.transition = '';
+      codes.style.opacity = '';
+      codes.style.transform = '';
+      main.style.transition = '';
+      _viewTransitioning = false;
+    }, 380);
+  }
+  function useCode(code, board) {
+    if (!code) return;
+    if (board) {
+      const boardEl = document.getElementById('board');
+      boardEl.value = board;
+      onBoardChange();
+    }
+    document.getElementById('code').value = code;
+    onCodeInput();
+    showMain();
+  }
+
+  // ── Search ──
+  function filterCodes() {
+    const q = document.getElementById('searchBox').value.toLowerCase().trim();
+    document.querySelectorAll('.code-table tr').forEach(row => {
+      row.style.display = (!q || row.textContent.toLowerCase().includes(q)) ? '' : 'none';
+    });
+  }
+
+  // ── Board change ──
+
+  // ── IGCSE smart dropdowns — fully live, no baked data ──
+  let _manualMode = false;
+  let _currentPapersData = null;
+  let _currentSessions = [];
+
+  const SESS_ORDER = { s: 0, m: 1, w: 2 };
+
+  const DEFAULT_VARIANTS = ['1','2','3','11','12','13','21','22','23','31','32','33','41','42','43','51','52','53','61','62','63'];
+
+  // Exact slugs scraped from PapaCambridge — overrides generated ones where they differ
+  const IGCSE_SLUG_OVERRIDES = {
+    // Confirmed mismatches between generated slug and PapaCambridge's actual slug
+    '0417':'igcse-ict0417',           // ICT (no hyphen before code)
+    '0475':'igcse-english0475',       // no hyphen before code
+    '0495':'igcse-sociology0495',     // no hyphen before code
+    '0500':'igcse-english-0500',      // "First Language English" → english
+    '0501':'igcse-french-0501',       // "First Language French" → french
+    '0502':'igcse-spanish-0502',      // "First Language Spanish" → spanish  
+    '0509':'igcse-chinese-0509',      // "First Language Chinese" → chinese
+    '0510':'igcse-english-0510',      // long name → english
+    '0511':'igcse-english-0511',      // long name → english
+    '0512':'igcse-afrikaans0512',     // no hyphen before code
+    '0678':'igcse-spanish0678',       // no hyphen before code
+  };
+
+  const AL_SLUG_MAP = {
+    '8021': 'as-and-a-level-english-general-paper-8021',
+    '8028': 'as-and-a-level-french-language-as-level-only-8028',
+    '8238': 'as-and-a-level-chinese-8238',
+    '8274': 'as-and-a-level-english8274',
+    '8287': 'as-and-a-level-english-8287',
+    '8291': 'as-and-a-level-environmental-management-8291',
+    '8669': 'as-and-a-level-chinese-8669',
+    '8679': 'as-and-a-level-afrikaan-8679',
+    '8680': 'as-and-a-level-arabic-8680',
+    '8681': 'as-and-a-level-chinese-8681',
+    '8682': 'as-and-a-level-french-8682',
+    '8693': 'as-and-a-level-english-8693',
+    '8695': 'as-and-a-level-english-8695',
+    '8779': 'as-and-a-level-afrikaans-8779',
+    '9011': 'as-and-a-level-divinity-9011-and-8041',
+    '9084': 'as-and-a-level-law-9084',
+    '9093': 'as-and-a-level-english-9093',
+    '9184': 'as-and-a-level-biology-9184',
+    '9185': 'as-and-a-level-chemistry-9185',
+    '9231': 'as-and-a-level-mathematics-further-9231',
+    '9239': 'as-and-a-level-marine-science-9239',
+    '9274': 'as-and-a-level-classical-studies-9274',
+    '9276': 'as-and-a-level-english-literature-9276',
+    '9279': 'as-and-a-level-french-9279',
+    '9280': 'as-and-a-level-german-9280',
+    '9281': 'as-and-a-level-spanish-9281',
+    '9282': 'as-and-a-level-portuguese-9282',
+    '9336': 'as-and-a-level-food-studies-9336',
+    '9395': 'as-and-a-level-travel-and-tourism-9395',
+    '9396': 'as-and-a-level-physical-education-9396',
+    '9479': 'as-and-a-level-art-and-design-9479',
+    '9481': 'as-and-a-level-design-and-technology-9481',
+    '9482': 'as-and-a-level-drama-9482',
+    '9483': 'as-and-a-level-music-9483',
+    '9484': 'as-and-a-level-biblical-studies-9484',
+    '9487': 'as-and-a-level-hindi-9487',
+    '9488': 'as-and-a-level-hinduism-9488',
+    '9489': 'as-and-a-level-islamiyat-9489',
+    '9607': 'as-and-a-level-applied-information-and-communication-technology-9607',
+    '9608': 'as-and-a-level-computer-science-9608',
+    '9609': 'as-and-a-level-business9609',
+    '9618': 'as-and-a-level-computer-science-for-first-examination-in-2021-9618',
+    '9626': 'as-and-a-level-law-9626',
+    '9631': 'as-and-a-level-design-and-textiles-9631',
+    '9679': 'as-and-a-level-afrikaans-9679',
+    '9680': 'as-and-a-level-arabic-9680',
+    '9686': 'as-and-a-level-portuguese-9686',
+    '9687': 'as-and-a-level-hindi-9687',
+    '9689': 'as-and-a-level-history-9489',
+    '9691': 'as-and-a-level-computing-9691',
+    '9693': 'as-and-a-level-ancient-history-9693',
+    '9694': 'as-and-a-level-thinking-skills-9694',
+    '9695': 'as-and-a-level-english-literature-9695',
+    '9696': 'as-and-a-level-geography-9696',
+    '9697': 'as-and-a-level-history-9697',
+    '9698': 'as-and-a-level-history-9698',
+    '9699': 'as-and-a-level-history-9699',
+    '9700': 'as-and-a-level-biology-9700',
+    '9701': 'as-and-a-level-chemistry-9701',
+    '9702': 'as-and-a-level-physics-9702',
+    '9703': 'as-and-a-level-literature-in-english-9703',
+    '9704': 'as-and-a-level-art-and-design-9704',
+    '9705': 'as-and-a-level-design-and-technology-9705',
+    '9706': 'as-and-a-level-accounting-9706',
+    '9707': 'as-and-a-level-business-studies-9707',
+    '9708': 'as-and-a-level-economics-9708',
+    '9709': 'as-and-a-level-mathematics-9709',
+    '9713': 'as-and-a-level-applied-ict-9713',
+    '9715': 'as-and-a-level-chinese-9715',
+    '9716': 'as-and-a-level-french-9716',
+    '9717': 'as-and-a-level-german-9717',
+    '9718': 'as-and-a-level-japanese-9718',
+    '9719': 'as-and-a-level-spanish-9719',
+    '9844': 'as-and-a-level-global-perspectives-and-research-9844',
+    '9868': 'as-and-a-level-chinese-9868',
+    '9980': 'as-and-a-level-cambridge-international-project-qualification-9980',
+    '9990': 'as-and-a-level-environmental-management-9990',
+  };
+
+  const OL_SLUG_MAP = {
+    '1123': 'o-level-english-language-1123',
+    '2035': 'o-level-biblical-studies-2035',
+    '2055': 'o-level-hinduism-2055',
+    '2056': 'o-level-islamic-religion-and-culture-2056',
+    '2058': 'o-level-islamiyat-2058',
+    '2068': 'o-level-islamic-studies-2068',
+    '2069': 'o-level-global-perspectives-2069',
+    '2134': 'o-level-history-modern-world-affairs-2134',
+    '2147': 'o-level-history-2147',
+    '2158': 'o-level-history-world-affairs-1917-1991-2158',
+    '2210': 'o-level-computer-science-2210',
+    '2217': 'o-level-geography-2217',
+    '2251': 'o-level-sociology-2251',
+    '2281': 'o-level-economics-2281',
+    '3015': 'o-level-french-3015',
+    '3025': 'o-level-german-3025',
+    '3180': 'o-level-arabic-3180',
+    '3195': 'o-level-hindi-3195',
+    '3204': 'o-level-bengali-3204',
+    '4024': 'o-level-mathematics-4024',
+    '4037': 'o-level-additional-mathematics-4037',
+    '5014': 'o-level-environmental-management-5014',
+    '5038': 'o-level-agriculture-5038',
+    '5054': 'o-level-physics-5054',
+    '5070': 'o-level-chemistry-5070',
+    '5090': 'o-level-biology-5090',
+    '5096': 'o-level-human-and-social-biology-5096',
+    '6010': 'o-level-art-6010',
+    '6043': 'o-level-design-and-technology-6043',
+    '6050': 'o-level-fashion-and-fabrics-6050',
+    '6065': 'o-level-food-and-nutrition-6065',
+    '6090': 'o-level-art-and-design-6090',
+    '6130': 'o-level-fashion-and-textiles-6130',
+    '7010': 'o-level-computer-studies-7010',
+    '7048': 'o-level-cdt-design-and-communication-7048',
+    '7094': 'o-level-bangladesh-studies-7094',
+    '7100': 'o-level-commerce-7100',
+    '7101': 'o-level-commercial-studies-7101',
+    '7115': 'o-level-business-studies-7115',
+    '7707': 'o-level-accounting-7707',
+  };
+
+  const AQA_GCSE_MAP = {
+    '8035': 'gcsegeography-8035',
+    '8061': 'gcsereligious-studies-short-course-8061',
+    '8062': 'gcsereligious-studies-a-8062',
+    '8063': 'gcsereligious-studies-b-8063',
+    '8100': 'gcsecitizenship-studies-8100',
+    '8132': 'gcsebusiness-8132',
+    '8136': 'gcseeconomics-8136',
+    '8145': 'gcsehistory-8145',
+    '8182': 'gcsepsychology-8182',
+    '8192': 'gcsesociology-8192',
+    '8201': 'gcseart-and-design-8201-8202-8203-8204-8205-8206',
+    '8236': 'gcsedance-8236',
+    '8261': 'gcsedrama-8261',
+    '8271': 'gcsemusic-8271',
+    '8300': 'gcsemathematics-8300',
+    '8382': 'gcsestatistics-8382',
+    '8461': 'gcsebiology-8461',
+    '8462': 'gcsechemistry-8462',
+    '8463': 'gcsephysics-8463',
+    '8464': 'gcsecombined-science-trilogy-8464',
+    '8465': 'gcsecombined-science-synergy-8465',
+    '8520': 'gcsecomputer-science-8520',
+    '8552': 'gcsedesign-and-technology-8552',
+    '8572': 'gcsemedia-studies-8572',
+    '8582': 'gcsephysical-education-8582',
+    '8585': 'gcsefood-preparation-and-nutrition-8585',
+    '8633': 'gcseitalian-8633',
+    '8638': 'gcsebengali-8638',
+    '8648': 'gcseurdu-8648',
+    '8658': 'gcsefrench-8658',
+    '8668': 'gcsegerman-8668',
+    '8673': 'gcsechinese-spoken-mandarin-8673',
+    '8678': 'gcsemodern-hebrew-8678',
+    '8683': 'gcsepanjabi-8683',
+    '8688': 'gcsepolish-8688',
+    '8698': 'gcsespanish-8698',
+    '8700': 'gcseenglish-language-8700',
+    '8702': 'gcseenglish-literature-8702',
+    '8852': 'gcseengineering-8852',
+  };
+
+  const AQA_AL_MAP = {
+    '2450': 'a-levelphysics-a-2450',
+    '2760': 'a-levelgeneral-studies-a-2760',
+    '2765': 'a-levelgeneral-studies-b-2765',
+    '7041': 'a-levelhistory-7041',
+    '7042': 'a-levelhistory-7042',
+    '7101': 'a-levelart-and-design-7101',
+    '7131': 'a-leveleconomics-7131',
+    '7136': 'a-leveleconomics-7136',
+    '7141': 'a-levelpolitics-7141',
+    '7151': 'a-levellaw-7151',
+    '7152': 'a-levelpolitics-7152',
+    '7162': 'a-levellaw-7162',
+    '7180': 'a-levelsociology-7180',
+    '7181': 'a-levelbusiness-7181',
+    '7182': 'a-levelpsychology-7182',
+    '7183': 'a-levelpsychology-7183',
+    '7191': 'a-levelaccounting-7191',
+    '7192': 'a-levelsociology-7192',
+    '7201': 'a-levelart-and-design-7201',
+    '7261': 'a-levelcomputer-science-7261',
+    '7262': 'a-levelcomputer-science-7262',
+    '7356': 'a-levelmathematics-7356',
+    '7357': 'a-levelmathematics-7357',
+    '7366': 'a-levelfurther-mathematics-7366',
+    '7367': 'a-levelfurther-mathematics-7367',
+    '7381': 'a-levelgeography-7381',
+    '7382': 'a-levelgeography-7382',
+    '7401': 'a-levelbiology-7401',
+    '7402': 'a-levelbiology-7402',
+    '7403': 'a-levelchemistry-7403',
+    '7404': 'a-levelchemistry-7404',
+    '7405': 'a-levelchemistry-7405',
+    '7407': 'a-levelphysics-7407',
+    '7408': 'a-levelphysics-7408',
+    '7581': 'a-levelphysical-education-7581',
+    '7582': 'a-levelphysical-education-7582',
+    '7661': 'a-levelgerman-7661',
+    '7662': 'a-levelgerman-7662',
+    '7681': 'a-levelfrench-7681',
+    '7682': 'a-levelfrench-7682',
+    '7691': 'a-levelspanish-7691',
+    '7692': 'a-levelspanish-7692',
+    '7701': 'a-levelenglish-language-7701',
+    '7702': 'a-levelenglish-language-7702',
+    '7706': 'a-levelenglish-literature-a-7706',
+    '7707': 'a-levelenglish-language-and-literature-7707',
+    '7711': 'a-levelenglish-literature-b-7711',
+    '7712': 'a-levelenglish-literature-a-7712',
+  };
+
+  const AQA_AS_MAP = {
+    '7041': 'as-levelhistory-7041',
+    '7101': 'as-levelart-and-design-7101',
+    '7131': 'as-leveleconomics-7131',
+    '7141': 'as-levelpolitics-7141',
+    '7151': 'as-levellaw-7151',
+    '7180': 'as-levelsociology-7180',
+    '7181': 'as-levelbusiness-7181',
+    '7182': 'as-levelpsychology-7182',
+    '7261': 'as-levelcomputer-science-7261',
+    '7356': 'as-levelmathematics-7356',
+    '7366': 'as-levelfurther-mathematics-7366',
+    '7381': 'as-levelgeography-7381',
+    '7401': 'as-levelbiology-7401',
+    '7403': 'as-levelchemistry-7403',
+    '7407': 'as-levelphysics-7407',
+    '7581': 'as-levelphysical-education-7581',
+    '7661': 'as-levelgerman-7661',
+    '7681': 'as-levelfrench-7681',
+    '7691': 'as-levelspanish-7691',
+    '7701': 'as-levelenglish-language-7701',
+    '7706': 'as-levelenglish-literature-a-7706',
+    '7707': 'as-levelenglish-language-and-literature-7707',
+  };
+
+  function buildSubjectSlug(code) {
+    const board = document.getElementById('board').value;
+    // AQA — use AQA slug maps
+    if (board === 'AQA') {
+      if (AQA_GCSE_MAP[code]) return AQA_GCSE_MAP[code];
+      if (AQA_AL_MAP[code])   return AQA_AL_MAP[code];
+      if (AQA_AS_MAP[code])   return AQA_AS_MAP[code];
+      // Fallback: generate AQA slug
+      const name = subjectNames[code] || '';
+      const slug = name.toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9\s-]/g,'').replace(/[\s-]+/g,'-').replace(/^-|-$/g,'');
+      // Detect level by code range
+      const n = parseInt(code);
+      const prefix = n >= 8000 ? 'gcse' : n >= 7000 ? 'a-level' : 'as-level';
+      return prefix + slug + '-' + code;
+    }
+    // CAIE — existing logic
+    if (IGCSE_SLUG_OVERRIDES[code]) return IGCSE_SLUG_OVERRIDES[code];
+    if (AL_SLUG_MAP[code]) return AL_SLUG_MAP[code];
+    if (OL_SLUG_MAP[code]) return OL_SLUG_MAP[code];
+    const name = subjectNames[code] || '';
+    const prefix = code.startsWith('0') ? 'igcse'
+                 : (parseInt(code) >= 8000) ? 'as-and-a-level'
+                 : 'o-level';
+    return prefix + '-' + name.toLowerCase()
+      .replace(/&/g, 'and')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/[\s-]+/g, '-')
+      .replace(/^-|-$/g, '')
+      + '-' + code;
+  }
+
+  function populateYearRange(startYear) {
+    const ys = document.getElementById('yearSelect');
+    const currentYear = new Date().getFullYear();
+    ys.innerHTML = '<option value="">— Select year —</option>';
+    for (let y = currentYear; y >= startYear; y--) {
+      const o = document.createElement('option');
+      o.value = String(y).slice(2); // 2-digit for URL
+      o.dataset.full = String(y);
+      o.textContent = String(y);
+      ys.appendChild(o);
+    }
+  }
+
+  function setYearMode(mode) {
+    // yearSelect is always shown — mode only controls placeholder text
+    const ys = document.getElementById('yearSelect');
+    if (mode !== 'select') {
+      ys.innerHTML = '<option value="">— Select Year —</option>';
+    }
+  }
+
+  function setVariantMode(mode, variants) {
+    const vi = document.getElementById('variant');
+    const vs = document.getElementById('variantSelect');
+    if (mode === 'select') {
+      if (vi) vi.style.display = 'none';
+      vs.style.display = 'block';
+      const prev = vs.value;
+      vs.innerHTML = '<option value="">— Select —</option>';
+      if (variants && variants.length > 0) {
+        variants.forEach(v => {
+          const o = document.createElement('option');
+          o.value = v; o.textContent = v;
+          if (v === prev) o.selected = true;
+          vs.appendChild(o);
+        });
+      }
+    } else {
+      if (vi) vi.style.display = 'block';
+      vs.style.display = 'none';
+      vs.innerHTML = '<option value="">— Select —</option>';
+    }
+  }
+
+  function buildSessSlug(sess, fullYear) {
+    const board = document.getElementById('board').value;
+    if (board === 'AQA') {
+      // AQA uses simple session slugs
+      if (sess === 's') return 'june';
+      if (sess === 'w') return 'november';
+      if (sess === 'm') return 'march';
+      return '';
+    }
+    // CAIE
+    const yr = parseInt(fullYear);
+    if (sess === 's') return yr >= 2018 ? 'may-june' : 'jun';
+    if (sess === 'w') return yr >= 2018 ? 'oct-nov' : 'nov';
+    if (sess === 'm') return yr >= 2022 ? (yr === 2022 ? 'feb-march' : 'march') : 'mar';
+    return '';
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // DETECTION CHAIN
+  // Step 1: code entered  → fetch sessions   → populate session dropdown
+  // Step 2: session picked → fetch years     → populate year dropdown
+  // Step 3: year picked   → fetch papers     → populate paper type dropdown
+  // Step 4: type picked   → extract variants → populate variant dropdown
+  // ══════════════════════════════════════════════════════════════════
+
+  // ── Step 1: code entered ──
+  async function applyIgcseDropdowns(code) {
+    if (_manualMode) return;
+    _currentSessions = [];
+    _currentPapersData = null;
+
+    const sessionSel = document.getElementById('session');
+    const sessField  = sessionSel.closest('.field');
+
+    // Reset downstream fields
+    sessionSel.innerHTML = '<option value="">Loading…</option>';
+    sessField.classList.add('field-loading');
+    document.getElementById('yearSelect').innerHTML = '<option value="">— Select session first —</option>';
+    document.getElementById('papertype').innerHTML = '<option value="">— Select year first —</option>';
+    document.getElementById('variantField').classList.add('variant-hidden');
+
+    try {
+      const slug = buildSubjectSlug(code);
+      const r = await fetch('/api/get-sessions?code=' + code + '&slug=' + encodeURIComponent(slug) + '&board=' + encodeURIComponent(document.getElementById('board').value));
+      const data = await r.json();
+      _currentSessions = data.sessions || [];
+    } catch(e) {
+      _currentSessions = [];
+    } finally {
+      sessField.classList.remove('field-loading');
+    }
+
+    if (_currentSessions.length === 0) {
+      // No data — fall back to full static lists
+      repopulateFullSessions('CAIE');
+      populateYearRange(1990);
+      resetPapertypeStatic();
+      return;
+    }
+
+    // Populate session dropdown with only available sessions
+    const availSessions = [...new Set(_currentSessions.map(e => e.sess))];
+    sessionSel.innerHTML = '<option value="">— Select —</option>';
+    ['s','m','w'].forEach(val => {
+      if (!availSessions.includes(val)) return;
+      const o = document.createElement('option');
+      o.value = val; o.textContent = SESS_LABELS[val];
+      sessionSel.appendChild(o);
+    });
+
+    // Year stays as "Select session first" until session is picked
+    document.getElementById('yearSelect').innerHTML = '<option value="">— Select session —</option>';
+  }
+
+  // ── Step 2: session selected → populate years ──
+  function onSessionChange() {
+    if (_manualMode) { clearFieldErrors(); return; }
+    const sess = document.getElementById('session').value;
+    const yearSelect = document.getElementById('yearSelect');
+
+    // Reset downstream
+    document.getElementById('papertype').innerHTML = '<option value="">— Select year first —</option>';
+    document.getElementById('variantField').classList.add('variant-hidden');
+    _currentPapersData = null;
+    clearFieldErrors();
+
+    if (!sess) {
+      yearSelect.innerHTML = '<option value="">— Select session —</option>';
+      return;
+    }
+
+    if (_currentSessions.length > 0) {
+      // Filter years to those that have this session
+      const filtered = _currentSessions.filter(e => e.sess === sess);
+      const seen = new Set();
+      yearSelect.innerHTML = '<option value="">— Select year —</option>';
+      filtered.forEach(e => {
+        if (seen.has(e.year)) return;
+        seen.add(e.year);
+        const o = document.createElement('option');
+        o.value = e.year.slice(2);  // 2-digit for URL
+        o.dataset.full = e.year;    // 4-digit for slug
+        o.textContent = e.year;
+        yearSelect.appendChild(o);
+      });
+    } else {
+      // No session data — fall back to full year range
+      populateYearRange(1990);
+    }
+  }
+
+  // ── Step 3: year selected → scan for paper types ──
+  function onYearSelectChange() {
+    if (_manualMode) { clearFieldErrors(); return; }
+    clearFieldErrors();
+    _currentPapersData = null;
+
+    // Reset downstream
+    document.getElementById('papertype').innerHTML = '<option value="">Scanning…</option>';
+    document.getElementById('variantField').classList.add('variant-hidden');
+
+    fetchPapersForSelection();
+  }
+
+  async function fetchPapersForSelection() {
+    if (_manualMode) return;
+    const code   = document.getElementById('code').value.trim();
+    const sess   = document.getElementById('session').value;
+    const ysEl   = document.getElementById('yearSelect');
+    const selOpt = ysEl.options[ysEl.selectedIndex];
+
+    if (!selOpt || !selOpt.dataset || !selOpt.dataset.full || !sess || !code) {
+      resetPapertypeStatic();
+      return;
+    }
+
+    const fullYear = selOpt.dataset.full;
+    const sessSlug = buildSessSlug(sess, fullYear);
+    const subjSlug = buildSubjectSlug(code);
+    const pageUrl  = `https://pastpapers.papacambridge.com/papers/caie/${subjSlug}-${fullYear}-${sessSlug}`;
+
+    const ptField = document.getElementById('papertype').closest('.field');
+    ptField.classList.add('field-loading');
+
+    try {
+      const r = await fetch('/api/get-papers?url=' + encodeURIComponent(pageUrl));
+      const data = await r.json();
+      if (data.types && data.types.length > 0) {
+        _currentPapersData = data;
+        applyPapersData(data);
+      } else {
+        _currentPapersData = null;
+        resetPapertypeStatic();
+      }
+    } catch(e) {
+      _currentPapersData = null;
+      resetPapertypeStatic();
+    } finally {
+      ptField.classList.remove('field-loading');
+    }
+  }
+
+  function applyPapersData(data) {
+    const TYPE_LABELS = {
+      qp: 'Question Paper (QP)', ms: 'Mark Scheme (MS)',
+      gt: 'Grade Thresholds (GT)', gb: 'Grade Boundaries (GB)',
+      er: 'Examiner Report (ER)', ci: 'Confidential Instructions (CI)',
+      in: 'Insert (IN)', qr: 'Transcript (QR)', rp: 'Role Play Card (RPC)', sf: 'Sound File (SF)', tn: 'Teacher Notes (TN)',
+      sg: 'Supplementary Guide (SG)', sp: 'Specimen Paper (SP)', sm: 'Specimen Mark Scheme (SM)',
+    };
+    const pt = document.getElementById('papertype');
+    pt.innerHTML = '<option value="">— Select paper type —</option>';
+    data.types.forEach(t => {
+      const o = document.createElement('option');
+      o.value = t;
+      o.textContent = TYPE_LABELS[t] || t.toUpperCase();
+      pt.appendChild(o);
+    });
+    // Variant stays hidden until paper type is picked
+    document.getElementById('variantField').classList.add('variant-hidden');
+  }
+
+  // ── Step 4: paper type selected → show variants for that type ──
+  function updateVariantForType(type, data) {
+    if (_manualMode) return;
+    data = data || _currentPapersData;
+    const variantField = document.getElementById('variantField');
+    const NO_VARIANT_TYPES = new Set(['gt','gb','er','sp','sm','sg']);
+
+    if (!type || NO_VARIANT_TYPES.has(type)) {
+      variantField.classList.add('variant-hidden');
+      return;
+    }
+
+    const variants = (data && data.variants && data.variants[type]) ? data.variants[type] : [];
+
+    if (variants.length > 0) {
+      variantField.classList.remove('variant-hidden');
+      const vs = document.getElementById('variantSelect');
+      vs.innerHTML = '<option value="">— Select variant —</option>';
+      variants.forEach(v => {
+        const o = document.createElement('option');
+        o.value = v; o.textContent = v;
+        vs.appendChild(o);
+      });
+      vs.style.display = 'block';
+      document.getElementById('variant').style.display = 'none';
+    } else {
+      // No variants found for this type — keep hidden
+      variantField.classList.add('variant-hidden');
+    }
+  }
+
+  // Static paper type list (fallback when no scan data)
+  function resetPapertypeStatic() {
+    const pt = document.getElementById('papertype');
+    pt.innerHTML = `<option value="">— Select —</option>
+      <option value="qp">Question Paper (QP)</option>
+      <option value="ms">Mark Scheme (MS)</option>
+      <option value="gt">Grade Thresholds (GT)</option>
+      <option value="gb">Grade Boundaries (GB)</option>
+      <option value="er">Examiner Report (ER)</option>
+      <option value="ci">Confidential Instructions (CI)</option>
+      <option value="in">Insert (IN)</option>
+      <option value="qr">Transcript (QR)</option>
+      <option value="rp">Role Play Card (RPC)</option>
+      <option value="sf">Sound File (SF)</option>
+      <option value="tn">Teacher Notes (TN)</option>`;
+  }
+
+  function resetPaperFields() {
+    if (_manualMode) return;
+    _currentPapersData = null;
+    document.getElementById('papertype').innerHTML = '<option value="">— Select year first —</option>';
+    document.getElementById('variantField').classList.add('variant-hidden');
+    document.getElementById('variantSelect').innerHTML = '<option value="">— Select —</option>';
+  }
+
+  function repopulateFullSessions(board) {
+    const s = document.getElementById('session');
+    const curr = s.value;
+    s.innerHTML = '<option value="">— Select —</option>';
+    if (board === 'CAIE') {
+      [['M/J (May/Jun)','s'],['F/M (Feb/Mar)','m'],['O/N (Oct/Nov)','w']].forEach(([label,val]) => {
+        const o = document.createElement('option');
+        o.value = val; o.textContent = label;
+        if (val === curr) o.selected = true;
+        s.appendChild(o);
+      });
+    } else if (board === 'AQA') {
+      [['Jun (Summer)','s'],['Nov (Winter)','w']].forEach(([label,val]) => {
+        const o = document.createElement('option');
+        o.value = val; o.textContent = label;
+        if (val === curr) o.selected = true;
+        s.appendChild(o);
+      });
+    }
+  }
+
+  function toggleManualMode() {
+    _manualMode = !_manualMode;
+    const btn  = document.getElementById('manualToggle');
+    const hint = document.getElementById('manualHint');
+    const board = document.getElementById('board').value;
+    const code  = document.getElementById('code').value.trim();
+    if (_manualMode) {
+      btn.classList.add('active');
+      btn.textContent = '✎ Using dropdowns';
+      hint.style.display = 'inline';
+      populateYearRange(1990);
+      repopulateFullSessions(board);
+      resetPapertypeStatic();
+      document.getElementById('variantField').classList.remove('variant-hidden');
+      setVariantMode('select', DEFAULT_VARIANTS);
+    } else {
+      btn.classList.remove('active');
+      btn.textContent = '✎ Enter manually';
+      hint.style.display = 'none';
+      if (board === 'CAIE' && caieCodesAll.has(code) && code.startsWith('0')) {
+        applyIgcseDropdowns(code);
+      }
+    }
+  }
+
+
+  function selectBoard(val) {
+    // Update hidden input
+    document.getElementById('board').value = val;
+    // Toggle active state on buttons and wrappers
+    document.querySelectorAll('.board-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.board-btn-wrap').forEach(w => w.classList.remove('active'));
+    document.querySelectorAll('.board-btn-wrap').forEach(w => w.classList.remove('active'));
+    const activeBtn = document.getElementById('boardBtn-' + val);
+    if (activeBtn) activeBtn.classList.add('active');
+    const activeWrap = document.getElementById('boardWrap-' + val);
+    if (activeWrap) activeWrap.classList.add('active');
+    // Enable code input
+    const codeEl = document.getElementById('code');
+    codeEl.disabled = false;
+    codeEl.placeholder = 'e.g. 0417';
+    codeEl.focus();
+    // Run existing board change logic
+    onBoardChange();
+  }
+
+  function onBoardChange() {
+    const board = document.getElementById('board').value;
+    repopulateFullSessions(board);
+    if (board === 'AQA') {
+      populateYearRange(1990);
+    } else {
+      document.getElementById('yearSelect').innerHTML = '<option value="">— Enter code first —</option>';
+    }
+    document.getElementById('papertype').innerHTML = '<option value="">— Select year first —</option>';
+    document.getElementById('variantField').classList.add('variant-hidden');
+    _manualMode = false;
+    _currentSessions = [];
+    _currentPapersData = null;
+    const mt = document.getElementById('manualToggle');
+    if (mt) { mt.classList.remove('active'); mt.textContent = '✎ Enter manually'; }
+    const mh = document.getElementById('manualHint');
+    if (mh) mh.style.display = 'none';
+    hideResult();
+    clearFieldErrors();
+
+    // If a code is already entered, re-run detection for the new board
+    const code = document.getElementById('code').value.trim();
+    if (code.length === 4) {
+      // Both CAIE and AQA use live scan now
+      applyIgcseDropdowns(code);
+    }
+  }
+
+  // ── Paper type change ──
+  function onPapertypeChange() {
+    const pt = document.getElementById('papertype').value;
+    if (!_manualMode && _currentPapersData) {
+      updateVariantForType(pt, _currentPapersData);
+    } else {
+      // No scanned data — static fallback
+      const NO_VARIANT_TYPES = new Set(['gt','gb','er','sp','sm','sg']);
+      const variantField = document.getElementById('variantField');
+      if (!pt || NO_VARIANT_TYPES.has(pt)) {
+        variantField.classList.add('variant-hidden');
+      } else {
+        variantField.classList.remove('variant-hidden');
+        setVariantMode('select', DEFAULT_VARIANTS);
+      }
+    }
+  }
+
+  // ── Enter key navigation ──
+  function setupEnterNav() {
+    const order = ['board', 'code', 'session', 'year', 'variant', 'papertype'];
+    order.forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('keydown', function(e) {
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        // Find next visible, enabled field
+        for (let j = i + 1; j < order.length; j++) {
+          const next = document.getElementById(order[j]);
+          if (!next) continue;
+          const field = next.closest('.field');
+          // Skip hidden variant field when GT is selected
+          if (field && (field.classList.contains('variant-hidden') || getComputedStyle(field).display === 'none')) continue;
+          next.focus();
+          // Open select dropdowns on focus
+          if (next.tagName === 'SELECT') {
+            next.dispatchEvent(new MouseEvent('mousedown'));
+          }
+          return;
+        }
+        // All fields done — trigger generate
+        generate();
+      });
+    });
+  }
+  document.addEventListener('DOMContentLoaded', setupEnterNav);
+
+  // ── Arrow position: measure text, set start/end precisely ──
+  function setupArrow() {
+    const btn = document.getElementById('generateBtn');
+    const arrow = btn.querySelector('.btn-arrow');
+    const text = btn.querySelector('.btn-text');
+    const btnRect = btn.getBoundingClientRect();
+    const textRect = text.getBoundingClientRect();
+    const arrowW = 18;
+    const gap = 8;
+    // start: left edge of text minus arrow width and gap
+    const startLeft = textRect.left - btnRect.left - arrowW - gap;
+    // end: right edge of text plus gap
+    const endLeft = textRect.right - btnRect.left + gap;
+    arrow.style.left = startLeft + 'px';
+    btn._arrowStart = startLeft + 'px';
+    btn._arrowEnd = endLeft + 'px';
+    btn.addEventListener('mouseenter', () => { arrow.style.left = btn._arrowEnd; });
+    btn.addEventListener('mouseleave', () => { arrow.style.left = btn._arrowStart; });
+  }
+  document.addEventListener('DOMContentLoaded', setupArrow);
+  document.addEventListener('DOMContentLoaded', () => {
+    const _fromCodes = sessionStorage.getItem('fromCodes');
+    const _savedState = sessionStorage.getItem('pfState');
+    sessionStorage.removeItem('fromCodes');
+    sessionStorage.removeItem('pfState');
+
+    if (_fromCodes && _savedState) {
+      // Returning from codes page — restore full form state instantly
+      const st = JSON.parse(_savedState);
+      if (st.board) {
+        document.getElementById('board').value = st.board;
+        document.querySelectorAll('.board-btn').forEach(btn => btn.classList.remove('active'));
+        const activeBtn = document.getElementById('boardBtn-' + st.board);
+        if (activeBtn) activeBtn.classList.add('active');
+        const activeWrap = document.getElementById('boardWrap-' + st.board);
+        if (activeWrap) activeWrap.classList.add('active');
+        const codeEl = document.getElementById('code');
+        codeEl.disabled = false;
+        codeEl.placeholder = 'e.g. 0417';
+        onBoardChange();
+      }
+      if (st.code)  { document.getElementById('code').value = st.code; onCodeInput(); }
+      // Restore session/year/papertype/variant after detection runs
+      // Use longer timeout to allow async applyIgcseDropdowns to complete
+      setTimeout(() => {
+        if (st.session) {
+          const sel = document.getElementById('session');
+          if (sel) { sel.value = st.session; onSessionChange(); }
+        }
+        setTimeout(() => {
+          if (st.year) {
+            const yel = document.getElementById('yearSelect');
+            if (yel) { yel.value = st.year; onYearSelectChange(); }
+          }
+          setTimeout(() => {
+            if (st.papertype) {
+              const pel = document.getElementById('papertype');
+              if (pel) { pel.value = st.papertype; onPapertypeChange(); }
+            }
+            setTimeout(() => {
+              if (st.variant) {
+                const vs = document.getElementById('variantSelect');
+                const vi = document.getElementById('variant');
+                if (vs) vs.value = st.variant;
+                if (vi) vi.value = st.variant;
+              }
+            }, 200);
+          }, 300);
+        }, 300);
+      }, 1200);
+    } else {
+      // Handle ?code=X&board=Y params (legacy fallback)
+      const p = new URLSearchParams(window.location.search);
+      const code = p.get('code');
+      const board = p.get('board');
+      if (code) {
+        if (board) { document.getElementById('board').value = board; onBoardChange(); }
+        document.getElementById('code').value = code;
+        onCodeInput();
+        window.history.replaceState({}, '', '/');
+      }
+    }
+
+    // Variant hidden until paper type selected (only if not restoring)
+    if (!_fromCodes) {
+      document.getElementById('variantField').classList.add('variant-hidden');
+      document.getElementById('variantSelect').innerHTML = '<option value="">— Select paper type first —</option>';
+    }
+  });
+  // re-run after splash in case layout shifts
+  setTimeout(setupArrow, 1600);
+
+  // ── Generate ──
+  function generate() {
+    clearFieldErrors();
+    const board     = document.getElementById('board').value;
+    const code      = document.getElementById('code').value.trim();
+    const session   = document.getElementById('session').value;
+    const year = document.getElementById('yearSelect').value.trim();
+    const _varInput  = document.getElementById('variant');
+    const _varSelect = document.getElementById('variantSelect');
+    const variant = (_varSelect.style.display !== 'none')
+      ? _varSelect.value.trim()
+      : _varInput.value.trim();
+    const papertype = document.getElementById('papertype').value;
+
+    if (!board)   { markFieldError('board');     showError('Missing Exam Board! Please select an exam board.'); return; }
+    if (!code)    { markFieldError('code');      showError('Missing Subject Code! Please enter a subject code.'); return; }
+    if (!/^\d{4}$/.test(code)) { markFieldError('code'); showError('Invalid Subject Code! Code must be exactly 4 digits.'); return; }
+    if ((board==='CAIE' && !caieCodesAll.has(code)) || (board==='AQA' && !aqaCodesAll.has(code))) {
+      const s = didYouMean(code, board);
+      markFieldError('code');
+      // build a best-guess URL for bypass
+      const sv = document.getElementById('session').value;
+      const yv = document.getElementById('year').value;
+      const vv = document.getElementById('variantSelect').style.display !== 'none' ? document.getElementById('variantSelect').value : document.getElementById('variant').value;
+      const pt = document.getElementById('papertype').value;
+      let guessUrl = '';
+      if (sv && yv && pt) {
+        const yr = yv.length === 4 ? yv.slice(-2) : yv;
+        if (board === 'CAIE') {
+          guessUrl = pt === 'gt'
+            ? `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${sv}${yr}_gt.pdf`
+            : `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${sv}${yr}_${pt}_${vv}.pdf`;
+        } else {
+          guessUrl = pt === 'gt'
+            ? `https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/aqa-${code}-gt-${sv}${yr}.pdf`
+            : `https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/aqa-${code}${vv}-${pt}-${sv}${yr}.pdf`;
+        }
+      }
+      const otherBoard = board === 'CAIE' ? 'AQA' : 'CAIE';
+      const otherSet   = board === 'CAIE' ? aqaCodesAll : caieCodesAll;
+      if (otherSet.has(code)) {
+        showError(`Invalid Subject Code! This code belongs to ${otherBoard}, not ${board}.`, guessUrl || null);
+      } else {
+        showError('Invalid Subject Code! ' + (s ? 'See suggestion below.' : 'Use the code finder above.'), guessUrl || null);
+        if (s) showDidYouMean(s);
+      }
+      return;
+    }
+    if (!session) { markFieldError('session');   showError('Missing Session! Please select a session.'); return; }
+    if (!year)    { markFieldError('year');      showError('Missing Year! Please enter the year.'); return; }
+    // Accept 2-digit (23) or 4-digit (2023) year
+    let yearVal = year;
+    if (/^\d{4}$/.test(year)) {
+      yearVal = year.slice(2);
+    } else if (!/^\d{2}$/.test(year)) {
+      markFieldError('year'); showError('Invalid Year! Enter a 2 or 4-digit year (e.g. 23 or 2023).'); return;
+    }
+    if (parseInt(yearVal,10) > CURRENT_YEAR) { markFieldError('year'); showError('Invalid Year! Year cannot be in the future.'); return; }
+    if (!papertype){ markFieldError('papertype'); showError('Missing Paper Type! Please select QP, MS or GT.'); return; }
+    if (papertype !== 'gt') {
+      const _noVarTypes = new Set(['gt','gb','er','sp','sm','sg']);
+      if (!variant && !_noVarTypes.has(papertype)) { markFieldError('variant'); showError('Missing Variant! Please enter a variant.'); return; }
+      if (variant && !/^\d{1,2}$/.test(variant)) { markFieldError('variant'); showError('Invalid Variant! Must be a 1–2 digit number.'); return; }
+    }
+
+    // Strip leading zero from variant (e.g. "01" → "1", "11" stays "11")
+    // Single digit variants need leading zero in URL: "1" → "01", "11" stays "11"
+    const variantForUrl = /^\d$/.test(variant) ? '0' + variant : variant;
+
+    // Types with no variant in URL
+    const noVariantTypes = ['gt','gb','er','sp','sm','sg'];
+
+    // sf (Sound File) uses .mp3; everything else uses .pdf
+    const ext = papertype === 'sf' ? 'mp3' : 'pdf';
+    let url = '';
+    if (board === 'CAIE') {
+      if (noVariantTypes.includes(papertype)) {
+        url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${yearVal}_${papertype}.${ext}`;
+      } else {
+        url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${yearVal}_${papertype}_${variantForUrl}.${ext}`;
+      }
+    } else {
+      // AQA URL format: aqa-{code}{variant}-{type}-{session}{year}.pdf
+      // session: jun/nov (2-letter for URL, not full slug)
+      const aqaSess = (session === 's') ? 'jun' : (session === 'w') ? 'nov' : 'mar';
+      if (noVariantTypes.includes(papertype)) {
+        url = `https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/aqa-${code}-${papertype}-${aqaSess}${yearVal}.pdf`;
+      } else {
+        url = `https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/aqa-${code}${variantForUrl}-${papertype}-${aqaSess}${yearVal}.pdf`;
+      }
+    }
+
+    document.getElementById('errorMsg').classList.remove('show');
+
+    // Check PDF exists before showing result
+    const btn = document.querySelector('.btn-generate');
+    const btnText = btn.querySelector('.btn-text');
+    const wifiLoader = document.getElementById('wifi-loader');
+    if (wifiLoader) {
+      btn.style.display = 'none';
+      wifiLoader.classList.add('active');
+    } else {
+      btnText.innerHTML = '<span class="btn-spinner"></span>Checking…';
+      btn.disabled = true;
+    }
+
+    fetch('/api/check-pdf?url=' + encodeURIComponent(url))
+      .then(r => r.json())
+      .then(data => {
+        if (data.exists) {
+          haptic('success');
+          generatedUrl = url;
+          document.getElementById('resultUrl').textContent = url;
+          const rb = document.getElementById('resultBox');
+          rb.classList.remove('show', 'animating');
+          void rb.offsetWidth;
+          rb.classList.add('show', 'animating');
+          saveRecent(url);
+          lbIncrement();
+          setTimeout(() => smoothScrollToBottom(), 50);
+        } else {
+          // If variant has leading zero, retry without it (some older papers omit it)
+          const variantEl = document.getElementById('variantSelect').style.display !== 'none'
+            ? document.getElementById('variantSelect').value
+            : document.getElementById('variant').value;
+          const hasLeadingZero = /^0\d$/.test(variantEl);
+          const altUrl = hasLeadingZero ? url.replace('_' + variantEl + '.', '_' + variantEl.slice(1) + '.') : null;
+
+          if (altUrl && altUrl !== url) {
+            // Try the alternate URL (without leading zero)
+            fetch('/api/check-pdf?url=' + encodeURIComponent(altUrl))
+              .then(r => r.json())
+              .then(altData => {
+                if (altData.exists) {
+                  haptic('success');
+                  generatedUrl = altUrl;
+                  document.getElementById('resultUrl').textContent = altUrl;
+                  const rb = document.getElementById('resultBox');
+                  rb.classList.remove('show', 'animating');
+                  void rb.offsetWidth;
+                  rb.classList.add('show', 'animating');
+                  saveRecent(altUrl);
+                  lbIncrement();
+                  setTimeout(() => smoothScrollToBottom(), 50);
+                } else {
+                  haptic('error');
+                  markFieldError('year'); markFieldError('variant'); markFieldError('session');
+                  showError('File not found! Make sure variant, year & session are correct.', url);
+                  document.getElementById('resultBox').classList.remove('show', 'animating');
+                  generatedUrl = '';
+                }
+              })
+              .catch(() => {
+                haptic('error');
+                markFieldError('year'); markFieldError('variant'); markFieldError('session');
+                showError('File not found! Make sure variant, year & session are correct.', url);
+                document.getElementById('resultBox').classList.remove('show', 'animating');
+                generatedUrl = '';
+              });
+          } else {
+            haptic('error');
+            markFieldError('year'); markFieldError('variant'); markFieldError('session');
+            showError('File not found! Make sure variant, year & session are correct.', url);
+            document.getElementById('resultBox').classList.remove('show', 'animating');
+            generatedUrl = '';
+          }
+        }
+      })
+      .catch(() => {
+        // API unavailable (e.g. local file) — show result anyway
+        haptic('success');
+        generatedUrl = url;
+        document.getElementById('resultUrl').textContent = url;
+        const rb = document.getElementById('resultBox');
+        rb.classList.remove('show', 'animating');
+        void rb.offsetWidth;
+        rb.classList.add('show', 'animating');
+        saveRecent(url);
+        setTimeout(() => smoothScrollToBottom(), 50);
+      })
+      .finally(() => {
+        const wifiLoader2 = document.getElementById('wifi-loader');
+        if (wifiLoader2) wifiLoader2.classList.remove('active');
+        btn.style.display = '';
+        btnText.textContent = 'Generate Link';
+        btn.disabled = false;
+      });
+  }
+
+  // ── Enter key navigation ──
+  (function() {
+    const order = ['board','code','session','year','variant','papertype'];
+    document.addEventListener('keydown', function(e) {
+      if (e.key !== 'Enter') return;
+      const active = document.activeElement;
+      if (!active) return;
+      const idx = order.indexOf(active.id);
+      if (idx === -1) return;
+      e.preventDefault();
+      for (let i = idx + 1; i < order.length; i++) {
+        const next = document.getElementById(order[i]);
+        if (next && !next.disabled && next.offsetParent !== null) {
+          next.focus();
+          return;
+        }
+      }
+      generate();
+    });
+  })();
+
+  function smoothScrollToBottom() {
+    const start = window.scrollY;
+    // Scroll to the version tag, not the very bottom (blank lines are below it)
+    const versionEl = document.querySelector('.version-tag');
+    const end = versionEl
+      ? window.scrollY + versionEl.getBoundingClientRect().bottom - window.innerHeight + 16
+      : document.body.scrollHeight;
+    const dist = end - start;
+    if (Math.abs(dist) < 2) return;
+    // Constant speed: ~600px per second, min 120ms, max 600ms
+    const duration = Math.min(Math.max(Math.abs(dist) / 0.6, 120), 600);
+    const startTime = performance.now();
+    function easeInOutSine(t) {
+      return -(Math.cos(Math.PI * t) - 1) / 2;
+    }
+    function step(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      window.scrollTo(0, start + dist * easeInOutSine(progress));
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function openUrl() { if (generatedUrl) { haptic('light'); window.open(generatedUrl, '_blank'); } }
+  function openViewer() {
+    if (generatedUrl) {
+      window.location.href = '/viewer.html?url=' + encodeURIComponent(generatedUrl);
+    }
+  }
+
+  function shareUrl() {
+    if (!generatedUrl) return;
+    haptic('light');
+    const label = urlToLabel(generatedUrl);
+    if (navigator.share) {
+      navigator.share({
+        title: 'Past Paper — ' + label,
+        text: label,
+        url: generatedUrl
+      }).catch(() => {});
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(generatedUrl).then(() => {
+        const btn = document.getElementById('shareBtn');
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.innerHTML = '&#8679; Share', 1800);
+      });
+    }
+  }
+
+  function toggleTheme() {
+    const cb = document.getElementById('themeToggle');
+    const isLight = cb ? cb.checked : document.body.classList.contains('light');
+    document.body.classList.toggle('light', isLight);
+    try { localStorage.setItem('pp_theme', isLight ? 'light' : 'dark'); } catch {}
+  }
+
+  // Restore saved theme on load
+  (function() {
+    try {
+      if (localStorage.getItem('pp_theme') === 'light') {
+        document.body.classList.add('light');
+        document.addEventListener('DOMContentLoaded', () => {
+          const cb = document.getElementById('themeToggle');
+          if (cb) cb.checked = true;
+        });
+      }
+    } catch {}
+  })();
+
+  function downloadUrl() {
+    if (!generatedUrl) return;
+    const btn = document.querySelector('.btn-download');
+    const filename = generatedUrl.split('/').pop();
+
+    // Try proxy first (works when deployed on Vercel with api/download-pdf.js)
+    const proxyUrl = '/api/download-pdf?url=' + encodeURIComponent(generatedUrl);
+    const dlLoader = document.getElementById('dlLoader');
+    if (dlLoader) {
+      btn.style.display = 'none';
+      dlLoader.classList.add('active');
+    } else {
+      btn.textContent = 'Downloading…';
+      btn.disabled = true;
+    }
+
+    fetch(proxyUrl)
+      .then(r => {
+        if (!r.ok) throw new Error('proxy unavailable');
+        return r.blob();
+      })
+      .then(blob => {
+        // Proxy returned the PDF — trigger native save dialog
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        haptic('medium');
+        const dlLoader3 = document.getElementById('dlLoader');
+        if (dlLoader3) dlLoader3.classList.remove('active');
+        btn.style.display = '';
+        btn.textContent = '✓ Downloaded';
+        setTimeout(() => { btn.textContent = '⬇ Download'; btn.disabled = false; }, 2000);
+      })
+      .catch(() => {
+        // Proxy not available — open in new tab (browser PDF viewer has its own download button)
+        const dlLoader4 = document.getElementById('dlLoader');
+        if (dlLoader4) dlLoader4.classList.remove('active');
+        btn.style.display = '';
+        btn.textContent = '⬇ Download';
+        btn.disabled = false;
+        window.open(generatedUrl, '_blank');
+      });
+  }
+
+  function copyUrl() {
+    if (!generatedUrl) return;
+    haptic('light');
+    const btn = document.querySelector('.btn-copy');
+    function onSuccess() {
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy URL', 1800);
+    }
+    function fallback() {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = generatedUrl;
+        ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        onSuccess();
+      } catch(e) {
+        btn.textContent = 'Failed';
+        setTimeout(() => btn.textContent = 'Copy URL', 1800);
+      }
+    }
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(generatedUrl).then(onSuccess).catch(fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  function showError(msg, bypassUrl) {
+    haptic('error');
+    const el = document.getElementById('errorMsg');
+    el.innerHTML = '';
+    const msgNode = document.createTextNode(msg);
+    el.appendChild(msgNode);
+    if (bypassUrl) {
+      const row = document.createElement('div');
+      row.className = 'bypass-row';
+      const btn = document.createElement('button');
+      btn.className = 'btn-bypass';
+      btn.textContent = '⚠ Force Generate';
+      btn.onclick = () => {
+        generatedUrl = bypassUrl;
+        document.getElementById('resultUrl').textContent = bypassUrl;
+        const rb = document.getElementById('resultBox');
+        rb.classList.remove('show', 'animating');
+        void rb.offsetWidth;
+        rb.classList.add('show', 'animating');
+        el.classList.remove('show');
+        setTimeout(() => smoothScrollToBottom(), 50);
+      };
+      const warn = document.createElement('span');
+      warn.className = 'bypass-warning';
+      warn.textContent = 'link may not work';
+      row.appendChild(btn);
+      row.appendChild(warn);
+      el.appendChild(row);
+    }
+    el.classList.add('show');
+    document.getElementById('resultBox').classList.remove('show');
+  }
+
+  function resetForm() {
+    haptic('light');
+    const icon = document.querySelector('.reset-icon');
+    if (icon) {
+      icon.classList.remove('spinning');
+      void icon.offsetWidth;
+      icon.classList.add('spinning');
+      icon.addEventListener('animationend', () => icon.classList.remove('spinning'), {once:true});
+    }
+    document.getElementById('board').value = '';
+    document.querySelectorAll('.board-btn').forEach(btn => btn.classList.remove('active'));
+    const codeEl = document.getElementById('code');
+    codeEl.disabled = true;
+    codeEl.placeholder = 'Select exam board first';
+    document.getElementById('code').value = '';
+    document.getElementById('session').innerHTML = '<option value="">— Select —</option>';
+    document.getElementById('yearSelect').innerHTML = '<option value="">— Enter code first —</option>';
+    document.getElementById('papertype').innerHTML = '<option value="">— Select year first —</option>';
+    document.getElementById('variantField').classList.add('variant-hidden');
+    document.getElementById('variantSelect').innerHTML = '<option value="">— Select —</option>';
+    document.getElementById('subjectNameTag').textContent = '';
+    document.getElementById('subjectNameTag').classList.remove('visible');
+    document.getElementById('didYouMeanTag').style.display = 'none';
+    document.getElementById('didYouMeanTag').innerHTML = '';
+    document.getElementById('codeSuggestions').classList.remove('open');
+    document.querySelectorAll('.field').forEach(f => f.classList.remove('field-loading'));
+    _manualMode = false;
+    _currentSessions = [];
+    _currentPapersData = null;
+    const mt = document.getElementById('manualToggle');
+    if (mt) { mt.classList.remove('active'); mt.textContent = '✎ Enter manually'; }
+    const mh = document.getElementById('manualHint');
+    if (mh) mh.style.display = 'none';
+    hideResult();
+    generatedUrl = '';
+  }
+
+  function hideResult() {
+    const rb = document.getElementById('resultBox');
+    rb.classList.remove('show');
+    rb.classList.remove('animating');
+    document.getElementById('errorMsg').classList.remove('show');
+    clearFieldErrors();
+  }
+
+  renderRecent();
+</script>
+</body>
+</html>
