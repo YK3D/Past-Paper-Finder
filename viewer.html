@@ -3248,6 +3248,14 @@
     color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .pdf-nav { display: flex; align-items: center; gap: 0.4rem; }
+  .topbar-actions { display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0; }
+  .topbar-btn {
+    background: transparent; border: 1px solid var(--border); border-radius: 6px;
+    color: var(--muted); font-size: 0.7rem; padding: 0.3rem 0.55rem;
+    cursor: pointer; transition: border-color 0.15s, color 0.15s; white-space: nowrap;
+    font-family: 'Space Mono', monospace;
+  }
+  .topbar-btn:hover { border-color: var(--accent); color: var(--accent); }
   .pdf-nav button {
     background: var(--accent); border: none; border-radius: 8px; color: #000;
     font-size: 1.2rem; font-weight: 700; width: 36px; height: 36px;
@@ -3411,9 +3419,17 @@
       <button class="back-btn" style="flex-shrink:0" onclick="goBack()">&#8592; Back</button>
       <span class="pdf-title" id="pdfTitle">Loading&#8230;</span>
       <div class="pdf-nav">
+        <button onclick="zoomOut()" id="btnZoomOut" title="Zoom out">&#8722;</button>
         <button onclick="prevPage()" id="btnPrev">&#8249;</button>
         <span id="pageInfo">&#8212; / &#8212;</span>
         <button onclick="nextPage()" id="btnNext">&#8250;</button>
+        <button onclick="zoomIn()" id="btnZoomIn" title="Zoom in">&#43;</button>
+      </div>
+      <div class="topbar-actions">
+        <button class="topbar-btn" onclick="openOnline()" title="Open on PapaCambridge">&#127760; Online</button>
+        <button class="topbar-btn" onclick="sharePaper()" title="Share">&#8679; Share</button>
+        <button class="topbar-btn" onclick="downloadPaper()" title="Download">&#8659; Download</button>
+        <button class="topbar-btn" onclick="printPaper()" title="Print">&#128424; Print</button>
       </div>
     </div>
     <div class="file-selector-bar" id="fileSelectorBar"></div>
@@ -3627,7 +3643,8 @@
 
     const page = await pdfDoc.getPage(currentPage);
     const baseVp = page.getViewport({ scale: 1 });
-    const scale = Math.min(2.5, (wrap.clientWidth - 32) / baseVp.width) || 1.5;
+    const autoScale = Math.min(2.5, (wrap.clientWidth - 32) / baseVp.width) || 1.5;
+    const scale = _scale || autoScale;
     const vp = page.getViewport({ scale });
     const dpr = window.devicePixelRatio || 1;
 
@@ -3657,6 +3674,11 @@
     pdfjsLib.renderTextLayer({ textContent: tc, container: textDiv, viewport: vp, textDivs: [] });
     wrap.scrollTop = 0;
   }
+
+  var _scale = null; // null = auto-fit
+
+  function zoomIn() { _scale = (_scale || 1.5) * 1.2; if (_scale > 5) _scale = 5; renderPage(currentPage); }
+  function zoomOut() { _scale = (_scale || 1.5) / 1.2; if (_scale < 0.3) _scale = 0.3; renderPage(currentPage); }
 
   function prevPage() { if (pdfDoc && currentPage > 1) renderPage(currentPage - 1); }
   function nextPage() { if (pdfDoc && currentPage < pdfDoc.numPages) renderPage(currentPage + 1); }
@@ -3808,6 +3830,46 @@
   function goBack() {
     sessionStorage.setItem('fromCodes', '1');
     window.location.href = '/';
+  }
+
+  function openOnline() {
+    if (!pdfUrl) return;
+    // Derive PapaCambridge browse page from file URL
+    const m = pdfUrl.match(/upload\/([^/]+)\.(?:pdf|mp3)$/i);
+    if (!m) { window.open(pdfUrl, '_blank'); return; }
+    const base = m[1]; // e.g. 0580_s24_qp_11
+    const p = base.match(/^(\d{4})_([smw])(\d{2})/i);
+    if (p) {
+      const code = p[1], sess = p[2].toLowerCase(), yr = '20' + p[3];
+      const sessSlug = sess === 's' ? (yr >= '2018' ? 'may-june' : 'jun')
+                     : sess === 'w' ? (yr >= '2018' ? 'oct-nov' : 'nov') : 'march';
+      // We don't have the subject slug here — just open the uploads folder path
+    }
+    window.open(pdfUrl.replace('/directories/CAIE/CAIE-pastpapers/upload/', '/papers/caie/').replace(/\/[^/]+$/, ''), '_blank');
+  }
+
+  function sharePaper() {
+    if (!pdfUrl) return;
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: pdfUrl });
+    } else {
+      navigator.clipboard.writeText(pdfUrl).then(() => {
+        const btn = document.querySelector('.topbar-btn[onclick="sharePaper()"]');
+        if (btn) { const orig = btn.innerHTML; btn.innerHTML = '&#10003; Copied'; setTimeout(() => btn.innerHTML = orig, 1500); }
+      });
+    }
+  }
+
+  function downloadPaper() {
+    if (!pdfUrl) return;
+    const a = document.createElement('a');
+    a.href = '/api/download-pdf?url=' + encodeURIComponent(pdfUrl);
+    a.download = pdfUrl.split('/').pop();
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
+
+  function printPaper() {
+    window.print();
   }
 </script>
 </body>
