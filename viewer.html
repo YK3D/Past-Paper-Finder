@@ -3560,9 +3560,9 @@
 
   try { if (localStorage.getItem('pp_theme') === 'light') document.body.classList.add('light'); } catch {}
 
-  // Top-level state — must be declared before any function calls
-  let _allFiles = [];
-  let _currentFileUrl = null;
+  // Top-level state
+  var _allFiles = [];
+  var _currentFileUrl = null;
 
   const params = new URLSearchParams(window.location.search);
   const pdfUrl = params.get('url');
