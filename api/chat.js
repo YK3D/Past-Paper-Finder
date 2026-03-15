@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
   const systemPrompt = 'You are an AI assistant helping a student understand a CAIE/AQA past exam paper.\n\n'
     + context + '\n\nPaper URL: ' + url + '\n\n'
-    + 'Be concise, clear and educational. Format responses in plain text without markdown.';
+    + 'You can use markdown formatting: **bold**, *italic*, bullet points (- item), numbered lists, headings (# Title), and emojis. Be concise, clear and educational. When answering questions, use mark scheme structure where relevant.';
 
   // Build messages array for Groq (OpenAI-compatible format)
   const groqMessages = [{ role: 'system', content: systemPrompt }];
