@@ -1714,7 +1714,7 @@
         <div class="field" style="position:relative">
           <label>Subject Code</label>
           <div class="fav-wrap">
-            <input type="text" id="code" placeholder="Select exam board first" maxlength="4" inputmode="numeric" oninput="onCodeInput()" onkeydown="onCodeKeydown(event)" onblur="hideSuggestions(event)" onfocus="openFavDropdown()" disabled style="padding-right:2.2rem" />
+            <input type="text" id="code" placeholder="Select exam board first" maxlength="4" inputmode="numeric" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="onCodeInput()" onkeydown="onCodeKeydown(event)" onblur="hideSuggestions(event)" onfocus="openFavDropdown()" disabled style="padding-right:2.2rem" />
             <button class="fav-btn" id="favStarBtn" onclick="toggleFavourite()" title="Add to favourites">&#9733;</button>
             <div class="fav-dropdown" id="favDropdown"></div>
           </div>
@@ -2955,7 +2955,6 @@
 
 
   function loadFromRecent(url) {
-    // Parse CAIE URL: .../upload/0580_s24_qp_11.pdf
     const file = url.split('/').pop().replace('.pdf','').replace('.mp3','');
 
     // CAIE format: CODE_SESS+YR_TYPE_VARIANT or CODE_SESS+YR_TYPE
@@ -2965,6 +2964,17 @@
       const fullYear = '20' + yr;
       selectBoard('CAIE');
       document.getElementById('code').value = code;
+      // Activate manual mode so dropdowns are fully editable immediately
+      _manualMode = true;
+      const mt = document.getElementById('manualToggle');
+      if (mt) { mt.classList.add('active'); mt.textContent = '✎ Using dropdowns'; }
+      const mh = document.getElementById('manualHint');
+      if (mh) mh.style.display = 'inline';
+      populateYearRange(1990);
+      repopulateFullSessions('CAIE');
+      resetPapertypeStatic();
+      document.getElementById('variantField').classList.remove('variant-hidden');
+      setVariantMode('select', DEFAULT_VARIANTS);
       applyIgcseDropdowns(code);
       // Wait for dropdowns to populate then set values
       setTimeout(() => {
@@ -2995,6 +3005,16 @@
       const sess = sessMap[sessStr] || 's';
       selectBoard('AQA');
       document.getElementById('code').value = code;
+      _manualMode = true;
+      const mt2 = document.getElementById('manualToggle');
+      if (mt2) { mt2.classList.add('active'); mt2.textContent = '✎ Using dropdowns'; }
+      const mh2 = document.getElementById('manualHint');
+      if (mh2) mh2.style.display = 'inline';
+      populateYearRange(1990);
+      repopulateFullSessions('AQA');
+      resetPapertypeStatic();
+      document.getElementById('variantField').classList.remove('variant-hidden');
+      setVariantMode('select', DEFAULT_VARIANTS);
       applyIgcseDropdowns(code);
       setTimeout(() => {
         const sEl = document.getElementById('sessionSelect');
@@ -3858,20 +3878,33 @@
       }
       if (st.code)  { document.getElementById('code').value = st.code; onCodeInput(); }
       // Restore session/year/papertype/variant after detection runs
+      // Use longer timeout to allow async applyIgcseDropdowns to complete
       setTimeout(() => {
-        if (st.session) { document.getElementById('session').value = st.session; }
-        if (st.year)    { document.getElementById('yearSelect').value = st.year; }
-        if (st.papertype) {
-          document.getElementById('papertype').value = st.papertype;
-          onPapertypeChange();
+        if (st.session) {
+          const sel = document.getElementById('session');
+          if (sel) { sel.value = st.session; onSessionChange(); }
         }
-        if (st.variant) {
-          const vs = document.getElementById('variantSelect');
-          const vi = document.getElementById('variant');
-          if (vs) vs.value = st.variant;
-          if (vi) vi.value = st.variant;
-        }
-      }, 100);
+        setTimeout(() => {
+          if (st.year) {
+            const yel = document.getElementById('yearSelect');
+            if (yel) { yel.value = st.year; onYearSelectChange(); }
+          }
+          setTimeout(() => {
+            if (st.papertype) {
+              const pel = document.getElementById('papertype');
+              if (pel) { pel.value = st.papertype; onPapertypeChange(); }
+            }
+            setTimeout(() => {
+              if (st.variant) {
+                const vs = document.getElementById('variantSelect');
+                const vi = document.getElementById('variant');
+                if (vs) vs.value = st.variant;
+                if (vi) vi.value = st.variant;
+              }
+            }, 200);
+          }, 300);
+        }, 300);
+      }, 1200);
     } else {
       // Handle ?code=X&board=Y params (legacy fallback)
       const p = new URLSearchParams(window.location.search);
