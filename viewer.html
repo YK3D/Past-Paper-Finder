@@ -3,7 +3,7 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.01, maximum-scale=5.0">
 <title>Past Paper Finder</title>
 
 <!-- SEO Meta -->
@@ -316,6 +316,18 @@
     box-shadow: 0 6px 20px rgba(0,229,255,0.3);
   }
   .btn-share:active { transform: translateY(0); box-shadow: none; }
+  .btn-view-chat {
+    flex: 1; padding: 0.6rem; border-radius: 7px;
+    border: 1px solid var(--accent2);
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    cursor: pointer;
+    background: transparent; color: var(--accent2);
+    transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), background 0.2s, color 0.2s;
+  }
+  .btn-view-chat:hover {
+    background: var(--accent2); color: #fff;
+    transform: translateY(-2px);
+  }
 
   /* ── Spinner inside button ── */
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -1089,6 +1101,57 @@
     color: #2a2a40;
     margin-top: 0.25rem;
   }
+  /* ── Favourites ── */
+  .fav-wrap { position: relative; display: block; }
+  .fav-btn {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.2rem;
+    line-height: 1;
+    transition: color 0.2s, transform 0.2s;
+    z-index: 3;
+  }
+  .fav-btn:hover { color: #ffd700; transform: translateY(-50%) scale(1.2); }
+  .fav-btn.starred { color: #ffd700; }
+  .fav-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0; right: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    z-index: 100;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+  .fav-dropdown.open { display: block; }
+  .fav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.8rem;
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    transition: background 0.15s;
+    border-bottom: 1px solid var(--border);
+  }
+  .fav-item:last-child { border-bottom: none; }
+  .fav-item:hover { background: rgba(0,229,255,0.06); }
+  .fav-item-code { color: var(--accent); font-weight: 700; min-width: 2.5rem; }
+  .fav-item-name { color: var(--text); flex: 1; }
+  .fav-item-del { color: var(--muted); font-size: 0.65rem; margin-left: auto; }
+  .fav-item-del:hover { color: #ff4d6d; }
+  .fav-empty { padding: 0.8rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); text-align: center; }
+
   .contact-section {
     margin-top: 2rem;
     padding: 1rem 1.2rem;
@@ -1566,7 +1629,7 @@
 </style>
   <script defer src="/_vercel/speed-insights/script.js"></script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1496392952885490" crossorigin="anonymous"></script>
-  <title>Paper Viewer — PaperFinder</title>
+  <title>PastPaperAI — PaperFinder</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
@@ -1856,6 +1919,18 @@
     box-shadow: 0 6px 20px rgba(0,229,255,0.3);
   }
   .btn-share:active { transform: translateY(0); box-shadow: none; }
+  .btn-view-chat {
+    flex: 1; padding: 0.6rem; border-radius: 7px;
+    border: 1px solid var(--accent2);
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    cursor: pointer;
+    background: transparent; color: var(--accent2);
+    transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), background 0.2s, color 0.2s;
+  }
+  .btn-view-chat:hover {
+    background: var(--accent2); color: #fff;
+    transform: translateY(-2px);
+  }
 
   /* ── Spinner inside button ── */
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -2629,6 +2704,57 @@
     color: #2a2a40;
     margin-top: 0.25rem;
   }
+  /* ── Favourites ── */
+  .fav-wrap { position: relative; display: block; }
+  .fav-btn {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.2rem;
+    line-height: 1;
+    transition: color 0.2s, transform 0.2s;
+    z-index: 3;
+  }
+  .fav-btn:hover { color: #ffd700; transform: translateY(-50%) scale(1.2); }
+  .fav-btn.starred { color: #ffd700; }
+  .fav-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0; right: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    z-index: 100;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+  .fav-dropdown.open { display: block; }
+  .fav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.8rem;
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    transition: background 0.15s;
+    border-bottom: 1px solid var(--border);
+  }
+  .fav-item:last-child { border-bottom: none; }
+  .fav-item:hover { background: rgba(0,229,255,0.06); }
+  .fav-item-code { color: var(--accent); font-weight: 700; min-width: 2.5rem; }
+  .fav-item-name { color: var(--text); flex: 1; }
+  .fav-item-del { color: var(--muted); font-size: 0.65rem; margin-left: auto; }
+  .fav-item-del:hover { color: #ff4d6d; }
+  .fav-empty { padding: 0.8rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); text-align: center; }
+
   .contact-section {
     margin-top: 2rem;
     padding: 1rem 1.2rem;
@@ -3107,164 +3233,96 @@
   * { box-sizing: border-box; }
   body { margin: 0; overflow: hidden; height: 100vh; }
 
-  /* Layout */
-  .viewer-layout {
-    display: flex;
-    height: 100vh;
-    width: 100vw;
-  }
+  .viewer-layout { display: flex; height: 100vh; width: 100vw; }
 
-  /* PDF panel */
-  .pdf-panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    background: var(--bg);
-  }
+  /* ── PDF panel ── */
+  .pdf-panel { flex: 1; display: flex; flex-direction: column; min-width: 0; background: var(--bg); }
+
   .pdf-topbar {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.6rem 1rem;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-    flex-shrink: 0;
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.6rem 1rem; border-bottom: 1px solid var(--border);
+    background: var(--surface); flex-shrink: 0;
   }
   .pdf-title {
-    flex: 1;
-    font-family: 'Space Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    flex: 1; font-family: 'Space Mono', monospace; font-size: 0.7rem;
+    color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .pdf-nav {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-  }
+  .pdf-nav { display: flex; align-items: center; gap: 0.4rem; }
   .pdf-nav button {
-    background: var(--accent);
-    border: none;
-    border-radius: 8px;
-    color: #000;
-    font-size: 1.2rem;
-    font-weight: 700;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: opacity 0.2s, transform 0.15s;
-    flex-shrink: 0;
+    background: var(--accent); border: none; border-radius: 8px; color: #000;
+    font-size: 1.2rem; font-weight: 700; width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: opacity 0.2s, transform 0.15s;
   }
   .pdf-nav button:hover { opacity: 0.85; transform: scale(1.08); }
-  .pdf-nav button:active { transform: scale(0.95); }
-  .pdf-nav button:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
   .pdf-nav span {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--muted);
-    min-width: 4rem;
-    text-align: center;
+    font-family: 'Space Mono', monospace; font-size: 0.7rem;
+    color: var(--muted); min-width: 4rem; text-align: center;
   }
-  .pdf-canvas-wrap {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 1rem;
-    gap: 1rem;
-  }
-  .pdf-canvas-wrap canvas {
-    border-radius: 4px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-  }
-  .pdf-page-wrap { box-shadow: 0 4px 20px rgba(0,0,0,0.4); border-radius: 4px; overflow: hidden; }
-  .pdf-text-layer { opacity: 0 !important; }
-  .pdf-text-layer > span {
-    color: transparent;
-    position: absolute;
-    white-space: pre;
-    cursor: text;
-    transform-origin: 0% 0%;
-    user-select: text;
-    -webkit-user-select: text;
-  }
-  .pdf-text-layer ::selection { background: rgba(0,229,255,0.3); }
-  .pdf-text-layer ::-moz-selection { background: rgba(0,229,255,0.3); }
-  /* File selector bar */
+
+  /* ── File selector ── */
   .file-selector-bar {
-    display: none;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    padding: 0.5rem 1rem;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-    flex-shrink: 0;
-    align-items: center;
-    overflow-x: auto;
+    display: none; flex-wrap: wrap; gap: 0.4rem;
+    padding: 0.5rem 1rem; border-bottom: 1px solid var(--border);
+    background: var(--surface); flex-shrink: 0; align-items: center; overflow-x: auto;
   }
   .file-selector-bar.show { display: flex; }
   .file-chip {
-    padding: 0.3rem 0.7rem;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    font-family: 'Space Mono', monospace;
-    font-size: 0.65rem;
-    cursor: pointer;
-    transition: all 0.15s;
-    white-space: nowrap;
-    background: transparent;
-    color: var(--muted);
+    padding: 0.3rem 0.7rem; border-radius: 20px; border: 1px solid var(--border);
+    font-family: 'Space Mono', monospace; font-size: 0.65rem;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    background: transparent; color: var(--muted);
   }
   .file-chip:hover { border-color: var(--accent); color: var(--accent); }
   .file-chip.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
   .file-chip.audio { border-color: var(--accent2); color: var(--accent2); }
   .file-chip.audio.active { background: var(--accent2); color: #fff; }
 
-  /* Audio player */
+  /* ── PDF canvas wrap ── */
+  .pdf-canvas-wrap {
+    flex: 1; overflow-y: auto; overflow-x: auto;
+    display: flex; flex-direction: column; align-items: center; padding: 1rem; gap: 1rem;
+  }
+  .pdf-page-wrap { box-shadow: 0 4px 20px rgba(0,0,0,0.4); border-radius: 4px; overflow: hidden; flex-shrink: 0; position: relative; }
+  .pdf-page-wrap canvas { display: block; }
+  .pdf-text-layer {
+    position: absolute; top: 0; left: 0; overflow: hidden;
+    line-height: 1; opacity: 0;
+  }
+  .pdf-text-layer > span {
+    color: transparent; position: absolute; white-space: pre;
+    cursor: text; transform-origin: 0% 0%;
+    user-select: text; -webkit-user-select: text;
+  }
+  .pdf-text-layer ::selection { background: rgba(0,229,255,0.3); }
+  .pdf-loading {
+    display: flex; align-items: center; justify-content: center;
+    height: 100%; font-family: 'Space Mono', monospace;
+    font-size: 0.8rem; color: var(--muted); gap: 0.6rem;
+  }
+
+  /* ── Audio player ── */
   .audio-panel {
-    display: none;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 1rem;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
+    display: none; flex-direction: column; gap: 0.8rem;
+    padding: 2rem 1rem; align-items: center; justify-content: center; flex: 1;
   }
   .audio-panel.show { display: flex; }
-  .audio-title { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--muted); margin-bottom: 0.5rem; }
+  .audio-filename { font-family: 'Space Mono', monospace; font-size: 0.8rem; color: var(--text); }
   .audio-controls { display: flex; align-items: center; gap: 0.8rem; }
   .audio-ctrl-btn {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 50%;
-    width: 42px; height: 42px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; font-size: 1.1rem;
-    transition: all 0.15s; color: var(--text);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 50%;
+    width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 1rem; transition: all 0.15s; color: var(--text);
   }
   .audio-ctrl-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .audio-play-btn {
-    background: var(--accent); border: none; color: #000;
-    width: 52px; height: 52px; font-size: 1.3rem; border-radius: 50%;
-  }
+  .audio-play-btn { background: var(--accent); border: none; color: #000; width: 52px; height: 52px; font-size: 1.3rem; }
   .audio-play-btn:hover { opacity: 0.85; }
   .audio-speed {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 6px; color: var(--text); font-family: 'Space Mono', monospace;
-    font-size: 0.7rem; padding: 0.3rem 0.4rem; cursor: pointer; outline: none;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); font-family: 'Space Mono', monospace; font-size: 0.7rem;
+    padding: 0.3rem 0.4rem; cursor: pointer; outline: none;
   }
-  .audio-progress-wrap {
-    width: 100%; max-width: 360px;
-    display: flex; align-items: center; gap: 0.5rem;
-  }
+  .audio-progress-wrap { width: 100%; max-width: 400px; display: flex; align-items: center; gap: 0.5rem; }
   .audio-progress {
     flex: 1; -webkit-appearance: none; appearance: none;
     height: 4px; background: var(--border); border-radius: 2px; outline: none; cursor: pointer;
@@ -3275,208 +3333,70 @@
   }
   .audio-time { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); min-width: 7rem; text-align: center; }
 
-  .pdf-loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    font-family: 'Space Mono', monospace;
-    font-size: 0.8rem;
-    color: var(--muted);
-    gap: 0.6rem;
-  }
+  /* ── Resize handle ── */
+  .resize-handle { width: 4px; cursor: col-resize; background: var(--border); flex-shrink: 0; transition: background 0.2s; }
+  .resize-handle:hover { background: var(--accent); }
 
-  /* Chat panel */
-  .chat-panel {
-    width: 340px;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    border-left: 1px solid var(--border);
-    background: var(--surface);
-  }
-  .chat-topbar {
-    padding: 0.8rem 1rem;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-shrink: 0;
-  }
-  .chat-topbar-title {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 0.9rem;
-    flex: 1;
-  }
+  /* ── Chat panel ── */
+  .chat-panel { width: 340px; flex-shrink: 0; display: flex; flex-direction: column; border-left: 1px solid var(--border); background: var(--surface); }
+  .chat-topbar { padding: 0.8rem 1rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+  .chat-topbar-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.9rem; flex: 1; }
   .chat-topbar-title span { color: var(--accent); }
-  .chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-  }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.8rem; }
   .chat-msg {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.72rem;
-    line-height: 1.6;
-    padding: 0.6rem 0.8rem;
-    border-radius: 8px;
-    max-width: 92%;
+    font-family: 'Space Mono', monospace; font-size: 0.72rem; line-height: 1.6;
+    padding: 0.6rem 0.8rem; border-radius: 8px; max-width: 92%;
   }
-  .chat-msg.user {
-    background: rgba(0,229,255,0.1);
-    border: 1px solid rgba(0,229,255,0.2);
-    align-self: flex-end;
-    color: var(--text);
-  }
-  .chat-msg.ai {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    align-self: flex-start;
-    color: var(--text);
-    white-space: pre-wrap;
-  }
-  .chat-msg.ai.streaming::after {
-    content: '▋';
-    animation: blink 0.7s step-end infinite;
-    color: var(--accent);
-  }
+  .chat-msg.user { background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.2); align-self: flex-end; color: var(--text); }
+  .chat-msg.ai { background: var(--bg); border: 1px solid var(--border); align-self: flex-start; color: var(--text); }
+  .chat-msg.ai.streaming::after { content: "▋"; animation: blink 0.7s step-end infinite; color: var(--accent); }
   @keyframes blink { 50% { opacity: 0; } }
-  .chat-hint {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--muted);
-    padding: 0 1rem 0.5rem;
-    line-height: 1.5;
-    flex-shrink: 0;
-  }
+  .chat-hint { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); padding: 0 1rem 0.5rem; line-height: 1.5; flex-shrink: 0; }
   .chat-hint span { color: var(--accent); cursor: pointer; }
   .chat-hint span:hover { text-decoration: underline; }
-  .chat-input-row {
-    display: flex;
-    gap: 0.5rem;
-    padding: 0.8rem;
-    border-top: 1px solid var(--border);
-    flex-shrink: 0;
-  }
-  /* Chat input — same 3-layer glow as board buttons */
-  .chat-input-wrap {
-    flex: 1;
-    position: relative;
-    border-radius: 8px;
-  }
+  .chat-input-row { display: flex; gap: 0.5rem; padding: 0.8rem; border-top: 1px solid var(--border); flex-shrink: 0; }
+
+  /* ── Chat input glow (3-layer like board buttons) ── */
+  .chat-input-wrap { flex: 1; position: relative; border-radius: 8px; }
   .cin-dark, .cin-border, .cin-glow {
-    position: absolute;
-    inset: 0;
-    border-radius: 8px;
-    pointer-events: none;
-    overflow: hidden;
-    z-index: 0;
-    transition: opacity 0.3s;
+    position: absolute; inset: 0; border-radius: 8px;
+    pointer-events: none; overflow: hidden; z-index: 0; transition: opacity 0.3s;
   }
   .cin-dark::before, .cin-border::before, .cin-glow::before {
-    content: '';
-    position: absolute;
-    top: 50%; left: 50%;
-    width: 600px; height: 600px;
-    background-repeat: no-repeat;
+    content: ''; position: absolute; top: 50%; left: 50%; width: 600px; height: 600px; background-repeat: no-repeat;
   }
   .cin-dark { inset: -1px; }
   .cin-dark::before {
     transform: translate(-50%, -50%) rotate(82deg);
-    background-image: conic-gradient(
-      rgba(0,0,0,0),
-      rgba(0,229,255,0.4),
-      rgba(0,0,0,0) 10%,
-      rgba(0,0,0,0) 50%,
-      rgba(255,77,109,0.4),
-      rgba(0,0,0,0) 60%
-    );
+    background-image: conic-gradient(rgba(0,0,0,0), rgba(0,229,255,0.4), rgba(0,0,0,0) 10%, rgba(0,0,0,0) 50%, rgba(255,77,109,0.4), rgba(0,0,0,0) 60%);
     animation: chatGlowSpin 4s linear infinite;
   }
   .cin-border { inset: -1px; filter: blur(0.5px); }
   .cin-border::before {
     transform: translate(-50%, -50%) rotate(70deg);
-    background-image: conic-gradient(
-      var(--bg),
-      var(--accent) 5%,
-      var(--bg) 14%,
-      var(--bg) 50%,
-      var(--accent2) 60%,
-      var(--bg) 64%
-    );
+    background-image: conic-gradient(var(--bg), var(--accent) 5%, var(--bg) 14%, var(--bg) 50%, var(--accent2) 60%, var(--bg) 64%);
     animation: chatGlowSpin 4s 0.1s linear infinite;
   }
   .cin-glow { inset: -3px; filter: blur(8px); opacity: 0.4; }
   .cin-glow::before {
     transform: translate(-50%, -50%) rotate(60deg);
-    background-image: conic-gradient(
-      #000,
-      var(--accent) 5%,
-      #000 38%,
-      #000 50%,
-      var(--accent2) 60%,
-      #000 87%
-    );
+    background-image: conic-gradient(#000, var(--accent) 5%, #000 38%, #000 50%, var(--accent2) 60%, #000 87%);
     animation: chatGlowSpin 4s 0.3s linear infinite;
   }
-  /* inner mask */
-  .chat-input-wrap::after {
-    content: '';
-    position: absolute;
-    inset: 1.5px;
-    border-radius: 7px;
-    background: var(--bg);
-    z-index: 1;
-    pointer-events: none;
-  }
-  @keyframes chatGlowSpin {
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
-  }
+  .chat-input-wrap::after { content: ''; position: absolute; inset: 1.5px; border-radius: 7px; background: var(--bg); z-index: 1; pointer-events: none; }
+  @keyframes chatGlowSpin { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
   .chat-input {
-    position: relative;
-    z-index: 2;
-    width: 100%;
-    background: transparent;
-    border: none;
-    border-radius: 8px;
-    color: var(--text);
-    font-family: 'Space Mono', monospace;
-    font-size: 0.72rem;
-    padding: 0.5rem 0.7rem;
-    outline: none;
-    resize: none;
-    height: 60px;
-    display: block;
+    position: relative; z-index: 2; width: 100%; background: transparent; border: none;
+    border-radius: 8px; color: var(--text); font-family: 'Space Mono', monospace;
+    font-size: 0.72rem; padding: 0.5rem 0.7rem; outline: none; resize: none; height: 60px; display: block;
   }
   .chat-send {
-    background: var(--accent);
-    border: none;
-    border-radius: 8px;
-    color: #000;
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 0.8rem;
-    padding: 0 0.8rem;
-    cursor: pointer;
-    transition: opacity 0.2s;
-    flex-shrink: 0;
+    background: var(--accent); border: none; border-radius: 8px; color: #000;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    padding: 0 0.8rem; cursor: pointer; transition: opacity 0.2s; flex-shrink: 0;
   }
   .chat-send:hover:not(:disabled) { opacity: 0.85; }
   .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  /* Resize handle */
-  .resize-handle {
-    width: 4px;
-    cursor: col-resize;
-    background: var(--border);
-    flex-shrink: 0;
-    transition: background 0.2s;
-  }
-  .resize-handle:hover { background: var(--accent); }
 
   @media (max-width: 700px) {
     .viewer-layout { flex-direction: column; }
@@ -3486,31 +3406,28 @@
 </style>
 
 <div class="viewer-layout">
-  <!-- PDF panel -->
   <div class="pdf-panel" id="pdfPanel">
     <div class="pdf-topbar">
       <button class="back-btn" style="flex-shrink:0" onclick="goBack()">&#8592; Back</button>
-      <span class="pdf-title" id="pdfTitle">Loading…</span>
+      <span class="pdf-title" id="pdfTitle">Loading&#8230;</span>
       <div class="pdf-nav">
-        <button onclick="prevPage()">&#8249;</button>
-        <span id="pageInfo">— / —</span>
-        <button onclick="nextPage()">&#8250;</button>
+        <button onclick="prevPage()" id="btnPrev">&#8249;</button>
+        <span id="pageInfo">&#8212; / &#8212;</span>
+        <button onclick="nextPage()" id="btnNext">&#8250;</button>
       </div>
     </div>
     <div class="file-selector-bar" id="fileSelectorBar"></div>
-
-    <!-- Audio player (shown instead of PDF for .mp3 files) -->
     <div class="audio-panel" id="audioPanel">
-      <div class="audio-title" id="audioTitle">Loading audio…</div>
+      <div class="audio-filename" id="audioFilename">&#8212;</div>
       <div class="audio-progress-wrap">
         <span class="audio-time" id="audioTime">0:00 / 0:00</span>
         <input type="range" class="audio-progress" id="audioProgress" value="0" min="0" step="0.1">
       </div>
       <div class="audio-controls">
-        <button class="audio-ctrl-btn" onclick="audioSeek(-10)" title="-10s">&#8592;10</button>
+        <button class="audio-ctrl-btn" onclick="audioSeek(-10)">&#8592;10</button>
         <button class="audio-ctrl-btn audio-play-btn" id="audioPlayBtn" onclick="toggleAudio()">&#9654;</button>
-        <button class="audio-ctrl-btn" onclick="audioSeek(10)" title="+10s">10&#8594;</button>
-        <select class="audio-speed" id="audioSpeed" onchange="setAudioSpeed(this.value)">
+        <button class="audio-ctrl-btn" onclick="audioSeek(10)">10&#8594;</button>
+        <select class="audio-speed" id="audioSpeedSel" onchange="setAudioSpeed(this.value)">
           <option value="0.75">0.75x</option>
           <option value="1" selected>1x</option>
           <option value="1.25">1.25x</option>
@@ -3520,19 +3437,13 @@
       </div>
       <audio id="audioEl" onended="onAudioEnded()" ontimeupdate="updateAudioProgress()" onloadedmetadata="updateAudioProgress()"></audio>
     </div>
-
     <div class="pdf-canvas-wrap" id="pdfWrap">
-      <div class="pdf-loading" id="pdfLoading" style="display:flex">
-        <span class="btn-spinner" style="width:18px;height:18px;border-width:2px"></span>
-        Loading PDF…
-      </div>
+      <div class="pdf-loading" id="pdfLoading">Loading PDF&#8230;</div>
     </div>
   </div>
 
-  <!-- Resize handle -->
   <div class="resize-handle" id="resizeHandle"></div>
 
-  <!-- Chat panel -->
   <div class="chat-panel" id="chatPanel">
     <div class="chat-topbar">
       <div class="chat-topbar-title">Paper<span>AI</span></div>
@@ -3547,7 +3458,7 @@
         <div class="cin-dark"></div>
         <div class="cin-border"></div>
         <div class="cin-glow"></div>
-        <textarea class="chat-input" id="chatInput" placeholder="Ask about this paper…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
+        <textarea class="chat-input" id="chatInput" placeholder="Ask about this paper&#8230;" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
       </div>
       <button class="chat-send" id="chatSend" onclick="sendMessage()">Send</button>
     </div>
@@ -3555,194 +3466,155 @@
 </div>
 
 <script>
-  // ── Init ──
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
   try { if (localStorage.getItem('pp_theme') === 'light') document.body.classList.add('light'); } catch {}
 
-  // Top-level state
-  var _allFiles = [];
-  var _currentFileUrl = null;
-
   const params = new URLSearchParams(window.location.search);
-  const pdfUrl = params.get('url');
+  const pdfUrl  = params.get('url');
+  const allUrls = params.get('files');  // optional: comma-separated list of all file URLs
 
+  var pdfDoc = null, currentPage = 1, pdfText = [];
+  var _files = [];
+
+  // ── Init ──
   if (!pdfUrl) {
     document.getElementById('pdfLoading').textContent = 'No PDF URL provided.';
   } else {
     document.getElementById('pdfTitle').textContent = decodeURIComponent(pdfUrl).split('/').pop();
-    // Build related files from URL pattern
-    const relatedFiles = buildRelatedFiles(pdfUrl);
-    buildFileSelector(relatedFiles);
-    loadFile(pdfUrl);
-  }
-
-  function buildRelatedFiles(url) {
-    const files = [];
-    // CAIE: .../upload/CODE_SESS_TYPE_VARIANT.pdf
-    const caie = url.match(/upload\/([^/]+)\.pdf$/);
-    if (!caie) { files.push({label: url.split('/').pop(), url, type:'pdf'}); return files; }
-    const base = caie[1]; // e.g. 0580_s24_qp_11
-    const m = base.match(/^(\d{4}_[smw]\d{2})_([a-z]+)_(\d+)$/) || base.match(/^(\d{4}_[smw]\d{2})_([a-z]+)$/);
-    if (!m) { files.push({label: base, url, type:'pdf'}); return files; }
-    const prefix = m[1]; // e.g. 0580_s24
-    const type = m[2];
-    const variant = m[3] || null;
-    const baseUrl = url.substring(0, url.lastIndexOf('/') + 1);
-    const types = ['qp','ms','er','in','ci','gt','gb','rp','sf'];
-    for (const t of types) {
-      const u = variant
-        ? baseUrl + prefix + '_' + t + '_' + variant + '.pdf'
-        : baseUrl + prefix + '_' + t + '.pdf';
-      const isAudio = t === 'sf';
-      const audioUrl = variant
-        ? baseUrl + prefix + '_sf_' + variant + '.mp3'
-        : baseUrl + prefix + '_sf.mp3';
-      const label = t.toUpperCase() + (variant ? ' v' + parseInt(variant) : '');
-      files.push({ label, url: isAudio ? audioUrl : u, type: isAudio ? 'audio' : 'pdf' });
-    }
-    return files;
-  }
-
-  // ── PDF ──
-  let pdfDoc = null, currentPage = 1, pdfText = [];
-
-  // ── File management ──
-  _currentFileUrl = pdfUrl;
-
-  async function loadFile(url) {
-    _currentFileUrl = url;
-    const isAudio = url && (
-      url.endsWith('.mp3') || url.endsWith('.wav') || url.endsWith('.ogg') ||
-      url.includes('_sf_') || url.includes('_sf.')
-    );
-    document.getElementById('audioPanel').classList.toggle('show', isAudio);
-    document.getElementById('pdfWrap').style.display = isAudio ? 'none' : '';
-    document.querySelectorAll('.pdf-nav button').forEach(b => b.style.visibility = isAudio ? 'hidden' : '');
-
-    if (isAudio) {
-      const audio = document.getElementById('audioEl');
-      const proxyUrl = '/api/download-pdf?url=' + encodeURIComponent(url);
-      audio.src = proxyUrl;
-      document.getElementById('audioTitle').textContent = url.split('/').pop();
-      audio.load();
+    // Build file selector from URL params if provided, else parse from URL
+    if (allUrls) {
+      const urls = allUrls.split(',');
+      _files = urls.map(u => ({
+        url: u,
+        label: labelFromUrl(u),
+        type: isAudioUrl(u) ? 'audio' : 'pdf'
+      }));
     } else {
-      document.getElementById('pdfWrap').innerHTML = '';
-      const loader = document.getElementById('pdfLoading');
-      if (loader) { loader.style.display = 'flex'; loader.textContent = 'Loading PDF…'; }
-      loadPdf(url);
+      _files = inferFilesFromUrl(pdfUrl);
     }
-    // Update chip active state
-    document.querySelectorAll('.file-chip').forEach(c => {
-      c.classList.toggle('active', c.dataset.url === url);
-    });
+    renderFileSelector(_files, pdfUrl);
+    openFile(pdfUrl);
   }
 
-  async function loadPdf(url) {
-    document.getElementById('pdfLoading').style.display = 'flex';
-    try {
-      const proxyUrl = '/api/download-pdf?url=' + encodeURIComponent(url);
-      const resp = await fetch(proxyUrl);
-      if (!resp.ok) throw new Error('fetch failed');
-      const arrayBuffer = await resp.arrayBuffer();
-      pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      document.getElementById('pdfLoading').style.display = 'none';
-      extractAllText();
-      renderPage(1);
-    } catch (e) {
-      document.getElementById('pdfLoading').textContent = 'Could not load PDF. ' + e.message;
+  // ── File selector ──
+  function labelFromUrl(url) {
+    const f = url.split('/').pop().replace('.pdf','').replace('.mp3','');
+    const m = f.match(/_([a-z]+)(?:_(\d+))?$/i);
+    if (m) {
+      const t = m[1].toUpperCase();
+      const v = m[2] ? ' v' + parseInt(m[2]) : '';
+      return t + v;
     }
+    return f;
   }
 
-  function buildFileSelector(files) {
-    _allFiles = files;
+  function isAudioUrl(url) {
+    return url.endsWith('.mp3') || url.endsWith('.wav') || url.includes('_sf_') || url.includes('_sf.');
+  }
+
+  function inferFilesFromUrl(url) {
+    // Only return the single file — don't guess what else exists
+    return [{ url, label: labelFromUrl(url), type: isAudioUrl(url) ? 'audio' : 'pdf' }];
+  }
+
+  function renderFileSelector(files, activeUrl) {
     const bar = document.getElementById('fileSelectorBar');
     if (!files || files.length <= 1) { bar.classList.remove('show'); return; }
     bar.classList.add('show');
     bar.innerHTML = files.map(f => {
-      const isAudio = f.type === 'audio';
-      return '<button class="file-chip' + (isAudio?' audio':'') + (f.url === pdfUrl ? ' active' : '') + '" data-url="' + f.url + '" onclick="loadFile(this.dataset.url)">' + f.label + '</button>';
+      const cls = 'file-chip' + (isAudioUrl(f.url) ? ' audio' : '') + (f.url === activeUrl ? ' active' : '');
+      return '<button class="' + cls + '" data-url="' + f.url + '" onclick="openFile(this.dataset.url)">' + f.label + '</button>';
     }).join('');
   }
 
-  // ── Audio controls ──
-  function toggleAudio() {
-    const audio = document.getElementById('audioEl');
-    const btn = document.getElementById('audioPlayBtn');
-    if (audio.paused) { audio.play(); btn.innerHTML = '&#9646;&#9646;'; }
-    else { audio.pause(); btn.innerHTML = '&#9654;'; }
-  }
-  function audioSeek(secs) {
-    const audio = document.getElementById('audioEl');
-    audio.currentTime = Math.max(0, Math.min(audio.duration || 0, audio.currentTime + secs));
-  }
-  function setAudioSpeed(v) { document.getElementById('audioEl').playbackRate = parseFloat(v); }
-  function onAudioEnded() { document.getElementById('audioPlayBtn').innerHTML = '&#9654;'; }
-  function updateAudioProgress() {
-    const audio = document.getElementById('audioEl');
-    const prog = document.getElementById('audioProgress');
-    const time = document.getElementById('audioTime');
-    if (!isNaN(audio.duration)) {
-      prog.max = audio.duration;
-      prog.value = audio.currentTime;
-      time.textContent = fmt(audio.currentTime) + ' / ' + fmt(audio.duration);
+  // ── Open file (PDF or audio) ──
+  function openFile(url) {
+    // Update active chip
+    document.querySelectorAll('.file-chip').forEach(c => c.classList.toggle('active', c.dataset.url === url));
+    document.getElementById('pdfTitle').textContent = decodeURIComponent(url).split('/').pop();
+
+    if (isAudioUrl(url)) {
+      document.getElementById('audioPanel').classList.add('show');
+      document.getElementById('pdfWrap').style.display = 'none';
+      document.getElementById('btnPrev').style.visibility = 'hidden';
+      document.getElementById('btnNext').style.visibility = 'hidden';
+      const audio = document.getElementById('audioEl');
+      audio.src = '/api/download-pdf?url=' + encodeURIComponent(url);
+      document.getElementById('audioFilename').textContent = url.split('/').pop();
+      audio.load();
+    } else {
+      document.getElementById('audioPanel').classList.remove('show');
+      document.getElementById('pdfWrap').style.display = '';
+      document.getElementById('btnPrev').style.visibility = '';
+      document.getElementById('btnNext').style.visibility = '';
+      loadPdf(url);
     }
   }
-  document.getElementById('audioProgress').addEventListener('input', function() {
-    document.getElementById('audioEl').currentTime = this.value;
-  });
-  function fmt(s) {
-    const m = Math.floor(s/60), sec = Math.floor(s%60);
-    return m + ':' + (sec<10?'0':'') + sec;
+
+  // ── PDF loading ──
+  async function loadPdf(url) {
+    const wrap = document.getElementById('pdfWrap');
+    const loading = document.getElementById('pdfLoading');
+    wrap.innerHTML = '';
+    wrap.appendChild(loading);
+    loading.style.display = 'flex';
+    loading.textContent = 'Loading PDF…';
+    pdfDoc = null; pdfText = []; currentPage = 1;
+    document.getElementById('pageInfo').textContent = '— / —';
+
+    try {
+      const proxyUrl = '/api/download-pdf?url=' + encodeURIComponent(url);
+      const resp = await fetch(proxyUrl);
+      if (!resp.ok) throw new Error('Server returned ' + resp.status);
+      const arrayBuffer = await resp.arrayBuffer();
+      pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      loading.style.display = 'none';
+      extractAllText();
+      renderPage(1);
+    } catch (e) {
+      loading.textContent = 'Could not load PDF: ' + e.message;
+    }
   }
 
-  let _currentScale = null;
-
+  // ── Render page ──
   async function renderPage(n) {
+    if (!pdfDoc) return;
     currentPage = Math.max(1, Math.min(n, pdfDoc.numPages));
     document.getElementById('pageInfo').textContent = currentPage + ' / ' + pdfDoc.numPages;
+
     const wrap = document.getElementById('pdfWrap');
-    wrap.querySelectorAll('.pdf-page-wrap').forEach(c => c.remove());
+    wrap.querySelectorAll('.pdf-page-wrap').forEach(el => el.remove());
+
     const page = await pdfDoc.getPage(currentPage);
     const baseVp = page.getViewport({ scale: 1 });
     const scale = Math.min(2.5, (wrap.clientWidth - 32) / baseVp.width) || 1.5;
-    _currentScale = scale;
     const vp = page.getViewport({ scale });
+    const dpr = window.devicePixelRatio || 1;
 
-    // Page wrapper for canvas + text layer
     const pageWrap = document.createElement('div');
     pageWrap.className = 'pdf-page-wrap';
-    pageWrap.style.cssText = 'position:relative;width:' + vp.width + 'px;height:' + vp.height + 'px;flex-shrink:0';
+    pageWrap.style.width = vp.width + 'px';
+    pageWrap.style.height = vp.height + 'px';
 
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = vp.width * dpr;
-    canvas.height = vp.height * dpr;
+    canvas.width = Math.floor(vp.width * dpr);
+    canvas.height = Math.floor(vp.height * dpr);
     canvas.style.width = vp.width + 'px';
     canvas.style.height = vp.height + 'px';
-    canvas.style.display = 'block';
     ctx.scale(dpr, dpr);
     pageWrap.appendChild(canvas);
 
-    // Text layer for selectable text
-    const textLayerDiv = document.createElement('div');
-    textLayerDiv.className = 'pdf-text-layer';
-    textLayerDiv.style.cssText = 'position:absolute;top:0;left:0;width:' + vp.width + 'px;height:' + vp.height + 'px;overflow:hidden;opacity:0.2;line-height:1';
-    pageWrap.appendChild(textLayerDiv);
+    const textDiv = document.createElement('div');
+    textDiv.className = 'pdf-text-layer';
+    textDiv.style.width = vp.width + 'px';
+    textDiv.style.height = vp.height + 'px';
+    pageWrap.appendChild(textDiv);
     wrap.appendChild(pageWrap);
 
     await page.render({ canvasContext: ctx, viewport: vp }).promise;
-
-    // Render text layer
-    const textContent = await page.getTextContent();
-    pdfjsLib.renderTextLayer({
-      textContent,
-      container: textLayerDiv,
-      viewport: vp,
-      textDivs: []
-    });
-
+    const tc = await page.getTextContent();
+    pdfjsLib.renderTextLayer({ textContent: tc, container: textDiv, viewport: vp, textDivs: [] });
     wrap.scrollTop = 0;
   }
 
@@ -3753,22 +3625,79 @@
     if (!pdfDoc) return;
     pdfText = [];
     for (let i = 1; i <= Math.min(pdfDoc.numPages, 20); i++) {
-      const page = await pdfDoc.getPage(i);
-      const tc = await page.getTextContent();
+      const pg = await pdfDoc.getPage(i);
+      const tc = await pg.getTextContent();
       pdfText.push(tc.items.map(s => s.str).join(' '));
     }
-    // Update hint
-    const hint = document.getElementById('chatHint');
-    hint.innerHTML = "Suggested: <span onclick=\"ask('Summarise this paper')\">Summarise</span> &middot; <span onclick=\"ask('What topics does this cover?')\">Topics</span> &middot; <span onclick=\"ask('Explain question 1')\">Explain Q1</span>";
+    const _hint = document.getElementById('chatHint');
+    _hint.innerHTML = "Suggested: <span onclick=\"ask('Summarise this paper')\">Summarise</span> &middot; <span onclick=\"ask('What topics does this cover?')\">Topics</span> &middot; <span onclick=\"ask('Explain question 1')\">Explain Q1</span>";
   }
 
-  function ask(q) {
-    document.getElementById('chatInput').value = q;
-    sendMessage();
+  // ── Audio ──
+  function toggleAudio() {
+    const a = document.getElementById('audioEl');
+    const btn = document.getElementById('audioPlayBtn');
+    if (a.paused) { a.play(); btn.innerHTML = '&#9646;&#9646;'; }
+    else { a.pause(); btn.innerHTML = '&#9654;'; }
   }
+  function audioSeek(s) {
+    const a = document.getElementById('audioEl');
+    a.currentTime = Math.max(0, Math.min(a.duration || 0, a.currentTime + s));
+  }
+  function setAudioSpeed(v) { document.getElementById('audioEl').playbackRate = parseFloat(v); }
+  function onAudioEnded() { document.getElementById('audioPlayBtn').innerHTML = '&#9654;'; }
+  function updateAudioProgress() {
+    const a = document.getElementById('audioEl');
+    const p = document.getElementById('audioProgress');
+    const t = document.getElementById('audioTime');
+    if (!isNaN(a.duration)) {
+      p.max = a.duration; p.value = a.currentTime;
+      t.textContent = fmt(a.currentTime) + ' / ' + fmt(a.duration);
+    }
+  }
+  document.getElementById('audioProgress').addEventListener('input', function() {
+    document.getElementById('audioEl').currentTime = this.value;
+  });
+  function fmt(s) { const m = Math.floor(s/60), sec = Math.floor(s%60); return m + ':' + (sec<10?'0':'') + sec; }
+
+  // ── Resize ──
+  const handle = document.getElementById('resizeHandle');
+  let resizing = false;
+  handle.addEventListener('mousedown', () => { resizing = true; document.body.style.userSelect = 'none'; });
+  document.addEventListener('mousemove', e => {
+    if (!resizing) return;
+    const layout = document.querySelector('.viewer-layout');
+    const chatWidth = Math.max(260, Math.min(600, layout.getBoundingClientRect().right - e.clientX));
+    document.getElementById('chatPanel').style.width = chatWidth + 'px';
+  });
+  document.addEventListener('mouseup', () => { resizing = false; document.body.style.userSelect = ''; });
 
   // ── Chat ──
   const history = [];
+
+  function renderMarkdown(text) {
+    return text
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g,'<em>$1</em>')
+      .replace(/`(.+?)`/g,'<code style="background:rgba(0,229,255,0.1);padding:0.1em 0.3em;border-radius:3px">$1</code>')
+      .replace(/^#{1,3}\s+(.+)$/gm,'<div style="font-weight:700;font-size:0.85rem;color:var(--accent);margin:0.3em 0">$1</div>')
+      .replace(/^[-*]\s+(.+)$/gm,'<div style="padding-left:0.8em">&#8226; $1</div>')
+      .replace(/^(\d+)\.\s+(.+)$/gm,'<div style="padding-left:0.8em">$1. $2</div>')
+      .replace(/\n/g,'<br>');
+  }
+
+  function addMsg(role, text) {
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + role;
+    if (role === 'ai' && text) div.innerHTML = renderMarkdown(text);
+    else div.textContent = text;
+    document.getElementById('chatMessages').appendChild(div);
+    scrollChat();
+    return div;
+  }
+
+  function ask(q) { document.getElementById('chatInput').value = q; sendMessage(); }
 
   async function sendMessage() {
     const input = document.getElementById('chatInput');
@@ -3777,29 +3706,20 @@
     input.value = '';
     addMsg('user', msg);
     history.push({ role: 'user', content: msg });
-
     const sendBtn = document.getElementById('chatSend');
     sendBtn.disabled = true;
-
     const aiDiv = addMsg('ai', '');
     aiDiv.classList.add('streaming');
 
     try {
-      const fileList = _allFiles.length > 1
-        ? "Available files for this paper: " + _allFiles.map(f=>f.label + ' (' + f.type + ')').join(', ') + "\n\n"
-        : "";
-      const context = fileList + (pdfText.length
-        ? "Extracted text from current file (may be partial):\n\n" + pdfText.join("\n\n---\n\n").slice(0, 8000)
-        : "No text extracted from current file.");
+      const context = pdfText.length
+        ? 'Extracted text from exam paper:\n\n' + pdfText.join('\n\n---\n\n').slice(0, 8000)
+        : 'No text extracted.';
 
       const resp = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: history,
-          context,
-          url: pdfUrl
-        })
+        body: JSON.stringify({ messages: history, context, url: pdfUrl })
       });
 
       if (!resp.ok) {
@@ -3808,7 +3728,6 @@
         throw new Error('API error ' + resp.status);
       }
 
-      // Stream response
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
       let full = '';
@@ -3816,82 +3735,34 @@
         const { done, value } = await reader.read();
         if (done) break;
         const chunk = decoder.decode(value);
-        // Parse SSE lines
-        for (const line of chunk.split("\n")) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-            if (data === '[DONE]') break;
+        for (const line of chunk.split('\n')) {
+          if (line.startsWith('data: ') && line !== 'data: [DONE]') {
             try {
-              const j = JSON.parse(data);
-              const delta = j.delta?.text || j.choices?.[0]?.delta?.content || '';
-              full += delta;
-              aiDiv.innerHTML = renderMarkdown(full);
-              scrollChat();
+              const d = JSON.parse(line.slice(6));
+              const delta = d.delta && d.delta.text ? d.delta.text : '';
+              if (delta) { full += delta; aiDiv.innerHTML = renderMarkdown(full); scrollChat(); }
             } catch {}
           }
         }
       }
       aiDiv.classList.remove('streaming');
-      if (!full) aiDiv.innerHTML = 'Sorry, I could not get a response.';
+      if (!full) aiDiv.textContent = 'Sorry, could not get a response.';
       history.push({ role: 'assistant', content: full });
     } catch (e) {
       aiDiv.classList.remove('streaming');
       aiDiv.textContent = 'Error: ' + e.message;
     }
-
     sendBtn.disabled = false;
     input.focus();
   }
 
-  function renderMarkdown(text) {
-    // Simple markdown: bold, bullets, emojis pass through, line breaks
-    return text
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-      .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g,'<em>$1</em>')
-      .replace(/`(.+?)`/g,'<code style="background:rgba(0,229,255,0.1);padding:0.1em 0.3em;border-radius:3px;font-size:0.9em">$1</code>')
-      .replace(/^#{1,3}\s+(.+)$/gm,'<div style="font-weight:700;font-size:0.85rem;color:var(--accent);margin:0.4em 0">$1</div>')
-      .replace(/^[\-\*]\s+(.+)$/gm,'<div style="padding-left:0.8em">&#8226; $1</div>')
-      .replace(/^(\d+)\.\s+(.+)$/gm,'<div style="padding-left:0.8em">$1. $2</div>')
-      .replace(/\n/g,'<br>');
-  }
-
-  function addMsg(role, text) {
-    const div = document.createElement('div');
-    div.className = 'chat-msg ' + role;
-    if (role === 'ai' && text) {
-      div.innerHTML = renderMarkdown(text);
-    } else {
-      div.textContent = text;
-    }
-    document.getElementById('chatMessages').appendChild(div);
-    scrollChat();
-    return div;
-  }
-
-  function scrollChat() {
-    const msgs = document.getElementById('chatMessages');
-    msgs.scrollTop = msgs.scrollHeight;
-  }
+  function scrollChat() { const m = document.getElementById('chatMessages'); m.scrollTop = m.scrollHeight; }
 
   function clearChat() {
-    const msgs = document.getElementById('chatMessages');
-    msgs.innerHTML = '<div class="chat-msg ai">Chat cleared. Ask me anything about this paper.</div>';
+    document.getElementById('chatMessages').innerHTML =
+      '<div class="chat-msg ai">Chat cleared. Ask me anything about this paper.</div>';
     history.length = 0;
   }
-
-  // ── Resize handle ──
-  const handle = document.getElementById('resizeHandle');
-  let resizing = false;
-  handle.addEventListener('mousedown', e => { resizing = true; document.body.style.userSelect = 'none'; });
-  document.addEventListener('mousemove', e => {
-    if (!resizing) return;
-    const layout = document.querySelector('.viewer-layout');
-    const rect = layout.getBoundingClientRect();
-    const chatWidth = Math.max(260, Math.min(600, rect.right - e.clientX));
-    document.getElementById('chatPanel').style.width = chatWidth + 'px';
-  });
-  document.addEventListener('mouseup', () => { resizing = false; document.body.style.userSelect = ''; });
 
   function goBack() {
     sessionStorage.setItem('fromCodes', '1');
