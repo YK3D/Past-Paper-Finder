@@ -703,6 +703,22 @@
   .cat-label:first-of-type { border-top: none; }
 
   .code-table { width: 100%; border-collapse: collapse; }
+  .cat-label {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .cat-label::before {
+    content: '▾';
+    font-size: 0.75rem;
+    transition: transform 0.2s;
+    display: inline-block;
+  }
+  .cat-label.collapsed::before { transform: rotate(-90deg); }
+  .cat-section { overflow: hidden; transition: max-height 0.3s ease; }
+  .cat-section.collapsed { display: none; }
   .code-table tr { transition: background 0.12s; cursor: pointer; }
   .code-table tr:hover { background: rgba(255,255,255,0.04); }
   .code-table td { padding: 0.38rem 1.2rem; font-size: 0.8rem; line-height: 1.4; }
@@ -1075,7 +1091,8 @@
         <div class="sec-title">CAIE — Cambridge</div>
       </div>
 
-      <div class="cat-label">IGCSE</div>
+      <div class="cat-label" onclick="toggleSection('sec-igcse')">IGCSE</div>
+      <div class="cat-section" id="sec-igcse">
       <table class="code-table">
         <tr onclick="useCode('0262')"><td class="c-code">0262</td><td class="c-name">Swahili</td></tr>
         <tr onclick="useCode('0400')"><td class="c-code">0400</td><td class="c-name">Art & Design</td></tr>
@@ -1197,8 +1214,10 @@
         <tr onclick="useCode('0698')"><td class="c-code">0698</td><td class="c-name">Setswana - First Language</td></tr>
         <tr onclick="useCode('0985')"><td class="c-code">0985</td><td class="c-name">Accounting</td></tr>
       </table>
+      </div>
 
-      <div class="cat-label">O Level</div>
+      <div class="cat-label" onclick="toggleSection('sec-o-level')">O Level</div>
+      <div class="cat-section" id="sec-o-level">
       <table class="code-table">
         <tr onclick="useCode('2010')"><td class="c-code">2010</td><td class="c-name">Literature in English</td></tr>
         <tr onclick="useCode('2058')"><td class="c-code">2058</td><td class="c-name">Islamiyat</td></tr>
@@ -1215,14 +1234,18 @@
         <tr onclick="useCode('7100')"><td class="c-code">7100</td><td class="c-name">Commerce</td></tr>
         <tr onclick="useCode('7115')"><td class="c-code">7115</td><td class="c-name">Business Studies</td></tr>
       </table>
+      </div>
 
-      <div class="cat-label">AS Level</div>
+      <div class="cat-label" onclick="toggleSection('sec-as-level')">AS Level</div>
+      <div class="cat-section" id="sec-as-level">
       <table class="code-table">
         <tr onclick="useCode('8291')"><td class="c-code">8291</td><td class="c-name">Environmental Management</td></tr>
         <tr onclick="useCode('8695')"><td class="c-code">8695</td><td class="c-name">Language &amp; Literature in English</td></tr>
       </table>
+      </div>
 
-      <div class="cat-label">A Level</div>
+      <div class="cat-label" onclick="toggleSection('sec-a-level')">A Level</div>
+      <div class="cat-section" id="sec-a-level">
       <table class="code-table">
         <tr onclick="useCode('9084')"><td class="c-code">9084</td><td class="c-name">Law</td></tr>
         <tr onclick="useCode('9184')"><td class="c-code">9184</td><td class="c-name">Biology (for first examination 2025)</td></tr>
@@ -1293,6 +1316,7 @@
         <tr onclick="useCode('9709')"><td class="c-code">9709</td><td class="c-name">Mathematics</td></tr>
         <tr onclick="useCode('9990')"><td class="c-code">9990</td><td class="c-name">Psychology</td></tr>
       </table>
+      </div>
     </div>
 
     <!-- AQA -->
@@ -1301,7 +1325,8 @@
         <div class="sec-title">AQA — Oxford (OxfordAQA)</div>
       </div>
 
-      <div class="cat-label">International GCSE</div>
+      <div class="cat-label" onclick="toggleSection('sec-international-gcse')">International GCSE</div>
+      <div class="cat-section" id="sec-international-gcse">
       <table class="code-table">
         <tr onclick="useCode('9201')"><td class="c-code">9201</td><td class="c-name">Biology</td></tr>
         <tr onclick="useCode('9202')"><td class="c-code">9202</td><td class="c-name">Chemistry</td></tr>
@@ -1330,8 +1355,10 @@
         <tr onclick="useCode('9285')"><td class="c-code">9285</td><td class="c-name">CORE English as a Second Language (Short Course)</td></tr>
         <tr onclick="useCode('9697')"><td class="c-code">9697</td><td class="c-name">Global Skills Projects</td></tr>
       </table>
+      </div>
 
-      <div class="cat-label">International AS &amp; A Level</div>
+      <div class="cat-label" onclick="toggleSection('sec-international-as-amp-a-level')">International AS &amp; A Level</div>
+      <div class="cat-section" id="sec-international-as-amp-a-level">
       <table class="code-table">
         <tr onclick="useCode('9610')"><td class="c-code">9610</td><td class="c-name">Biology</td></tr>
         <tr onclick="useCode('9615')"><td class="c-code">9615</td><td class="c-name">Accounting</td></tr>
@@ -1347,6 +1374,7 @@
         <tr onclick="useCode('9675')"><td class="c-code">9675</td><td class="c-name">English Literature</td></tr>
         <tr onclick="useCode('9685')"><td class="c-code">9685</td><td class="c-name">Psychology</td></tr>
       </table>
+      </div>
     </div>
 
   </div>
@@ -1811,6 +1839,14 @@ function filterCodes() {
     sessionStorage.setItem('pfState', JSON.stringify(newState));
     sessionStorage.setItem('fromCodes', '1');
     window.location.href = '/';
+  }
+
+  function toggleSection(id) {
+    const sec = document.getElementById(id);
+    const lbl = sec && sec.previousElementSibling;
+    if (!sec) return;
+    const collapsed = sec.classList.toggle('collapsed');
+    if (lbl) lbl.classList.toggle('collapsed', collapsed);
   }
 
   function goBack() {
