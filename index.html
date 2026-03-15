@@ -2976,23 +2976,18 @@
       document.getElementById('variantField').classList.remove('variant-hidden');
       setVariantMode('select', DEFAULT_VARIANTS);
       applyIgcseDropdowns(code);
-      // Wait for dropdowns to populate then set values
+      // Load fields sequentially - each waits for previous
+      const _setField = (id, val, cb, delay) => setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el && val) { el.value = val; if (cb) cb(); }
+      }, delay);
+      _setField('session', sess, onSessionChange, 1000);
+      _setField('yearSelect', fullYear, onYearSelectChange, 1400);
+      _setField('papertype', type, onPapertypeChange, 2200);
       setTimeout(() => {
-        const sEl = document.getElementById('sessionSelect');
-        const yEl = document.getElementById('yearSelect');
-        if (sEl) { sEl.value = sess; onSessionChange(); }
-        setTimeout(() => {
-          if (yEl) { yEl.value = fullYear; fetchPapersForSelection(); }
-          setTimeout(() => {
-            const tEl = document.getElementById('typeSelect');
-            if (tEl) { tEl.value = type; updateVariantForType(type); }
-            setTimeout(() => {
-              const vEl = document.getElementById('variantSelect');
-              if (vEl && variant) vEl.value = variant.padStart(2,'0');
-            }, 200);
-          }, 400);
-        }, 200);
-      }, 800);
+        const vEl = document.getElementById('variantSelect');
+        if (vEl && variant) vEl.value = variant.padStart(2,'0');
+      }, 2600);
       return;
     }
 
@@ -3016,22 +3011,17 @@
       document.getElementById('variantField').classList.remove('variant-hidden');
       setVariantMode('select', DEFAULT_VARIANTS);
       applyIgcseDropdowns(code);
+      const _setField2 = (id, val, cb, delay) => setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el && val) { el.value = val; if (cb) cb(); }
+      }, delay);
+      _setField2('session', sess, onSessionChange, 1000);
+      _setField2('yearSelect', fullYear, onYearSelectChange, 1400);
+      _setField2('papertype', type, onPapertypeChange, 2200);
       setTimeout(() => {
-        const sEl = document.getElementById('sessionSelect');
-        if (sEl) { sEl.value = sess; onSessionChange(); }
-        setTimeout(() => {
-          const yEl = document.getElementById('yearSelect');
-          if (yEl) { yEl.value = fullYear; fetchPapersForSelection(); }
-          setTimeout(() => {
-            const tEl = document.getElementById('typeSelect');
-            if (tEl) { tEl.value = type; updateVariantForType(type); }
-            setTimeout(() => {
-              const vEl = document.getElementById('variantSelect');
-              if (vEl && variant) vEl.value = variant;
-            }, 200);
-          }, 400);
-        }, 200);
-      }, 800);
+        const vEl = document.getElementById('variantSelect');
+        if (vEl && variant) vEl.value = variant;
+      }, 2600);
       return;
     }
 
@@ -4163,9 +4153,47 @@
 
   function openUrl() { if (generatedUrl) { haptic('light'); window.open(generatedUrl, '_blank'); } }
   function openViewer() {
-    if (generatedUrl) {
-      window.location.href = '/viewer.html?url=' + encodeURIComponent(generatedUrl);
+    if (!generatedUrl) return;
+    // Build list of all available files for this variant from scanned papers data
+    let fileUrls = [generatedUrl];
+    if (_currentPapersData) {
+      const board = document.getElementById('board').value;
+      const code  = document.getElementById('code').value.trim();
+      const sess  = document.getElementById('session').value;
+      const year  = document.getElementById('yearSelect').value;
+      const variant = (document.getElementById('variantSelect') && document.getElementById('variantSelect').value)
+                    || (document.getElementById('variant') && document.getElementById('variant').value) || '';
+      const baseUrl = board === 'AQA'
+        ? 'https://pastpapers.papacambridge.com/directories/AQA/AQA-pastpapers/upload/'
+        : 'https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/';
+      const sessCode = sess === 's' ? 's' : sess === 'w' ? 'w' : 'm';
+      const yr2 = year.slice(-2);
+
+      fileUrls = [];
+      if (board === 'CAIE') {
+        const noVariantTypes = new Set(['gt','gb','er','sp','sm','sg']);
+        for (const [type, variants] of Object.entries(_currentPapersData)) {
+          if (noVariantTypes.has(type)) {
+            fileUrls.push(baseUrl + code + '_' + sessCode + yr2 + '_' + type + '.pdf');
+          } else if (variants && variants.length) {
+            for (const v of variants) {
+              const vPad = String(v).padStart(2,'0');
+              if (!variant || vPad === variant || String(parseInt(v)) === String(parseInt(variant))) {
+                const ext = type === 'sf' ? '.mp3' : '.pdf';
+                fileUrls.push(baseUrl + code + '_' + sessCode + yr2 + '_' + type + '_' + vPad + ext);
+              }
+            }
+          }
+        }
+      }
+      // Ensure current URL is in the list
+      if (!fileUrls.includes(generatedUrl)) fileUrls.unshift(generatedUrl);
     }
+
+    const params = new URLSearchParams();
+    params.set('url', generatedUrl);
+    if (fileUrls.length > 1) params.set('files', fileUrls.join(','));
+    window.location.href = '/viewer.html?' + params.toString();
   }
 
   function shareUrl() {
