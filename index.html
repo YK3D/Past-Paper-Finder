@@ -147,154 +147,57 @@
     gap: 0.5rem;
     margin-bottom: 0.1rem;
   }
-  /* ── Cosmic theme toggle ── */
-  .cosmic-toggle {
+  /* ── Day/Night theme switch ── */
+  .switch {
+    font-size: 13px;
     position: relative;
-    width: 80px;
-    height: 40px;
-    transform-style: preserve-3d;
-    perspective: 500px;
+    display: inline-block;
+    width: 4em;
+    height: 2.2em;
+    border-radius: 30px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
     margin-left: auto;
     flex-shrink: 0;
   }
-  .toggle { opacity: 0; width: 0; height: 0; }
-  .slider {
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch .slider {
     position: absolute;
     cursor: pointer;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(45deg, #1a1a2e, #16213e);
-    border-radius: 35px;
-    transition: 0.5s;
-    transform-style: preserve-3d;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5), inset 0 0 15px rgba(255,255,255,0.05);
+    background-color: #2a2a2a;
+    transition: 0.4s;
+    border-radius: 30px;
     overflow: hidden;
   }
-  .cosmos {
+  .switch .slider:before {
     position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(1px 1px at 10% 10%, #fff 100%, transparent),
-      radial-gradient(1px 1px at 20% 20%, #fff 100%, transparent),
-      radial-gradient(2px 2px at 30% 30%, #fff 100%, transparent),
-      radial-gradient(1px 1px at 40% 40%, #fff 100%, transparent),
-      radial-gradient(2px 2px at 50% 50%, #fff 100%, transparent),
-      radial-gradient(1px 1px at 60% 60%, #fff 100%, transparent),
-      radial-gradient(2px 2px at 70% 70%, #fff 100%, transparent),
-      radial-gradient(1px 1px at 80% 80%, #fff 100%, transparent),
-      radial-gradient(1px 1px at 90% 90%, #fff 100%, transparent);
-    background-size: 200% 200%;
-    opacity: 0.1;
-    transition: 0.5s;
-  }
-  .toggle-orb {
-    position: absolute;
-    height: 34px; width: 34px;
-    left: 3px; bottom: 3px;
-    background: linear-gradient(145deg, #ff6b6b, #4ecdc4);
-    border-radius: 50%;
-    transition: 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    transform-style: preserve-3d;
-    z-index: 2;
-  }
-  .inner-orb {
-    position: absolute;
-    inset: 4px;
-    border-radius: 50%;
-    background: linear-gradient(145deg, #fff, #e6e6e6);
-    transition: 0.5s;
-    overflow: hidden;
-  }
-  .inner-orb::before {
     content: "";
-    position: absolute;
-    inset: 0;
-    background: repeating-conic-gradient(from 0deg, transparent 0deg, rgba(0,0,0,0.1) 10deg, transparent 20deg);
-    animation: patternRotate 10s linear infinite;
+    height: 1.2em; width: 1.2em;
+    border-radius: 20px;
+    left: 0.5em; bottom: 0.5em;
+    transition: 0.4s;
+    transition-timing-function: cubic-bezier(0.81, -0.04, 0.38, 1.5);
+    box-shadow: inset 8px -4px 0px 0px #fff;
   }
-  .ring {
-    position: absolute;
-    inset: -3px;
-    border: 2px solid rgba(255,255,255,0.1);
-    border-radius: 50%;
-    transition: 0.5s;
+  .switch input:checked + .slider { background-color: #00a6ff; }
+  .switch input:checked + .slider:before {
+    transform: translateX(1.8em);
+    box-shadow: inset 15px -4px 0px 15px #ffcf48;
   }
-  .toggle:checked + .slider { background: linear-gradient(45deg, #16213e, #1a1a2e); }
-  .toggle:checked + .slider .toggle-orb {
-    transform: translateX(40px) rotate(360deg);
-    background: linear-gradient(145deg, #4ecdc4, #45b7af);
+  .switch .star {
+    background-color: #fff; border-radius: 50%;
+    position: absolute; width: 5px; height: 5px; transition: all 0.4s;
   }
-  .toggle:checked + .slider .inner-orb {
-    background: linear-gradient(145deg, #45b7af, #3da89f);
-    transform: scale(0.9);
+  .switch .star_1 { left: 2.5em; top: 0.5em; }
+  .switch .star_2 { left: 2.2em; top: 1.2em; }
+  .switch .star_3 { left: 3em;   top: 0.9em; }
+  .switch input:checked ~ .slider .star { opacity: 0; }
+  .switch .cloud {
+    width: 3.5em; position: absolute;
+    bottom: -1.4em; left: -1.1em;
+    opacity: 0; transition: all 0.4s;
   }
-  .toggle:checked + .slider .ring {
-    border-color: rgba(78,205,196,0.3);
-    animation: ringPulse 2s infinite;
-  }
-  .energy-line {
-    position: absolute;
-    width: 100%; height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(78,205,196,0.5), transparent);
-    transform-origin: left;
-    opacity: 0;
-    transition: 0.5s;
-  }
-  .energy-line:nth-child(1) { top: 20%; transform: rotate(15deg); }
-  .energy-line:nth-child(2) { top: 50%; transform: rotate(0deg); }
-  .energy-line:nth-child(3) { top: 80%; transform: rotate(-15deg); }
-  .toggle:checked + .slider .energy-line { opacity: 1; animation: energyFlow 2s linear infinite; }
-  .particles { position: absolute; width: 100%; height: 100%; }
-  .particle {
-    position: absolute;
-    width: 4px; height: 4px;
-    background: #4ecdc4;
-    border-radius: 50%;
-    opacity: 0;
-  }
-  .toggle:checked + .slider .particle { animation: particleBurst 1s ease-out infinite; }
-  .particle:nth-child(1) { left: 20%; animation-delay: 0s; }
-  .particle:nth-child(2) { left: 40%; animation-delay: 0.2s; }
-  .particle:nth-child(3) { left: 60%; animation-delay: 0.4s; }
-  .particle:nth-child(4) { left: 80%; animation-delay: 0.6s; }
-  .particle:nth-child(5) { left: 30%; animation-delay: 0.8s; }
-  .particle:nth-child(6) { left: 70%; animation-delay: 1s; }
-  @keyframes ringPulse {
-    0%, 100% { transform: scale(1); opacity: 0.3; }
-    50% { transform: scale(1.1); opacity: 0.6; }
-  }
-  @keyframes patternRotate {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  @keyframes energyFlow {
-    0% { transform: scaleX(0) translateX(0); opacity: 0; }
-    50% { transform: scaleX(1) translateX(50%); opacity: 1; }
-    100% { transform: scaleX(0) translateX(100%); opacity: 0; }
-  }
-  @keyframes particleBurst {
-    0% { transform: translate(0,0) scale(1); opacity: 1; }
-    100% { transform: translate(0, -30px) scale(0); opacity: 0; }
-  }
-  .slider:hover .toggle-orb {
-    filter: brightness(1.2);
-    box-shadow: 0 0 20px rgba(78,205,196,0.5), 0 0 40px rgba(78,205,196,0.3);
-  }
-  .slider:hover .cosmos { opacity: 0.2; animation: cosmosPan 20s linear infinite; }
-  @keyframes cosmosPan {
-    0% { background-position: 0% 0%; }
-    100% { background-position: 200% 200%; }
-  }
-  .toggle:checked + .slider::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at 70% 50%, rgba(78,205,196,0.2), transparent 50%);
-    animation: glowFollow 2s linear infinite;
-  }
-  @keyframes glowFollow {
-    0%, 100% { opacity: 0.2; }
-    50% { opacity: 0.5; }
-  }
+  .switch input:checked ~ .slider .cloud { opacity: 1; }
 
   /* ── Share button ── */
   .btn-share {
@@ -582,8 +485,8 @@
   }
 
   /* buttons stagger */
-  .result-actions { display: flex; gap: 0.6rem; margin-top: 1rem; flex-wrap: wrap; align-items: center; }
-  .result-actions button { opacity: 0; }
+  .result-actions { display: flex; gap: 0.6rem; margin-top: 1rem; flex-wrap: wrap; align-items: stretch; }
+  .result-actions button { opacity: 0; min-height: 36px; display: flex; align-items: center; justify-content: center; }
   .result-box.animating .result-actions button:nth-child(1) { animation: fadeUp 0.25s ease 0.30s forwards; }
   .result-box.animating .result-actions button:nth-child(2) { animation: fadeUp 0.25s ease 0.38s forwards; }
   .result-box.animating .result-actions button:nth-child(3) { animation: fadeUp 0.25s ease 0.46s forwards; }
@@ -1625,6 +1528,84 @@
   }
   .rating-thanks.show { display: block; }
 
+
+  /* ── Auth modal ── */
+  .auth-modal-bg {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7); z-index: 1000;
+    align-items: center; justify-content: center;
+  }
+  .auth-modal-bg.show { display: flex; }
+  .auth-modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.8rem; width: 340px; max-width: 95vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .auth-title {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 1.2rem; margin-bottom: 1.2rem; text-align: center;
+  }
+  .auth-title span { color: var(--accent); }
+  .auth-field { margin-bottom: 0.8rem; }
+  .auth-field label {
+    display: block; font-family: 'Space Mono', monospace;
+    font-size: 0.62rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem;
+  }
+  .auth-input {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-family: 'Space Mono', monospace;
+    font-size: 0.85rem; padding: 0.55rem 0.8rem; outline: none;
+    transition: border-color 0.2s; box-sizing: border-box;
+  }
+  .auth-input:focus { border-color: var(--accent); }
+  .auth-btn {
+    width: 100%; padding: 0.65rem; background: var(--accent); color: #000;
+    border: none; border-radius: 8px; font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 0.9rem; cursor: pointer;
+    transition: opacity 0.2s; margin-top: 0.4rem;
+  }
+  .auth-btn:hover { opacity: 0.85; }
+  .auth-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .auth-switch {
+    text-align: center; font-family: 'Space Mono', monospace;
+    font-size: 0.68rem; color: var(--muted); margin-top: 0.8rem;
+  }
+  .auth-switch a { color: var(--accent); cursor: pointer; text-decoration: none; }
+  .auth-switch a:hover { text-decoration: underline; }
+  .auth-error {
+    color: #ff4d6d; font-family: 'Space Mono', monospace;
+    font-size: 0.68rem; text-align: center; margin-top: 0.4rem;
+    min-height: 1rem;
+  }
+  .auth-close {
+    position: absolute; top: 1rem; right: 1rem;
+    background: none; border: none; color: var(--muted);
+    font-size: 1.2rem; cursor: pointer; line-height: 1;
+  }
+  .auth-modal { position: relative; }
+
+  /* ── User pill in header ── */
+  .user-pill {
+    display: flex; align-items: center; gap: 0.4rem;
+    padding: 0.25rem 0.6rem; border: 1px solid var(--border);
+    border-radius: 20px; cursor: pointer;
+    font-family: 'Space Mono', monospace; font-size: 0.65rem;
+    color: var(--text); transition: border-color 0.2s;
+    background: transparent; white-space: nowrap;
+    max-width: 120px; overflow: hidden; text-overflow: ellipsis;
+  }
+  .user-pill:hover { border-color: var(--accent); color: var(--accent); }
+  .user-pill-dot { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; flex-shrink: 0; }
+  .sign-in-btn {
+    padding: 0.25rem 0.7rem; border: 1px solid var(--border);
+    border-radius: 20px; cursor: pointer;
+    font-family: 'Space Mono', monospace; font-size: 0.65rem;
+    color: var(--muted); background: transparent;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .sign-in-btn:hover { border-color: var(--accent); color: var(--accent); }
+
 </style>
   <script defer src="/_vercel/speed-insights/script.js"></script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1496392952885490" crossorigin="anonymous"></script>
@@ -1647,25 +1628,20 @@
         <img src="/favicon.png" class="header-logo" alt="logo">
         <p class="label-top">Past Paper Retrieval</p>
 
-        <label class="cosmic-toggle" title="Toggle light/dark mode">
-          <input type="checkbox" class="toggle" id="themeToggle" onchange="toggleTheme()">
+        <button class="sign-in-btn" id="authBtn" onclick="openAuth()">Sign In</button>
+        <div class="user-pill" id="userPill" style="display:none" onclick="showUserMenu()">
+          <div class="user-pill-dot"></div>
+          <span id="userPillName"></span>
+        </div>
+        <label class="switch" title="Toggle light/dark mode">
+          <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
           <div class="slider">
-            <div class="cosmos"></div>
-            <div class="toggle-orb">
-              <div class="inner-orb"></div>
-              <div class="ring"></div>
-            </div>
-            <div class="energy-line"></div>
-            <div class="energy-line"></div>
-            <div class="energy-line"></div>
-            <div class="particles">
-              <div class="particle"></div>
-              <div class="particle"></div>
-              <div class="particle"></div>
-              <div class="particle"></div>
-              <div class="particle"></div>
-              <div class="particle"></div>
-            </div>
+            <div class="star star_1"></div>
+            <div class="star star_2"></div>
+            <div class="star star_3"></div>
+            <svg class="cloud" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+              <path d="M51,26c0-8.284-6.716-15-15-15c-5.524,0-10.326,2.995-12.941,7.444C21.717,18.166,20.379,18,19,18c-7.18,0-13,5.82-13,13s5.82,13,13,13h32c5.523,0,10-4.477,10-10C61,29.686,56.389,26.185,51,26z" fill="white"/>
+            </svg>
           </div>
         </label>
       </div>
@@ -1787,13 +1763,12 @@
       <div class="result-box" id="resultBox">
         <p class="result-label">✓ URL Generated</p>
         <p class="result-url" id="resultUrl"></p>
-        <div class="dl-loader" id="dlLoader"></div>
         <div class="result-actions">
-          <button class="btn-open" onclick="openUrl()">Open in Browser</button>
+          <button class="btn-view-chat" onclick="openViewer()">Open w/ PastPaperAI</button>
           <button class="btn-copy" onclick="copyUrl()">Copy URL</button>
-          <button class="btn-download" onclick="downloadUrl()">&#8659; Download</button>
-          <button class="btn-share" onclick="shareUrl()" id="shareBtn">&#8679; Share</button>
-          <button class="btn-view-chat" onclick="openViewer()">&#127381; Open with PastPaperAI</button>
+          <button class="btn-download" onclick="downloadUrl()">Download</button>
+          <button class="btn-share" onclick="shareUrl()" id="shareBtn">Share</button>
+          <button class="btn-open" onclick="openUrl()">Open in Browser</button>
         </div>
       </div>
     </div>
@@ -1819,7 +1794,9 @@
           <input type="radio" name="rating" id="s1" value="1">
           <label for="s1"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></label>
         </div>
-        <button class="rating-submit-btn" id="ratingSubmitBtn" onclick="submitRating()">Submit Rating</button>
+        <textarea id="ratingFeedback" maxlength="150" placeholder="Feedback, suggestions or issues (optional)&#8230;" style="width:100%;margin-top:0.7rem;padding:0.5rem 0.7rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:Space Mono,monospace;font-size:0.7rem;resize:none;height:70px;outline:none;box-sizing:border-box;transition:border-color 0.2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+        <p style="text-align:right;font-family:Space Mono,monospace;font-size:0.6rem;color:var(--muted);margin-top:0.2rem" id="feedbackCount">0 / 150</p>
+        <button class="rating-submit-btn" id="ratingSubmitBtn" onclick="submitRating()">Submit</button>
         <p class="rating-thanks" id="ratingThanks">Thanks for your feedback!</p>
       </div>
       <p class="version-tag">Version 18.0</p>
@@ -2750,37 +2727,74 @@
   // ── Recent searches ──
   function getRecent() { try { return JSON.parse(localStorage.getItem('pp_recent')||'[]'); } catch { return []; } }
   // ── Star rating ──
+  // Rating feedback char counter
+  (function() {
+    document.addEventListener('DOMContentLoaded', () => {
+      const fb = document.getElementById('ratingFeedback');
+      const ct = document.getElementById('feedbackCount');
+      if (fb && ct) {
+        fb.addEventListener('input', () => { ct.textContent = fb.value.length + ' / 150'; });
+      }
+    });
+  })();
+
   async function submitRating() {
+    // 30-minute cooldown
+    try {
+      const last = parseInt(localStorage.getItem('pp_rating_ts') || '0');
+      if (last && Date.now() - last < 30 * 60 * 1000) {
+        const mins = Math.ceil((30 * 60 * 1000 - (Date.now() - last)) / 60000);
+        const t = document.getElementById('ratingThanks');
+        if (t) { t.textContent = 'Please wait ' + mins + ' more minute' + (mins > 1 ? 's' : '') + ' before submitting again.'; t.classList.add('show'); }
+        return;
+      }
+    } catch {}
+
     const selected = document.querySelector('.radio input[name="rating"]:checked');
     if (!selected) return;
     const value = selected.value;
+    const feedback = (document.getElementById('ratingFeedback') || {}).value || '';
     try {
       await fetch('/api/submit-rating', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rating: value, ts: Date.now() })
+        body: JSON.stringify({ rating: value, feedback, ts: Date.now(), token: _sessionToken || null })
       });
     } catch {}
-    // Lock stars — disable all inputs and the button
+    // Lock stars and button
     document.querySelectorAll('.radio input[name="rating"]').forEach(el => el.disabled = true);
+    const fb = document.getElementById('ratingFeedback');
+    if (fb) fb.disabled = true;
     const btn = document.getElementById('ratingSubmitBtn');
     if (btn) btn.disabled = true;
-    document.getElementById('ratingThanks').classList.add('show');
-    try { localStorage.setItem('pp_rating', value); } catch {}
+    const t = document.getElementById('ratingThanks');
+    if (t) { t.textContent = 'Thanks for your feedback!'; t.classList.add('show'); }
+    try {
+      localStorage.setItem('pp_rating', value);
+      localStorage.setItem('pp_rating_ts', Date.now().toString());
+    } catch {}
   }
 
-  // Restore saved rating and lock if already submitted
+  // Restore saved rating — lock if within 30min cooldown
   (function() {
     try {
       const saved = localStorage.getItem('pp_rating');
+      const last  = parseInt(localStorage.getItem('pp_rating_ts') || '0');
+      const inCooldown = last && Date.now() - last < 30 * 60 * 1000;
       if (saved) {
         const el = document.getElementById('s' + saved);
         if (el) el.checked = true;
-        const t = document.getElementById('ratingThanks');
-        if (t) t.classList.add('show');
-        document.querySelectorAll('.radio input[name="rating"]').forEach(e => e.disabled = true);
-        const btn = document.getElementById('ratingSubmitBtn');
-        if (btn) btn.disabled = true;
+      }
+      if (inCooldown || saved) {
+        document.addEventListener('DOMContentLoaded', () => {
+          document.querySelectorAll('.radio input[name="rating"]').forEach(e => e.disabled = true);
+          const fb = document.getElementById('ratingFeedback');
+          if (fb) fb.disabled = true;
+          const btn = document.getElementById('ratingSubmitBtn');
+          if (btn) btn.disabled = true;
+          const t = document.getElementById('ratingThanks');
+          if (t) { t.textContent = inCooldown ? 'Rating submitted. Cooldown active.' : 'Thanks for your feedback!'; t.classList.add('show'); }
+        });
       }
     } catch {}
   })();
@@ -2798,11 +2812,20 @@
     const name = subjectNames[code] || code;
     let favs = getFavourites();
     const idx = favs.findIndex(f => f.code === code);
-    if (idx >= 0) { favs.splice(idx, 1); }
+    const removing = idx >= 0;
+    if (removing) { favs.splice(idx, 1); }
     else { favs.unshift({ code, name }); }
     saveFavourites(favs);
     updateFavStar();
     renderFavDropdown();
+    // Sync to DB
+    if (_sessionToken) {
+      fetch('/api/user-data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-session-token': _sessionToken },
+        body: JSON.stringify({ action: removing ? 'remove_fav' : 'add_fav', token: _sessionToken, code, name })
+      }).catch(() => {});
+    }
   }
   function updateFavStar() {
     const code = document.getElementById('code').value.trim();
@@ -2866,6 +2889,8 @@
   const _JSONBIN_URL = _JSONBIN_ID ? `https://api.jsonbin.io/v3/b/${_JSONBIN_ID}` : null;
 
   async function lbIncrement() {
+    // Track in DB if logged in
+    if (_sessionToken && generatedUrl) trackPaperView(generatedUrl);
     try {
       const id = localStorage.getItem('lb_id');
       const name = localStorage.getItem('lb_name');
@@ -2982,7 +3007,7 @@
         if (el && val) { el.value = val; if (cb) cb(); }
       }, delay);
       _setField('session', sess, onSessionChange, 1000);
-      _setField('yearSelect', fullYear, onYearSelectChange, 1400);
+      _setField('yearSelect', yr, onYearSelectChange, 1400);  // yr is 2-digit
       _setField('papertype', type, onPapertypeChange, 2200);
       setTimeout(() => {
         const vEl = document.getElementById('variantSelect');
@@ -3016,7 +3041,7 @@
         if (el && val) { el.value = val; if (cb) cb(); }
       }, delay);
       _setField2('session', sess, onSessionChange, 1000);
-      _setField2('yearSelect', fullYear, onYearSelectChange, 1400);
+      _setField2('yearSelect', yr, onYearSelectChange, 1400);  // yr is 2-digit
       _setField2('papertype', type, onPapertypeChange, 2200);
       setTimeout(() => {
         const vEl = document.getElementById('variantSelect');
@@ -4243,14 +4268,8 @@
 
     // Try proxy first (works when deployed on Vercel with api/download-pdf.js)
     const proxyUrl = '/api/download-pdf?url=' + encodeURIComponent(generatedUrl);
-    const dlLoader = document.getElementById('dlLoader');
-    if (dlLoader) {
-      btn.style.display = 'none';
-      dlLoader.classList.add('active');
-    } else {
-      btn.textContent = 'Downloading…';
-      btn.disabled = true;
-    }
+    btn.textContent = 'Downloading…';
+    btn.disabled = true;
 
     fetch(proxyUrl)
       .then(r => {
@@ -4267,18 +4286,12 @@
         document.body.removeChild(a);
         setTimeout(() => URL.revokeObjectURL(a.href), 1000);
         haptic('medium');
-        const dlLoader3 = document.getElementById('dlLoader');
-        if (dlLoader3) dlLoader3.classList.remove('active');
-        btn.style.display = '';
         btn.textContent = '✓ Downloaded';
         setTimeout(() => { btn.textContent = '⬇ Download'; btn.disabled = false; }, 2000);
       })
       .catch(() => {
         // Proxy not available — open in new tab (browser PDF viewer has its own download button)
-        const dlLoader4 = document.getElementById('dlLoader');
-        if (dlLoader4) dlLoader4.classList.remove('active');
-        btn.style.display = '';
-        btn.textContent = '⬇ Download';
+        btn.textContent = 'Download';
         btn.disabled = false;
         window.open(generatedUrl, '_blank');
       });
@@ -4394,6 +4407,182 @@
   }
 
   renderRecent();
+
+  // ── Auth ──
+  let _authMode = 'login';
+  let _currentUser = null;
+  let _sessionToken = null;
+
+  (function initAuth() {
+    try {
+      _sessionToken = localStorage.getItem('pp_token');
+      const userStr = localStorage.getItem('pp_user');
+      if (_sessionToken && userStr) {
+        _currentUser = JSON.parse(userStr);
+        updateAuthUI();
+        fetch('/api/auth', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ action: 'verify', token: _sessionToken })
+        }).then(r => r.json()).then(d => {
+          if (d.error) {
+            _currentUser = null; _sessionToken = null;
+            localStorage.removeItem('pp_token'); localStorage.removeItem('pp_user');
+            updateAuthUI();
+          } else { _currentUser = d.user; updateAuthUI(); syncFavsFromDB(); }
+        }).catch(() => {});
+      }
+    } catch {}
+  })();
+
+  function updateAuthUI() {
+    const authBtn  = document.getElementById('authBtn');
+    const userPill = document.getElementById('userPill');
+    const pillName = document.getElementById('userPillName');
+    if (_currentUser) {
+      if (authBtn)  authBtn.style.display = 'none';
+      if (userPill) { userPill.style.display = 'flex'; }
+      if (pillName) pillName.textContent = _currentUser.username;
+    } else {
+      if (authBtn)  authBtn.style.display = '';
+      if (userPill) userPill.style.display = 'none';
+    }
+  }
+
+  function openAuth(mode) {
+    _authMode = mode || 'login';
+    document.getElementById('authError').textContent = '';
+    document.getElementById('authPassword').value = '';
+    setAuthMode(_authMode);
+    document.getElementById('authModalBg').classList.add('show');
+    setTimeout(() => {
+      const f = _authMode === 'login' ? document.getElementById('authIdentifier') : document.getElementById('authEmail');
+      if (f) f.focus();
+    }, 100);
+  }
+
+  function closeAuth() { document.getElementById('authModalBg').classList.remove('show'); }
+
+  function setAuthMode(mode) {
+    _authMode = mode;
+    const isReg = mode === 'register';
+    document.getElementById('authTitle').innerHTML = isReg ? 'Create <span>Account</span>' : 'Sign <span>In</span>';
+    document.getElementById('authRegisterFields').style.display = isReg ? '' : 'none';
+    document.getElementById('authLoginFields').style.display = isReg ? 'none' : '';
+    document.getElementById('authSubmitBtn').textContent = isReg ? 'Create Account' : 'Sign In';
+    document.getElementById('authSwitchText').textContent = isReg ? 'Already have an account?' : "Don't have an account?";
+    document.getElementById('authSwitchLink').textContent = isReg ? 'Sign In' : 'Register';
+    document.getElementById('authError').textContent = '';
+  }
+
+  function toggleAuthMode() { setAuthMode(_authMode === 'login' ? 'register' : 'login'); }
+
+  async function submitAuth() {
+    const btn = document.getElementById('authSubmitBtn');
+    const err = document.getElementById('authError');
+    btn.disabled = true; err.textContent = '';
+    const password = document.getElementById('authPassword').value;
+    let body;
+    if (_authMode === 'register') {
+      body = { action: 'register', email: document.getElementById('authEmail').value.trim(), username: document.getElementById('authUsername').value.trim(), password };
+    } else {
+      body = { action: 'login', identifier: document.getElementById('authIdentifier').value.trim(), password };
+    }
+    try {
+      const r = await fetch('/api/auth', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      const d = await r.json();
+      if (d.error) { err.textContent = d.error; btn.disabled = false; return; }
+      _currentUser = d.user; _sessionToken = d.token;
+      try { localStorage.setItem('pp_token', d.token); localStorage.setItem('pp_user', JSON.stringify(d.user)); } catch {}
+      updateAuthUI(); syncFavsFromDB(); closeAuth();
+    } catch(e) { err.textContent = 'Connection error'; }
+    btn.disabled = false;
+  }
+
+  function showUserMenu() {
+    if (confirm('Sign out of ' + (_currentUser && _currentUser.username) + '?')) {
+      fetch('/api/auth', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ action: 'logout', token: _sessionToken }) }).catch(() => {});
+      _currentUser = null; _sessionToken = null;
+      try { localStorage.removeItem('pp_token'); localStorage.removeItem('pp_user'); } catch {}
+      updateAuthUI();
+    }
+  }
+
+  async function syncFavsFromDB() {
+    if (!_sessionToken) return;
+    try {
+      const r = await fetch('/api/user-data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-session-token': _sessionToken },
+        body: JSON.stringify({ action: 'get_favs', token: _sessionToken })
+      });
+      const favs = await r.json();
+      if (Array.isArray(favs)) { saveFavourites(favs.map(f => ({ code: f.code, name: f.name }))); renderFavDropdown(); updateFavStar(); }
+    } catch {}
+  }
+
+  async function trackPaperView(url) {
+    if (!_sessionToken) return;
+    try {
+      await fetch('/api/user-data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-session-token': _sessionToken },
+        body: JSON.stringify({ action: 'view_paper', token: _sessionToken, url })
+      });
+    } catch {}
+  }
+
+  let _timeStart = Date.now();
+  setInterval(async () => {
+    if (!_sessionToken) return;
+    const secs = Math.floor((Date.now() - _timeStart) / 1000);
+    _timeStart = Date.now();
+    if (secs < 5) return;
+    try {
+      await fetch('/api/user-data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-session-token': _sessionToken },
+        body: JSON.stringify({ action: 'track_time', token: _sessionToken, seconds: secs })
+      });
+    } catch {}
+  }, 60000);
 </script>
+
+<!-- Auth Modal -->
+<div class="auth-modal-bg" id="authModalBg" onclick="if(event.target===this)closeAuth()">
+  <div class="auth-modal">
+    <button class="auth-close" onclick="closeAuth()">&#10005;</button>
+    <div class="auth-title" id="authTitle">Sign <span>In</span></div>
+    <div id="authRegisterFields" style="display:none">
+      <div class="auth-field">
+        <label>Email</label>
+        <input class="auth-input" id="authEmail" type="email" placeholder="your@email.com" autocomplete="email">
+      </div>
+      <div class="auth-field">
+        <label>Username</label>
+        <input class="auth-input" id="authUsername" type="text" placeholder="username" autocomplete="username">
+      </div>
+    </div>
+    <div id="authLoginFields">
+      <div class="auth-field">
+        <label>Email or Username</label>
+        <input class="auth-input" id="authIdentifier" type="text" placeholder="email or username" autocomplete="username">
+      </div>
+    </div>
+    <div class="auth-field">
+      <label>Password</label>
+      <input class="auth-input" id="authPassword" type="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitAuth()">
+    </div>
+    <div class="auth-error" id="authError"></div>
+    <button class="auth-btn" id="authSubmitBtn" onclick="submitAuth()">Sign In</button>
+    <div class="auth-switch">
+      <span id="authSwitchText">Don't have an account?</span>
+      <a onclick="toggleAuthMode()">
+        <span id="authSwitchLink">Register</span>
+      </a>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
