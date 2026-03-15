@@ -3573,7 +3573,7 @@
       history.push({ role: 'assistant', content: full });
     } catch (e) {
       aiDiv.classList.remove('streaming');
-      aiDiv.textContent = 'Error: ' + e.message + '. Make sure ANTHROPIC_API_KEY is set in Vercel.';
+      aiDiv.textContent = 'Error: ' + e.message;
     }
 
     sendBtn.disabled = false;
