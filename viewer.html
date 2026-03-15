@@ -3475,25 +3475,15 @@
 
   var pdfDoc = null, currentPage = 1, pdfText = [];
   var _files = [];
+  var _aiFileList = '';
 
   // ── Init ──
   if (!pdfUrl) {
     document.getElementById('pdfLoading').textContent = 'No PDF URL provided.';
   } else {
     document.getElementById('pdfTitle').textContent = decodeURIComponent(pdfUrl).split('/').pop();
-    // Build file selector from URL params if provided, else parse from URL
-    if (allUrls) {
-      const urls = allUrls.split(',');
-      _files = urls.map(u => ({
-        url: u,
-        label: labelFromUrl(u),
-        type: isAudioUrl(u) ? 'audio' : 'pdf'
-      }));
-    } else {
-      _files = inferFilesFromUrl(pdfUrl);
-    }
-    renderFileSelector(_files, pdfUrl);
     openFile(pdfUrl);
+    loadRelatedFiles(pdfUrl);
   }
 
   // ── File selector ──
@@ -3512,9 +3502,59 @@
     return url.endsWith('.mp3') || url.endsWith('.wav') || url.includes('_sf_') || url.includes('_sf.');
   }
 
-  function inferFilesFromUrl(url) {
-    // Only return the single file — don't guess what else exists
-    return [{ url, label: labelFromUrl(url), type: isAudioUrl(url) ? 'audio' : 'pdf' }];
+  // ── Load related files from URL pattern ──
+  async function loadRelatedFiles(url) {
+    const caie = url.match(/upload\/([^/]+)\.(?:pdf|mp3)$/i);
+    if (!caie) return;
+    const base = caie[1];
+    const m = base.match(/^(\d{4}_[smw]\d{2})_([a-z]+)(?:_(\d{1,2}))?$/i);
+    if (!m) return;
+
+    const [, prefix, type, variant] = m;
+    const baseUrl = url.substring(0, url.lastIndexOf('/') + 1);
+
+    // Fetch the session page to get actual available papers
+    // Use get-papers API with the session slug derived from URL
+    // URL pattern: .../upload/0580_s24_TYPE_VARIANT.pdf
+    // Session page: /papers/caie/{slug}-{year}-{sessSlug}
+    // We need to figure out slug — call get-papers which accepts a session URL
+
+    // Simpler: just check which files actually exist by trying them
+    // Build all candidate URLs for same prefix+variant, then verify via check-pdf
+    const noVariant = new Set(['gt','gb','er','sp','sm','sg']);
+    const allTypes  = ['qp','ms','in','ci','er','gt','gb','rp','sf'];
+    const variantInt = variant ? parseInt(variant) : null;
+    const candidates = [];
+
+    for (const t of allTypes) {
+      if (noVariant.has(t)) {
+        candidates.push({ t, url: baseUrl + prefix + '_' + t + '.pdf', isAudio: false });
+      } else if (variantInt !== null) {
+        const vPad = String(variantInt).padStart(2,'0');
+        const isAudio = t === 'sf';
+        const ext = isAudio ? '.mp3' : '.pdf';
+        candidates.push({ t, url: baseUrl + prefix + '_' + t + '_' + vPad + ext, isAudio });
+      }
+    }
+
+    // Check all candidates in parallel
+    const results = await Promise.allSettled(
+      candidates.map(c => fetch('/api/check-pdf?url=' + encodeURIComponent(c.url)).then(r => r.json()).then(d => ({ ...c, exists: d.exists })))
+    );
+
+    _files = [];
+    for (const r of results) {
+      if (r.status === 'fulfilled' && r.value.exists) {
+        const f = r.value;
+        const vSuffix = variantInt !== null && !f.isAudio && !noVariant.has(f.t) ? ' v' + variantInt : '';
+        _files.push({ label: f.t.toUpperCase() + vSuffix, url: f.url, type: f.isAudio ? 'audio' : 'pdf' });
+      }
+    }
+
+    // Make sure the opened file is in the list
+    if (!_files.find(f => f.url === url)) _files.unshift({ label: labelFromUrl(url), url, type: isAudioUrl(url) ? 'audio' : 'pdf' });
+    renderFileSelector(_files, url);
+    _aiFileList = _files.map(f => f.label + ' (' + f.type + ')').join(', ');
   }
 
   function renderFileSelector(files, activeUrl) {
@@ -3712,9 +3752,10 @@
     aiDiv.classList.add('streaming');
 
     try {
-      const context = pdfText.length
-        ? 'Extracted text from exam paper:\n\n' + pdfText.join('\n\n---\n\n').slice(0, 8000)
-        : 'No text extracted.';
+      const fileCtx = _aiFileList ? 'Available files for this paper: ' + _aiFileList + '\n\n' : '';
+      const context = fileCtx + (pdfText.length
+        ? 'Extracted text from currently open file:\n\n' + pdfText.join('\n\n---\n\n').slice(0, 8000)
+        : 'No text extracted from current file.');
 
       const resp = await fetch('/api/chat', {
         method: 'POST',
