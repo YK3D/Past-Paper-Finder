@@ -3182,10 +3182,99 @@
     gap: 1rem;
   }
   .pdf-canvas-wrap canvas {
-    max-width: 100%;
     border-radius: 4px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.4);
   }
+  .pdf-page-wrap { box-shadow: 0 4px 20px rgba(0,0,0,0.4); border-radius: 4px; overflow: hidden; }
+  .pdf-text-layer { opacity: 0 !important; }
+  .pdf-text-layer > span {
+    color: transparent;
+    position: absolute;
+    white-space: pre;
+    cursor: text;
+    transform-origin: 0% 0%;
+    user-select: text;
+    -webkit-user-select: text;
+  }
+  .pdf-text-layer ::selection { background: rgba(0,229,255,0.3); }
+  .pdf-text-layer ::-moz-selection { background: rgba(0,229,255,0.3); }
+  /* File selector bar */
+  .file-selector-bar {
+    display: none;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+    align-items: center;
+    overflow-x: auto;
+  }
+  .file-selector-bar.show { display: flex; }
+  .file-chip {
+    padding: 0.3rem 0.7rem;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+    background: transparent;
+    color: var(--muted);
+  }
+  .file-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .file-chip.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+  .file-chip.audio { border-color: var(--accent2); color: var(--accent2); }
+  .file-chip.audio.active { background: var(--accent2); color: #fff; }
+
+  /* Audio player */
+  .audio-panel {
+    display: none;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+  }
+  .audio-panel.show { display: flex; }
+  .audio-title { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--muted); margin-bottom: 0.5rem; }
+  .audio-controls { display: flex; align-items: center; gap: 0.8rem; }
+  .audio-ctrl-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 42px; height: 42px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 1.1rem;
+    transition: all 0.15s; color: var(--text);
+  }
+  .audio-ctrl-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .audio-play-btn {
+    background: var(--accent); border: none; color: #000;
+    width: 52px; height: 52px; font-size: 1.3rem; border-radius: 50%;
+  }
+  .audio-play-btn:hover { opacity: 0.85; }
+  .audio-speed {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); font-family: 'Space Mono', monospace;
+    font-size: 0.7rem; padding: 0.3rem 0.4rem; cursor: pointer; outline: none;
+  }
+  .audio-progress-wrap {
+    width: 100%; max-width: 360px;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .audio-progress {
+    flex: 1; -webkit-appearance: none; appearance: none;
+    height: 4px; background: var(--border); border-radius: 2px; outline: none; cursor: pointer;
+  }
+  .audio-progress::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 14px; height: 14px;
+    border-radius: 50%; background: var(--accent); cursor: pointer;
+  }
+  .audio-time { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); min-width: 7rem; text-align: center; }
+
   .pdf-loading {
     display: flex;
     align-items: center;
@@ -3408,6 +3497,30 @@
         <button onclick="nextPage()">&#8250;</button>
       </div>
     </div>
+    <div class="file-selector-bar" id="fileSelectorBar"></div>
+
+    <!-- Audio player (shown instead of PDF for .mp3 files) -->
+    <div class="audio-panel" id="audioPanel">
+      <div class="audio-title" id="audioTitle">Loading audio…</div>
+      <div class="audio-progress-wrap">
+        <span class="audio-time" id="audioTime">0:00 / 0:00</span>
+        <input type="range" class="audio-progress" id="audioProgress" value="0" min="0" step="0.1">
+      </div>
+      <div class="audio-controls">
+        <button class="audio-ctrl-btn" onclick="audioSeek(-10)" title="-10s">&#8592;10</button>
+        <button class="audio-ctrl-btn audio-play-btn" id="audioPlayBtn" onclick="toggleAudio()">&#9654;</button>
+        <button class="audio-ctrl-btn" onclick="audioSeek(10)" title="+10s">10&#8594;</button>
+        <select class="audio-speed" id="audioSpeed" onchange="setAudioSpeed(this.value)">
+          <option value="0.75">0.75x</option>
+          <option value="1" selected>1x</option>
+          <option value="1.25">1.25x</option>
+          <option value="1.5">1.5x</option>
+          <option value="2">2x</option>
+        </select>
+      </div>
+      <audio id="audioEl" onended="onAudioEnded()" ontimeupdate="updateAudioProgress()" onloadedmetadata="updateAudioProgress()"></audio>
+    </div>
+
     <div class="pdf-canvas-wrap" id="pdfWrap">
       <div class="pdf-loading" id="pdfLoading">
         <span class="btn-spinner" style="width:18px;height:18px;border-width:2px"></span>
@@ -3426,7 +3539,7 @@
       <button class="back-btn" style="font-size:0.7rem;padding:0.3rem 0.6rem" onclick="clearChat()">Clear</button>
     </div>
     <div class="chat-messages" id="chatMessages">
-      <div class="chat-msg ai">Hi! I&#8217;ve loaded this paper. Ask me anything about it &#8212; I can explain questions, summarise topics, or help you understand the mark scheme.</div>
+      <div class="chat-msg ai">Hi! I&#8217;m PastPaperAI.<br><br>Ask me anything about this exam &#8212; I can explain questions, summarise topics &amp; answer questions.<br><br><span style="font-size:0.62rem;color:var(--muted)">PastPaperAI is prone to making mistakes. Results are for reference only.</span></div>
     </div>
     <div class="chat-hint" id="chatHint"></div>
     <div class="chat-input-row">
@@ -3454,13 +3567,70 @@
     document.getElementById('pdfLoading').textContent = 'No PDF URL provided.';
   } else {
     document.getElementById('pdfTitle').textContent = decodeURIComponent(pdfUrl).split('/').pop();
-    loadPdf(pdfUrl);
+    // Build related files from URL pattern
+    const relatedFiles = buildRelatedFiles(pdfUrl);
+    buildFileSelector(relatedFiles);
+    loadFile(pdfUrl);
+  }
+
+  function buildRelatedFiles(url) {
+    const files = [];
+    // CAIE: .../upload/CODE_SESS_TYPE_VARIANT.pdf
+    const caie = url.match(/upload\/([^/]+)\.pdf$/);
+    if (!caie) { files.push({label: url.split('/').pop(), url, type:'pdf'}); return files; }
+    const base = caie[1]; // e.g. 0580_s24_qp_11
+    const m = base.match(/^(\d{4}_[smw]\d{2})_([a-z]+)_(\d+)$/) || base.match(/^(\d{4}_[smw]\d{2})_([a-z]+)$/);
+    if (!m) { files.push({label: base, url, type:'pdf'}); return files; }
+    const prefix = m[1]; // e.g. 0580_s24
+    const type = m[2];
+    const variant = m[3] || null;
+    const baseUrl = url.substring(0, url.lastIndexOf('/') + 1);
+    const types = ['qp','ms','er','in','ci','gt','gb','rp','sf'];
+    for (const t of types) {
+      const u = variant
+        ? baseUrl + prefix + '_' + t + '_' + variant + '.pdf'
+        : baseUrl + prefix + '_' + t + '.pdf';
+      const isAudio = t === 'sf';
+      const audioUrl = variant
+        ? baseUrl + prefix + '_sf_' + variant + '.mp3'
+        : baseUrl + prefix + '_sf.mp3';
+      const label = t.toUpperCase() + (variant ? ' v' + parseInt(variant) : '');
+      files.push({ label, url: isAudio ? audioUrl : u, type: isAudio ? 'audio' : 'pdf' });
+    }
+    return files;
   }
 
   // ── PDF ──
   let pdfDoc = null, currentPage = 1, pdfText = [];
 
+  // ── File management ──
+  let _allFiles = [];   // [{label, url, type:'pdf'|'audio'}]
+  let _currentFileUrl = pdfUrl;
+
+  async function loadFile(url) {
+    _currentFileUrl = url;
+    const isAudio = url && (url.endsWith('.mp3') || url.endsWith('.wav') || url.endsWith('.ogg'));
+    document.getElementById('audioPanel').classList.toggle('show', isAudio);
+    document.getElementById('pdfWrap').style.display = isAudio ? 'none' : '';
+    document.querySelectorAll('.pdf-nav button').forEach(b => b.style.visibility = isAudio ? 'hidden' : '');
+
+    if (isAudio) {
+      const audio = document.getElementById('audioEl');
+      const proxyUrl = '/api/download-pdf?url=' + encodeURIComponent(url);
+      audio.src = proxyUrl;
+      document.getElementById('audioTitle').textContent = url.split('/').pop();
+      audio.load();
+    } else {
+      loadPdf(url);
+    }
+    // Update chip active state
+    document.querySelectorAll('.file-chip').forEach(c => {
+      c.classList.toggle('active', c.dataset.url === url);
+    });
+  }
+
   async function loadPdf(url) {
+    document.getElementById('pdfLoading').style.display = 'flex';
     try {
       const proxyUrl = '/api/download-pdf?url=' + encodeURIComponent(url);
       const resp = await fetch(proxyUrl);
@@ -3475,18 +3645,95 @@
     }
   }
 
+  function buildFileSelector(files) {
+    _allFiles = files;
+    const bar = document.getElementById('fileSelectorBar');
+    if (!files || files.length <= 1) { bar.classList.remove('show'); return; }
+    bar.classList.add('show');
+    bar.innerHTML = files.map(f => {
+      const isAudio = f.type === 'audio';
+      return '<button class="file-chip' + (isAudio?' audio':'') + (f.url === pdfUrl ? ' active' : '') + '" data-url="' + f.url + '" onclick="loadFile(this.dataset.url)">' + f.label + '</button>';
+    }).join('');
+  }
+
+  // ── Audio controls ──
+  function toggleAudio() {
+    const audio = document.getElementById('audioEl');
+    const btn = document.getElementById('audioPlayBtn');
+    if (audio.paused) { audio.play(); btn.innerHTML = '&#9646;&#9646;'; }
+    else { audio.pause(); btn.innerHTML = '&#9654;'; }
+  }
+  function audioSeek(secs) {
+    const audio = document.getElementById('audioEl');
+    audio.currentTime = Math.max(0, Math.min(audio.duration || 0, audio.currentTime + secs));
+  }
+  function setAudioSpeed(v) { document.getElementById('audioEl').playbackRate = parseFloat(v); }
+  function onAudioEnded() { document.getElementById('audioPlayBtn').innerHTML = '&#9654;'; }
+  function updateAudioProgress() {
+    const audio = document.getElementById('audioEl');
+    const prog = document.getElementById('audioProgress');
+    const time = document.getElementById('audioTime');
+    if (!isNaN(audio.duration)) {
+      prog.max = audio.duration;
+      prog.value = audio.currentTime;
+      time.textContent = fmt(audio.currentTime) + ' / ' + fmt(audio.duration);
+    }
+  }
+  document.getElementById('audioProgress').addEventListener('input', function() {
+    document.getElementById('audioEl').currentTime = this.value;
+  });
+  function fmt(s) {
+    const m = Math.floor(s/60), sec = Math.floor(s%60);
+    return m + ':' + (sec<10?'0':'') + sec;
+  }
+
+  let _currentScale = null;
+
   async function renderPage(n) {
     currentPage = Math.max(1, Math.min(n, pdfDoc.numPages));
     document.getElementById('pageInfo').textContent = currentPage + ' / ' + pdfDoc.numPages;
     const wrap = document.getElementById('pdfWrap');
-    // Remove existing canvases
-    wrap.querySelectorAll('canvas').forEach(c => c.remove());
+    wrap.querySelectorAll('.pdf-page-wrap').forEach(c => c.remove());
     const page = await pdfDoc.getPage(currentPage);
-    const vp = page.getViewport({ scale: Math.min(2, wrap.clientWidth / page.getViewport({scale:1}).width) || 1.5 });
+    const baseVp = page.getViewport({ scale: 1 });
+    const scale = Math.min(2.5, (wrap.clientWidth - 32) / baseVp.width) || 1.5;
+    _currentScale = scale;
+    const vp = page.getViewport({ scale });
+
+    // Page wrapper for canvas + text layer
+    const pageWrap = document.createElement('div');
+    pageWrap.className = 'pdf-page-wrap';
+    pageWrap.style.cssText = 'position:relative;width:' + vp.width + 'px;height:' + vp.height + 'px;flex-shrink:0';
+
     const canvas = document.createElement('canvas');
-    canvas.width = vp.width; canvas.height = vp.height;
-    wrap.appendChild(canvas);
-    await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = vp.width * dpr;
+    canvas.height = vp.height * dpr;
+    canvas.style.width = vp.width + 'px';
+    canvas.style.height = vp.height + 'px';
+    canvas.style.display = 'block';
+    ctx.scale(dpr, dpr);
+    pageWrap.appendChild(canvas);
+
+    // Text layer for selectable text
+    const textLayerDiv = document.createElement('div');
+    textLayerDiv.className = 'pdf-text-layer';
+    textLayerDiv.style.cssText = 'position:absolute;top:0;left:0;width:' + vp.width + 'px;height:' + vp.height + 'px;overflow:hidden;opacity:0.2;line-height:1';
+    pageWrap.appendChild(textLayerDiv);
+    wrap.appendChild(pageWrap);
+
+    await page.render({ canvasContext: ctx, viewport: vp }).promise;
+
+    // Render text layer
+    const textContent = await page.getTextContent();
+    pdfjsLib.renderTextLayer({
+      textContent,
+      container: textLayerDiv,
+      viewport: vp,
+      textDivs: []
+    });
+
     wrap.scrollTop = 0;
   }
 
@@ -3529,9 +3776,12 @@
     aiDiv.classList.add('streaming');
 
     try {
-      const context = pdfText.length
-        ? "The following is extracted text from the exam paper (may be partial):\n\n" + pdfText.join("\n\n---\n\n").slice(0, 8000)
-        : "No text could be extracted from this PDF.";
+      const fileList = _allFiles.length > 1
+        ? "Available files for this paper: " + _allFiles.map(f=>f.label + ' (' + f.type + ')').join(', ') + "\n\n"
+        : "";
+      const context = fileList + (pdfText.length
+        ? "Extracted text from current file (may be partial):\n\n" + pdfText.join("\n\n---\n\n").slice(0, 8000)
+        : "No text extracted from current file.");
 
       const resp = await fetch('/api/chat', {
         method: 'POST',
