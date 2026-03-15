@@ -3560,6 +3560,10 @@
 
   try { if (localStorage.getItem('pp_theme') === 'light') document.body.classList.add('light'); } catch {}
 
+  // Top-level state — must be declared before any function calls
+  let _allFiles = [];
+  let _currentFileUrl = null;
+
   const params = new URLSearchParams(window.location.search);
   const pdfUrl = params.get('url');
 
@@ -3604,8 +3608,7 @@
   let pdfDoc = null, currentPage = 1, pdfText = [];
 
   // ── File management ──
-  let _allFiles = [];   // [{label, url, type:'pdf'|'audio'}]
-  let _currentFileUrl = pdfUrl;
+  _currentFileUrl = pdfUrl;
 
   async function loadFile(url) {
     _currentFileUrl = url;
