@@ -3348,12 +3348,34 @@
   /* ── Chat panel ── */
   .chat-panel { width: 340px; flex-shrink: 0; display: flex; flex-direction: column; border-left: 1px solid var(--border); background: var(--surface); }
   .chat-topbar { padding: 0.8rem 1rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+  .chat-panel.collapsed { width: 44px !important; }
+  .chat-panel.collapsed .chat-messages,
+  .chat-panel.collapsed .chat-hint,
+  .chat-panel.collapsed .chat-input-row,
+  .chat-panel.collapsed .chat-topbar-title,
+  .chat-panel.collapsed .chat-clear-btn { display: none !important; }
+  .chat-panel.collapsed .chat-topbar { justify-content: center; padding: 0.8rem 0.5rem; }
+  .chat-toggle-btn {
+    background: transparent; border: 1px solid var(--border); border-radius: 6px;
+    color: var(--muted); font-size: 0.75rem; width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+  }
+  .chat-toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
+  @media (max-width: 700px) {
+    .chat-panel { height: 40vh !important; }
+    .chat-panel.expanded-mobile { height: 60vh !important; }
+  }
   .chat-topbar-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.9rem; flex: 1; }
   .chat-topbar-title span { color: var(--accent); }
   .chat-messages { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.8rem; }
   .chat-msg {
     font-family: 'Space Mono', monospace; font-size: 0.72rem; line-height: 1.6;
     padding: 0.6rem 0.8rem; border-radius: 8px; max-width: 92%;
+  }
+  .chat-msg.ai {
+    font-family: 'Galaxie Copernicus', 'Tiempos Text', 'Martina Plantijn', 'Fabric Serif', Georgia, 'Times New Roman', serif;
+    font-size: 0.8rem; line-height: 1.7;
   }
   .chat-msg.user { background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.2); align-self: flex-end; color: var(--text); }
   .chat-msg.ai { background: var(--bg); border: 1px solid var(--border); align-self: flex-start; color: var(--text); }
@@ -3463,7 +3485,8 @@
   <div class="chat-panel" id="chatPanel">
     <div class="chat-topbar">
       <div class="chat-topbar-title">Paper<span>AI</span></div>
-      <button class="back-btn" style="font-size:0.7rem;padding:0.3rem 0.6rem" onclick="clearChat()">Clear</button>
+      <button class="back-btn chat-clear-btn" style="font-size:0.7rem;padding:0.3rem 0.6rem" onclick="clearChat()">Clear</button>
+      <button class="chat-toggle-btn" id="chatToggleBtn" onclick="toggleChatPanel()" title="Collapse/expand chat">&#8250;</button>
     </div>
     <div class="chat-messages" id="chatMessages">
       <div class="chat-msg ai">Hi! I&#8217;m PastPaperAI.<br><br>Ask me anything about this exam &#8212; I can explain questions, summarise topics &amp; answer questions.<br><br><span style="font-size:0.62rem;color:var(--muted)">PastPaperAI is prone to making mistakes. Results are for reference only.</span></div>
@@ -3830,6 +3853,20 @@
   function goBack() {
     sessionStorage.setItem('fromCodes', '1');
     window.location.href = '/';
+  }
+
+  let _chatCollapsed = false;
+  function toggleChatPanel() {
+    const panel = document.getElementById('chatPanel');
+    const btn   = document.getElementById('chatToggleBtn');
+    _chatCollapsed = !_chatCollapsed;
+    panel.classList.toggle('collapsed', _chatCollapsed);
+    btn.innerHTML = _chatCollapsed ? '&#8249;' : '&#8250;';
+    btn.title = _chatCollapsed ? 'Expand chat' : 'Collapse chat';
+    // Mobile: toggle 60% height
+    if (window.innerWidth <= 700) {
+      panel.classList.toggle('expanded-mobile', !_chatCollapsed);
+    }
   }
 
   function openOnline() {
