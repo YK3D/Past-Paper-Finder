@@ -1615,6 +1615,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
+<div id="maintenanceBanner" style="display:none;padding:0.35rem 1rem;text-align:center;font-family:Space Mono,monospace;font-size:0.72rem;font-weight:600;width:100%;box-sizing:border-box;position:relative;z-index:9999"></div>
 <style>
 
   :root {
@@ -3935,6 +3936,24 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
   }
   function printPaper() { window.print(); }
+
+  // ── Site config (maintenance message) ──
+  (async function() {
+    try {
+      const r = await fetch('/api/site-config');
+      if (!r.ok) return;
+      const cfg = await r.json();
+      if (cfg.maintenance_message) {
+        const b = document.getElementById('maintenanceBanner');
+        if (b) {
+          b.textContent = cfg.maintenance_message;
+          b.style.display = 'block';
+          b.style.color = cfg.maintenance_color || '#fff';
+          b.style.backgroundColor = cfg.maintenance_bg || '#e53e3e';
+        }
+      }
+    } catch {}
+  })();
 </script>
 </body>
 </html>

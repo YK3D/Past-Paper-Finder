@@ -3,7 +3,7 @@ import crypto from 'crypto';
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
 
-const SWEAR_WORDS = ['fuck','shit','bitch','ass','cunt','dick','cock','pussy','bastard','whore','slut','nigger','faggot','twat','wanker','piss','arse','bollocks'];
+const SWEAR_WORDS = ['fuck','shit','bitch','ass','cunt','dick','cock','pussy','bastard','whore','slut','nigger','faggot','twat','wanker','piss','arse','bollocks', 'nigga'];
 
 function db(path, method = 'GET', body) {
   return fetch(SUPABASE_URL + '/rest/v1/' + path, {
