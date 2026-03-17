@@ -1611,6 +1611,7 @@
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1496392952885490" crossorigin="anonymous"></script>
 </head>
 <body>
+<div id="maintenanceBanner" style="display:none;padding:0.4rem 1rem;text-align:center;font-family:Space Mono,monospace;font-size:0.75rem;font-weight:600;z-index:9999;width:100%;box-sizing:border-box"></div>
 
 <div id="splash">
   <img src="/favicon.png" class="splash-logo" alt="logo">
@@ -1765,7 +1766,7 @@
         <p class="result-label">✓ URL Generated</p>
         <p class="result-url" id="resultUrl"></p>
         <div class="result-actions">
-          <button class="btn-view-chat" onclick="openViewer()">Open w/ PastPaperAI</button>
+          <button class="btn-view-chat" onclick="openViewer()">Open in PastPaperAI &#129302;</button>
           <button class="btn-copy" onclick="copyUrl()">Copy URL</button>
           <button class="btn-download" onclick="downloadUrl()">Download</button>
           <button class="btn-share" onclick="shareUrl()" id="shareBtn">Share</button>
@@ -1800,7 +1801,7 @@
         <button class="rating-submit-btn" id="ratingSubmitBtn" onclick="submitRating()">Submit</button>
         <p class="rating-thanks" id="ratingThanks">Thanks for your feedback!</p>
       </div>
-      <p class="version-tag" style="font-size:0.85rem;font-weight:700;color:var(--muted)">Version 47.4</p>
+      <p class="version-tag" style="font-size:0.85rem;font-weight:700;color:var(--muted)" id="versionDisplay">Version 47.4</p>
       <p class="version-tag" style="font-size:0.65rem;color:var(--muted);margin-top:0.2rem">Powered by papacambridge.com</p>
       <p class="version-tag">‎</p>
       <p class="version-tag">‎</p>
@@ -4420,6 +4421,21 @@
   let _currentUser = null;
   let _sessionToken = null;
 
+  // Load site config (version, status)
+  (function loadSiteConfig() {
+    fetch('/api/user-data', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'site_config'}) })
+      .then(r => r.json()).then(cfg => {
+        if (cfg.version) {
+          const v = document.getElementById('versionDisplay');
+          if (v) v.textContent = 'Version ' + cfg.version;
+        }
+        if (cfg.maintenance_message && cfg.maintenance_message.trim()) {
+          const bar = document.getElementById('statusBar');
+          if (bar) { bar.textContent = cfg.maintenance_message; bar.style.display = 'block'; }
+        }
+      }).catch(() => {});
+  })();
+
   (function initAuth() {
     try {
       _sessionToken = localStorage.getItem('pp_token');
@@ -4566,11 +4582,28 @@
   }
 
   let _timeStart = Date.now();
+  let _timeAccum = 0;
+  let _pageVisible = !document.hidden;
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      // Page hidden — accumulate time and pause
+      _timeAccum += Math.round((Date.now() - _timeStart) / 1000);
+      _pageVisible = false;
+    } else {
+      // Page visible again — restart timer
+      _timeStart = Date.now();
+      _pageVisible = true;
+    }
+  });
+
   setInterval(async () => {
     if (!_sessionToken) return;
-    const secs = Math.floor((Date.now() - _timeStart) / 1000);
+    if (_pageVisible) _timeAccum += Math.round((Date.now() - _timeStart) / 1000);
     _timeStart = Date.now();
-    if (secs < 5) return;
+    const secs = _timeAccum;
+    _timeAccum = 0;
+    if (secs < 1) return;
     try {
       await fetch('/api/user-data', {
         method: 'POST',
@@ -4579,6 +4612,29 @@
       });
     } catch {}
   }, 60000);
+
+  // ── Fetch site_config (maintenance message + version) on load ──
+  (async function fetchSiteConfig() {
+    try {
+      const r = await fetch('/api/site-config');
+      if (!r.ok) return;
+      const cfg = await r.json();
+      if (cfg.maintenance_message) {
+        const banner = document.getElementById('maintenanceBanner');
+        if (banner) {
+          banner.textContent = cfg.maintenance_message;
+          banner.style.display = 'block';
+          banner.style.color = cfg.maintenance_color || '#fff';
+          banner.style.backgroundColor = cfg.maintenance_bg || '#e53e3e';
+        }
+      }
+      if (cfg.version) {
+        document.querySelectorAll('.version-tag').forEach((el, i) => {
+          if (i === 0) el.textContent = 'Version ' + cfg.version;
+        });
+      }
+    } catch {}
+  })();
 </script>
 
 <!-- Auth Modal -->
@@ -4639,6 +4695,10 @@
     </div>
   </div>
 </div>
+
+
+<!-- Status/maintenance bar from site_config -->
+<div id="statusBar" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#1a1a1a;border-top:1px solid var(--border);padding:0.4rem 1rem;font-family:Space Mono,monospace;font-size:0.65rem;color:var(--muted);text-align:center;z-index:999"></div>
 
 </body>
 </html>
