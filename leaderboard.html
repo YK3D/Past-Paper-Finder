@@ -3248,9 +3248,10 @@
     <a onclick="window.location.href='/'">Sign in</a> to appear on the leaderboard
   </div>
 
-  <div class="lb-tabs">
+  <div class="lb-tabs" style="display:flex;gap:0.5rem;align-items:center">
     <button class="lb-tab active" id="tabPapers" onclick="switchTab('papers')">&#128196; Papers Viewed</button>
     <button class="lb-tab" id="tabTime" onclick="switchTab('time')">&#8987; Time on Site</button>
+    <button onclick="refreshLeaderboard()" id="refreshBtn" title="Refresh" style="background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:0.85rem;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;flex-shrink:0" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">&#8635;</button>
   </div>
 
   <div id="lbList"><div class="lb-loading">Loading&#8230;</div></div>
@@ -3332,6 +3333,12 @@
     } catch {
       list.innerHTML = '<div class="lb-empty">Could not load leaderboard.</div>';
     }
+  }
+
+  function refreshLeaderboard() {
+    const btn = document.getElementById('refreshBtn');
+    if (btn) { btn.style.transform = 'rotate(360deg)'; btn.style.transition = 'transform 0.5s ease'; setTimeout(() => { btn.style.transform = ''; btn.style.transition = ''; }, 500); }
+    renderLeaderboard();
   }
 
   function fmtTime(secs) {
