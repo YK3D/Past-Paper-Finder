@@ -1,4 +1,4 @@
-// Handles: paper views, time tracking, favourites, leaderboard
+// Handles: paper views, time tracking, favourites, leaderboard 
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
