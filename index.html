@@ -1552,13 +1552,51 @@
     font-size: 0.62rem; letter-spacing: 0.1em;
     text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem;
   }
+  /* Auth input glow wrapper */
+  .auth-input-wrap { position: relative; border-radius: 8px; }
+  .ain-dark, .ain-border, .ain-glow {
+    position: absolute; inset: 0; border-radius: 8px;
+    pointer-events: none; overflow: hidden; z-index: 0;
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .ain-dark::before, .ain-border::before, .ain-glow::before {
+    content: ''; position: absolute; top: 50%; left: 50%; width: 500px; height: 500px;
+  }
+  .ain-dark { inset: -1px; }
+  .ain-dark::before {
+    transform: translate(-50%, -50%) rotate(0deg);
+    background-image: conic-gradient(rgba(0,0,0,0), rgba(0,229,255,0.4), rgba(0,0,0,0) 10%, rgba(0,0,0,0) 50%, rgba(255,77,109,0.4), rgba(0,0,0,0) 60%);
+    animation: authGlowSpin 3s linear infinite;
+  }
+  .ain-border { inset: -1px; filter: blur(0.5px); }
+  .ain-border::before {
+    transform: translate(-50%, -50%) rotate(0deg);
+    background-image: conic-gradient(var(--bg), var(--accent) 5%, var(--bg) 14%, var(--bg) 50%, var(--accent2) 60%, var(--bg) 64%);
+    animation: authGlowSpin 3s 0.1s linear infinite;
+  }
+  .ain-glow { inset: -3px; filter: blur(8px); opacity: 0; }
+  .ain-glow::before {
+    transform: translate(-50%, -50%) rotate(0deg);
+    background-image: conic-gradient(#000, var(--accent) 5%, #000 38%, #000 50%, var(--accent2) 60%, #000 87%);
+    animation: authGlowSpin 3s 0.2s linear infinite;
+  }
+  .auth-input-wrap::after {
+    content: ''; position: absolute; inset: 1.5px; border-radius: 7px;
+    background: var(--bg); z-index: 1; pointer-events: none;
+  }
+  .auth-input-wrap.typing .ain-dark,
+  .auth-input-wrap.typing .ain-border { opacity: 1; }
+  .auth-input-wrap.typing .ain-glow { opacity: 0.35; }
+  @keyframes authGlowSpin { 100% { transform: translate(-50%,-50%) rotate(360deg); } }
   .auth-input {
-    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    position: relative; z-index: 2;
+    width: 100%; background: transparent; border: 1px solid var(--border);
     border-radius: 8px; color: var(--text); font-family: 'Space Mono', monospace;
     font-size: 0.85rem; padding: 0.55rem 0.8rem; outline: none;
     transition: border-color 0.2s; box-sizing: border-box;
   }
   .auth-input:focus { border-color: var(--accent); }
+  .auth-input.field-error { border-color: #ff4d6d !important; animation: shake 0.45s ease; }
   .auth-btn {
     width: 100%; padding: 0.65rem; background: var(--accent); color: #000;
     border: none; border-radius: 8px; font-family: 'Syne', sans-serif;
@@ -1609,8 +1647,13 @@
 </style>
   <script defer src="/_vercel/speed-insights/script.js"></script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1496392952885490" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@4/dist/fp.min.js"></script>
 </head>
 <body>
+<div id="banBanner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:99999;padding:1.2rem 2rem;background:#c0392b;color:#fff;font-family:Space Mono,monospace;font-size:0.85rem;font-weight:700;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.5);line-height:1.6">
+  &#128683; Your access has been restricted.<br>
+  <span id="banReason" style="font-weight:400;font-size:0.75rem"></span>
+</div>
 <div id="maintenanceBanner" style="display:none;padding:0.4rem 1rem;text-align:center;font-family:Space Mono,monospace;font-size:0.75rem;font-weight:600;z-index:9999;width:100%;box-sizing:border-box"></div>
 
 <div id="splash">
@@ -4184,9 +4227,19 @@
     requestAnimationFrame(step);
   }
 
-  function openUrl() { if (generatedUrl) { haptic('light'); window.open(generatedUrl, '_blank'); } }
+  function requireAuth(action) {
+    if (!_currentUser) {
+      openAuth('login');
+      const err = document.getElementById('authError');
+      if (err) err.textContent = 'Sign in to use this feature';
+      return false;
+    }
+    return true;
+  }
+  function openUrl() { if (generatedUrl && requireAuth()) { haptic('light'); window.open(generatedUrl, '_blank'); } }
   function openViewer() {
     if (!generatedUrl) return;
+    if (!requireAuth()) return;
     // Build list of all available files for this variant from scanned papers data
     let fileUrls = [generatedUrl];
     if (_currentPapersData) {
@@ -4230,6 +4283,7 @@
   }
 
   function shareUrl() {
+    if (!requireAuth()) return;
     if (!generatedUrl) return;
     haptic('light');
     const label = urlToLabel(generatedUrl);
@@ -4270,6 +4324,7 @@
   })();
 
   function downloadUrl() {
+    if (!requireAuth()) return;
     if (!generatedUrl) return;
     const btn = document.querySelector('.btn-download');
     const filename = generatedUrl.split('/').pop();
@@ -4306,6 +4361,7 @@
   }
 
   function copyUrl() {
+    if (!requireAuth()) return;
     if (!generatedUrl) return;
     haptic('light');
     const btn = document.querySelector('.btn-copy');
@@ -4533,14 +4589,20 @@
     const password = document.getElementById('authPassword').value;
     let body;
     if (_authMode === 'register') {
-      body = { action: 'register', email: document.getElementById('authEmail').value.trim(), username: document.getElementById('authUsername').value.trim(), password };
+      body = { action: 'register', email: document.getElementById('authEmail').value.trim(), username: document.getElementById('authUsername').value.trim(), password, deviceId: _deviceId };
     } else {
-      body = { action: 'login', identifier: document.getElementById('authIdentifier').value.trim(), password };
+      body = { action: 'login', identifier: document.getElementById('authIdentifier').value.trim(), password, deviceId: _deviceId };
     }
     try {
       const r = await fetch('/api/auth', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
       const d = await r.json();
-      if (d.error) { err.textContent = d.error; btn.disabled = false; return; }
+      if (d.error) {
+        err.textContent = d.error;
+        // Shake relevant inputs
+        if (_authMode === 'login') { shakeAuthInput('authIdentifier'); shakeAuthInput('authPassword'); }
+        else { shakeAuthInput('authEmail'); shakeAuthInput('authUsername'); shakeAuthInput('authPassword'); }
+        btn.disabled = false; return;
+      }
       _currentUser = d.user; _sessionToken = d.token;
       try { localStorage.setItem('pp_token', d.token); localStorage.setItem('pp_user', JSON.stringify(d.user)); } catch {}
       updateAuthUI(); syncFavsFromDB(); closeAuth();
@@ -4555,6 +4617,72 @@
       try { localStorage.removeItem('pp_token'); localStorage.removeItem('pp_user'); } catch {}
       updateAuthUI();
     }
+  }
+
+  // ── FingerprintJS device ID ──
+  let _deviceId = null;
+  (async function initFingerprint() {
+    try {
+      const fp = await FingerprintJS.load();
+      const result = await fp.get();
+      _deviceId = result.visitorId;
+      checkBan();
+    } catch { checkBan(); }
+  })();
+
+  // ── Ban check ──
+  async function checkBan() {
+    try {
+      const payload = { ip: 'auto', deviceId: _deviceId };
+      const r = await fetch('/api/check-ban', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const d = await r.json();
+      if (d.banned) {
+        const banner = document.getElementById('banBanner');
+        const reason = document.getElementById('banReason');
+        if (banner) {
+          banner.style.display = 'block';
+          if (reason) reason.textContent = d.reason ? 'Reason: ' + d.reason : '';
+          // Disable all interactive elements
+          document.querySelectorAll('button, input, select, textarea, a').forEach(el => {
+            el.disabled = true;
+            el.style.pointerEvents = 'none';
+          });
+          banner.style.pointerEvents = 'none'; // Banner itself is unclickable
+        }
+      }
+    } catch {}
+  }
+
+  // ── Toggle password visibility ──
+  function togglePassVis(inputId, btn) {
+    const inp = document.getElementById(inputId);
+    if (!inp) return;
+    if (inp.type === 'password') { inp.type = 'text'; btn.innerHTML = '&#128584;'; }
+    else { inp.type = 'password'; btn.innerHTML = '&#128065;'; }
+  }
+
+  // ── Auth input glow on typing ──
+  function authInputTyping(wrapId) {
+    const wrap = document.getElementById(wrapId);
+    if (wrap) wrap.classList.add('typing');
+  }
+  function authInputBlur(wrapId) {
+    const wrap = document.getElementById(wrapId);
+    if (wrap) wrap.classList.remove('typing');
+  }
+
+  // ── Shake auth inputs on error ──
+  function shakeAuthInput(inputId) {
+    const inp = document.getElementById(inputId);
+    if (!inp) return;
+    inp.classList.remove('field-error');
+    void inp.offsetWidth;
+    inp.classList.add('field-error');
+    setTimeout(() => inp.classList.remove('field-error'), 500);
   }
 
   async function syncFavsFromDB() {
@@ -4645,22 +4773,35 @@
     <div id="authRegisterFields" style="display:none">
       <div class="auth-field">
         <label>Email</label>
-        <input class="auth-input" id="authEmail" type="email" placeholder="your@email.com" autocomplete="email">
+        <div class="auth-input-wrap" id="wrapEmail">
+          <div class="ain-dark"></div><div class="ain-border"></div><div class="ain-glow"></div>
+          <input class="auth-input" id="authEmail" type="email" placeholder="your@email.com" autocomplete="email" oninput="authInputTyping('wrapEmail')" onblur="authInputBlur('wrapEmail')">
+        </div>
       </div>
       <div class="auth-field">
         <label>Username</label>
-        <input class="auth-input" id="authUsername" type="text" placeholder="username" autocomplete="username">
+        <div class="auth-input-wrap" id="wrapUsername">
+          <div class="ain-dark"></div><div class="ain-border"></div><div class="ain-glow"></div>
+          <input class="auth-input" id="authUsername" type="text" placeholder="username" autocomplete="username" oninput="authInputTyping('wrapUsername')" onblur="authInputBlur('wrapUsername')">
+        </div>
       </div>
     </div>
     <div id="authLoginFields">
       <div class="auth-field">
         <label>Email or Username</label>
-        <input class="auth-input" id="authIdentifier" type="text" placeholder="email or username" autocomplete="username">
+        <div class="auth-input-wrap" id="wrapIdent">
+          <div class="ain-dark"></div><div class="ain-border"></div><div class="ain-glow"></div>
+          <input class="auth-input" id="authIdentifier" type="text" placeholder="email or username" autocomplete="username" oninput="authInputTyping('wrapIdent')" onblur="authInputBlur('wrapIdent')">
+        </div>
       </div>
     </div>
     <div class="auth-field">
       <label>Password</label>
-      <input class="auth-input" id="authPassword" type="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitAuth()">
+      <div class="auth-input-wrap" id="wrapPass" style="display:flex;align-items:center">
+        <div class="ain-dark"></div><div class="ain-border"></div><div class="ain-glow"></div>
+        <input class="auth-input" id="authPassword" type="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" autocomplete="current-password" style="flex:1;border-radius:8px 0 0 8px;border-right:none" oninput="authInputTyping('wrapPass')" onblur="authInputBlur('wrapPass')" onkeydown="if(event.key==='Enter')submitAuth()">
+        <button type="button" onclick="togglePassVis('authPassword',this)" style="position:relative;z-index:2;background:var(--surface);border:1px solid var(--border);border-left:none;border-radius:0 8px 8px 0;color:var(--muted);padding:0.55rem 0.5rem;cursor:pointer;font-size:0.8rem;line-height:1" title="Show/hide password">&#128065;</button>
+      </div>
     </div>
     <div class="auth-error" id="authError"></div>
     <button class="auth-btn" id="authSubmitBtn" onclick="submitAuth()">Sign In</button>
