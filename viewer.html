@@ -3301,7 +3301,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 }
 .pdf-canvas-area::-webkit-scrollbar { width: 6px; }
 .pdf-canvas-area::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
-.pdf-page-container { position: relative; box-shadow: 0 4px 24px rgba(0,0,0,0.5); flex-shrink: 0; }
+.pdf-page-container { position: relative; box-shadow: 0 4px 24px rgba(0,0,0,0.5); flex-shrink: 0; background: #fff; }
 .pdf-page-container canvas { display: block; }
 .textLayer {
   position: absolute; top: 0; left: 0; overflow: hidden;
@@ -3632,6 +3632,8 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     wrap.appendChild(textDiv);
     area.appendChild(wrap);
 
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     await page.render({ canvasContext: ctx, viewport: vp }).promise;
     const tc = await page.getTextContent();
     pdfjsLib.renderTextLayer({ textContent: tc, container: textDiv, viewport: vp, textDivs: [] });
