@@ -3,23 +3,24 @@ import crypto from 'crypto';
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
 
-const SWEAR_WORDS = ['fuck','shit','bitch','ass','cunt','dick','cock','pussy','bastard','whore','slut','nigger','faggot','twat','wanker','damn','piss','arse','bollocks','crap'];
+const SWEAR_WORDS = ['fuck','shit','bitch','ass','cunt','dick','cock','pussy','bastard','whore','slut','nigger','faggot','twat','wanker','piss','arse','bollocks'];
 
-function db(path, method='GET', body) {
+function db(path, method = 'GET', body) {
   return fetch(SUPABASE_URL + '/rest/v1/' + path, {
     method,
     headers: {
       'apikey': SUPABASE_KEY,
       'Authorization': 'Bearer ' + SUPABASE_KEY,
       'Content-Type': 'application/json',
-      'Prefer': method === 'POST' ? 'return=representation' : ''
+      'Prefer': method === 'POST' ? 'return=representation' : 'return=minimal'
     },
     body: body ? JSON.stringify(body) : undefined
-  }).then(r => r.json());
+  }).then(r => r.json().catch(() => ({})));
 }
 
-function hashPassword(password) {
-  return crypto.createHash('sha256').update(password + 'ppf_salt_2025').digest('hex');
+// Base64 encode password (reversible — user is aware of security trade-off)
+function encodePassword(password) {
+  return Buffer.from(password + ':ppf_salt_2025').toString('base64');
 }
 
 function generateToken() {
@@ -33,7 +34,7 @@ function validateEmail(email) {
 function validateUsername(username) {
   if (username.length < 3) return 'Username must be at least 3 characters';
   if (username.length > 20) return 'Username must be at most 20 characters';
-  if (!/^[a-zA-Z0-9_.-]+$/.test(username)) return 'Username can only contain letters, numbers, _ . -';
+  if (!/^[a-zA-Z0-9_.\-]+$/.test(username)) return 'Username: letters, numbers, _ . - only';
   const lower = username.toLowerCase();
   for (const word of SWEAR_WORDS) {
     if (lower.includes(word)) return 'Username contains inappropriate language';
@@ -42,7 +43,9 @@ function validateUsername(username) {
 }
 
 function getIP(req) {
-  return (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.headers['x-real-ip'] || 'unknown';
+  return (req.headers['x-forwarded-for'] || '').split(',')[0].trim()
+    || req.headers['x-real-ip']
+    || 'unknown';
 }
 
 export default async function handler(req, res) {
@@ -51,7 +54,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).end();
 
-  const { action, email, username, password, identifier, newPassword } = req.body || {};
+  const { action, email, username, password, identifier, newPassword, token } = req.body || {};
   const ip = getIP(req);
 
   // ── Register ──
@@ -62,70 +65,82 @@ export default async function handler(req, res) {
     if (unErr) return res.status(400).json({ error: unErr });
     if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
 
-    const hash = hashPassword(password);
-    const result = await db('users', 'POST', { email: email.toLowerCase().trim(), username: username.trim(), password_hash: hash, ip });
-    if (result.code === '23505') {
+    const encoded = encodePassword(password);
+    const result = await db('users', 'POST', {
+      email: email.toLowerCase().trim(),
+      username: username.trim(),
+      password_hash: encoded,
+      ip
+    });
+
+    if (result && result.code === '23505') {
       const msg = result.details && result.details.includes('email') ? 'Email already in use' : 'Username already taken';
       return res.status(409).json({ error: msg });
     }
-    if (!result[0]) return res.status(500).json({ error: 'Registration failed' });
+    const user = Array.isArray(result) ? result[0] : result;
+    if (!user || !user.id) return res.status(500).json({ error: 'Registration failed. Please try again.' });
 
-    const user = result[0];
-    const token = generateToken();
+    const tok = generateToken();
     const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-    await db('sessions', 'POST', { user_id: user.id, token, expires_at: expires, ip });
-    return res.status(200).json({ token, user: { id: user.id, email: user.email, username: user.username } });
+    await db('sessions', 'POST', { user_id: user.id, token: tok, expires_at: expires, ip });
+    return res.status(200).json({ token: tok, user: { id: user.id, email: user.email, username: user.username } });
   }
 
   // ── Login ──
   if (action === 'login') {
     if (!identifier || !password) return res.status(400).json({ error: 'Missing fields' });
-    const hash = hashPassword(password);
+    const encoded = encodePassword(password);
     const isEmail = identifier.includes('@');
-    const field = isEmail ? 'email=eq.' + encodeURIComponent(identifier.toLowerCase().trim()) : 'username=eq.' + encodeURIComponent(identifier.trim());
-    const users = await db('users?' + field + '&password_hash=eq.' + hash);
+    const field = isEmail
+      ? 'email=eq.' + encodeURIComponent(identifier.toLowerCase().trim())
+      : 'username=eq.' + encodeURIComponent(identifier.trim());
+    const users = await db('users?' + field + '&password_hash=eq.' + encodeURIComponent(encoded));
     if (!users || !users[0]) return res.status(401).json({ error: 'Invalid credentials' });
     const user = users[0];
-
-    // Check if banned
     if (user.banned) return res.status(403).json({ error: 'This account has been suspended' });
 
-    const token = generateToken();
+    // Update last IP
+    await db('users?id=eq.' + user.id, 'PATCH', { ip });
+
+    const tok = generateToken();
     const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-    await db('sessions', 'POST', { user_id: user.id, token, expires_at: expires, ip });
-    return res.status(200).json({ token, user: { id: user.id, email: user.email, username: user.username } });
+    await db('sessions', 'POST', { user_id: user.id, token: tok, expires_at: expires, ip });
+    return res.status(200).json({ token: tok, user: { id: user.id, email: user.email, username: user.username } });
   }
 
   // ── Verify ──
   if (action === 'verify') {
-    const { token } = req.body;
     if (!token) return res.status(400).json({ error: 'No token' });
     const sessions = await db('sessions?token=eq.' + token + '&select=*,users(id,email,username,banned)');
     if (!sessions || !sessions[0]) return res.status(401).json({ error: 'Invalid session' });
     const sess = sessions[0];
     if (new Date(sess.expires_at) < new Date()) return res.status(401).json({ error: 'Session expired' });
     if (sess.users && sess.users.banned) return res.status(403).json({ error: 'Account suspended' });
+    // Update IP on verify too
+    if (sess.users) {
+      await db('users?id=eq.' + sess.users.id, 'PATCH', { ip });
+      await db('sessions?token=eq.' + token, 'PATCH', { ip });
+    }
     return res.status(200).json({ user: { id: sess.users.id, email: sess.users.email, username: sess.users.username } });
   }
 
   // ── Logout ──
   if (action === 'logout') {
-    const { token } = req.body;
     if (token) await db('sessions?token=eq.' + token, 'DELETE');
     return res.status(200).json({ ok: true });
   }
 
   // ── Change password ──
   if (action === 'change_password') {
-    if (!identifier || !password || !newPassword) return res.status(400).json({ error: 'Missing fields' });
+    if (!identifier || !password || !newPassword) return res.status(400).json({ error: 'All fields required' });
     if (newPassword.length < 8) return res.status(400).json({ error: 'New password must be at least 8 characters' });
-    const oldHash = hashPassword(password);
+    const oldEncoded = encodePassword(password);
     const isEmail = identifier.includes('@');
     const field = isEmail ? 'email=eq.' + encodeURIComponent(identifier.toLowerCase().trim()) : 'username=eq.' + encodeURIComponent(identifier.trim());
-    const users = await db('users?' + field + '&password_hash=eq.' + oldHash);
+    const users = await db('users?' + field + '&password_hash=eq.' + encodeURIComponent(oldEncoded));
     if (!users || !users[0]) return res.status(401).json({ error: 'Invalid credentials' });
-    const newHash = hashPassword(newPassword);
-    await db('users?id=eq.' + users[0].id, 'PATCH', { password_hash: newHash });
+    const newEncoded = encodePassword(newPassword);
+    await db('users?id=eq.' + users[0].id, 'PATCH', { password_hash: newEncoded });
     return res.status(200).json({ ok: true });
   }
 
