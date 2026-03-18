@@ -2,8 +2,8 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
 
 function db(path) {
-  return fetch(SUPABASE_URL + '/rest/v1/' + path, {
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+  return fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
   }).then(r => r.json().catch(() => []));
 }
 
@@ -18,20 +18,16 @@ export default async function handler(req, res) {
 
   if (!SUPABASE_URL) return res.status(200).json({ banned: false });
 
-  // Check IP ban
+  // Check IP ban (active only)
   if (ip && ip !== 'unknown') {
-    const ipBan = await db('ban_list?type=eq.ip&value=eq.' + encodeURIComponent(ip) + '&select=reason&limit=1');
-    if (Array.isArray(ipBan) && ipBan[0]) {
-      return res.status(200).json({ banned: true, type: 'ip', reason: ipBan[0].reason || 'IP address banned' });
-    }
+    const rows = await db(`ban_list?type=eq.ip&value=eq.${encodeURIComponent(ip)}&active=eq.true&select=reason&limit=1`);
+    if (rows?.[0]) return res.status(200).json({ banned: true, type: 'ip', reason: rows[0].reason || 'IP address banned' });
   }
 
-  // Check device ban
+  // Check device ban (active only)
   if (deviceId) {
-    const devBan = await db('ban_list?type=eq.device&value=eq.' + encodeURIComponent(deviceId) + '&select=reason&limit=1');
-    if (Array.isArray(devBan) && devBan[0]) {
-      return res.status(200).json({ banned: true, type: 'device', reason: devBan[0].reason || 'Device banned' });
-    }
+    const rows = await db(`ban_list?type=eq.device&value=eq.${encodeURIComponent(deviceId)}&active=eq.true&select=reason&limit=1`);
+    if (rows?.[0]) return res.status(200).json({ banned: true, type: 'device', reason: rows[0].reason || 'Device banned' });
   }
 
   return res.status(200).json({ banned: false });
