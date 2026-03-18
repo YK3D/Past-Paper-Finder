@@ -3280,6 +3280,31 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   min-width: 4.5rem; text-align: center;
 }
 .topbar-right { display: flex; align-items: center; gap: 0.35rem; flex-shrink: 0; flex-wrap: wrap; }
+
+/* ── Markup toolbar ── */
+.markup-bar {
+  display: flex; align-items: center; gap: 0.3rem;
+  padding: 0.3rem 0.8rem; background: #1a1a1a;
+  border-bottom: 1px solid #333; flex-shrink: 0; flex-wrap: wrap;
+}
+.mu-btn {
+  background: transparent; border: 1px solid #444; border-radius: 5px;
+  color: #aaa; font-size: 0.72rem; padding: 0.22rem 0.5rem; cursor: pointer;
+  transition: all 0.15s; font-family: 'Space Mono', monospace; white-space: nowrap;
+  min-width: 28px; text-align: center;
+}
+.mu-btn:hover { border-color: var(--accent); color: var(--accent); }
+.mu-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+.mu-btn.eraser.active { background: #ff4d6d; border-color: #ff4d6d; color: #fff; }
+.mu-sep { width: 1px; height: 20px; background: #333; margin: 0 0.2rem; flex-shrink: 0; }
+.mu-color-swatch { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #555; cursor: pointer; flex-shrink: 0; transition: border-color 0.15s; }
+.mu-color-swatch:hover { border-color: #fff; }
+#muColorInput { width: 0; height: 0; opacity: 0; position: absolute; }
+.mu-size-input { width: 38px; background: #222; border: 1px solid #444; border-radius: 4px; color: #ccc; font-size: 0.62rem; text-align: center; padding: 0.18rem 0; font-family: 'Space Mono', monospace; }
+.mu-label { font-family: 'Space Mono', monospace; font-size: 0.58rem; color: #666; }
+
+/* ── Markup canvas overlay on each page ── */
+.markup-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; z-index: 10; touch-action: none; }
 @media (max-width: 600px) {
   .pdf-topbar { flex-wrap: wrap; min-height: unset; padding: 0.4rem; gap: 0.3rem; }
   .pdf-title-bar { display: none; }
@@ -3500,6 +3525,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         <button onclick="zoomIn()" title="Zoom in">&#43;</button>
       </div>
       <div class="topbar-right">
+        <button class="topbar-action" id="muToggleBtn" onclick="toggleMarkup()" title="Markup tools">&#9998; Markup</button>
         <button class="topbar-action" onclick="togglePdfSearch()" title="Search (Ctrl+F)">&#128269; Search</button>
         <button class="topbar-action" onclick="openOnline()">&#127760; Online</button>
         <button class="topbar-action" onclick="sharePaper()">&#8679; Share</button>
@@ -3516,6 +3542,26 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       <button class="pdf-search-btn" onclick="closePdfSearch()" title="Close">&#10005;</button>
     </div>
     <div class="file-chip-bar" id="fileChipBar"></div>
+    <!-- Markup toolbar -->
+    <div class="markup-bar" id="markupBar" style="display:none">
+      <span class="mu-label">TOOL:</span>
+      <button class="mu-btn active" id="muDraw"    onclick="setTool('draw')"      title="Draw">&#9999;</button>
+      <button class="mu-btn"        id="muHighlight" onclick="setTool('highlight')" title="Highlight">&#9650;</button>
+      <button class="mu-btn"        id="muLine"    onclick="setTool('line')"      title="Line">&#9135;</button>
+      <button class="mu-btn"        id="muText"    onclick="setTool('text')"      title="Text box">&#84;</button>
+      <button class="mu-btn eraser" id="muEraser"  onclick="setTool('eraser')"    title="Eraser">&#9003;</button>
+      <div class="mu-sep"></div>
+      <span class="mu-label">SIZE:</span>
+      <input class="mu-size-input" type="number" id="muSize" value="3" min="1" max="40" title="Brush size">
+      <div class="mu-sep"></div>
+      <span class="mu-label">COLOR:</span>
+      <div class="mu-color-swatch" id="muSwatch" onclick="document.getElementById('muColorInput').click()" title="Pick colour" style="background:#00e5ff"></div>
+      <input type="color" id="muColorInput" value="#00e5ff" oninput="updateMarkupColor(this.value)">
+      <div class="mu-sep"></div>
+      <button class="mu-btn" onclick="undoMarkup()" title="Undo">&#8617;</button>
+      <button class="mu-btn" onclick="clearMarkup()" title="Clear all" style="color:#ff4d6d">&#128465;</button>
+      <button class="mu-btn" onclick="saveMarkupImage()" title="Save with markup">&#128190; Save</button>
+    </div>
     <div id="landscapeHint" style="display:none;font-family:Space Mono,monospace;font-size:0.6rem;color:#666;padding:0.3rem 0.8rem;flex-shrink:0">
       &#128261; Switch to landscape for best view
     </div>
@@ -3668,6 +3714,19 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     await page.render({ canvasContext: ctx, viewport: vp }).promise;
     const tc = await page.getTextContent();
     pdfjsLib.renderTextLayer({ textContent: tc, container: textDiv, viewport: vp, textDivs: [] });
+
+    // Markup canvas overlay
+    const muCanvas = document.createElement('canvas');
+    muCanvas.className = 'markup-canvas';
+    muCanvas.width  = canvas.width;
+    muCanvas.height = canvas.height;
+    muCanvas.style.width  = vp.width + 'px';
+    muCanvas.style.height = vp.height + 'px';
+    muCanvas.dataset.page = n;
+    wrap.appendChild(muCanvas);
+    initMarkupCanvas(muCanvas);
+    // Restore saved markup for this page
+    restoreMarkup(muCanvas, n);
   }
 
   async function buildThumb(n) {
@@ -4142,6 +4201,202 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   if (window.innerWidth <= 700) {
     const lh = document.getElementById('landscapeHint');
     if (lh) lh.style.display = 'block';
+  }
+
+  // ── Markup system ──
+  let _muTool  = 'draw';     // draw | highlight | line | eraser | text
+  let _muColor = '#00e5ff';
+  let _muSize  = 3;
+  let _muHistory = {};       // { pageNum: [ImageData, ...] }
+  let _muDrawing  = false;
+  let _muStartX = 0, _muStartY = 0;
+  let _muLineSnap = null;    // temp canvas for line preview
+  let _markupActive = false;
+
+  function toggleMarkup() {
+    _markupActive = !_markupActive;
+    document.getElementById('markupBar').style.display = _markupActive ? 'flex' : 'none';
+    document.getElementById('muToggleBtn').classList.toggle('active', _markupActive);
+    // Toggle pointer events on markup canvases
+    document.querySelectorAll('.markup-canvas').forEach(c => {
+      c.style.pointerEvents = _markupActive ? 'auto' : 'none';
+    });
+  }
+
+  function setTool(tool) {
+    _muTool = tool;
+    ['muDraw','muHighlight','muLine','muText','muEraser'].forEach(id => {
+      const b = document.getElementById(id);
+      if (b) b.classList.remove('active');
+    });
+    const map = { draw:'muDraw', highlight:'muHighlight', line:'muLine', text:'muText', eraser:'muEraser' };
+    const btn = document.getElementById(map[tool]);
+    if (btn) btn.classList.add('active');
+    document.querySelectorAll('.markup-canvas').forEach(c => {
+      c.style.cursor = tool === 'text' ? 'text' : tool === 'eraser' ? 'cell' : 'crosshair';
+    });
+  }
+
+  function updateMarkupColor(hex) {
+    _muColor = hex;
+    document.getElementById('muSwatch').style.background = hex;
+  }
+
+  function getMarkupCtx(canvas) {
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const scale = canvas.width / parseFloat(canvas.style.width);
+    return { ctx, scale, dpr };
+  }
+
+  function initMarkupCanvas(canvas) {
+    const pageN = parseInt(canvas.dataset.page);
+
+    canvas.addEventListener('pointerdown', e => {
+      if (!_markupActive) return;
+      e.preventDefault();
+      canvas.setPointerCapture(e.pointerId);
+      _muDrawing = true;
+      const { ctx, scale } = getMarkupCtx(canvas);
+      const rect = canvas.getBoundingClientRect();
+      _muStartX = (e.clientX - rect.left) * scale;
+      _muStartY = (e.clientY - rect.top)  * scale;
+
+      // Save state for undo
+      if (!_muHistory[pageN]) _muHistory[pageN] = [];
+      _muHistory[pageN].push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+
+      if (_muTool === 'text') {
+        _muDrawing = false;
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.style.cssText = `position:absolute;left:${e.clientX - canvas.getBoundingClientRect().left}px;top:${e.clientY - canvas.getBoundingClientRect().top}px;z-index:20;background:transparent;border:1px dashed ${_muColor};color:${_muColor};font-size:${_muSize * 4}px;font-family:Space Mono,monospace;outline:none;min-width:80px`;
+        canvas.parentElement.appendChild(inp);
+        inp.focus();
+        inp.addEventListener('blur', () => {
+          if (inp.value) {
+            ctx.font = `${_muSize * 4 * scale}px "Space Mono", monospace`;
+            ctx.fillStyle = _muColor;
+            ctx.fillText(inp.value, _muStartX, _muStartY + (_muSize * 4 * scale));
+          }
+          inp.remove();
+          saveMarkup(canvas, pageN);
+        });
+        inp.addEventListener('keydown', e => { if (e.key === 'Enter') inp.blur(); });
+        return;
+      }
+
+      if (_muTool === 'draw' || _muTool === 'highlight' || _muTool === 'eraser') {
+        ctx.beginPath();
+        ctx.moveTo(_muStartX, _muStartY);
+      }
+    });
+
+    canvas.addEventListener('pointermove', e => {
+      if (!_muDrawing) return;
+      e.preventDefault();
+      const { ctx, scale } = getMarkupCtx(canvas);
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.clientX - rect.left) * scale;
+      const y = (e.clientY - rect.top)  * scale;
+      const sz = parseInt(document.getElementById('muSize').value) || 3;
+
+      if (_muTool === 'draw') {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = _muColor;
+        ctx.lineWidth   = sz * scale;
+        ctx.lineCap     = 'round';
+        ctx.lineJoin    = 'round';
+        ctx.globalAlpha = 1;
+        ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
+      } else if (_muTool === 'highlight') {
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.strokeStyle = _muColor || '#ffff00';
+        ctx.lineWidth   = sz * scale * 4;
+        ctx.lineCap     = 'round';
+        ctx.globalAlpha = 0.35;
+        ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
+      } else if (_muTool === 'eraser') {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.lineWidth = sz * scale * 5;
+        ctx.lineCap   = 'round';
+        ctx.globalAlpha = 1;
+        ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
+      } else if (_muTool === 'line') {
+        // Restore last saved state and draw preview line
+        if (_muHistory[pageN] && _muHistory[pageN].length) {
+          ctx.putImageData(_muHistory[pageN][_muHistory[pageN].length - 1], 0, 0);
+        }
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = _muColor; ctx.lineWidth = sz * scale; ctx.lineCap = 'round'; ctx.globalAlpha = 1;
+        ctx.beginPath(); ctx.moveTo(_muStartX, _muStartY); ctx.lineTo(x, y); ctx.stroke();
+      }
+    });
+
+    canvas.addEventListener('pointerup', e => {
+      if (!_muDrawing) return;
+      _muDrawing = false;
+      const { ctx } = getMarkupCtx(canvas);
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = 1;
+      saveMarkup(canvas, pageN);
+    });
+  }
+
+  // Save/restore markup per page to localStorage
+  function saveMarkup(canvas, pageN) {
+    try { localStorage.setItem('mu_' + (pdfUrl||'x') + '_p' + pageN, canvas.toDataURL()); } catch {}
+  }
+
+  function restoreMarkup(canvas, pageN) {
+    try {
+      const data = localStorage.getItem('mu_' + (pdfUrl||'x') + '_p' + pageN);
+      if (!data) return;
+      const img = new Image();
+      img.onload = () => { const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0); };
+      img.src = data;
+    } catch {}
+  }
+
+  function undoMarkup() {
+    // Undo on the currently visible page
+    const visible = document.querySelector('.markup-canvas');
+    if (!visible) return;
+    const pageN = parseInt(visible.dataset.page);
+    const hist  = _muHistory[pageN];
+    if (!hist || !hist.length) return;
+    const ctx = visible.getContext('2d');
+    ctx.putImageData(hist.pop(), 0, 0);
+    saveMarkup(visible, pageN);
+  }
+
+  function clearMarkup() {
+    if (!confirm('Clear all markup on all pages?')) return;
+    document.querySelectorAll('.markup-canvas').forEach(c => {
+      const ctx = c.getContext('2d');
+      ctx.clearRect(0, 0, c.width, c.height);
+      const pageN = parseInt(c.dataset.page);
+      saveMarkup(c, pageN);
+      if (_muHistory[pageN]) _muHistory[pageN] = [];
+    });
+  }
+
+  function saveMarkupImage() {
+    // For current page: merge PDF canvas + markup canvas and download
+    const pdfCanvases = document.querySelectorAll('.pdf-page-container canvas:not(.markup-canvas)');
+    const muCanvases  = document.querySelectorAll('.markup-canvas');
+    if (!pdfCanvases.length) return;
+    // Merge first page as example
+    const pdf = pdfCanvases[0], mu = muCanvases[0];
+    const out = document.createElement('canvas');
+    out.width = pdf.width; out.height = pdf.height;
+    const ctx = out.getContext('2d');
+    ctx.drawImage(pdf, 0, 0);
+    ctx.drawImage(mu, 0, 0);
+    const a = document.createElement('a');
+    a.href = out.toDataURL('image/png');
+    a.download = (pdfUrl||'page').split('/').pop().replace('.pdf','') + '_annotated.png';
+    a.click();
   }
 
   // ── Site config (maintenance message) ──
