@@ -3227,6 +3227,28 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 /* ── Centre: topbar + main canvas ── */
 .viewer-centre { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 
+/* ── PDF Search bar ── */
+.pdf-search-bar {
+  display: none; align-items: center; gap: 0.5rem;
+  padding: 0.35rem 0.8rem; background: #1e1e1e;
+  border-bottom: 1px solid #333; flex-shrink: 0;
+}
+.pdf-search-bar.show { display: flex; }
+.pdf-search-input {
+  flex: 1; background: #2a2a2a; border: 1px solid #444; border-radius: 6px;
+  color: #fff; font-family: 'Space Mono', monospace; font-size: 0.72rem;
+  padding: 0.3rem 0.6rem; outline: none;
+}
+.pdf-search-input:focus { border-color: var(--accent); }
+.pdf-search-count { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: #888; min-width: 4rem; }
+.pdf-search-btn {
+  background: transparent; border: 1px solid #444; border-radius: 5px;
+  color: #aaa; font-size: 0.75rem; padding: 0.25rem 0.45rem; cursor: pointer;
+  transition: all 0.15s;
+}
+.pdf-search-btn:hover { border-color: var(--accent); color: var(--accent); }
+.search-highlight { background: rgba(255,230,0,0.4); border-radius: 2px; }
+.search-highlight.current { background: rgba(255,140,0,0.6); }
 /* ── Topbar ── */
 .pdf-topbar {
   display: flex; align-items: center; gap: 0.5rem;
@@ -3478,6 +3500,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         <button onclick="zoomIn()" title="Zoom in">&#43;</button>
       </div>
       <div class="topbar-right">
+        <button class="topbar-action" onclick="togglePdfSearch()" title="Search (Ctrl+F)">&#128269; Search</button>
         <button class="topbar-action" onclick="openOnline()">&#127760; Online</button>
         <button class="topbar-action" onclick="sharePaper()">&#8679; Share</button>
         <button class="topbar-action" onclick="downloadPaper()">&#8659; Download</button>
@@ -3485,6 +3508,13 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       </div>
     </div>
 
+    <div class="pdf-search-bar" id="pdfSearchBar">
+      <input class="pdf-search-input" id="pdfSearchInput" placeholder="Search in PDF&#8230;" oninput="doPdfSearch()" onkeydown="if(event.key==='Enter')nextSearchResult();if(event.key==='Escape')closePdfSearch()">
+      <span class="pdf-search-count" id="pdfSearchCount"></span>
+      <button class="pdf-search-btn" onclick="prevSearchResult()" title="Previous">&#8593;</button>
+      <button class="pdf-search-btn" onclick="nextSearchResult()" title="Next">&#8595;</button>
+      <button class="pdf-search-btn" onclick="closePdfSearch()" title="Close">&#10005;</button>
+    </div>
     <div class="file-chip-bar" id="fileChipBar"></div>
     <div id="landscapeHint" style="display:none;font-family:Space Mono,monospace;font-size:0.6rem;color:#666;padding:0.3rem 0.8rem;flex-shrink:0">
       &#128261; Switch to landscape for best view
@@ -3565,6 +3595,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     document.getElementById('pdfTitle').textContent = pdfUrl.split('/').pop();
     openFile(pdfUrl);
     loadRelatedFiles(pdfUrl);
+    loadChatHistory(pdfUrl);
   }
 
   // ── PDF loading ──
@@ -3941,6 +3972,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       aiDiv.classList.remove('streaming');
       if (!full) aiDiv.textContent = 'No response.';
       _aiHistory.push({ role: 'assistant', content: full });
+      saveChatHistory();
     } catch (e) {
       aiDiv.classList.remove('streaming');
       aiDiv.textContent = 'Error: ' + e.message;
@@ -3950,12 +3982,146 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   }
 
   function scrollAi() { const m = document.getElementById('aiMessages'); m.scrollTop = m.scrollHeight; }
+  const _welcomeMsg = 'Hi! I\'m PastPaperAI 🎓<br><br>Ask me anything about this paper — I can explain questions, summarise topics &amp; check your answers against the mark scheme.<br><br><span style="font-size:0.62rem;color:var(--muted)">PastPaperAI can make mistakes. Reference only.</span>';
+
   function clearAiChat() {
-    document.getElementById('aiMessages').innerHTML = '<div class="ai-msg ai">Chat cleared. Ask me anything about this paper.</div>';
+    document.getElementById('aiMessages').innerHTML = '<div class="ai-msg ai">' + _welcomeMsg + '</div>';
     _aiHistory.length = 0;
+    if (_sessionToken && pdfUrl) saveChatHistory();
+  }
+
+  async function loadChatHistory(url) {
+    if (!_sessionToken || !url) return;
+    try {
+      const r = await fetch('/api/user-data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-session-token': _sessionToken },
+        body: JSON.stringify({ action: 'get_chat', token: _sessionToken, paperUrl: url })
+      });
+      const d = await r.json();
+      const rawMsgs = d.messages;
+      const msgs = typeof rawMsgs === 'string' ? JSON.parse(rawMsgs) : (Array.isArray(rawMsgs) ? rawMsgs : []);
+      if (msgs.length > 0) {
+        _aiHistory = msgs;
+        const box = document.getElementById('aiMessages');
+        box.innerHTML = '<div class="ai-msg ai">' + _welcomeMsg + '</div>';
+        for (const m of msgs) {
+          const div = document.createElement('div');
+          div.className = 'ai-msg ' + (m.role === 'assistant' ? 'ai' : 'user');
+          if (m.role === 'assistant') div.innerHTML = renderMd(m.content);
+          else div.textContent = m.content;
+          box.appendChild(div);
+        }
+        box.scrollTop = box.scrollHeight;
+      }
+    } catch {}
+  }
+
+  async function saveChatHistory() {
+    if (!_sessionToken || !pdfUrl) return;
+    try {
+      await fetch('/api/user-data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-session-token': _sessionToken },
+        body: JSON.stringify({ action: 'save_chat', token: _sessionToken, paperUrl: pdfUrl, messages: _aiHistory })
+      });
+    } catch {}
   }
 
   // ── Topbar actions ──
+  // ── PDF search ──
+  let _searchResults = []; // Array of {span, text}
+  let _searchIdx = -1;
+
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+      e.preventDefault(); togglePdfSearch();
+    }
+  });
+
+  function togglePdfSearch() {
+    const bar = document.getElementById('pdfSearchBar');
+    const inp = document.getElementById('pdfSearchInput');
+    if (bar.classList.contains('show')) {
+      closePdfSearch();
+    } else {
+      bar.classList.add('show');
+      inp.focus();
+    }
+  }
+
+  function closePdfSearch() {
+    document.getElementById('pdfSearchBar').classList.remove('show');
+    document.getElementById('pdfSearchInput').value = '';
+    clearSearchHighlights();
+    _searchResults = []; _searchIdx = -1;
+    document.getElementById('pdfSearchCount').textContent = '';
+  }
+
+  function clearSearchHighlights() {
+    document.querySelectorAll('.search-highlight').forEach(el => {
+      const parent = el.parentNode;
+      parent.replaceChild(document.createTextNode(el.textContent), el);
+      parent.normalize();
+    });
+  }
+
+  function doPdfSearch() {
+    clearSearchHighlights();
+    _searchResults = []; _searchIdx = -1;
+    const q = document.getElementById('pdfSearchInput').value.trim();
+    const countEl = document.getElementById('pdfSearchCount');
+    if (!q) { countEl.textContent = ''; return; }
+    const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+
+    document.querySelectorAll('.textLayer span').forEach(span => {
+      const text = span.textContent;
+      if (!re.test(text)) return;
+      re.lastIndex = 0;
+      const frag = document.createDocumentFragment();
+      let last = 0, m;
+      while ((m = re.exec(text)) !== null) {
+        if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+        const mark = document.createElement('mark');
+        mark.className = 'search-highlight';
+        mark.textContent = m[0];
+        frag.appendChild(mark);
+        _searchResults.push(mark);
+        last = re.lastIndex;
+      }
+      if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+      span.textContent = '';
+      span.appendChild(frag);
+    });
+
+    if (_searchResults.length) {
+      countEl.textContent = `1 / ${_searchResults.length}`;
+      _searchIdx = 0;
+      _searchResults[0].classList.add('current');
+      _searchResults[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+      countEl.textContent = 'No results';
+    }
+  }
+
+  function nextSearchResult() {
+    if (!_searchResults.length) return;
+    _searchResults[_searchIdx].classList.remove('current');
+    _searchIdx = (_searchIdx + 1) % _searchResults.length;
+    _searchResults[_searchIdx].classList.add('current');
+    _searchResults[_searchIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('pdfSearchCount').textContent = `${_searchIdx + 1} / ${_searchResults.length}`;
+  }
+
+  function prevSearchResult() {
+    if (!_searchResults.length) return;
+    _searchResults[_searchIdx].classList.remove('current');
+    _searchIdx = (_searchIdx - 1 + _searchResults.length) % _searchResults.length;
+    _searchResults[_searchIdx].classList.add('current');
+    _searchResults[_searchIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('pdfSearchCount').textContent = `${_searchIdx + 1} / ${_searchResults.length}`;
+  }
+
   function goBack() { sessionStorage.setItem('fromCodes','1'); window.location.href = '/'; }
   function openOnline() { if (pdfUrl) window.open(pdfUrl, '_blank'); }
   function sharePaper() {
