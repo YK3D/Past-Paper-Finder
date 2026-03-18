@@ -3193,6 +3193,14 @@
 
   .lb-page { max-width: 640px; margin: 0 auto; padding: 2rem 1rem 4rem; }
   .lb-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.2rem; }
+  .lb-period-btn {
+    padding: 0.3rem 0.8rem; border-radius: 20px;
+    border: 1px solid var(--border); background: transparent;
+    font-family: 'Space Mono', monospace; font-size: 0.62rem;
+    color: var(--muted); cursor: pointer; transition: all 0.2s;
+  }
+  .lb-period-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+  .lb-period-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
   .lb-tab {
     flex: 1; padding: 0.55rem; border-radius: 8px;
     border: 1px solid var(--border); background: transparent;
@@ -3248,10 +3256,17 @@
     <a onclick="window.location.href='/'">Sign in</a> to appear on the leaderboard
   </div>
 
-  <div class="lb-tabs" style="display:flex;gap:0.5rem;align-items:center">
+  <!-- Type tabs -->
+  <div class="lb-tabs" style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.5rem">
     <button class="lb-tab active" id="tabPapers" onclick="switchTab('papers')">&#128196; Papers Viewed</button>
     <button class="lb-tab" id="tabTime" onclick="switchTab('time')">&#8987; Time on Site</button>
     <button onclick="refreshLeaderboard()" id="refreshBtn" title="Refresh" style="background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:0.85rem;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;flex-shrink:0" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">&#8635;</button>
+  </div>
+  <!-- Period tabs -->
+  <div style="display:flex;gap:0.4rem;margin-bottom:1.2rem">
+    <button class="lb-period-btn active" id="periodWeek" onclick="switchPeriod('week')">This Week</button>
+    <button class="lb-period-btn" id="periodMonth" onclick="switchPeriod('month')">This Month</button>
+    <button class="lb-period-btn" id="periodAll" onclick="switchPeriod('all')">All Time</button>
   </div>
 
   <div id="lbList"><div class="lb-loading">Loading&#8230;</div></div>
@@ -3261,7 +3276,33 @@
   try { if (localStorage.getItem('pp_theme') === 'light') document.body.classList.add('light'); } catch {}
 
   let _tab = 'papers';
+  let _period = 'all'; // 'week', 'month', 'all'
   let _myId = null, _myName = null;
+
+  // Get period date bounds (week starts Monday)
+  function getPeriodStart(period) {
+    const now = new Date();
+    if (period === 'all') return null;
+    if (period === 'month') {
+      return new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    }
+    if (period === 'week') {
+      const day = now.getDay(); // 0=Sun
+      const diff = (day === 0 ? -6 : 1 - day); // Monday
+      const mon = new Date(now); mon.setDate(now.getDate() + diff);
+      mon.setHours(0,0,0,0);
+      return mon.toISOString();
+    }
+    return null;
+  }
+
+  function switchPeriod(p) {
+    _period = p;
+    document.querySelectorAll('.lb-period-btn').forEach(b => b.classList.remove('active'));
+    const map = { week: 'periodWeek', month: 'periodMonth', all: 'periodAll' };
+    document.getElementById(map[p]).classList.add('active');
+    renderLeaderboard();
+  }
 
   // Get current user from localStorage
   try {
@@ -3285,10 +3326,11 @@
     list.innerHTML = '<div class="lb-loading">Loading&#8230;</div>';
     try {
       const action = _tab === 'papers' ? 'leaderboard_papers' : 'leaderboard_time';
+      const periodStart = getPeriodStart(_period);
       const r = await fetch('/api/user-data', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action })
+        body: JSON.stringify({ action, periodStart })
       });
       const entries = await r.json();
       if (!Array.isArray(entries) || !entries.length) {
