@@ -1,15 +1,15 @@
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
 
-function db(path, method = 'GET', body, extra = {}) {
-  return fetch(SUPABASE_URL + '/rest/v1/' + path, {
+function db(path, method = 'GET', body, extraHeaders = {}) {
+  return fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     method,
     headers: {
       'apikey': SUPABASE_KEY,
-      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
       'Content-Type': 'application/json',
       'Prefer': method === 'POST' ? 'return=representation' : 'return=minimal',
-      ...extra
+      ...extraHeaders
     },
     body: body ? JSON.stringify(body) : undefined
   }).then(r => r.json().catch(() => ({})));
@@ -17,10 +17,27 @@ function db(path, method = 'GET', body, extra = {}) {
 
 async function getUserFromToken(token) {
   if (!token) return null;
-  const sessions = await db('sessions?token=eq.' + token + '&select=user_id,expires_at');
-  if (!sessions || !sessions[0]) return null;
-  if (new Date(sessions[0].expires_at) < new Date()) return null;
-  return sessions[0].user_id;
+  const s = await db(`sessions?token=eq.${token}&select=user_id,expires_at`);
+  if (!s?.[0]) return null;
+  if (new Date(s[0].expires_at) < new Date()) return null;
+  return s[0].user_id;
+}
+
+// Build leaderboard from raw rows, applying an optional period filter
+function buildLeaderboard(rows, field, periodStart) {
+  const agg = {};
+  for (const r of rows) {
+    if (!r.user_id || !r.users) continue;
+    if (periodStart && r.created_at && new Date(r.created_at) < new Date(periodStart)) continue;
+    // For time_sessions, use the date column for period filtering
+    if (periodStart && r.date && new Date(r.date) < new Date(periodStart)) continue;
+    const uid = r.user_id;
+    if (!agg[uid]) agg[uid] = { username: r.users.username || 'Unknown', value: 0 };
+    agg[uid].value += field === 'seconds' ? Math.round(r.seconds || 0) : 1;
+  }
+  return Object.entries(agg)
+    .map(([id, v]) => ({ id, username: v.username, value: v.value }))
+    .sort((a, b) => b.value - a.value);
 }
 
 export default async function handler(req, res) {
@@ -30,44 +47,26 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const token = req.headers['x-session-token'] || req.body?.token;
-  const { action } = req.method === 'GET' ? req.query : (req.body || {});
+  const { action, periodStart } = req.method === 'GET' ? req.query : (req.body || {});
 
-  // ── Public leaderboards ──
+  // ── Leaderboard — papers ──
   if (action === 'leaderboard_papers') {
-    const rows = await db('paper_views?select=user_id,users!inner(username)&limit=10000');
-    const counts = {};
-    if (Array.isArray(rows)) {
-      for (const r of rows) {
-        const uid = r.user_id;
-        if (!counts[uid]) counts[uid] = { username: r.users?.username || 'Unknown', count: 0 };
-        counts[uid].count++;
-      }
-    }
-    const sorted = Object.entries(counts)
-      .map(([id, v]) => ({ id, username: v.username, count: v.count }))
-      .sort((a, b) => b.count - a.count);
-    return res.status(200).json(sorted);
+    const rows = await db('paper_views?select=user_id,created_at,users!inner(username)&limit=20000');
+    const sorted = buildLeaderboard(Array.isArray(rows) ? rows : [], 'count', periodStart);
+    return res.status(200).json(sorted.map(e => ({ ...e, count: e.value })));
   }
 
+  // ── Leaderboard — time ──
   if (action === 'leaderboard_time') {
-    const rows = await db('time_sessions?select=user_id,seconds,users!inner(username)&limit=50000');
-    const totals = {};
-    if (Array.isArray(rows)) {
-      for (const r of rows) {
-        const uid = r.user_id;
-        if (!totals[uid]) totals[uid] = { username: r.users?.username || 'Unknown', seconds: 0 };
-        totals[uid].seconds += Math.round(r.seconds || 0);
-      }
-    }
-    const sorted = Object.entries(totals)
-      .map(([id, v]) => ({ id, username: v.username, seconds: v.seconds }))
-      .sort((a, b) => b.seconds - a.seconds);
-    return res.status(200).json(sorted);
+    const rows = await db('time_sessions?select=user_id,seconds,date,users!inner(username)&limit=50000');
+    const sorted = buildLeaderboard(Array.isArray(rows) ? rows : [], 'seconds', periodStart);
+    return res.status(200).json(sorted.map(e => ({ ...e, seconds: e.value })));
   }
 
   const userId = await getUserFromToken(token);
   if (!userId) return res.status(401).json({ error: 'Not authenticated' });
 
+  // ── Paper view ──
   if (action === 'view_paper' && req.method === 'POST') {
     const { url } = req.body;
     if (!url) return res.status(400).json({ error: 'No URL' });
@@ -75,51 +74,66 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true });
   }
 
-  // ── Time tracking — upsert into a single daily row per user to avoid record explosion ──
+  // ── Time tracking — upsert one record per user per day ──
   if (action === 'track_time' && req.method === 'POST') {
-    const { seconds } = req.body;
-    const secs = Math.round(seconds || 0);
+    const secs = Math.round(req.body?.seconds || 0);
     if (secs < 1) return res.status(400).json({ error: 'Invalid seconds' });
-
-    // Use today's date as key — upsert to accumulate seconds in one record per user per day
-    const today = new Date().toISOString().slice(0, 10); // "2026-03-17"
-
-    // Try to find existing record for today
-    const existing = await db('time_sessions?user_id=eq.' + userId + '&date=eq.' + today + '&select=id,seconds');
+    const today = new Date().toISOString().slice(0, 10);
+    const existing = await db(`time_sessions?user_id=eq.${userId}&date=eq.${today}&select=id,seconds`);
     if (Array.isArray(existing) && existing[0]) {
-      const newTotal = Math.round(existing[0].seconds) + secs;
-      await db('time_sessions?id=eq.' + existing[0].id, 'PATCH', { seconds: newTotal });
+      await db(`time_sessions?id=eq.${existing[0].id}`, 'PATCH', { seconds: Math.round(existing[0].seconds) + secs });
     } else {
       await db('time_sessions', 'POST', { user_id: userId, seconds: secs, date: today });
     }
     return res.status(200).json({ ok: true });
   }
 
+  // ── My stats ──
   if (action === 'my_stats') {
     const [views, time] = await Promise.all([
-      db('paper_views?user_id=eq.' + userId + '&select=id'),
-      db('time_sessions?user_id=eq.' + userId + '&select=seconds')
+      db(`paper_views?user_id=eq.${userId}&select=id`),
+      db(`time_sessions?user_id=eq.${userId}&select=seconds`)
     ]);
-    const totalViews = Array.isArray(views) ? views.length : 0;
-    const totalSeconds = Array.isArray(time) ? time.reduce((s, r) => s + Math.round(r.seconds || 0), 0) : 0;
-    return res.status(200).json({ views: totalViews, seconds: totalSeconds });
+    return res.status(200).json({
+      views: Array.isArray(views) ? views.length : 0,
+      seconds: Array.isArray(time) ? time.reduce((s, r) => s + Math.round(r.seconds || 0), 0) : 0
+    });
   }
 
+  // ── Favourites ──
   if (action === 'get_favs') {
-    const favs = await db('favourites?user_id=eq.' + userId + '&select=code,name&order=name');
+    const favs = await db(`favourites?user_id=eq.${userId}&select=code,name&order=name`);
     return res.status(200).json(Array.isArray(favs) ? favs : []);
   }
-
   if (action === 'add_fav' && req.method === 'POST') {
     const { code, name } = req.body;
     if (!code) return res.status(400).json({ error: 'No code' });
-    await db('favourites', 'POST', { user_id: userId, code, name: name || code }, { 'Prefer': 'return=minimal,resolution=ignore-duplicates' });
+    await db('favourites', 'POST', { user_id: userId, code, name: name || code },
+      { 'Prefer': 'return=minimal,resolution=ignore-duplicates' });
+    return res.status(200).json({ ok: true });
+  }
+  if (action === 'remove_fav' && req.method === 'POST') {
+    const { code } = req.body;
+    await db(`favourites?user_id=eq.${userId}&code=eq.${code}`, 'DELETE');
     return res.status(200).json({ ok: true });
   }
 
-  if (action === 'remove_fav' && req.method === 'POST') {
-    const { code } = req.body;
-    await db('favourites?user_id=eq.' + userId + '&code=eq.' + code, 'DELETE');
+  // ── AI Chat history ──
+  if (action === 'get_chat' && req.method === 'POST') {
+    const { paperUrl } = req.body;
+    if (!paperUrl) return res.status(400).json({ error: 'No paperUrl' });
+    const rows = await db(`chat_history?user_id=eq.${userId}&paper_url=eq.${encodeURIComponent(paperUrl)}&select=messages&limit=1`);
+    return res.status(200).json(rows?.[0] || { messages: [] });
+  }
+  if (action === 'save_chat' && req.method === 'POST') {
+    const { paperUrl, messages } = req.body;
+    if (!paperUrl || !messages) return res.status(400).json({ error: 'Missing fields' });
+    const existing = await db(`chat_history?user_id=eq.${userId}&paper_url=eq.${encodeURIComponent(paperUrl)}&select=id`);
+    if (existing?.[0]) {
+      await db(`chat_history?id=eq.${existing[0].id}`, 'PATCH', { messages: JSON.stringify(messages), updated_at: new Date().toISOString() });
+    } else {
+      await db('chat_history', 'POST', { user_id: userId, paper_url: paperUrl, messages: JSON.stringify(messages) });
+    }
     return res.status(200).json({ ok: true });
   }
 
