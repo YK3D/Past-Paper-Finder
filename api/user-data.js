@@ -23,21 +23,62 @@ async function getUserFromToken(token) {
   return s[0].user_id;
 }
 
-// Build leaderboard from raw rows, applying an optional period filter
-function buildLeaderboard(rows, field, periodStart) {
-  const agg = {};
-  for (const r of rows) {
-    if (!r.user_id || !r.users) continue;
-    if (periodStart && r.created_at && new Date(r.created_at) < new Date(periodStart)) continue;
-    // For time_sessions, use the date column for period filtering
-    if (periodStart && r.date && new Date(r.date) < new Date(periodStart)) continue;
-    const uid = r.user_id;
-    if (!agg[uid]) agg[uid] = { username: r.users.username || 'Unknown', value: 0 };
-    agg[uid].value += field === 'seconds' ? Math.round(r.seconds || 0) : 1;
+// Build leaderboard from paper_views rows + users lookup
+async function buildPapersLeaderboard(periodStart) {
+  // Get all paper views
+  const rows = await db('paper_views?select=user_id,created_at&limit=50000');
+  if (!Array.isArray(rows) || !rows.length) return [];
+
+  // Filter by period
+  const filtered = rows.filter(r => {
+    if (!r.user_id) return false;
+    if (periodStart && r.created_at && new Date(r.created_at) < new Date(periodStart)) return false;
+    return true;
+  });
+
+  // Aggregate counts per user_id
+  const counts = {};
+  for (const r of filtered) {
+    counts[r.user_id] = (counts[r.user_id] || 0) + 1;
   }
-  return Object.entries(agg)
-    .map(([id, v]) => ({ id, username: v.username, value: v.value }))
-    .sort((a, b) => b.value - a.value);
+  if (!Object.keys(counts).length) return [];
+
+  // Get usernames for those user IDs
+  const ids = Object.keys(counts);
+  const users = await db(`users?id=in.(${ids.join(',')})&select=id,username`);
+  const userMap = {};
+  if (Array.isArray(users)) users.forEach(u => { userMap[u.id] = u.username; });
+
+  return Object.entries(counts)
+    .map(([id, count]) => ({ id, username: userMap[id] || 'Unknown', count }))
+    .sort((a, b) => b.count - a.count);
+}
+
+// Build leaderboard from time_sessions
+async function buildTimeLeaderboard(periodStart) {
+  const rows = await db('time_sessions?select=user_id,seconds,date&limit=100000');
+  if (!Array.isArray(rows) || !rows.length) return [];
+
+  const filtered = rows.filter(r => {
+    if (!r.user_id) return false;
+    if (periodStart && r.date && new Date(r.date) < new Date(periodStart)) return false;
+    return true;
+  });
+
+  const totals = {};
+  for (const r of filtered) {
+    totals[r.user_id] = (totals[r.user_id] || 0) + Math.round(r.seconds || 0);
+  }
+  if (!Object.keys(totals).length) return [];
+
+  const ids = Object.keys(totals);
+  const users = await db(`users?id=in.(${ids.join(',')})&select=id,username`);
+  const userMap = {};
+  if (Array.isArray(users)) users.forEach(u => { userMap[u.id] = u.username; });
+
+  return Object.entries(totals)
+    .map(([id, seconds]) => ({ id, username: userMap[id] || 'Unknown', seconds }))
+    .sort((a, b) => b.seconds - a.seconds);
 }
 
 export default async function handler(req, res) {
@@ -49,18 +90,24 @@ export default async function handler(req, res) {
   const token = req.headers['x-session-token'] || req.body?.token;
   const { action, periodStart } = req.method === 'GET' ? req.query : (req.body || {});
 
-  // ── Leaderboard — papers ──
+  // ── Leaderboard — papers (no auth required) ──
   if (action === 'leaderboard_papers') {
-    const rows = await db('paper_views?select=user_id,created_at,users!inner(username)&limit=20000');
-    const sorted = buildLeaderboard(Array.isArray(rows) ? rows : [], 'count', periodStart);
-    return res.status(200).json(sorted.map(e => ({ ...e, count: e.value })));
+    const entries = await buildPapersLeaderboard(periodStart || null);
+    return res.status(200).json(entries);
   }
 
-  // ── Leaderboard — time ──
+  // ── Leaderboard — time (no auth required) ──
   if (action === 'leaderboard_time') {
-    const rows = await db('time_sessions?select=user_id,seconds,date,users!inner(username)&limit=50000');
-    const sorted = buildLeaderboard(Array.isArray(rows) ? rows : [], 'seconds', periodStart);
-    return res.status(200).json(sorted.map(e => ({ ...e, seconds: e.value })));
+    const entries = await buildTimeLeaderboard(periodStart || null);
+    return res.status(200).json(entries);
+  }
+
+  // ── Site config (no auth required) ──
+  if (action === 'site_config') {
+    const rows = await db('site_config?select=key,value');
+    const cfg = {};
+    if (Array.isArray(rows)) rows.forEach(r => { cfg[r.key] = r.value; });
+    return res.status(200).json(cfg);
   }
 
   const userId = await getUserFromToken(token);
@@ -102,34 +149,33 @@ export default async function handler(req, res) {
 
   // ── Favourites ──
   if (action === 'get_favs') {
-    const favs = await db(`favourites?user_id=eq.${userId}&select=code,name&order=name`);
+    const favs = await db(`favourites?user_id=eq.${userId}&select=code,name&order=id.desc`);
     return res.status(200).json(Array.isArray(favs) ? favs : []);
   }
-  if (action === 'add_fav' && req.method === 'POST') {
+  if (action === 'add_fav') {
     const { code, name } = req.body;
-    if (!code) return res.status(400).json({ error: 'No code' });
-    await db('favourites', 'POST', { user_id: userId, code, name: name || code },
-      { 'Prefer': 'return=minimal,resolution=ignore-duplicates' });
+    await db('favourites', 'POST', { user_id: userId, code, name });
     return res.status(200).json({ ok: true });
   }
-  if (action === 'remove_fav' && req.method === 'POST') {
+  if (action === 'remove_fav') {
     const { code } = req.body;
     await db(`favourites?user_id=eq.${userId}&code=eq.${code}`, 'DELETE');
     return res.status(200).json({ ok: true });
   }
 
-  // ── AI Chat history ──
-  if (action === 'get_chat' && req.method === 'POST') {
+  // ── Chat history ──
+  if (action === 'get_chat') {
     const { paperUrl } = req.body;
     if (!paperUrl) return res.status(400).json({ error: 'No paperUrl' });
     const rows = await db(`chat_history?user_id=eq.${userId}&paper_url=eq.${encodeURIComponent(paperUrl)}&select=messages&limit=1`);
-    return res.status(200).json(rows?.[0] || { messages: [] });
+    const messages = Array.isArray(rows) && rows[0] ? JSON.parse(rows[0].messages || '[]') : [];
+    return res.status(200).json({ messages });
   }
-  if (action === 'save_chat' && req.method === 'POST') {
+  if (action === 'save_chat') {
     const { paperUrl, messages } = req.body;
-    if (!paperUrl || !messages) return res.status(400).json({ error: 'Missing fields' });
+    if (!paperUrl) return res.status(400).json({ error: 'No paperUrl' });
     const existing = await db(`chat_history?user_id=eq.${userId}&paper_url=eq.${encodeURIComponent(paperUrl)}&select=id`);
-    if (existing?.[0]) {
+    if (Array.isArray(existing) && existing[0]) {
       await db(`chat_history?id=eq.${existing[0].id}`, 'PATCH', { messages: JSON.stringify(messages), updated_at: new Date().toISOString() });
     } else {
       await db('chat_history', 'POST', { user_id: userId, paper_url: paperUrl, messages: JSON.stringify(messages) });
