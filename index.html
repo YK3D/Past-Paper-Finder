@@ -5,10 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.01, maximum-scale=5.0">
 <title>Past Paper Finder</title>
 
-<!--Ad code-->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1496392952885490"
-     crossorigin="anonymous"></script>
-  
 <!-- SEO Meta -->
 <meta name="description" content="Find and open CAIE & AQA past papers and mark schemes instantly. Made by Youssef Karim.">
 <meta name="author" content="Youssef Karim">
@@ -1648,6 +1644,27 @@
   }
   .sign-in-btn:hover { border-color: var(--accent); color: var(--accent); }
 
+  /* ── Landing overlay (signed-out homepage) ── */
+  .landing-overlay {
+    display: none; position: fixed; inset: 0;
+    background: var(--bg); z-index: 500;
+    flex-direction: column; align-items: center; justify-content: center;
+    gap: 1.8rem; padding: 2rem;
+  }
+  .landing-overlay.show { display: flex; }
+  .landing-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2.4rem; letter-spacing: -0.02em; }
+  .landing-logo span { color: var(--accent); }
+  .landing-sub { font-family: 'Space Mono', monospace; font-size: 0.76rem; color: var(--muted); text-align: center; max-width: 380px; line-height: 1.8; }
+  .landing-btns { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 300px; }
+  .landing-btn { padding: 0.85rem 1.5rem; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; border: none; text-align: center; }
+  .landing-btn-primary { background: var(--accent); color: #000; }
+  .landing-btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+  .landing-btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .landing-btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .landing-skip { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: var(--muted); cursor: pointer; text-decoration: underline; background: none; border: none; }
+  .landing-skip:hover { color: var(--text); }
+
+
 </style>
   <script defer src="/_vercel/speed-insights/script.js"></script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1496392952885490" crossorigin="anonymous"></script>
@@ -1658,7 +1675,7 @@
   <div style="font-size:2rem">&#128683;</div>
   <div>Your access to PaperFinder has been restricted.</div>
   <div id="banReason" style="font-weight:400;font-size:0.75rem;max-width:480px;line-height:1.6;opacity:0.9"></div>
-  <div style="font-size:0.65rem;opacity:0.7;margin-top:0.4rem">Contact youssef.masoud@outlook.com to appeal</div>
+  <div style="font-size:0.65rem;opacity:0.7;margin-top:0.4rem">Contact <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="255c4a50565640430b4844564a5041654a5051494a4a4e0b464a48">[email&#160;protected]</a> to appeal</div>
 </div>
 <div id="maintenanceBanner" style="display:none;padding:0.4rem 1rem;text-align:center;font-family:Space Mono,monospace;font-size:0.75rem;font-weight:600;z-index:9999;width:100%;box-sizing:border-box"></div>
 
@@ -1828,7 +1845,7 @@
       <div class="contact-section">
         <p class="contact-label">Contact</p>
         <p class="contact-name">Youssef Karim</p>
-        <a class="contact-email" href="mailto:youssef.masoud@outlook.com">youssef.masoud@outlook.com</a>
+        <a class="contact-email" href="/cdn-cgi/l/email-protection#176e786264647271397a7664786273577862637b78787c3974787a"><span class="__cf_email__" data-cfemail="9fe6f0eaececfaf9b1f2feecf0eafbdff0eaebf3f0f0f4b1fcf0f2">[email&#160;protected]</span></a>
       </div>
 
       <div class="rating-section">
@@ -2168,7 +2185,7 @@
 
 </div><!-- /#view-wrapper -->
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   // Always start at top
   if (history.scrollRestoration) history.scrollRestoration = 'manual';
   window.scrollTo(0, 0);
@@ -4249,13 +4266,26 @@
   }
 
   function requireAuth(action) {
-    if (!_currentUser) {
-      openAuth('login');
-      const err = document.getElementById('authError');
-      if (err) err.textContent = 'Sign in to use this feature';
-      return false;
-    }
-    return true;
+    if (_currentUser) return true;
+    // Allow 1 free paper for guests who clicked "continue as guest"
+    try {
+      const guestMode = sessionStorage.getItem('pp_guest_mode');
+      const freeUsed  = sessionStorage.getItem('pp_free_used');
+      if (guestMode && !freeUsed) {
+        sessionStorage.setItem('pp_free_used', '1');
+        return true;
+      }
+      if (guestMode && freeUsed) {
+        openAuth('login');
+        const err = document.getElementById('authError');
+        if (err) err.textContent = 'Sign in to open more papers';
+        return false;
+      }
+    } catch {}
+    openAuth('login');
+    const err = document.getElementById('authError');
+    if (err) err.textContent = 'Sign in to use this feature';
+    return false;
   }
   function openUrl() { if (generatedUrl && requireAuth()) { haptic('light'); window.open(generatedUrl, '_blank'); } }
   function openViewer() {
@@ -4762,6 +4792,31 @@
     } catch {}
   }, 60000);
 
+  // ── Landing page (signed-out homepage) ──
+  function showLanding() {
+    document.getElementById('landingOverlay').classList.add('show');
+  }
+  function closeLanding() {
+    document.getElementById('landingOverlay').classList.remove('show');
+    try { sessionStorage.setItem('pp_landing_seen', '1'); } catch {}
+  }
+  function closeLandingAsGuest() {
+    closeLanding();
+    try { sessionStorage.setItem('pp_guest_mode', '1'); } catch {}
+  }
+  // Show landing to new guests only — after splash animation fully completes
+  (function() {
+    try {
+      const hasToken = !!localStorage.getItem('pp_token');
+      const seen     = sessionStorage.getItem('pp_landing_seen');
+      // Splash takes ~2600ms total (1400 wait + 400 fade + 780 fly animation)
+      // Add extra buffer so landing never overlaps splash
+      if (!hasToken && !seen) {
+        setTimeout(function() { if (!_currentUser) showLanding(); }, 3000);
+      }
+    } catch {}
+  })();
+
   // ── Fetch site_config (maintenance message + version) on load ──
   (async function fetchSiteConfig() {
     try {
@@ -4785,6 +4840,17 @@
     } catch {}
   })();
 </script>
+
+<!-- Landing overlay for signed-out users -->
+<div class="landing-overlay" id="landingOverlay">
+  <div class="landing-logo">Paper<span>Finder</span></div>
+  <p class="landing-sub">Find and open CAIE &amp; AQA past papers instantly.<br>Sign in to get full access.</p>
+  <div class="landing-btns">
+    <button class="landing-btn landing-btn-primary" onclick="closeLanding();openAuth('login')">Sign In</button>
+    <button class="landing-btn landing-btn-secondary" onclick="closeLanding();setAuthMode('register');openAuth('register')">Register</button>
+  </div>
+  <button class="landing-skip" onclick="closeLandingAsGuest()">Continue as guest &mdash; 1 free paper</button>
+</div>
 
 <!-- Auth Modal -->
 <div class="auth-modal-bg" id="authModalBg" onclick="if(event.target===this)closeAuth()">
@@ -4853,14 +4919,4 @@
       <button class="auth-btn" onclick="submitChangePassword()" style="margin-top:0.4rem">Update Password</button>
     </div>
     <div style="font-family:Space Mono,monospace;font-size:0.6rem;color:var(--muted);text-align:center;margin-top:0.7rem;line-height:1.5">
-      Contact <a href="mailto:youssef.masoud@outlook.com" style="color:var(--accent);text-decoration:none">youssef.masoud@outlook.com</a> to change credentials
-    </div>
-  </div>
-</div>
-
-
-<!-- Status/maintenance bar from site_config -->
-<div id="statusBar" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#1a1a1a;border-top:1px solid var(--border);padding:0.4rem 1rem;font-family:Space Mono,monospace;font-size:0.65rem;color:var(--muted);text-align:center;z-index:999"></div>
-
-</body>
-</html>
+      Contact <a href="/cdn-cgi/l/email-protection#067f697375756360286b6775697362466973726a69696d2865696b" style="color:var(--acce
