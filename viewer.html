@@ -3642,7 +3642,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 
       // Also try to extract text for AI in background via PDF.js
       try {
-        const resp = await fetch('/api/download-pdf?url=' + encodeURIComponent(url));
+        const resp = await fetch(proxyUrl);
         if (resp.ok) {
           const buf = await resp.arrayBuffer();
           pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
