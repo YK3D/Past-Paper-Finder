@@ -3224,6 +3224,102 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   background: #1a1a1a;
 }
 
+/* ── Centre: topbar + main canvas ── */
+.viewer-centre { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+/* ── PDF Search bar ── */
+.pdf-search-bar {
+  display: none; align-items: center; gap: 0.5rem;
+  padding: 0.35rem 0.8rem; background: #1e1e1e;
+  border-bottom: 1px solid #333; flex-shrink: 0;
+}
+.pdf-search-bar.show { display: flex; }
+.pdf-search-input {
+  flex: 1; background: #2a2a2a; border: 1px solid #444; border-radius: 6px;
+  color: #fff; font-family: 'Space Mono', monospace; font-size: 0.72rem;
+  padding: 0.3rem 0.6rem; outline: none;
+}
+.pdf-search-input:focus { border-color: var(--accent); }
+.pdf-search-count { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: #888; min-width: 4rem; }
+.pdf-search-btn {
+  background: transparent; border: 1px solid #444; border-radius: 5px;
+  color: #aaa; font-size: 0.75rem; padding: 0.25rem 0.45rem; cursor: pointer;
+  transition: all 0.15s;
+}
+.pdf-search-btn:hover { border-color: var(--accent); color: var(--accent); }
+.search-highlight { background: rgba(255,230,0,0.4); border-radius: 2px; }
+.search-highlight.current { background: rgba(255,140,0,0.6); }
+/* ── Topbar ── */
+.pdf-topbar {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.45rem 0.8rem;
+  background: #242424; border-bottom: 1px solid #333; flex-shrink: 0;
+  min-height: 44px;
+}
+.back-btn-v {
+  background: transparent; border: 1px solid #444; border-radius: 6px;
+  color: #aaa; font-family: 'Space Mono', monospace; font-size: 0.68rem;
+  padding: 0.3rem 0.6rem; cursor: pointer; white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s; flex-shrink: 0;
+}
+.back-btn-v:hover { border-color: var(--accent); color: var(--accent); }
+.pdf-title-bar {
+  flex: 1; font-family: 'Space Mono', monospace; font-size: 0.68rem;
+  color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
+}
+.pdf-page-nav { display: flex; align-items: center; gap: 0.35rem; flex-shrink: 0; }
+.pdf-page-nav button {
+  background: #333; border: 1px solid #444; border-radius: 6px; color: #ccc;
+  font-size: 1rem; font-weight: 700; width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.15s;
+}
+.pdf-page-nav button:hover { background: #444; border-color: var(--accent); color: var(--accent); }
+.pdf-page-nav .page-info {
+  font-family: 'Space Mono', monospace; font-size: 0.65rem; color: #aaa;
+  min-width: 4.5rem; text-align: center;
+}
+.topbar-right { display: flex; align-items: center; gap: 0.35rem; flex-shrink: 0; flex-wrap: wrap; }
+
+/* ── Markup toolbar ── */
+.markup-bar {
+  display: flex; align-items: center; gap: 0.3rem;
+  padding: 0.3rem 0.8rem; background: #1a1a1a;
+  border-bottom: 1px solid #333; flex-shrink: 0; flex-wrap: wrap;
+}
+.mu-btn {
+  background: transparent; border: 1px solid #444; border-radius: 5px;
+  color: #aaa; font-size: 0.72rem; padding: 0.22rem 0.5rem; cursor: pointer;
+  transition: all 0.15s; font-family: 'Space Mono', monospace; white-space: nowrap;
+  min-width: 28px; text-align: center;
+}
+.mu-btn:hover { border-color: var(--accent); color: var(--accent); }
+.mu-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+.mu-btn.eraser.active { background: #ff4d6d; border-color: #ff4d6d; color: #fff; }
+.mu-sep { width: 1px; height: 20px; background: #333; margin: 0 0.2rem; flex-shrink: 0; }
+.mu-color-swatch { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #555; cursor: pointer; flex-shrink: 0; transition: border-color 0.15s; }
+.mu-color-swatch:hover { border-color: #fff; }
+#muColorInput { width: 0; height: 0; opacity: 0; position: absolute; }
+.mu-size-input { width: 38px; background: #222; border: 1px solid #444; border-radius: 4px; color: #ccc; font-size: 0.62rem; text-align: center; padding: 0.18rem 0; font-family: 'Space Mono', monospace; }
+.mu-label { font-family: 'Space Mono', monospace; font-size: 0.58rem; color: #666; }
+
+/* ── Markup canvas overlay on each page ── */
+.markup-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; z-index: 10; touch-action: none; pointer-events: none; }
+@media (max-width: 600px) {
+  .pdf-topbar { flex-wrap: wrap; min-height: unset; padding: 0.4rem; gap: 0.3rem; }
+  .pdf-title-bar { display: none; }
+  .topbar-right { flex-wrap: wrap; gap: 0.2rem; }
+  .topbar-action { font-size: 0.58rem; padding: 0.2rem 0.35rem; }
+  .back-btn-v { font-size: 0.6rem; padding: 0.2rem 0.4rem; }
+  .pdf-page-nav .page-info { min-width: 3rem; font-size: 0.58rem; }
+}
+.topbar-action {
+  background: transparent; border: 1px solid #444; border-radius: 6px;
+  color: #aaa; font-size: 0.65rem; padding: 0.25rem 0.5rem;
+  cursor: pointer; white-space: nowrap; font-family: 'Space Mono', monospace;
+  transition: border-color 0.15s, color 0.15s;
+}
+.topbar-action:hover { border-color: var(--accent); color: var(--accent); }
 
 /* ── File chip bar ── */
 .file-chip-bar {
