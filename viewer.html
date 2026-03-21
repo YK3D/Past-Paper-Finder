@@ -3304,7 +3304,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .mu-label { font-family: 'Space Mono', monospace; font-size: 0.58rem; color: #666; }
 
 /* ── Markup canvas overlay on each page ── */
-.markup-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; z-index: 10; touch-action: none; }
+.markup-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; z-index: 10; touch-action: none; pointer-events: none; }
 @media (max-width: 600px) {
   .pdf-topbar { flex-wrap: wrap; min-height: unset; padding: 0.4rem; gap: 0.3rem; }
   .pdf-title-bar { display: none; }
@@ -3353,6 +3353,10 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .textLayer {
   position: absolute; top: 0; left: 0; overflow: hidden;
   line-height: 1; opacity: 0; pointer-events: auto;
+  user-select: text;
+  -webkit-user-select: text;
+  pointer-events: auto;
+  cursor: text;
 }
 .textLayer > span {
   color: transparent; position: absolute; white-space: pre;
@@ -3657,20 +3661,44 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     document.getElementById('thumbSidebar').innerHTML = '';
 
     try {
-      const proxyUrl = '/api/download-pdf?url=' + encodeURIComponent(url);
-      const resp = await fetch(proxyUrl);
-      if (!resp.ok) throw new Error('Server returned ' + resp.status);
-      const buf = await resp.arrayBuffer();
-      pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
-      totalPages = pdfDoc.numPages;
+      const area = document.getElementById('pdfCanvasArea');
+      area.innerHTML = '';
       msg.style.display = 'none';
-      // Render all pages
-      for (let i = 1; i <= totalPages; i++) await renderPageAppend(i);
-      // Build thumbnails
-      for (let i = 1; i <= totalPages; i++) buildThumb(i);
-      updatePageInfo();
-      setupScrollObserver();
-      extractText();
+
+      // Use <object> to render the PDF natively
+      const proxyUrl = '/api/download-pdf?url=' + encodeURIComponent(url);
+      const obj = document.createElement('object');
+      obj.data = proxyUrl;
+      obj.type = 'application/pdf';
+      obj.style.cssText = 'width:100%;height:100%;min-height:80vh;border:none;display:block;background:#fff';
+      obj.setAttribute('width', 'auto');
+      obj.innerHTML = '<p style="padding:1rem;font-family:Space Mono,monospace;font-size:0.8rem;color:#aaa">PDF could not be displayed. <a href="' + proxyUrl + '" target="_blank" style="color:#00e5ff">Open directly</a></p>';
+      area.appendChild(obj);
+
+      // Also try to extract text for AI in background via PDF.js
+      try {
+        const resp = await fetch(proxyUrl);
+        if (resp.ok) {
+          const buf = await resp.arrayBuffer();
+          pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
+          totalPages = pdfDoc.numPages;
+          updatePageInfo();
+          extractText();
+          loadRelatedFiles(url);
+        }
+      } catch {}
+
+      // Track paper view
+      try {
+        const tok = localStorage.getItem('pp_token');
+        if (tok && pdfUrl) {
+          fetch('/api/user-data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-session-token': tok },
+            body: JSON.stringify({ action: 'view_paper', token: tok, url: pdfUrl })
+          }).catch(() => {});
+        }
+      } catch {}
     } catch (e) {
       msg.textContent = 'Could not load PDF: ' + e.message;
     }
@@ -3877,13 +3905,20 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 
     // Fetch MS in background for AI
     const msFile = _files.find(f => f.label && f.label.toLowerCase().startsWith('ms') && !f.audio);
-    if (msFile && msFile.url !== url) fetchMsBackground(msFile.url);
+    if (msFile && msFile.url !== url) {
+      fetchMsBackground(msFile.url);
+    } else {
+      // Try to derive MS URL from QP URL even if check-pdf didn't confirm it
+      const msUrlDerived = url.replace(/_qp_/i, '_ms_').replace(/_in_/i, '_ms_').replace(/_ci_/i, '_ms_');
+      if (msUrlDerived !== url) fetchMsBackground(msUrlDerived);
+    }
   }
 
   async function fetchMsBackground(msUrl) {
+    console.log('[PaperAI] Fetching MS:', msUrl);
     try {
       const ab = await fetch('/api/download-pdf?url=' + encodeURIComponent(msUrl)).then(r => r.ok ? r.arrayBuffer() : null);
-      if (!ab) return;
+      if (!ab) { console.log('[PaperAI] MS fetch failed — no arrayBuffer'); return; }
       const msDoc = await pdfjsLib.getDocument({ data: ab }).promise;
       const pages = [];
       for (let i = 1; i <= Math.min(msDoc.numPages, 15); i++) {
@@ -3892,7 +3927,8 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         pages.push(tc.items.map(s => s.str).join(' '));
       }
       _msText = pages.join('\n\n---\n\n');
-    } catch {}
+      console.log('[PaperAI] MS loaded, chars:', _msText.length);
+    } catch (e) { console.log('[PaperAI] MS fetch error:', e); }
   }
 
   // ── Text extraction for AI ──
@@ -4310,11 +4346,11 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         ctx.globalAlpha = 1;
         ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
       } else if (_muTool === 'highlight') {
-        ctx.globalCompositeOperation = 'multiply';
+        ctx.globalCompositeOperation = 'source-over';
         ctx.strokeStyle = _muColor || '#ffff00';
-        ctx.lineWidth   = sz * scale * 4;
-        ctx.lineCap     = 'round';
-        ctx.globalAlpha = 0.35;
+        ctx.lineWidth   = sz * scale * 6;
+        ctx.lineCap     = 'square';
+        ctx.globalAlpha = 0.22;
         ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
       } else if (_muTool === 'eraser') {
         ctx.globalCompositeOperation = 'destination-out';
