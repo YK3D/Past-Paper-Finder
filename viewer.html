@@ -3200,7 +3200,7 @@
 body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 
 /* ── Layout ── */
-.viewer-root { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
+.viewer-root { position: relative; height: 100vh; width: 100vw; overflow: hidden; }
 
 /* ── Thumbnail sidebar ── */
 .thumb-sidebar {
@@ -3224,8 +3224,8 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   background: #1a1a1a;
 }
 
-/* ── Centre: topbar + main canvas ── */
-.viewer-centre { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+/* ── Centre: topbar + main canvas — always full width ── */
+.viewer-centre { position: absolute; inset: 0; display: flex; flex-direction: column; }
 
 /* ── PDF Search bar ── */
 .pdf-search-bar {
@@ -3400,15 +3400,17 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .a-time { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: #888; min-width: 7rem; text-align: center; }
 
 /* ── Resize handle ── */
-.resize-handle { width: 4px; flex-shrink: 0; cursor: col-resize; background: #333; transition: background 0.15s; }
-.resize-handle:hover { background: var(--accent); }
+.resize-handle { display: none; }
 
-/* ── AI panel ── */
+/* ── AI panel — floats over the PDF on the right ── */
 .ai-panel {
-  width: 360px; flex-shrink: 0; display: flex; flex-direction: column;
-  background: #1c1c1c; border-left: 1px solid #333; transition: width 0.25s ease;
+  position: absolute; top: 0; right: 0; bottom: 0;
+  width: 360px; display: flex; flex-direction: column;
+  background: #1c1c1c; border-left: 1px solid #333;
+  transition: transform 0.25s ease;
+  z-index: 100;
 }
-.ai-panel.collapsed { width: 44px; }
+.ai-panel.collapsed { transform: translateX(316px); }
 .ai-panel.collapsed .ai-messages,
 .ai-panel.collapsed .ai-hint,
 .ai-panel.collapsed .ai-input-row,
@@ -3486,37 +3488,31 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 /* ── Mobile ── */
 @media (max-width: 700px) {
   .thumb-sidebar { display: none; }
-  .viewer-root { flex-direction: column; position: relative; }
-  .viewer-centre { flex: 1; min-height: 0; padding-bottom: 52px; }
+  .viewer-centre { padding-bottom: 52px; }
   .ai-panel {
-    position: fixed !important;
-    bottom: 0; left: 0; right: 0;
+    top: auto !important;
     width: 100% !important;
-    height: 52px; /* collapsed — topbar only */
+    height: 52px;
     border-left: none;
     border-top: 2px solid var(--accent, #00e5ff);
     border-radius: 14px 14px 0 0;
     box-shadow: 0 -4px 24px rgba(0,0,0,0.4);
     transition: height 0.3s cubic-bezier(0.4,0,0.2,1);
+    transform: none !important;
     z-index: 200;
     overflow: hidden;
   }
-  .ai-panel.mobile-open {
-    height: 60vh;
-    overflow: hidden;
-  }
-  .ai-panel.collapsed { height: 52px !important; width: 100% !important; }
-  .resize-handle { display: none; }
+  .ai-panel.mobile-open { height: 60vh; }
+  .ai-panel.collapsed { transform: none !important; height: 52px !important; width: 100% !important; }
 }
 </style>
 
 <div class="viewer-root">
 
-  <!-- Thumbnail strip -->
-  <div class="thumb-sidebar" id="thumbSidebar"></div>
-
   <!-- Centre: topbar + canvas -->
   <div class="viewer-centre">
+    <!-- Thumbnail strip -->
+    <div class="thumb-sidebar" id="thumbSidebar" style="position:absolute;top:0;left:0;bottom:0;z-index:10"></div>
     <div class="pdf-topbar">
       <button class="back-btn-v" onclick="goBack()">&#8592; Back</button>
       <span class="pdf-title-bar" id="pdfTitle">Loading&hellip;</span>
@@ -3557,9 +3553,6 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       <audio id="audioEl" onended="document.getElementById('aPlayBtn').innerHTML='&#9654;'" ontimeupdate="updateATime()" onloadedmetadata="updateATime()"></audio>
     </div>
   </div>
-
-  <!-- Resize handle -->
-  <div class="resize-handle" id="resizeHandle"></div>
 
   <!-- AI Panel -->
   <div class="ai-panel" id="aiPanel">
@@ -3604,7 +3597,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   if (!pdfUrl) {
     document.getElementById('pdfLoadMsg').textContent = 'No PDF URL provided.';
   } else {
-    document.getElementById('pdfTitle').textContent = pdfUrl.split('/').pop();
+    document.getElementById('pdfTitle').textContent = examTitle(pdfUrl);
     openFile(pdfUrl);
     loadRelatedFiles(pdfUrl);
     loadChatHistory(pdfUrl);
@@ -3787,7 +3780,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   function isAudio(url) { return url.endsWith('.mp3') || url.endsWith('.wav') || url.includes('_sf_') || url.includes('_sf.'); }
 
   function openFile(url) {
-    document.getElementById('pdfTitle').textContent = url.split('/').pop();
+    document.getElementById('pdfTitle').textContent = examTitle(url);
     // Update chip active states
     renderFileChips(_files, url);
     if (isAudio(url)) {
@@ -3806,11 +3799,17 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     }
   }
 
-  function labelFromUrl(url) {
-    const f = url.split('/').pop().replace(/\.(pdf|mp3)$/i,'');
-    const m = f.match(/_([a-z]+)(?:_(\d+))?$/i);
-    if (m) return m[1].toUpperCase() + (m[2] ? ' v'+parseInt(m[2]) : '');
-    return f;
+  function examTitle(url, typeLabel) {
+    const f = url.split('/').pop().replace(/\.(pdf|mp3)$/i, '');
+    // Pattern: XXXX_s25_qp_11  or  XXXX_s25_gt  etc.
+    const m = f.match(/^(\d{4})_([smw])(\d{2})_([a-z]+)(?:_(\d{1,2}))?$/i);
+    if (!m) return f + (typeLabel ? ' ' + typeLabel.toUpperCase() : '');
+    const [, code, sess, yr, type, variant] = m;
+    const sessMap = { s: 'm/j', w: 'o/n', m: 'f/m' };
+    const sessStr = sessMap[sess.toLowerCase()] || sess;
+    const varStr  = variant ? '/' + parseInt(variant) : '';
+    const typeStr = type.toUpperCase();
+    return code + varStr + '/' + sessStr + '/' + yr + ' ' + typeStr;
   }
 
   function renderFileChips(files, activeUrl) {
@@ -3854,7 +3853,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         _files.push({ label: f.t.toUpperCase() + vSuffix, url: f.url, audio: f.audio });
       }
     }
-    if (!_files.find(f => f.url === url)) _files.unshift({ label: labelFromUrl(url), url, audio: isAudio(url) });
+    if (!_files.find(f => f.url === url)) _files.unshift({ label: examTitle(url), url, audio: isAudio(url) });
     renderFileChips(_files, url);
     _aiFileList = _files.map(f => f.label).join(', ');
 
@@ -3918,17 +3917,6 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   document.getElementById('aProgress').addEventListener('input', function() { document.getElementById('audioEl').currentTime = this.value; });
   function fmtT(s) { const m=Math.floor(s/60),sc=Math.floor(s%60); return m+':'+(sc<10?'0':'')+sc; }
 
-  // ── Resize handle ──
-  const rh = document.getElementById('resizeHandle');
-  let _resizing = false;
-  rh.addEventListener('mousedown', () => { _resizing = true; document.body.style.userSelect = 'none'; });
-  document.addEventListener('mousemove', e => {
-    if (!_resizing) return;
-    const root = document.querySelector('.viewer-root');
-    const chatW = Math.max(260, Math.min(600, root.getBoundingClientRect().right - e.clientX));
-    document.getElementById('aiPanel').style.width = chatW + 'px';
-  });
-  document.addEventListener('mouseup', () => { _resizing = false; document.body.style.userSelect = ''; });
 
   // ── AI panel toggle ──
   function toggleAiPanel() {
