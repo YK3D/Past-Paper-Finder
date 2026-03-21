@@ -3515,10 +3515,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       <span class="pdf-title-bar" id="pdfTitle">Loading&hellip;</span>
       <div class="file-chip-bar-inline" id="fileChipBar"></div>
       <div class="topbar-right">
-        <button class="topbar-action" onclick="openOnline()">&#127760; Online</button>
         <button class="topbar-action" onclick="sharePaper()">&#8679; Share</button>
-        <button class="topbar-action" onclick="downloadPaper()">&#8659; Download</button>
-        <button class="topbar-action" onclick="printPaper()">&#128424; Print</button>
       </div>
     </div>
     <div id="landscapeHint" style="display:none;font-family:Space Mono,monospace;font-size:0.6rem;color:#666;padding:0.3rem 0.8rem;flex-shrink:0">
@@ -3624,7 +3621,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 
       // Also try to extract text for AI in background via PDF.js
       try {
-        const resp = await fetch(proxyUrl);
+        const resp = await fetch('/api/download-pdf?url=' + encodeURIComponent(url));
         if (resp.ok) {
           const buf = await resp.arrayBuffer();
           pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
