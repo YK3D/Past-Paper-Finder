@@ -3203,13 +3203,52 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .viewer-root { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
 
 /* ── Thumbnail sidebar ── */
+.thumb-sidebar {
+  width: 96px; flex-shrink: 0; overflow-y: auto; overflow-x: hidden;
+  background: #1a1a1a; border-right: 1px solid #333;
+  display: flex; flex-direction: column; align-items: center; padding: 0.5rem 0;
+  gap: 0.5rem;
+}
+.thumb-sidebar::-webkit-scrollbar { width: 4px; }
+.thumb-sidebar::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
+.thumb-item {
+  width: 72px; cursor: pointer; border: 2px solid transparent;
+  border-radius: 3px; overflow: hidden; flex-shrink: 0;
+  transition: border-color 0.15s;
+}
+.thumb-item.active { border-color: var(--accent); }
+.thumb-item canvas { width: 72px !important; height: auto !important; display: block; }
+.thumb-item .thumb-num {
+  text-align: center; font-family: 'Space Mono', monospace;
+  font-size: 0.55rem; color: #888; padding: 0.15rem 0;
+  background: #1a1a1a;
+}
 
 /* ── Centre: topbar + main canvas ── */
 .viewer-centre { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 
 /* ── PDF Search bar ── */
+.pdf-search-bar {
+  display: none; align-items: center; gap: 0.5rem;
+  padding: 0.35rem 0.8rem; background: #1e1e1e;
+  border-bottom: 1px solid #333; flex-shrink: 0;
+}
+.pdf-search-bar.show { display: flex; }
+.pdf-search-input {
+  flex: 1; background: #2a2a2a; border: 1px solid #444; border-radius: 6px;
+  color: #fff; font-family: 'Space Mono', monospace; font-size: 0.72rem;
+  padding: 0.3rem 0.6rem; outline: none;
+}
 .pdf-search-input:focus { border-color: var(--accent); }
+.pdf-search-count { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: #888; min-width: 4rem; }
+.pdf-search-btn {
+  background: transparent; border: 1px solid #444; border-radius: 5px;
+  color: #aaa; font-size: 0.75rem; padding: 0.25rem 0.45rem; cursor: pointer;
+  transition: all 0.15s;
+}
 .pdf-search-btn:hover { border-color: var(--accent); color: var(--accent); }
+.search-highlight { background: rgba(255,230,0,0.4); border-radius: 2px; }
+.search-highlight.current { background: rgba(255,140,0,0.6); }
 /* ── Topbar ── */
 .pdf-topbar {
   display: flex; align-items: center; gap: 0.5rem;
@@ -3228,17 +3267,52 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   flex: 1; font-family: 'Space Mono', monospace; font-size: 0.68rem;
   color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
 }
+.pdf-page-nav { display: flex; align-items: center; gap: 0.35rem; flex-shrink: 0; }
+.pdf-page-nav button {
+  background: #333; border: 1px solid #444; border-radius: 6px; color: #ccc;
+  font-size: 1rem; font-weight: 700; width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.15s;
+}
+.pdf-page-nav button:hover { background: #444; border-color: var(--accent); color: var(--accent); }
+.pdf-page-nav .page-info {
+  font-family: 'Space Mono', monospace; font-size: 0.65rem; color: #aaa;
+  min-width: 4.5rem; text-align: center;
+}
 .topbar-right { display: flex; align-items: center; gap: 0.35rem; flex-shrink: 0; flex-wrap: wrap; }
 
+/* ── Markup toolbar ── */
+.markup-bar {
+  display: flex; align-items: center; gap: 0.3rem;
+  padding: 0.3rem 0.8rem; background: #1a1a1a;
+  border-bottom: 1px solid #333; flex-shrink: 0; flex-wrap: wrap;
+}
+.mu-btn {
+  background: transparent; border: 1px solid #444; border-radius: 5px;
+  color: #aaa; font-size: 0.72rem; padding: 0.22rem 0.5rem; cursor: pointer;
+  transition: all 0.15s; font-family: 'Space Mono', monospace; white-space: nowrap;
+  min-width: 28px; text-align: center;
+}
+.mu-btn:hover { border-color: var(--accent); color: var(--accent); }
+.mu-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+.mu-btn.eraser.active { background: #ff4d6d; border-color: #ff4d6d; color: #fff; }
+.mu-sep { width: 1px; height: 20px; background: #333; margin: 0 0.2rem; flex-shrink: 0; }
+.mu-color-swatch { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #555; cursor: pointer; flex-shrink: 0; transition: border-color 0.15s; }
 .mu-color-swatch:hover { border-color: #fff; }
+#muColorInput { width: 0; height: 0; opacity: 0; position: absolute; }
+.mu-size-input { width: 38px; background: #222; border: 1px solid #444; border-radius: 4px; color: #ccc; font-size: 0.62rem; text-align: center; padding: 0.18rem 0; font-family: 'Space Mono', monospace; }
+.mu-label { font-family: 'Space Mono', monospace; font-size: 0.58rem; color: #666; }
 
+/* ── Markup canvas overlay on each page ── */
+.markup-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; z-index: 10; touch-action: none; pointer-events: none; }
 @media (max-width: 600px) {
   .pdf-topbar { flex-wrap: wrap; min-height: unset; padding: 0.4rem; gap: 0.3rem; }
   .pdf-title-bar { display: none; }
   .topbar-right { flex-wrap: wrap; gap: 0.2rem; }
   .topbar-action { font-size: 0.58rem; padding: 0.2rem 0.35rem; }
   .back-btn-v { font-size: 0.6rem; padding: 0.2rem 0.4rem; }
-  }
+  .pdf-page-nav .page-info { min-width: 3rem; font-size: 0.58rem; }
+}
 .topbar-action {
   background: transparent; border: 1px solid #444; border-radius: 6px;
   color: #aaa; font-size: 0.65rem; padding: 0.25rem 0.5rem;
@@ -3413,7 +3487,8 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 
 /* ── Mobile ── */
 @media (max-width: 700px) {
-    .viewer-root { flex-direction: column; position: relative; }
+  .thumb-sidebar { display: none; }
+  .viewer-root { flex-direction: column; position: relative; }
   .viewer-centre { flex: 1; min-height: 0; padding-bottom: 52px; }
   .ai-panel {
     position: fixed !important;
@@ -3439,13 +3514,24 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 
 <div class="viewer-root">
 
+  <!-- Thumbnail strip -->
+  <div class="thumb-sidebar" id="thumbSidebar"></div>
 
   <!-- Centre: topbar + canvas -->
   <div class="viewer-centre">
     <div class="pdf-topbar">
       <button class="back-btn-v" onclick="goBack()">&#8592; Back</button>
       <span class="pdf-title-bar" id="pdfTitle">Loading&hellip;</span>
+      <div class="pdf-page-nav">
+        <button onclick="zoomOut()" title="Zoom out">&#8722;</button>
+        <button onclick="prevPage()" id="btnPrev">&#8249;</button>
+        <span class="page-info" id="pageInfo">&#8212; / &#8212;</span>
+        <button onclick="nextPage()" id="btnNext">&#8250;</button>
+        <button onclick="zoomIn()" title="Zoom in">&#43;</button>
+      </div>
       <div class="topbar-right">
+        <button class="topbar-action" id="muToggleBtn" onclick="toggleMarkup()" title="Markup tools">&#9998; Markup</button>
+        <button class="topbar-action" onclick="togglePdfSearch()" title="Search (Ctrl+F)">&#128269; Search</button>
         <button class="topbar-action" onclick="openOnline()">&#127760; Online</button>
         <button class="topbar-action" onclick="sharePaper()">&#8679; Share</button>
         <button class="topbar-action" onclick="downloadPaper()">&#8659; Download</button>
@@ -3453,9 +3539,34 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       </div>
     </div>
 
-
+    <div class="pdf-search-bar" id="pdfSearchBar">
+      <input class="pdf-search-input" id="pdfSearchInput" placeholder="Search in PDF&#8230;" oninput="doPdfSearch()" onkeydown="if(event.key==='Enter')nextSearchResult();if(event.key==='Escape')closePdfSearch()">
+      <span class="pdf-search-count" id="pdfSearchCount"></span>
+      <button class="pdf-search-btn" onclick="prevSearchResult()" title="Previous">&#8593;</button>
+      <button class="pdf-search-btn" onclick="nextSearchResult()" title="Next">&#8595;</button>
+      <button class="pdf-search-btn" onclick="closePdfSearch()" title="Close">&#10005;</button>
+    </div>
     <div class="file-chip-bar" id="fileChipBar"></div>
-
+    <!-- Markup toolbar -->
+    <div class="markup-bar" id="markupBar" style="display:none">
+      <span class="mu-label">TOOL:</span>
+      <button class="mu-btn active" id="muDraw"    onclick="setTool('draw')"      title="Draw">&#9999;</button>
+      <button class="mu-btn"        id="muHighlight" onclick="setTool('highlight')" title="Highlight">&#9650;</button>
+      <button class="mu-btn"        id="muLine"    onclick="setTool('line')"      title="Line">&#9135;</button>
+      <button class="mu-btn"        id="muText"    onclick="setTool('text')"      title="Text box">&#84;</button>
+      <button class="mu-btn eraser" id="muEraser"  onclick="setTool('eraser')"    title="Eraser">&#9003;</button>
+      <div class="mu-sep"></div>
+      <span class="mu-label">SIZE:</span>
+      <input class="mu-size-input" type="number" id="muSize" value="3" min="1" max="40" title="Brush size">
+      <div class="mu-sep"></div>
+      <span class="mu-label">COLOR:</span>
+      <div class="mu-color-swatch" id="muSwatch" onclick="document.getElementById('muColorInput').click()" title="Pick colour" style="background:#00e5ff"></div>
+      <input type="color" id="muColorInput" value="#00e5ff" oninput="updateMarkupColor(this.value)">
+      <div class="mu-sep"></div>
+      <button class="mu-btn" onclick="undoMarkup()" title="Undo">&#8617;</button>
+      <button class="mu-btn" onclick="clearMarkup()" title="Clear all" style="color:#ff4d6d">&#128465;</button>
+      <button class="mu-btn" onclick="saveMarkupImage()" title="Save with markup">&#128190; Save</button>
+    </div>
     <div id="landscapeHint" style="display:none;font-family:Space Mono,monospace;font-size:0.6rem;color:#666;padding:0.3rem 0.8rem;flex-shrink:0">
       &#128261; Switch to landscape for best view
     </div>
@@ -3520,6 +3631,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   const pdfUrl  = params.get('url');
 
   var pdfDoc = null, curPage = 1, totalPages = 0;
+  var _scale = null;
   var _files = [];
   var _aiFileList = '';
   var _msText = '';  // Background MS text for AI
@@ -3540,48 +3652,180 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   // ── PDF loading ──
   async function loadPdf(url) {
     const area = document.getElementById('pdfCanvasArea');
-    area.innerHTML = '';
+    const msg  = document.getElementById('pdfLoadMsg');
+    // Remove old pages
+    area.querySelectorAll('.pdf-page-container').forEach(el => el.remove());
+    msg.style.display = 'flex';
+    msg.textContent = 'Loading PDF…';
+    pdfDoc = null; _pdfText = []; curPage = 1; totalPages = 0;
+    document.getElementById('pageInfo').textContent = '— / —';
+    document.getElementById('thumbSidebar').innerHTML = '';
 
-    // Render PDF via iframe
-    const iframe = document.createElement('iframe');
-    iframe.id = 'pdfIframe';
-    iframe.src = '/api/download-pdf?url=' + encodeURIComponent(url);
-    iframe.frameBorder = '0';
-    iframe.style.cssText = 'width:100%;height:100%;min-height:85vh;border:none;display:block;background:#fff;';
-    area.appendChild(iframe);
-
-    // Extract text in background for AI (PDF.js only — no canvas rendering)
     try {
-      const proxyUrl = '/api/download-pdf?url=' + encodeURIComponent(url);
-      const resp = await fetch(proxyUrl);
-      if (resp.ok) {
-        const buf = await resp.arrayBuffer();
-        pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
-        totalPages = pdfDoc.numPages;
-        extractText();
-      }
-    } catch {}
+      const area = document.getElementById('pdfCanvasArea');
+      area.innerHTML = '';
+      msg.style.display = 'none';
 
-    // Track paper view
-    try {
-      const tok = localStorage.getItem('pp_token');
-      if (tok && pdfUrl) {
-        fetch('/api/user-data', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-session-token': tok },
-          body: JSON.stringify({ action: 'view_paper', token: tok, url: pdfUrl })
-        }).catch(() => {});
-      }
-    } catch {}
+      // Render PDF inline via iframe pointing directly at the PDF URL
+      const iframe = document.createElement('iframe');
+      iframe.id = 'pdfIframe';
+      iframe.src = url;
+      iframe.frameBorder = '0';
+      iframe.style.cssText = 'width:100%;height:100%;min-height:85vh;border:none;display:block;background:#fff;border-radius:4px';
+      area.appendChild(iframe);
+
+      // Also try to extract text for AI in background via PDF.js
+      try {
+        const resp = await fetch(proxyUrl);
+        if (resp.ok) {
+          const buf = await resp.arrayBuffer();
+          pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
+          totalPages = pdfDoc.numPages;
+          updatePageInfo();
+          extractText();
+          loadRelatedFiles(url);
+        }
+      } catch {}
+
+      // Track paper view
+      try {
+        const tok = localStorage.getItem('pp_token');
+        if (tok && pdfUrl) {
+          fetch('/api/user-data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-session-token': tok },
+            body: JSON.stringify({ action: 'view_paper', token: tok, url: pdfUrl })
+          }).catch(() => {});
+        }
+      } catch {}
+    } catch (e) {
+      msg.textContent = 'Could not load PDF: ' + e.message;
+    }
   }
 
+  async function renderPageAppend(n) {
+    const page   = await pdfDoc.getPage(n);
+    const area   = document.getElementById('pdfCanvasArea');
+    const dpr    = window.devicePixelRatio || 1;
+    const baseVp = page.getViewport({ scale: 1 });
+    const availW  = area.clientWidth - 16; // 8px padding each side
+    const autoSc  = Math.min(2.2, availW / baseVp.width) || 1.4;
+    const sc     = _scale || autoSc;
+    const vp     = page.getViewport({ scale: sc });
 
+    const wrap = document.createElement('div');
+    wrap.className = 'pdf-page-container';
+    wrap.id = 'page-wrap-' + n;
+    wrap.dataset.page = n;
+    wrap.style.width  = vp.width  + 'px';
+    wrap.style.height = vp.height + 'px';
 
+    const canvas = document.createElement('canvas');
+    const ctx    = canvas.getContext('2d');
+    canvas.width  = Math.floor(vp.width  * dpr);
+    canvas.height = Math.floor(vp.height * dpr);
+    canvas.style.width  = vp.width  + 'px';
+    canvas.style.height = vp.height + 'px';
+    ctx.scale(dpr, dpr);
+    wrap.appendChild(canvas);
 
+    const textDiv = document.createElement('div');
+    textDiv.className = 'textLayer';
+    textDiv.style.width  = vp.width  + 'px';
+    textDiv.style.height = vp.height + 'px';
+    wrap.appendChild(textDiv);
+    area.appendChild(wrap);
 
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    await page.render({ canvasContext: ctx, viewport: vp }).promise;
+    const tc = await page.getTextContent();
+    pdfjsLib.renderTextLayer({ textContent: tc, container: textDiv, viewport: vp, textDivs: [] });
 
+    // Markup canvas overlay
+    const muCanvas = document.createElement('canvas');
+    muCanvas.className = 'markup-canvas';
+    muCanvas.width  = canvas.width;
+    muCanvas.height = canvas.height;
+    muCanvas.style.width  = vp.width + 'px';
+    muCanvas.style.height = vp.height + 'px';
+    muCanvas.dataset.page = n;
+    wrap.appendChild(muCanvas);
+    initMarkupCanvas(muCanvas);
+    // Restore saved markup for this page
+    restoreMarkup(muCanvas, n);
+  }
+
+  async function buildThumb(n) {
+    const page = await pdfDoc.getPage(n);
+    const vp   = page.getViewport({ scale: 0.18 });
+    const item = document.createElement('div');
+    item.className = 'thumb-item' + (n === 1 ? ' active' : '');
+    item.id = 'thumb-' + n;
+    item.onclick = () => scrollToPage(n);
+    const c = document.createElement('canvas');
+    c.width  = vp.width;
+    c.height = vp.height;
+    item.appendChild(c);
+    const num = document.createElement('div');
+    num.className = 'thumb-num';
+    num.textContent = n;
+    item.appendChild(num);
+    document.getElementById('thumbSidebar').appendChild(item);
+    await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+  }
+
+  function scrollToPage(n) {
+    const wrap = document.getElementById('page-wrap-' + n);
+    if (wrap) wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function setupScrollObserver() {
+    const area = document.getElementById('pdfCanvasArea');
+    const obs = new IntersectionObserver(entries => {
+      let mostVisible = null, maxRatio = 0;
+      entries.forEach(e => {
+        if (e.isIntersecting && e.intersectionRatio > maxRatio) {
+          maxRatio = e.intersectionRatio; mostVisible = e.target;
+        }
+      });
+      if (mostVisible) {
+        const n = parseInt(mostVisible.dataset.page);
+        if (n !== curPage) { curPage = n; updatePageInfo(); updateThumbActive(); }
+      }
+    }, { root: area, threshold: [0.3, 0.6] });
+    area.querySelectorAll('.pdf-page-container').forEach(el => obs.observe(el));
+  }
+
+  function updatePageInfo() {
+    document.getElementById('pageInfo').textContent = curPage + ' / ' + (totalPages || '—');
+  }
+  function updateThumbActive() {
+    document.querySelectorAll('.thumb-item').forEach(t => t.classList.toggle('active', parseInt(t.id.split('-')[1]) === curPage));
+    const at = document.getElementById('thumb-' + curPage);
+    if (at) at.scrollIntoView({ block: 'nearest' });
+  }
+
+  function prevPage() {
+    if (!pdfDoc || curPage <= 1) return;
+    scrollToPage(curPage - 1);
+  }
+  function nextPage() {
+    if (!pdfDoc || curPage >= totalPages) return;
+    scrollToPage(curPage + 1);
+  }
 
   // ── Zoom ──
+  function zoomIn()  { _scale = ((_scale || 1.4) * 1.2); rebuildPages(); }
+  function zoomOut() { _scale = ((_scale || 1.4) / 1.2); if (_scale < 0.3) _scale = 0.3; rebuildPages(); }
+  async function rebuildPages() {
+    if (!pdfDoc) return;
+    const area = document.getElementById('pdfCanvasArea');
+    area.querySelectorAll('.pdf-page-container').forEach(el => el.remove());
+    for (let i = 1; i <= totalPages; i++) await renderPageAppend(i);
+    setupScrollObserver();
+    scrollToPage(curPage);
+  }
 
   // ── File handling ──
   function isAudio(url) { return url.endsWith('.mp3') || url.endsWith('.wav') || url.includes('_sf_') || url.includes('_sf.'); }
@@ -3592,6 +3836,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     if (isAudio(url)) {
       document.getElementById('audioArea').classList.add('show');
       document.getElementById('pdfCanvasArea').style.display = 'none';
+      document.getElementById('thumbSidebar').style.display = 'none';
       document.getElementById('audioFilename').textContent = url.split('/').pop();
       const a = document.getElementById('audioEl');
       a.src = '/api/download-pdf?url=' + encodeURIComponent(url);
@@ -3599,6 +3844,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     } else {
       document.getElementById('audioArea').classList.remove('show');
       document.getElementById('pdfCanvasArea').style.display = '';
+      document.getElementById('thumbSidebar').style.display = '';
       loadPdf(url);
     }
   }
@@ -3879,12 +4125,96 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   // ── Topbar actions ──
   // ── PDF search ──
   let _searchResults = []; // Array of {span, text}
+  let _searchIdx = -1;
 
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+      e.preventDefault(); togglePdfSearch();
+    }
+  });
 
+  function togglePdfSearch() {
+    const bar = document.getElementById('pdfSearchBar');
+    const inp = document.getElementById('pdfSearchInput');
+    if (bar.classList.contains('show')) {
+      closePdfSearch();
+    } else {
+      bar.classList.add('show');
+      inp.focus();
+    }
+  }
 
+  function closePdfSearch() {
+    document.getElementById('pdfSearchBar').classList.remove('show');
+    document.getElementById('pdfSearchInput').value = '';
+    clearSearchHighlights();
+    _searchResults = []; _searchIdx = -1;
+    document.getElementById('pdfSearchCount').textContent = '';
+  }
 
+  function clearSearchHighlights() {
+    document.querySelectorAll('.search-highlight').forEach(el => {
+      const parent = el.parentNode;
+      parent.replaceChild(document.createTextNode(el.textContent), el);
+      parent.normalize();
+    });
+  }
 
+  function doPdfSearch() {
+    clearSearchHighlights();
+    _searchResults = []; _searchIdx = -1;
+    const q = document.getElementById('pdfSearchInput').value.trim();
+    const countEl = document.getElementById('pdfSearchCount');
+    if (!q) { countEl.textContent = ''; return; }
+    const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
 
+    document.querySelectorAll('.textLayer span').forEach(span => {
+      const text = span.textContent;
+      if (!re.test(text)) return;
+      re.lastIndex = 0;
+      const frag = document.createDocumentFragment();
+      let last = 0, m;
+      while ((m = re.exec(text)) !== null) {
+        if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+        const mark = document.createElement('mark');
+        mark.className = 'search-highlight';
+        mark.textContent = m[0];
+        frag.appendChild(mark);
+        _searchResults.push(mark);
+        last = re.lastIndex;
+      }
+      if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+      span.textContent = '';
+      span.appendChild(frag);
+    });
+
+    if (_searchResults.length) {
+      countEl.textContent = `1 / ${_searchResults.length}`;
+      _searchIdx = 0;
+      _searchResults[0].classList.add('current');
+      _searchResults[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+      countEl.textContent = 'No results';
+    }
+  }
+
+  function nextSearchResult() {
+    if (!_searchResults.length) return;
+    _searchResults[_searchIdx].classList.remove('current');
+    _searchIdx = (_searchIdx + 1) % _searchResults.length;
+    _searchResults[_searchIdx].classList.add('current');
+    _searchResults[_searchIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('pdfSearchCount').textContent = `${_searchIdx + 1} / ${_searchResults.length}`;
+  }
+
+  function prevSearchResult() {
+    if (!_searchResults.length) return;
+    _searchResults[_searchIdx].classList.remove('current');
+    _searchIdx = (_searchIdx - 1 + _searchResults.length) % _searchResults.length;
+    _searchResults[_searchIdx].classList.add('current');
+    _searchResults[_searchIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('pdfSearchCount').textContent = `${_searchIdx + 1} / ${_searchResults.length}`;
+  }
 
   function goBack() { sessionStorage.setItem('fromCodes','1'); window.location.href = '/'; }
   function openOnline() { if (pdfUrl) window.open(pdfUrl, '_blank'); }
@@ -3908,14 +4238,201 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     if (lh) lh.style.display = 'block';
   }
 
+  // ── Markup system ──
   let _muTool  = 'draw';     // draw | highlight | line | eraser | text
+  let _muColor = '#00e5ff';
+  let _muSize  = 3;
   let _muHistory = {};       // { pageNum: [ImageData, ...] }
+  let _muDrawing  = false;
+  let _muStartX = 0, _muStartY = 0;
   let _muLineSnap = null;    // temp canvas for line preview
+  let _markupActive = false;
+
+  function toggleMarkup() {
+    _markupActive = !_markupActive;
+    document.getElementById('markupBar').style.display = _markupActive ? 'flex' : 'none';
+    document.getElementById('muToggleBtn').classList.toggle('active', _markupActive);
+    // Toggle pointer events on markup canvases
+    document.querySelectorAll('.markup-canvas').forEach(c => {
+      c.style.pointerEvents = _markupActive ? 'auto' : 'none';
+    });
+  }
+
+  function setTool(tool) {
+    _muTool = tool;
+    ['muDraw','muHighlight','muLine','muText','muEraser'].forEach(id => {
+      const b = document.getElementById(id);
+      if (b) b.classList.remove('active');
+    });
+    const map = { draw:'muDraw', highlight:'muHighlight', line:'muLine', text:'muText', eraser:'muEraser' };
+    const btn = document.getElementById(map[tool]);
+    if (btn) btn.classList.add('active');
+    document.querySelectorAll('.markup-canvas').forEach(c => {
+      c.style.cursor = tool === 'text' ? 'text' : tool === 'eraser' ? 'cell' : 'crosshair';
+    });
+  }
+
+  function updateMarkupColor(hex) {
+    _muColor = hex;
+    document.getElementById('muSwatch').style.background = hex;
+  }
+
+  function getMarkupCtx(canvas) {
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const scale = canvas.width / parseFloat(canvas.style.width);
+    return { ctx, scale, dpr };
+  }
+
+  function initMarkupCanvas(canvas) {
+    const pageN = parseInt(canvas.dataset.page);
+
+    canvas.addEventListener('pointerdown', e => {
+      if (!_markupActive) return;
+      e.preventDefault();
+      canvas.setPointerCapture(e.pointerId);
+      _muDrawing = true;
+      const { ctx, scale } = getMarkupCtx(canvas);
+      const rect = canvas.getBoundingClientRect();
+      _muStartX = (e.clientX - rect.left) * scale;
+      _muStartY = (e.clientY - rect.top)  * scale;
+
+      // Save state for undo
+      if (!_muHistory[pageN]) _muHistory[pageN] = [];
+      _muHistory[pageN].push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+
+      if (_muTool === 'text') {
+        _muDrawing = false;
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.style.cssText = `position:absolute;left:${e.clientX - canvas.getBoundingClientRect().left}px;top:${e.clientY - canvas.getBoundingClientRect().top}px;z-index:20;background:transparent;border:1px dashed ${_muColor};color:${_muColor};font-size:${_muSize * 4}px;font-family:Space Mono,monospace;outline:none;min-width:80px`;
+        canvas.parentElement.appendChild(inp);
+        inp.focus();
+        inp.addEventListener('blur', () => {
+          if (inp.value) {
+            ctx.font = `${_muSize * 4 * scale}px "Space Mono", monospace`;
+            ctx.fillStyle = _muColor;
+            ctx.fillText(inp.value, _muStartX, _muStartY + (_muSize * 4 * scale));
+          }
+          inp.remove();
+          saveMarkup(canvas, pageN);
+        });
+        inp.addEventListener('keydown', e => { if (e.key === 'Enter') inp.blur(); });
+        return;
+      }
+
+      if (_muTool === 'draw' || _muTool === 'highlight' || _muTool === 'eraser') {
+        ctx.beginPath();
+        ctx.moveTo(_muStartX, _muStartY);
+      }
+    });
+
+    canvas.addEventListener('pointermove', e => {
+      if (!_muDrawing) return;
+      e.preventDefault();
+      const { ctx, scale } = getMarkupCtx(canvas);
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.clientX - rect.left) * scale;
+      const y = (e.clientY - rect.top)  * scale;
+      const sz = parseInt(document.getElementById('muSize').value) || 3;
+
+      if (_muTool === 'draw') {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = _muColor;
+        ctx.lineWidth   = sz * scale;
+        ctx.lineCap     = 'round';
+        ctx.lineJoin    = 'round';
+        ctx.globalAlpha = 1;
+        ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
+      } else if (_muTool === 'highlight') {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = _muColor || '#ffff00';
+        ctx.lineWidth   = sz * scale * 6;
+        ctx.lineCap     = 'square';
+        ctx.globalAlpha = 0.22;
+        ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
+      } else if (_muTool === 'eraser') {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.lineWidth = sz * scale * 5;
+        ctx.lineCap   = 'round';
+        ctx.globalAlpha = 1;
+        ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
+      } else if (_muTool === 'line') {
+        // Restore last saved state and draw preview line
+        if (_muHistory[pageN] && _muHistory[pageN].length) {
+          ctx.putImageData(_muHistory[pageN][_muHistory[pageN].length - 1], 0, 0);
+        }
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = _muColor; ctx.lineWidth = sz * scale; ctx.lineCap = 'round'; ctx.globalAlpha = 1;
+        ctx.beginPath(); ctx.moveTo(_muStartX, _muStartY); ctx.lineTo(x, y); ctx.stroke();
+      }
+    });
+
+    canvas.addEventListener('pointerup', e => {
+      if (!_muDrawing) return;
+      _muDrawing = false;
+      const { ctx } = getMarkupCtx(canvas);
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = 1;
+      saveMarkup(canvas, pageN);
+    });
+  }
+
   // Save/restore markup per page to localStorage
+  function saveMarkup(canvas, pageN) {
+    try { localStorage.setItem('mu_' + (pdfUrl||'x') + '_p' + pageN, canvas.toDataURL()); } catch {}
+  }
 
+  function restoreMarkup(canvas, pageN) {
+    try {
+      const data = localStorage.getItem('mu_' + (pdfUrl||'x') + '_p' + pageN);
+      if (!data) return;
+      const img = new Image();
+      img.onload = () => { const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0); };
+      img.src = data;
+    } catch {}
+  }
 
+  function undoMarkup() {
+    // Undo on the currently visible page
+    const visible = document.querySelector('.markup-canvas');
+    if (!visible) return;
+    const pageN = parseInt(visible.dataset.page);
+    const hist  = _muHistory[pageN];
+    if (!hist || !hist.length) return;
+    const ctx = visible.getContext('2d');
+    ctx.putImageData(hist.pop(), 0, 0);
+    saveMarkup(visible, pageN);
+  }
 
+  function clearMarkup() {
+    if (!confirm('Clear all markup on all pages?')) return;
+    document.querySelectorAll('.markup-canvas').forEach(c => {
+      const ctx = c.getContext('2d');
+      ctx.clearRect(0, 0, c.width, c.height);
+      const pageN = parseInt(c.dataset.page);
+      saveMarkup(c, pageN);
+      if (_muHistory[pageN]) _muHistory[pageN] = [];
+    });
+  }
 
+  function saveMarkupImage() {
+    // For current page: merge PDF canvas + markup canvas and download
+    const pdfCanvases = document.querySelectorAll('.pdf-page-container canvas:not(.markup-canvas)');
+    const muCanvases  = document.querySelectorAll('.markup-canvas');
+    if (!pdfCanvases.length) return;
+    // Merge first page as example
+    const pdf = pdfCanvases[0], mu = muCanvases[0];
+    const out = document.createElement('canvas');
+    out.width = pdf.width; out.height = pdf.height;
+    const ctx = out.getContext('2d');
+    ctx.drawImage(pdf, 0, 0);
+    ctx.drawImage(mu, 0, 0);
+    const a = document.createElement('a');
+    a.href = out.toDataURL('image/png');
+    a.download = (pdfUrl||'page').split('/').pop().replace('.pdf','') + '_annotated.png';
+    a.click();
+  }
 
   // ── Site config (maintenance message) ──
   (async function() {
