@@ -3200,7 +3200,7 @@
 body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 
 /* ── Layout ── */
-.viewer-root { position: relative; height: 100vh; width: 100vw; overflow: hidden; }
+.viewer-root { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
 
 /* ── Thumbnail sidebar ── */
 .thumb-sidebar {
@@ -3224,8 +3224,8 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   background: #1a1a1a;
 }
 
-/* ── Centre: topbar + main canvas — always full width ── */
-.viewer-centre { position: absolute; inset: 0; display: flex; flex-direction: column; }
+/* ── Centre: topbar + main canvas ── */
+.viewer-centre { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 
 /* ── PDF Search bar ── */
 .pdf-search-bar {
@@ -3402,15 +3402,13 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 /* ── Resize handle ── */
 .resize-handle { display: none; }
 
-/* ── AI panel — floats over the PDF on the right ── */
+/* ── AI panel ── */
 .ai-panel {
-  position: absolute; top: 0; right: 0; bottom: 0;
-  width: 360px; display: flex; flex-direction: column;
+  width: 360px; flex-shrink: 0; display: flex; flex-direction: column;
   background: #1c1c1c; border-left: 1px solid #333;
-  transition: transform 0.25s ease;
-  z-index: 100;
+  transition: width 0.25s ease; overflow: hidden;
 }
-.ai-panel.collapsed { transform: translateX(316px); }
+.ai-panel.collapsed { width: 44px; min-width: 44px; }
 .ai-panel.collapsed .ai-messages,
 .ai-panel.collapsed .ai-hint,
 .ai-panel.collapsed .ai-input-row,
@@ -3487,10 +3485,11 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 
 /* ── Mobile ── */
 @media (max-width: 700px) {
-  .thumb-sidebar { display: none; }
-  .viewer-centre { padding-bottom: 52px; }
+  .viewer-root { flex-direction: column; }
+  .viewer-centre { flex: 1; min-height: 0; padding-bottom: 52px; }
   .ai-panel {
-    top: auto !important;
+    position: fixed !important;
+    bottom: 0; left: 0; right: 0;
     width: 100% !important;
     height: 52px;
     border-left: none;
@@ -3498,21 +3497,19 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     border-radius: 14px 14px 0 0;
     box-shadow: 0 -4px 24px rgba(0,0,0,0.4);
     transition: height 0.3s cubic-bezier(0.4,0,0.2,1);
-    transform: none !important;
     z-index: 200;
     overflow: hidden;
   }
   .ai-panel.mobile-open { height: 60vh; }
-  .ai-panel.collapsed { transform: none !important; height: 52px !important; width: 100% !important; }
+  .ai-panel.collapsed { height: 52px !important; width: 100% !important; }
 }
 </style>
 
+<div id="thumbSidebar" style="display:none"></div>
 <div class="viewer-root">
 
   <!-- Centre: topbar + canvas -->
   <div class="viewer-centre">
-    <!-- Thumbnail strip -->
-    <div class="thumb-sidebar" id="thumbSidebar" style="position:absolute;top:0;left:0;bottom:0;z-index:10"></div>
     <div class="pdf-topbar">
       <button class="back-btn-v" onclick="goBack()">&#8592; Back</button>
       <span class="pdf-title-bar" id="pdfTitle">Loading&hellip;</span>
@@ -3597,7 +3594,9 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   if (!pdfUrl) {
     document.getElementById('pdfLoadMsg').textContent = 'No PDF URL provided.';
   } else {
-    document.getElementById('pdfTitle').textContent = examTitle(pdfUrl);
+    const title = examTitle(pdfUrl);
+    document.getElementById('pdfTitle').textContent = title;
+    document.title = title + ' — PaperFinder';
     openFile(pdfUrl);
     loadRelatedFiles(pdfUrl);
     loadChatHistory(pdfUrl);
