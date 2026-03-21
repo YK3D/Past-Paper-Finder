@@ -3522,16 +3522,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     <div class="pdf-topbar">
       <button class="back-btn-v" onclick="goBack()">&#8592; Back</button>
       <span class="pdf-title-bar" id="pdfTitle">Loading&hellip;</span>
-      <div class="pdf-page-nav">
-        <button onclick="zoomOut()" title="Zoom out">&#8722;</button>
-        <button onclick="prevPage()" id="btnPrev">&#8249;</button>
-        <span class="page-info" id="pageInfo">&#8212; / &#8212;</span>
-        <button onclick="nextPage()" id="btnNext">&#8250;</button>
-        <button onclick="zoomIn()" title="Zoom in">&#43;</button>
-      </div>
       <div class="topbar-right">
-        <button class="topbar-action" id="muToggleBtn" onclick="toggleMarkup()" title="Markup tools">&#9998; Markup</button>
-        <button class="topbar-action" onclick="togglePdfSearch()" title="Search (Ctrl+F)">&#128269; Search</button>
         <button class="topbar-action" onclick="openOnline()">&#127760; Online</button>
         <button class="topbar-action" onclick="sharePaper()">&#8679; Share</button>
         <button class="topbar-action" onclick="downloadPaper()">&#8659; Download</button>
@@ -3539,34 +3530,9 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       </div>
     </div>
 
-    <div class="pdf-search-bar" id="pdfSearchBar">
-      <input class="pdf-search-input" id="pdfSearchInput" placeholder="Search in PDF&#8230;" oninput="doPdfSearch()" onkeydown="if(event.key==='Enter')nextSearchResult();if(event.key==='Escape')closePdfSearch()">
-      <span class="pdf-search-count" id="pdfSearchCount"></span>
-      <button class="pdf-search-btn" onclick="prevSearchResult()" title="Previous">&#8593;</button>
-      <button class="pdf-search-btn" onclick="nextSearchResult()" title="Next">&#8595;</button>
-      <button class="pdf-search-btn" onclick="closePdfSearch()" title="Close">&#10005;</button>
-    </div>
+
     <div class="file-chip-bar" id="fileChipBar"></div>
-    <!-- Markup toolbar -->
-    <div class="markup-bar" id="markupBar" style="display:none">
-      <span class="mu-label">TOOL:</span>
-      <button class="mu-btn active" id="muDraw"    onclick="setTool('draw')"      title="Draw">&#9999;</button>
-      <button class="mu-btn"        id="muHighlight" onclick="setTool('highlight')" title="Highlight">&#9650;</button>
-      <button class="mu-btn"        id="muLine"    onclick="setTool('line')"      title="Line">&#9135;</button>
-      <button class="mu-btn"        id="muText"    onclick="setTool('text')"      title="Text box">&#84;</button>
-      <button class="mu-btn eraser" id="muEraser"  onclick="setTool('eraser')"    title="Eraser">&#9003;</button>
-      <div class="mu-sep"></div>
-      <span class="mu-label">SIZE:</span>
-      <input class="mu-size-input" type="number" id="muSize" value="3" min="1" max="40" title="Brush size">
-      <div class="mu-sep"></div>
-      <span class="mu-label">COLOR:</span>
-      <div class="mu-color-swatch" id="muSwatch" onclick="document.getElementById('muColorInput').click()" title="Pick colour" style="background:#00e5ff"></div>
-      <input type="color" id="muColorInput" value="#00e5ff" oninput="updateMarkupColor(this.value)">
-      <div class="mu-sep"></div>
-      <button class="mu-btn" onclick="undoMarkup()" title="Undo">&#8617;</button>
-      <button class="mu-btn" onclick="clearMarkup()" title="Clear all" style="color:#ff4d6d">&#128465;</button>
-      <button class="mu-btn" onclick="saveMarkupImage()" title="Save with markup">&#128190; Save</button>
-    </div>
+
     <div id="landscapeHint" style="display:none;font-family:Space Mono,monospace;font-size:0.6rem;color:#666;padding:0.3rem 0.8rem;flex-shrink:0">
       &#128261; Switch to landscape for best view
     </div>
@@ -3676,7 +3642,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 
       // Also try to extract text for AI in background via PDF.js
       try {
-        const resp = await fetch(proxyUrl);
+        const resp = await fetch('/api/download-pdf?url=' + encodeURIComponent(url));
         if (resp.ok) {
           const buf = await resp.arrayBuffer();
           pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
