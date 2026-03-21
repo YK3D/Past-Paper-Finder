@@ -2818,8 +2818,8 @@
     // 30-minute cooldown
     try {
       const last = parseInt(localStorage.getItem('pp_rating_ts') || '0');
-      if (last && Date.now() - last < 30 * 60 * 1000) {
-        const mins = Math.ceil((30 * 60 * 1000 - (Date.now() - last)) / 60000);
+      if (last && Date.now() - last < 10 * 60 * 1000) {
+        const mins = Math.ceil((10 * 60 * 1000 - (Date.now() - last)) / 60000);
         const t = document.getElementById('ratingThanks');
         if (t) { t.textContent = 'Please wait ' + mins + ' more minute' + (mins > 1 ? 's' : '') + ' before submitting again.'; t.classList.add('show'); }
         return;
@@ -2867,12 +2867,12 @@
       if (isLoggedIn) return; // Logged-in users can always rate fresh
       const saved = localStorage.getItem('pp_rating');
       const last  = parseInt(localStorage.getItem('pp_rating_ts') || '0');
-      const inCooldown = last && Date.now() - last < 30 * 60 * 1000;
+      const inCooldown = last && Date.now() - last < 10 * 60 * 1000;
       if (saved) {
         const el = document.getElementById('s' + saved);
         if (el) el.checked = true;
       }
-      if (inCooldown || saved) {
+      if (inCooldown) {
         document.addEventListener('DOMContentLoaded', () => {
           document.querySelectorAll('.radio input[name="rating"]').forEach(e => e.disabled = true);
           const fb = document.getElementById('ratingFeedback');
@@ -2880,7 +2880,12 @@
           const btn = document.getElementById('ratingSubmitBtn');
           if (btn) btn.disabled = true;
           const t = document.getElementById('ratingThanks');
-          if (t) { t.textContent = inCooldown ? 'Rating submitted. Cooldown active.' : 'Thanks for your feedback!'; t.classList.add('show'); }
+          if (t) { t.textContent = 'Rating submitted. Please wait before rating again.'; t.classList.add('show'); }
+        });
+      } else if (saved) {
+        document.addEventListener('DOMContentLoaded', () => {
+          const el = document.getElementById('s' + saved);
+          if (el) el.checked = true;
         });
       }
     } catch {}
