@@ -3666,11 +3666,10 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       area.innerHTML = '';
       msg.style.display = 'none';
 
-      // Render PDF via iframe (native browser viewer, no download)
-      const proxyUrl = '/api/download-pdf?url=' + encodeURIComponent(url);
+      // Render PDF inline via iframe pointing directly at the PDF URL
       const iframe = document.createElement('iframe');
       iframe.id = 'pdfIframe';
-      iframe.src = proxyUrl;
+      iframe.src = url;
       iframe.frameBorder = '0';
       iframe.style.cssText = 'width:100%;height:100%;min-height:85vh;border:none;display:block;background:#fff;border-radius:4px';
       area.appendChild(iframe);
