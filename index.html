@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2816,7 +2815,14 @@
   }
 
   async function submitRating() {
-    // 30-minute cooldown
+    // Require sign in
+    if (!_currentUser) {
+      openAuth('login');
+      const err = document.getElementById('authError');
+      if (err) err.textContent = 'Sign in to rate PaperFinder';
+      return;
+    }
+    // 10-minute cooldown
     try {
       const last = parseInt(localStorage.getItem('pp_rating_ts') || '0');
       if (last && Date.now() - last < 10 * 60 * 1000) {
@@ -2860,33 +2866,18 @@
     } catch {}
   }
 
-  // Rating: allow fresh submission on every page load if logged in
-  // For guests: lock after submission until 30min cooldown
+  // Rating cooldown check on load (signed-in users only)
   (function() {
     try {
-      const isLoggedIn = !!localStorage.getItem('pp_token');
-      if (isLoggedIn) return; // Logged-in users can always rate fresh
-      const saved = localStorage.getItem('pp_rating');
-      const last  = parseInt(localStorage.getItem('pp_rating_ts') || '0');
+      const last = parseInt(localStorage.getItem('pp_rating_ts') || '0');
       const inCooldown = last && Date.now() - last < 10 * 60 * 1000;
-      if (saved) {
-        const el = document.getElementById('s' + saved);
-        if (el) el.checked = true;
-      }
       if (inCooldown) {
         document.addEventListener('DOMContentLoaded', () => {
-          document.querySelectorAll('.radio input[name="rating"]').forEach(e => e.disabled = true);
-          const fb = document.getElementById('ratingFeedback');
-          if (fb) fb.disabled = true;
+          const mins = Math.ceil((10 * 60 * 1000 - (Date.now() - last)) / 60000);
+          const t = document.getElementById('ratingThanks');
+          if (t) { t.textContent = 'Please wait ' + mins + ' more minute' + (mins > 1 ? 's' : '') + '.'; t.classList.add('show'); }
           const btn = document.getElementById('ratingSubmitBtn');
           if (btn) btn.disabled = true;
-          const t = document.getElementById('ratingThanks');
-          if (t) { t.textContent = 'Rating submitted. Please wait before rating again.'; t.classList.add('show'); }
-        });
-      } else if (saved) {
-        document.addEventListener('DOMContentLoaded', () => {
-          const el = document.getElementById('s' + saved);
-          if (el) el.checked = true;
         });
       }
     } catch {}
