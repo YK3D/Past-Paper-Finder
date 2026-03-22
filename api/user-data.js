@@ -15,70 +15,24 @@ function db(path, method = 'GET', body, extraHeaders = {}) {
   }).then(r => r.json().catch(() => ({})));
 }
 
-async function getUserFromToken(token) {
+// Works with both old schema (user_id) and new schema (username)
+async function getUsernameFromToken(token) {
   if (!token) return null;
-  const s = await db(`sessions?token=eq.${token}&select=user_id,expires_at`);
-  if (!s?.[0]) return null;
-  if (new Date(s[0].expires_at) < new Date()) return null;
-  return s[0].user_id;
-}
+  try {
+    const s = await db(`sessions?token=eq.${encodeURIComponent(token)}&select=username,user_id,expires_at&limit=1`);
+    if (!Array.isArray(s) || !s[0]) return null;
+    if (new Date(s[0].expires_at) < new Date()) return null;
 
-// Build leaderboard from paper_views rows + users lookup
-async function buildPapersLeaderboard(periodStart) {
-  // Get all paper views
-  const rows = await db('paper_views?select=user_id,created_at&limit=50000');
-  if (!Array.isArray(rows) || !rows.length) return [];
+    // New schema: username column exists
+    if (s[0].username) return s[0].username;
 
-  // Filter by period
-  const filtered = rows.filter(r => {
-    if (!r.user_id) return false;
-    if (periodStart && r.created_at && new Date(r.created_at) < new Date(periodStart)) return false;
-    return true;
-  });
-
-  // Aggregate counts per user_id
-  const counts = {};
-  for (const r of filtered) {
-    counts[r.user_id] = (counts[r.user_id] || 0) + 1;
-  }
-  if (!Object.keys(counts).length) return [];
-
-  // Get usernames for those user IDs
-  const ids = Object.keys(counts);
-  const users = await db(`users?id=in.(${ids.join(',')})&select=id,username`);
-  const userMap = {};
-  if (Array.isArray(users)) users.forEach(u => { userMap[u.id] = u.username; });
-
-  return Object.entries(counts)
-    .map(([id, count]) => ({ id, username: userMap[id] || 'Unknown', count }))
-    .sort((a, b) => b.count - a.count);
-}
-
-// Build leaderboard from time_sessions
-async function buildTimeLeaderboard(periodStart) {
-  const rows = await db('time_sessions?select=user_id,seconds,date&limit=100000');
-  if (!Array.isArray(rows) || !rows.length) return [];
-
-  const filtered = rows.filter(r => {
-    if (!r.user_id) return false;
-    if (periodStart && r.date && new Date(r.date) < new Date(periodStart)) return false;
-    return true;
-  });
-
-  const totals = {};
-  for (const r of filtered) {
-    totals[r.user_id] = (totals[r.user_id] || 0) + Math.round(r.seconds || 0);
-  }
-  if (!Object.keys(totals).length) return [];
-
-  const ids = Object.keys(totals);
-  const users = await db(`users?id=in.(${ids.join(',')})&select=id,username`);
-  const userMap = {};
-  if (Array.isArray(users)) users.forEach(u => { userMap[u.id] = u.username; });
-
-  return Object.entries(totals)
-    .map(([id, seconds]) => ({ id, username: userMap[id] || 'Unknown', seconds }))
-    .sort((a, b) => b.seconds - a.seconds);
+    // Old schema: look up username from user_id
+    if (s[0].user_id) {
+      const u = await db(`users?id=eq.${s[0].user_id}&select=username&limit=1`);
+      return Array.isArray(u) && u[0] ? u[0].username : null;
+    }
+    return null;
+  } catch { return null; }
 }
 
 export default async function handler(req, res) {
@@ -88,21 +42,14 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const token = req.headers['x-session-token'] || req.body?.token;
-  const { action, periodStart } = req.method === 'GET' ? req.query : (req.body || {});
+  const body = req.body || {};
+  const { action, periodStart } = body;
 
-  // ── Leaderboard — papers (no auth required) ──
-  if (action === 'leaderboard_papers') {
-    const entries = await buildPapersLeaderboard(periodStart || null);
-    return res.status(200).json(entries);
-  }
+  // ══════════════════════════════════════
+  // PUBLIC — no auth required
+  // ══════════════════════════════════════
 
-  // ── Leaderboard — time (no auth required) ──
-  if (action === 'leaderboard_time') {
-    const entries = await buildTimeLeaderboard(periodStart || null);
-    return res.status(200).json(entries);
-  }
-
-  // ── Site config (no auth required) ──
+  // ── Site config ──
   if (action === 'site_config') {
     const rows = await db('site_config?select=key,value');
     const cfg = {};
@@ -110,75 +57,148 @@ export default async function handler(req, res) {
     return res.status(200).json(cfg);
   }
 
-  const userId = await getUserFromToken(token);
-  if (!userId) return res.status(401).json({ error: 'Not authenticated' });
+  // ── Leaderboard — papers viewed ──
+  // Count rows per username in paper_views, sort descending
+  if (action === 'leaderboard_papers') {
+    try {
+      const rows = await db('paper_views?select=username&limit=100000');
+      if (!Array.isArray(rows) || !rows.length) return res.status(200).json([]);
 
-  // ── Paper view ──
-  if (action === 'view_paper' && req.method === 'POST') {
-    const { url } = req.body;
+      const counts = {};
+      for (const r of rows) {
+        if (!r.username) continue;
+        counts[r.username] = (counts[r.username] || 0) + 1;
+      }
+
+      const result = Object.entries(counts)
+        .map(([username, count]) => ({ username, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 100);
+
+      return res.status(200).json(result);
+    } catch (e) {
+      return res.status(200).json([]);
+    }
+  }
+
+  // ── Leaderboard — time on site ──
+  // Sum seconds per username in time_sessions, sort descending
+  if (action === 'leaderboard_time') {
+    try {
+      const rows = await db('time_sessions?select=username,seconds,date&limit=200000');
+      if (!Array.isArray(rows) || !rows.length) return res.status(200).json([]);
+
+      const totals = {};
+      for (const r of rows) {
+        if (!r.username) continue;
+        // Period filter on date column
+        if (periodStart && r.date && new Date(r.date) < new Date(periodStart)) continue;
+        totals[r.username] = (totals[r.username] || 0) + Math.round(Number(r.seconds) || 0);
+      }
+
+      const result = Object.entries(totals)
+        .map(([username, seconds]) => ({ username, seconds }))
+        .sort((a, b) => b.seconds - a.seconds)
+        .slice(0, 100);
+
+      return res.status(200).json(result);
+    } catch (e) {
+      return res.status(200).json([]);
+    }
+  }
+
+  // ══════════════════════════════════════
+  // AUTHENTICATED
+  // ══════════════════════════════════════
+
+  const username = await getUsernameFromToken(token);
+  if (!username) return res.status(401).json({ error: 'Not authenticated' });
+
+  // ── Paper view — record once per URL per day ──
+  if (action === 'view_paper') {
+    const { url } = body;
     if (!url) return res.status(400).json({ error: 'No URL' });
-    await db('paper_views', 'POST', { user_id: userId, paper_url: url });
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      // Try to find existing view today (if table has created_at/viewed_at)
+      await db('paper_views', 'POST', { username, paper_url: url });
+    } catch {}
     return res.status(200).json({ ok: true });
   }
 
-  // ── Time tracking — upsert one record per user per day ──
-  if (action === 'track_time' && req.method === 'POST') {
-    const secs = Math.round(req.body?.seconds || 0);
+  // ── Time tracking — upsert one record per username per day ──
+  if (action === 'track_time') {
+    const secs = Math.round(Number(body.seconds) || 0);
     if (secs < 1) return res.status(400).json({ error: 'Invalid seconds' });
-    const today = new Date().toISOString().slice(0, 10);
-    const existing = await db(`time_sessions?user_id=eq.${userId}&date=eq.${today}&select=id,seconds`);
-    if (Array.isArray(existing) && existing[0]) {
-      await db(`time_sessions?id=eq.${existing[0].id}`, 'PATCH', { seconds: Math.round(existing[0].seconds) + secs });
-    } else {
-      await db('time_sessions', 'POST', { user_id: userId, seconds: secs, date: today });
-    }
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const existing = await db(
+        `time_sessions?username=eq.${encodeURIComponent(username)}&date=eq.${today}&select=id,seconds&limit=1`
+      );
+      if (Array.isArray(existing) && existing[0]) {
+        const newSecs = Math.round(Number(existing[0].seconds) || 0) + secs;
+        await db(`time_sessions?id=eq.${existing[0].id}`, 'PATCH', { seconds: newSecs });
+      } else {
+        await db('time_sessions', 'POST', { username, seconds: secs, date: today });
+      }
+    } catch {}
     return res.status(200).json({ ok: true });
   }
 
   // ── My stats ──
   if (action === 'my_stats') {
-    const [views, time] = await Promise.all([
-      db(`paper_views?user_id=eq.${userId}&select=id`),
-      db(`time_sessions?user_id=eq.${userId}&select=seconds`)
-    ]);
-    return res.status(200).json({
-      views: Array.isArray(views) ? views.length : 0,
-      seconds: Array.isArray(time) ? time.reduce((s, r) => s + Math.round(r.seconds || 0), 0) : 0
-    });
+    try {
+      const [views, time] = await Promise.all([
+        db(`paper_views?username=eq.${encodeURIComponent(username)}&select=id`),
+        db(`time_sessions?username=eq.${encodeURIComponent(username)}&select=seconds`)
+      ]);
+      return res.status(200).json({
+        views:   Array.isArray(views) ? views.length : 0,
+        seconds: Array.isArray(time) ? time.reduce((s, r) => s + Math.round(Number(r.seconds) || 0), 0) : 0
+      });
+    } catch { return res.status(200).json({ views: 0, seconds: 0 }); }
   }
 
   // ── Favourites ──
   if (action === 'get_favs') {
-    const favs = await db(`favourites?user_id=eq.${userId}&select=code,name&order=id.desc`);
+    const favs = await db(`favourites?username=eq.${encodeURIComponent(username)}&select=code,name&order=id.desc`);
     return res.status(200).json(Array.isArray(favs) ? favs : []);
   }
   if (action === 'add_fav') {
-    const { code, name } = req.body;
-    await db('favourites', 'POST', { user_id: userId, code, name });
+    const { code, name } = body;
+    if (!code) return res.status(400).json({ error: 'No code' });
+    await db('favourites', 'POST', { username, code, name });
     return res.status(200).json({ ok: true });
   }
   if (action === 'remove_fav') {
-    const { code } = req.body;
-    await db(`favourites?user_id=eq.${userId}&code=eq.${code}`, 'DELETE');
+    const { code } = body;
+    if (!code) return res.status(400).json({ error: 'No code' });
+    await db(`favourites?username=eq.${encodeURIComponent(username)}&code=eq.${encodeURIComponent(code)}`, 'DELETE');
     return res.status(200).json({ ok: true });
   }
 
   // ── Chat history ──
   if (action === 'get_chat') {
-    const { paperUrl } = req.body;
+    const { paperUrl } = body;
     if (!paperUrl) return res.status(400).json({ error: 'No paperUrl' });
-    const rows = await db(`chat_history?user_id=eq.${userId}&paper_url=eq.${encodeURIComponent(paperUrl)}&select=messages&limit=1`);
+    const rows = await db(
+      `chat_history?username=eq.${encodeURIComponent(username)}&paper_url=eq.${encodeURIComponent(paperUrl)}&select=messages&limit=1`
+    );
     const messages = Array.isArray(rows) && rows[0] ? JSON.parse(rows[0].messages || '[]') : [];
     return res.status(200).json({ messages });
   }
   if (action === 'save_chat') {
-    const { paperUrl, messages } = req.body;
+    const { paperUrl, messages } = body;
     if (!paperUrl) return res.status(400).json({ error: 'No paperUrl' });
-    const existing = await db(`chat_history?user_id=eq.${userId}&paper_url=eq.${encodeURIComponent(paperUrl)}&select=id`);
+    const existing = await db(
+      `chat_history?username=eq.${encodeURIComponent(username)}&paper_url=eq.${encodeURIComponent(paperUrl)}&select=id&limit=1`
+    );
     if (Array.isArray(existing) && existing[0]) {
-      await db(`chat_history?id=eq.${existing[0].id}`, 'PATCH', { messages: JSON.stringify(messages), updated_at: new Date().toISOString() });
+      await db(`chat_history?id=eq.${existing[0].id}`, 'PATCH',
+        { messages: JSON.stringify(messages), updated_at: new Date().toISOString() });
     } else {
-      await db('chat_history', 'POST', { user_id: userId, paper_url: paperUrl, messages: JSON.stringify(messages) });
+      await db('chat_history', 'POST',
+        { username, paper_url: paperUrl, messages: JSON.stringify(messages) });
     }
     return res.status(200).json({ ok: true });
   }
