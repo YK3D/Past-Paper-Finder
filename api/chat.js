@@ -39,6 +39,7 @@ export default async function handler(req) {
     '- use emojis generously but not too excessively',
     '- if a mark scheme contains multiple possible answers, please mention all of them',
     '- when asked to answer a specific question, do not answer other questions as well',
+    '- when asked to answer a specific question, always refer to the mark scheme',
   ].join('\n');
 
   const groqMessages = [{ role: 'system', content: systemPrompt }, ...messages.slice(-10)];
