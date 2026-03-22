@@ -78,6 +78,7 @@ res.setHeader(‘Access-Control-Allow-Methods’, ‘POST, OPTIONS’);
 res.setHeader(‘Access-Control-Allow-Headers’, ‘Content-Type’);
 if (req.method === ‘OPTIONS’) return res.status(200).end();
 
+
 const body = req.body || {};
 
 // ── Admin: ban by username ──
@@ -85,14 +86,14 @@ if (body.action === ‘ban’) {
 const { username, reason = ‘No reason given’, type = ‘full’ } = body;
 if (!username) return res.status(400).json({ error: ‘username required’ });
 
-```
+
 const types = type === 'full'
   ? ['username', 'email', 'ip', 'device']
   : [type]; // 'ip', 'email', 'username', or 'device'
 
 const result = await applyBans(username, reason, types);
 return res.status(200).json(result);
-```
+
 
 }
 
@@ -102,6 +103,7 @@ const { username } = body;
 if (!username) return res.status(400).json({ error: ‘username required’ });
 const data = await getUserBanData(username);
 if (!data) return res.status(404).json({ error: ‘User not found’ });
+
 
 ```
 const values = [username, data.email, data.ip, ...data.deviceIds].filter(Boolean);
@@ -124,7 +126,8 @@ await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${data.userId}`, {
   body: JSON.stringify({ banned: false })
 });
 return res.status(200).json({ ok: true });
-```
+
+
 
 }
 
@@ -133,7 +136,7 @@ if (req.method === ‘POST’) {
 const { deviceId } = body;
 const ip = (req.headers[‘x-forwarded-for’] || ‘’).split(’,’)[0].trim() || null;
 
-```
+
 const [ipBan, deviceBan] = await Promise.all([
   ip ? isActiveBan('ip', ip) : Promise.resolve(null),
   deviceId ? isActiveBan('device', deviceId) : Promise.resolve(null)
@@ -142,7 +145,7 @@ const [ipBan, deviceBan] = await Promise.all([
 if (ipBan)     return res.status(200).json({ banned: true, type: 'ip',     reason: ipBan });
 if (deviceBan) return res.status(200).json({ banned: true, type: 'device', reason: deviceBan });
 return res.status(200).json({ banned: false });
-```
+
 
 }
 
