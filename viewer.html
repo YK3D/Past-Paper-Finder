@@ -3344,6 +3344,15 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   padding: 0;
   background: #1a1a1a; box-sizing: border-box;
   min-height: 0;
+  position: relative;
+}
+#pdfIframe {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #fff;
 }
 .pdf-canvas-area::-webkit-scrollbar { width: 6px; }
 .pdf-canvas-area::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
@@ -3446,7 +3455,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 }
 .ai-msg.ai {
   background: #222; border: 1px solid #333; align-self: flex-start; color: #ddd;
-  font-family: "Galaxie Copernicus","Tiempos Text","Martina Plantijn","Fabric Serif",Georgia,serif;
+  font-family: 'Galaxie Copernicus','Tiempos Text','Martina Plantijn','Fabric Serif',Georgia,serif;
   font-size: 0.8rem; line-height: 1.7;
 }
 .ai-msg.ai.streaming::after { content: "▋"; animation: blink 0.7s step-end infinite; color: var(--accent); }
@@ -3583,6 +3592,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   var _files = [];
   var _aiFileList = '';
   var _msText = '';  // Background MS text for AI
+  var _allFilesText = {};  // All fetched file texts keyed by label
   var _pdfText = [];
   var _aiHistory = [];
   var _aiCollapsed = false;
@@ -3614,7 +3624,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         iframe = document.createElement('iframe');
         iframe.id = 'pdfIframe';
         iframe.frameBorder = '0';
-        iframe.style.cssText = 'width:100%;height:100%;min-height:85vh;border:none;display:block;background:#fff;border-radius:4px';
+        iframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:#fff;';
         area.appendChild(iframe);
       }
       iframe.src = url;
@@ -3853,32 +3863,47 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     renderFileChips(_files, url);
     _aiFileList = _files.map(f => f.label).join(', ');
 
-    // Fetch MS in background for AI
-    const msFile = _files.find(f => f.label && f.label.toLowerCase().startsWith('ms') && !f.audio);
-    if (msFile && msFile.url !== url) {
-      fetchMsBackground(msFile.url);
-    } else {
-      // Try to derive MS URL from QP URL even if check-pdf didn't confirm it
+    // Fetch ALL file texts for AI in background
+    _allFilesText = {};
+    for (const f of _files) {
+      if (f.audio || f.url === url) continue;
+      const label = f.label ? f.label.split(' ')[0].toUpperCase() : 'FILE';
+      fetchFileForAI(f.url, label);
+      if (label === 'MS') {
+        // Also keep _msText in sync for legacy context usage
+        fetchMsBackground(f.url);
+      }
+    }
+    // Fallback: derive MS URL if not in file list
+    if (!_files.find(f => f.label && f.label.toUpperCase().startsWith('MS') && !f.audio)) {
       const msUrlDerived = url.replace(/_qp_/i, '_ms_').replace(/_in_/i, '_ms_').replace(/_ci_/i, '_ms_');
       if (msUrlDerived !== url) fetchMsBackground(msUrlDerived);
     }
   }
 
   async function fetchMsBackground(msUrl) {
-    console.log('[PaperAI] Fetching MS:', msUrl);
+    await fetchFileForAI(msUrl, 'MS');
+    _msText = _allFilesText['MS'] || '';
+    if (_msText) console.log('[PaperAI] MS loaded, chars:', _msText.length);
+    else console.log('[PaperAI] MS fetch failed');
+  }
+
+  async function fetchFileForAI(fileUrl, label) {
     try {
-      const ab = await fetch('/api/download-pdf?url=' + encodeURIComponent(msUrl)).then(r => r.ok ? r.arrayBuffer() : null);
-      if (!ab) { console.log('[PaperAI] MS fetch failed — no arrayBuffer'); return; }
-      const msDoc = await pdfjsLib.getDocument({ data: ab }).promise;
+      const ab = await fetch('/api/download-pdf?url=' + encodeURIComponent(fileUrl)).then(r => r.ok ? r.arrayBuffer() : null);
+      if (!ab) return;
+      const doc = await pdfjsLib.getDocument({ data: ab }).promise;
       const pages = [];
-      for (let i = 1; i <= Math.min(msDoc.numPages, 15); i++) {
-        const pg = await msDoc.getPage(i);
+      for (let i = 1; i <= Math.min(doc.numPages, 20); i++) {
+        const pg = await doc.getPage(i);
         const tc = await pg.getTextContent();
         pages.push(tc.items.map(s => s.str).join(' '));
       }
-      _msText = pages.join('\n\n---\n\n');
-      console.log('[PaperAI] MS loaded, chars:', _msText.length);
-    } catch (e) { console.log('[PaperAI] MS fetch error:', e); }
+      _allFilesText[label] = pages.join('\n\n---\n\n');
+      console.log('[PaperAI] ' + label + ' loaded, chars:', _allFilesText[label].length);
+    } catch (e) {
+      console.log('[PaperAI] Failed to fetch ' + label + ':', e.message);
+    }
   }
 
   // ── Text extraction for AI ──
@@ -3970,10 +3995,24 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     aiDiv.classList.add('streaming');
 
     try {
+      // Build context from all fetched file texts
       const fileCtx = _aiFileList ? 'Available files for this paper: ' + _aiFileList + '\n\n' : '';
-      const qpCtx  = _pdfText.length ? 'Question Paper text:\n\n' + _pdfText.join('\n\n---\n\n').slice(0, 5000) : 'No QP text extracted.';
-      const msCtx  = _msText ? '\n\n--- MARK SCHEME (use this for answers, marking, and explanations) ---\n\n' + _msText.slice(0, 4000) : '';
-      const context = fileCtx + qpCtx + msCtx;
+      const qpCtx  = _pdfText.length
+        ? 'QUESTION PAPER TEXT:\n\n' + _pdfText.join('\n\n---\n\n').slice(0, 5000)
+        : 'No question paper text could be extracted.';
+      const msCtx  = _msText
+        ? '\n\n--- MARK SCHEME ---\n(Use these mark points when checking answers. Only state marks that appear here.)\n\n' + _msText.slice(0, 4000)
+        : '\n\n--- MARK SCHEME ---\nNot available for this paper.';
+
+      // Additional files context (ER, GT, IN etc)
+      let extraCtx = '';
+      for (const [label, text] of Object.entries(_allFilesText || {})) {
+        if (label !== 'QP' && label !== 'MS' && text) {
+          extraCtx += '\n\n--- ' + label + ' ---\n' + text.slice(0, 2000);
+        }
+      }
+
+      const context = fileCtx + qpCtx + msCtx + extraCtx;
 
       const resp = await fetch('/api/chat', {
         method: 'POST',
