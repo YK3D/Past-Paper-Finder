@@ -19,7 +19,8 @@ async function dbPost(path, body) {
     headers: { ...HEADERS, 'Prefer': 'return=minimal' },
     body: JSON.stringify(body)
   });
-  return r.ok;
+  const text = await r.text();
+  return { ok: r.ok, status: r.status, body: text };
 }
 
 async function dbPatch(path, body) {
@@ -39,11 +40,8 @@ async function dbDelete(path) {
   return r.ok;
 }
 
-// Insert a ban row — delete existing first to avoid constraint conflicts
 async function insertBan(type, value, reason) {
-  // Delete any existing row for this type+value first (avoids unique constraint issues)
   await dbDelete(`ban_list?type=eq.${type}&value=eq.${encodeURIComponent(value)}`);
-  // Insert fresh
   return dbPost('ban_list', { type, value, reason, active: true });
 }
 
@@ -53,32 +51,6 @@ async function isActiveBan(type, value) {
     `ban_list?type=eq.${type}&value=eq.${encodeURIComponent(value)}&active=eq.true&select=reason&limit=1`
   );
   return Array.isArray(rows) && rows[0] ? (rows[0].reason || 'Banned') : null;
-}
-
-async function getUser(username) {
-  const rows = await dbGet(
-    `users?username=eq.${encodeURIComponent(username)}&select=id,ip,email&limit=1`
-  );
-  return Array.isArray(rows) && rows[0] ? rows[0] : null;
-}
-
-async function getDeviceIds(username, userId) {
-  // Try device_sessions (new schema — username keyed, 10 slots)
-  const ds = await dbGet(
-    `device_sessions?username=eq.${encodeURIComponent(username)}&select=device_1,device_2,device_3,device_4,device_5,device_6,device_7,device_8,device_9,device_10&limit=1`
-  );
-  if (Array.isArray(ds) && ds[0]) {
-    const ids = Object.values(ds[0]).filter(v => v && typeof v === 'string');
-    if (ids.length) return ids;
-  }
-  // Fallback: user_devices (old schema — user_id keyed)
-  if (userId) {
-    const ud = await dbGet(`user_devices?user_id=eq.${userId}&select=device_id`);
-    if (Array.isArray(ud) && ud.length) {
-      return ud.map(r => r.device_id).filter(Boolean);
-    }
-  }
-  return [];
 }
 
 export default async function handler(req, res) {
@@ -96,49 +68,74 @@ export default async function handler(req, res) {
     const { username, reason = 'No reason given', type = 'full' } = body;
     if (!username) return res.status(400).json({ error: 'username required' });
 
-    const user = await getUser(username);
-    if (!user) return res.status(404).json({ error: `User "${username}" not found in users table` });
+    // Step 1: look up user — return full debug info if not found
+    const userRows = await dbGet(
+      `users?username=eq.${encodeURIComponent(username)}&select=id,ip,email&limit=1`
+    );
+    console.log('[BAN] userRows for', username, ':', JSON.stringify(userRows));
 
-    const deviceIds = await getDeviceIds(username, user.id);
+    if (!Array.isArray(userRows) || !userRows[0]) {
+      // Try case-insensitive search to help debug
+      const allUsers = await dbGet(`users?select=username,ip,email&limit=20`);
+      const usernames = Array.isArray(allUsers) ? allUsers.map(u => u.username) : [];
+      return res.status(404).json({
+        error: `User "${username}" not found`,
+        hint: `Existing usernames (first 20): ${usernames.join(', ')}`
+      });
+    }
 
+    const user = userRows[0];
+
+    // Step 2: get devices — try both schemas
+    let deviceIds = [];
+    const ds = await dbGet(
+      `device_sessions?username=eq.${encodeURIComponent(username)}&select=device_1,device_2,device_3,device_4,device_5,device_6,device_7,device_8,device_9,device_10&limit=1`
+    );
+    if (Array.isArray(ds) && ds[0]) {
+      deviceIds = Object.values(ds[0]).filter(v => v && typeof v === 'string');
+    }
+    if (!deviceIds.length && user.id) {
+      const ud = await dbGet(`user_devices?user_id=eq.${user.id}&select=device_id`);
+      if (Array.isArray(ud)) deviceIds = ud.map(r => r.device_id).filter(Boolean);
+    }
+
+    console.log('[BAN] user:', JSON.stringify(user), 'devices:', deviceIds);
+
+    // Step 3: build ban list
     const types = type === 'full' ? ['username', 'email', 'ip', 'device'] : [type];
     const applied = [];
     const skipped = [];
+    const errors = [];
 
     for (const t of types) {
-      if (t === 'username') {
-        await insertBan('username', username, reason);
-        applied.push(`username:${username}`);
-      } else if (t === 'email') {
-        if (user.email) {
-          await insertBan('email', user.email, reason);
-          applied.push(`email:${user.email}`);
-        } else {
-          skipped.push('email: none on record');
-        }
-      } else if (t === 'ip') {
-        if (user.ip) {
-          await insertBan('ip', user.ip, reason);
-          applied.push(`ip:${user.ip}`);
-        } else {
-          skipped.push('ip: none on record');
-        }
-      } else if (t === 'device') {
-        if (deviceIds.length) {
-          for (const d of deviceIds) {
-            await insertBan('device', d, reason);
-            applied.push(`device:${d}`);
-          }
-        } else {
+      let value = null;
+      if (t === 'username') value = username;
+      else if (t === 'email') value = user.email;
+      else if (t === 'ip')    value = user.ip;
+
+      if (t === 'device') {
+        if (!deviceIds.length) {
           skipped.push('device: no devices on record');
+        } else {
+          for (const d of deviceIds) {
+            const result = await insertBan('device', d, reason);
+            if (result.ok) applied.push(`device:${d}`);
+            else errors.push(`device:${d} — ${result.body}`);
+          }
         }
+      } else if (!value) {
+        skipped.push(`${t}: not on record for this user`);
+      } else {
+        const result = await insertBan(t, value, reason);
+        if (result.ok) applied.push(`${t}:${value}`);
+        else errors.push(`${t}:${value} — ${result.body}`);
       }
     }
 
-    // Mark user.banned = true
+    // Step 4: mark user banned
     await dbPatch(`users?id=eq.${user.id}`, { banned: true });
 
-    return res.status(200).json({ ok: true, applied, skipped });
+    return res.status(200).json({ ok: true, applied, skipped, errors });
   }
 
   // ── Admin: unban by username ──
@@ -146,14 +143,24 @@ export default async function handler(req, res) {
     const { username } = body;
     if (!username) return res.status(400).json({ error: 'username required' });
 
-    const user = await getUser(username);
-    if (!user) return res.status(404).json({ error: `User "${username}" not found` });
+    const userRows = await dbGet(`users?username=eq.${encodeURIComponent(username)}&select=id,ip,email&limit=1`);
+    if (!Array.isArray(userRows) || !userRows[0]) {
+      return res.status(404).json({ error: `User "${username}" not found` });
+    }
+    const user = userRows[0];
 
-    const deviceIds = await getDeviceIds(username, user.id);
+    let deviceIds = [];
+    const ds = await dbGet(`device_sessions?username=eq.${encodeURIComponent(username)}&select=device_1,device_2,device_3,device_4,device_5,device_6,device_7,device_8,device_9,device_10&limit=1`);
+    if (Array.isArray(ds) && ds[0]) deviceIds = Object.values(ds[0]).filter(v => v && typeof v === 'string');
+    if (!deviceIds.length && user.id) {
+      const ud = await dbGet(`user_devices?user_id=eq.${user.id}&select=device_id`);
+      if (Array.isArray(ud)) deviceIds = ud.map(r => r.device_id).filter(Boolean);
+    }
+
     const toUnban = [
       { type: 'username', value: username },
-      ...(user.email ? [{ type: 'email', value: user.email }] : []),
-      ...(user.ip    ? [{ type: 'ip',    value: user.ip    }] : []),
+      ...(user.email ? [{ type: 'email',  value: user.email }] : []),
+      ...(user.ip    ? [{ type: 'ip',     value: user.ip    }] : []),
       ...deviceIds.map(d => ({ type: 'device', value: d }))
     ];
 
