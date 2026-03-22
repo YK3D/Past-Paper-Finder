@@ -3313,6 +3313,11 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   .back-btn-v { font-size: 0.6rem; padding: 0.2rem 0.4rem; }
   .pdf-page-nav .page-info { min-width: 3rem; font-size: 0.58rem; }
 }
+/* Mobile-only download button */
+.topbar-dl-mobile { display: none; }
+@media (max-width: 700px) {
+  .topbar-dl-mobile { display: inline-flex !important; }
+}
 .topbar-action {
   background: transparent; border: 1px solid #444; border-radius: 6px;
   color: #aaa; font-size: 0.65rem; padding: 0.25rem 0.5rem;
@@ -3456,7 +3461,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 }
 .ai-msg.ai {
   background: #222; border: 1px solid #333; align-self: flex-start; color: #ddd;
-  font-family: 'Galaxie Copernicus','Tiempos Text','Martina Plantijn','Fabric Serif',Georgia,serif;
+  font-family: 'Anthropic Serif','Galaxie Copernicus','Newsreader','Georgia','Times New Roman',serif;
   font-size: 0.8rem; line-height: 1.7;
 }
 .ai-msg.ai.streaming::after { content: "▋"; animation: blink 0.7s step-end infinite; color: var(--accent); }
@@ -3482,7 +3487,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 @keyframes cgs { 100% { transform: translate(-50%,-50%) rotate(360deg); } }
 .ai-textarea {
   position: relative; z-index: 2; width: 100%; background: transparent; border: none;
-  border-radius: 8px; color: var(--text); font-family: 'Space Mono', monospace;
+  border-radius: 8px; color: var(--text); font-family: 'Anthropic Sans','Helvetica Neue',Arial,sans-serif;
   font-size: 0.7rem; padding: 0.5rem 0.65rem; outline: none; resize: none; height: 56px; display: block;
 }
 .ai-send-btn {
@@ -3526,6 +3531,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       <div class="file-chip-bar-inline" id="fileChipBar"></div>
       <div class="topbar-right">
         <button class="topbar-action" onclick="sharePaper()">&#8679; Share</button>
+        <button class="topbar-action topbar-dl-mobile" onclick="downloadPaper()">&#8659; Download</button>
       </div>
     </div>
     <div id="landscapeHint" style="display:none;font-family:Space Mono,monospace;font-size:0.6rem;color:#666;padding:0.3rem 0.8rem;flex-shrink:0">
