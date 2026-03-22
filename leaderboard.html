@@ -3307,7 +3307,7 @@
   // Get current user from localStorage
   try {
     const u = JSON.parse(localStorage.getItem('pp_user') || 'null');
-    if (u) { _myId = u.id; _myName = u.username; }
+    if (u) { _myId = u.username; _myName = u.username; }
   } catch {}
 
   if (!_myId) document.getElementById('signInNote').style.display = '';
@@ -3342,7 +3342,7 @@
       const top100 = entries.slice(0, 100);
       list.innerHTML = top100.map((e, i) => {
         const rank = i + 1;
-        const isYou = e.id === _myId;
+        const isYou = e.username === _myId;
         const medal = rank === 1 ? '&#127945;' : rank === 2 ? '&#129352;' : rank === 3 ? '&#129353;' : rank;
         const val = _tab === 'papers'
           ? '<span>' + (e.count || 0).toLocaleString() + '</span> viewed'
@@ -3356,7 +3356,7 @@
 
       // Update your card
       if (_myId) {
-        const myIdx = entries.findIndex(e => e.id === _myId);
+        const myIdx = entries.findIndex(e => e.username === _myId);
         const me = entries[myIdx];
         if (me) {
           const r2 = myIdx + 1;
