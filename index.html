@@ -502,7 +502,6 @@
     flex: 1;
     padding: 0.6rem;
     border-radius: 7px;
-    border: none;
     font-family: 'Syne', sans-serif;
     font-weight: 700;
     font-size: 0.8rem;
@@ -513,19 +512,21 @@
                 filter 0.2s ease;
   }
   .btn-open {
-    background: var(--accent2);
-    color: #fff;
+    background: transparent;
+    color: #a855f7;
+    border: 1px solid #a855f7;
   }
   .btn-open:hover {
+    background: rgba(168,85,247,0.1);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255,77,109,0.4);
-    filter: brightness(1.1);
+    box-shadow: 0 6px 20px rgba(168,85,247,0.3);
   }
   .btn-open:active { transform: translateY(0); box-shadow: none; }
 
   .btn-copy {
-    background: var(--border);
-    color: var(--text);
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
   }
   .btn-copy:hover {
     background: var(--accent);
@@ -1836,7 +1837,7 @@
           <button class="btn-copy" onclick="copyUrl()">Copy URL</button>
           <button class="btn-download" onclick="downloadUrl()">Download</button>
           <button class="btn-share" onclick="shareUrl()" id="shareBtn">Share</button>
-          <button class="btn-open" onclick="openUrl()">Open in Browser</button>
+          <button class="btn-open" onclick="openUrl()">Open in Browser<br><span style="font-size:0.6rem;font-weight:400;opacity:0.7">(not rec.)</span></button>
         </div>
       </div>
     </div>
@@ -2815,7 +2816,14 @@
   }
 
   async function submitRating() {
-    // 30-minute cooldown
+    // Require sign in
+    if (!_currentUser) {
+      openAuth('login');
+      const err = document.getElementById('authError');
+      if (err) err.textContent = 'Sign in to rate PaperFinder';
+      return;
+    }
+    // 10-minute cooldown
     try {
       const last = parseInt(localStorage.getItem('pp_rating_ts') || '0');
       if (last && Date.now() - last < 10 * 60 * 1000) {
@@ -2859,33 +2867,18 @@
     } catch {}
   }
 
-  // Rating: allow fresh submission on every page load if logged in
-  // For guests: lock after submission until 30min cooldown
+  // Rating cooldown check on load (signed-in users only)
   (function() {
     try {
-      const isLoggedIn = !!localStorage.getItem('pp_token');
-      if (isLoggedIn) return; // Logged-in users can always rate fresh
-      const saved = localStorage.getItem('pp_rating');
-      const last  = parseInt(localStorage.getItem('pp_rating_ts') || '0');
+      const last = parseInt(localStorage.getItem('pp_rating_ts') || '0');
       const inCooldown = last && Date.now() - last < 10 * 60 * 1000;
-      if (saved) {
-        const el = document.getElementById('s' + saved);
-        if (el) el.checked = true;
-      }
       if (inCooldown) {
         document.addEventListener('DOMContentLoaded', () => {
-          document.querySelectorAll('.radio input[name="rating"]').forEach(e => e.disabled = true);
-          const fb = document.getElementById('ratingFeedback');
-          if (fb) fb.disabled = true;
+          const mins = Math.ceil((10 * 60 * 1000 - (Date.now() - last)) / 60000);
+          const t = document.getElementById('ratingThanks');
+          if (t) { t.textContent = 'Please wait ' + mins + ' more minute' + (mins > 1 ? 's' : '') + '.'; t.classList.add('show'); }
           const btn = document.getElementById('ratingSubmitBtn');
           if (btn) btn.disabled = true;
-          const t = document.getElementById('ratingThanks');
-          if (t) { t.textContent = 'Rating submitted. Please wait before rating again.'; t.classList.add('show'); }
-        });
-      } else if (saved) {
-        document.addEventListener('DOMContentLoaded', () => {
-          const el = document.getElementById('s' + saved);
-          if (el) el.checked = true;
         });
       }
     } catch {}
@@ -4343,15 +4336,16 @@
     if (!generatedUrl) return;
     haptic('light');
     const label = urlToLabel(generatedUrl);
+    const params = new URLSearchParams(); params.set('url', generatedUrl);
+    const viewerLink = window.location.origin + '/viewer.html?' + params.toString();
     if (navigator.share) {
       navigator.share({
         title: 'Past Paper — ' + label,
         text: label,
-        url: generatedUrl
+        url: viewerLink
       }).catch(() => {});
     } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(generatedUrl).then(() => {
+      navigator.clipboard.writeText(viewerLink).then(() => {
         const btn = document.getElementById('shareBtn');
         btn.textContent = 'Copied!';
         setTimeout(() => btn.innerHTML = '&#8679; Share', 1800);
@@ -4421,6 +4415,9 @@
     if (!generatedUrl) return;
     haptic('light');
     const btn = document.querySelector('.btn-copy');
+    // Copy the PastPaperAI viewer link
+    const params = new URLSearchParams(); params.set('url', generatedUrl);
+    const viewerLink = window.location.origin + '/viewer.html?' + params.toString();
     function onSuccess() {
       btn.textContent = 'Copied!';
       setTimeout(() => btn.textContent = 'Copy URL', 1800);
@@ -4428,7 +4425,7 @@
     function fallback() {
       try {
         const ta = document.createElement('textarea');
-        ta.value = generatedUrl;
+        ta.value = viewerLink;
         ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
         document.body.appendChild(ta);
         ta.focus();
@@ -4442,7 +4439,7 @@
       }
     }
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(generatedUrl).then(onSuccess).catch(fallback);
+      navigator.clipboard.writeText(viewerLink).then(onSuccess).catch(fallback);
     } else {
       fallback();
     }
