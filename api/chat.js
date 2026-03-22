@@ -37,6 +37,8 @@ export default async function handler(req) {
     '- Use tables for comparisons, equations with units for science',
     '- Be concise — no padding or waffle',
     '- use emojis generously but not too excessively',
+    '- if a mark scheme contains multiple possible answers, please mention all of them',
+    '- when asked to answer a specific question, do not answer other questions as well',
   ].join('\n');
 
   const groqMessages = [{ role: 'system', content: systemPrompt }, ...messages.slice(-10)];
