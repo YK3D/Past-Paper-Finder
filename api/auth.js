@@ -137,11 +137,18 @@ export default async function handler(req, res) {
     if (!identifier || !password)
       return res.status(400).json({ error: 'All fields required' });
 
+    // Detect identifier type: email (@), phone (starts with + or digits), or username
+    let users;
     const isEmail = identifier.includes('@');
-    const field   = isEmail ? 'email' : 'username';
-    const users   = await db(
-      `users?${field}=eq.${encodeURIComponent(identifier)}&select=id,username,email,password_hash,banned&limit=1`
-    );
+    const isPhone = /^[+0-9]/.test(identifier) && identifier.replace(/[^0-9]/g,'').length >= 7;
+    if (isEmail) {
+      users = await db(`users?email=eq.${encodeURIComponent(identifier)}&select=id,username,email,password_hash,banned&limit=1`);
+    } else if (isPhone) {
+      // Phone stored as +countrycodenumber — match exactly or as suffix
+      users = await db(`users?phone=eq.${encodeURIComponent(identifier)}&select=id,username,email,password_hash,banned&limit=1`);
+    } else {
+      users = await db(`users?username=eq.${encodeURIComponent(identifier)}&select=id,username,email,password_hash,banned&limit=1`);
+    }
     const user = Array.isArray(users) && users[0];
     if (!user || user.password_hash !== hashPass(password))
       return res.status(401).json({ error: 'Invalid credentials' });
