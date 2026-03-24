@@ -3912,22 +3912,10 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   }
 
   // ── Audio ──
-  function toggleAudio() {
-    const a = document.getElementById('audioEl');
-    const b = document.getElementById('aPlayBtn');
-    if (a.paused) { a.play(); b.innerHTML = '&#9646;&#9646;'; } else { a.pause(); b.innerHTML = '&#9654;'; }
-  }
-  function aSeek(s) {
-    const a = document.getElementById('audioEl');
-    a.currentTime = Math.max(0, Math.min(a.duration||0, a.currentTime+s));
-  }
-  function updateATime() {
-    const a = document.getElementById('audioEl');
-    const p = document.getElementById('aProgress');
-    const t = document.getElementById('aTime');
-    if (!isNaN(a.duration)) { p.max = a.duration; p.value = a.currentTime; t.textContent = fmtT(a.currentTime)+' / '+fmtT(a.duration); }
-  }
-  document.getElementById('aProgress').addEventListener('input', function() { document.getElementById('audioEl').currentTime = this.value; });
+
+
+
+
   function fmtT(s) { const m=Math.floor(s/60),sc=Math.floor(s%60); return m+':'+(sc<10?'0':'')+sc; }
 
 
