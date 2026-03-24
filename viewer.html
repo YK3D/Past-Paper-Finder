@@ -3789,7 +3789,6 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       // Build exactly as specified
       const audioEl = document.createElement('audio');
       audioEl.controls = true;
-      audioEl.autoplay = true;
       audioEl.style.cssText = 'width:100%;max-width:500px;';
       const sourceEl = document.createElement('source');
       sourceEl.src = '/api/download-pdf?url=' + encodeURIComponent(url);
