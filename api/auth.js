@@ -145,7 +145,7 @@ export default async function handler(req, res) {
       users = await db(`users?email=eq.${encodeURIComponent(identifier)}&select=id,username,email,password_hash,banned&limit=1`);
     } else if (isPhone) {
       // Phone stored as +countrycodenumber — match exactly or as suffix
-      users = await db(`users?phone=eq.${encodeURIComponent(identifier)}&select=id,username,email,password_hash,banned&limit=1`);
+      users = await db(`users?phone=eq.${encodeURIComponent(identifier)}&select=id,username,email,phone,password_hash,banned&limit=1`);
     } else {
       users = await db(`users?username=eq.${encodeURIComponent(identifier)}&select=id,username,email,password_hash,banned&limit=1`);
     }
@@ -193,14 +193,14 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Invalid or expired token' });
 
     const users = await db(
-      `users?username=eq.${encodeURIComponent(s[0].username)}&select=id,username,email,banned&limit=1`
+      `users?username=eq.${encodeURIComponent(s[0].username)}&select=id,username,email,phone,banned&limit=1`
     );
     const user = Array.isArray(users) && users[0];
     if (!user || user.banned)
       return res.status(401).json({ error: 'User not found or banned' });
 
     await db(`users?id=eq.${user.id}`, 'PATCH', { last_seen: new Date().toISOString() });
-    return res.status(200).json({ user: { id: user.id, username: user.username, email: user.email } });
+    return res.status(200).json({ user: { id: user.id, username: user.username, email: user.email, phone: user.phone || null } });
   }
 
   // ── Change password ──
