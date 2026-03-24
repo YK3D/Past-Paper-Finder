@@ -3544,9 +3544,6 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 
     <div class="audio-area" id="audioArea">
       <p class="audio-filename" id="audioFilename" style="font-family:'Space Mono',monospace;font-size:0.8rem;color:#ccc;margin-bottom:0.8rem"></p>
-      <audio id="audioEl" controls autoplay style="width:100%;max-width:500px;border-radius:8px;background:var(--surface)">
-        <source id="audioSrc" src="" type="audio/mpeg">
-      </audio>
     </div>
   </div>
 
@@ -3785,10 +3782,20 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       document.getElementById('pdfCanvasArea').style.display = 'none';
       document.getElementById('thumbSidebar').style.display = 'none';
       document.getElementById('audioFilename').textContent = url.split('/').pop();
-      const src = document.getElementById('audioSrc');
-      const a   = document.getElementById('audioEl');
-      src.src = '/api/download-pdf?url=' + encodeURIComponent(url);
-      a.load();
+      const audioArea = document.getElementById('audioArea');
+      // Remove previous audio element if present
+      const old = audioArea.querySelector('audio');
+      if (old) old.remove();
+      // Build exactly as specified
+      const audioEl = document.createElement('audio');
+      audioEl.controls = true;
+      audioEl.autoplay = true;
+      audioEl.style.cssText = 'width:100%;max-width:500px;';
+      const sourceEl = document.createElement('source');
+      sourceEl.src = '/api/download-pdf?url=' + encodeURIComponent(url);
+      sourceEl.type = 'audio/mpeg';
+      audioEl.appendChild(sourceEl);
+      audioArea.appendChild(audioEl);
     } else {
       document.getElementById('audioArea').classList.remove('show');
       document.getElementById('pdfCanvasArea').style.display = '';
