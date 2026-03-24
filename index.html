@@ -1663,8 +1663,79 @@
   .landing-btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
   .landing-btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
   .landing-btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
-  .landing-skip { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: var(--muted); cursor: pointer; text-decoration: underline; background: none; border: none; }
-  .landing-skip:hover { color: var(--text); }
+  .landing-skip {
+    font-family: 'Space Mono', monospace; font-size: 0.82rem; color: var(--muted);
+    cursor: pointer; background: rgba(255,255,255,0.06); border: 1px solid #444;
+    border-radius: 8px; padding: 0.65rem 1.8rem; text-decoration: none;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .landing-skip:hover { background: rgba(255,255,255,0.1); color: var(--text); border-color: #666; }
+
+
+  /* ── Phone number input (register + popup) ── */
+  /* ── Phone number input ── */
+  .phone-wrapper {
+    display: flex; align-items: stretch;
+    border: 1px solid var(--border); border-radius: 8px;
+    background: var(--bg); overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+  }
+  .phone-wrapper:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,229,255,0.1); }
+  .phone-flag-btn {
+    display: flex; align-items: center; gap: 0.3rem;
+    padding: 0.55rem 0.6rem; background: var(--surface);
+    border: none; border-right: 1px solid var(--border);
+    cursor: pointer; flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .phone-flag-btn:hover { background: rgba(255,255,255,0.05); }
+  .phone-flag { font-size: 1.1rem; line-height: 1; }
+  .phone-arrow { font-size: 0.5rem; color: var(--muted); }
+  .phone-dropdown {
+    display: none; position: absolute;
+    top: calc(100% + 4px); left: 0;
+    width: 260px; max-height: 220px; overflow-y: auto;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; z-index: 200;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .phone-dropdown.open { display: block; }
+  .phone-dropdown::-webkit-scrollbar { width: 4px; }
+  .phone-dropdown::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
+  .phone-country {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.45rem 0.8rem; cursor: pointer;
+    font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--text);
+    transition: background 0.1s;
+  }
+  .phone-country:hover { background: rgba(0,229,255,0.08); }
+  .phone-country.selected { background: rgba(0,229,255,0.12); color: var(--accent); }
+  .phone-input-wrap { display: flex; flex-direction: column; justify-content: center; padding: 0 0.6rem; flex: 1; }
+  .phone-input-legend { font-size: 0.55rem; font-family: 'Space Mono', monospace; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+  .phone-input-row { display: flex; align-items: center; }
+  .phone-dialcode { font-family: 'Space Mono', monospace; font-size: 0.8rem; color: var(--muted); margin-right: 0.3rem; white-space: nowrap; }
+  .phone-input-field {
+    width: 100%; background: transparent; border: none; outline: none;
+    font-family: 'Space Mono', monospace; font-size: 0.85rem; color: var(--text);
+    padding: 0;
+  }
+  /* ── Phone popup for existing users ── */
+  .phone-popup-bg {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7); z-index: 2000;
+    align-items: center; justify-content: center;
+  }
+  .phone-popup-bg.show { display: flex; }
+  .phone-popup {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.8rem; width: 340px; max-width: 95vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .phone-popup-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; margin-bottom: 0.4rem; }
+  .phone-popup-sub { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); margin-bottom: 1.2rem; line-height: 1.6; }
+  .phone-popup-skip { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: underline; display: block; text-align: center; margin-top: 0.6rem; }
+  .phone-popup-skip:hover { color: var(--text); }
 
 
 </style>
@@ -4562,7 +4633,7 @@
             _currentUser = null; _sessionToken = null;
             localStorage.removeItem('pp_token'); localStorage.removeItem('pp_user');
             updateAuthUI();
-          } else { _currentUser = d.user; updateAuthUI(); syncFavsFromDB(); }
+          } else { _currentUser = d.user; updateAuthUI(); syncFavsFromDB(); checkPhonePopup(); }
         }).catch(() => {});
       }
     } catch {}
@@ -4603,6 +4674,8 @@
     document.getElementById('authRegisterFields').style.display = isReg ? '' : 'none';
     document.getElementById('authLoginFields').style.display = isReg ? 'none' : '';
     document.getElementById('authSubmitBtn').textContent = isReg ? 'Create Account' : 'Sign In';
+    const freeNote = document.getElementById('authFreeNote');
+    if (freeNote) freeNote.style.display = isReg ? 'block' : 'none';
     document.getElementById('authSwitchText').textContent = isReg ? 'Already have an account?' : "Don't have an account?";
     document.getElementById('authSwitchLink').textContent = isReg ? 'Sign In' : 'Register';
     document.getElementById('authError').textContent = '';
@@ -4643,7 +4716,7 @@
     const password = document.getElementById('authPassword').value;
     let body;
     if (_authMode === 'register') {
-      body = { action: 'register', email: document.getElementById('authEmail').value.trim(), username: document.getElementById('authUsername').value.trim(), password, deviceId: _deviceId };
+      const _regPhone = getPhoneValue('reg'); body = { action: 'register', email: document.getElementById('authEmail').value.trim(), username: document.getElementById('authUsername').value.trim(), password, deviceId: _deviceId, phone: _regPhone || null };
     } else {
       body = { action: 'login', identifier: document.getElementById('authIdentifier').value.trim(), password, deviceId: _deviceId };
     }
@@ -4659,7 +4732,7 @@
       }
       _currentUser = d.user; _sessionToken = d.token;
       try { localStorage.setItem('pp_token', d.token); localStorage.setItem('pp_user', JSON.stringify(d.user)); } catch {}
-      updateAuthUI(); syncFavsFromDB(); closeAuth();
+      updateAuthUI(); syncFavsFromDB(); closeAuth(); checkPhonePopup();
     } catch(e) { err.textContent = 'Connection error'; }
     btn.disabled = false;
   }
@@ -4795,6 +4868,145 @@
     } catch {}
   }, 60000);
 
+  // ── Phone number picker ──
+  const _COUNTRIES = [
+    {f:'🇦🇫',n:'Afghanistan',d:'+93'},{f:'🇦🇱',n:'Albania',d:'+355'},{f:'🇩🇿',n:'Algeria',d:'+213'},
+    {f:'🇦🇩',n:'Andorra',d:'+376'},{f:'🇦🇴',n:'Angola',d:'+244'},{f:'🇦🇷',n:'Argentina',d:'+54'},
+    {f:'🇦🇲',n:'Armenia',d:'+374'},{f:'🇦🇺',n:'Australia',d:'+61'},{f:'🇦🇹',n:'Austria',d:'+43'},
+    {f:'🇦🇿',n:'Azerbaijan',d:'+994'},{f:'🇧🇭',n:'Bahrain',d:'+973'},{f:'🇧🇩',n:'Bangladesh',d:'+880'},
+    {f:'🇧🇾',n:'Belarus',d:'+375'},{f:'🇧🇪',n:'Belgium',d:'+32'},{f:'🇧🇿',n:'Belize',d:'+501'},
+    {f:'🇧🇯',n:'Benin',d:'+229'},{f:'🇧🇹',n:'Bhutan',d:'+975'},{f:'🇧🇴',n:'Bolivia',d:'+591'},
+    {f:'🇧🇦',n:'Bosnia',d:'+387'},{f:'🇧🇼',n:'Botswana',d:'+267'},{f:'🇧🇷',n:'Brazil',d:'+55'},
+    {f:'🇧🇳',n:'Brunei',d:'+673'},{f:'🇧🇬',n:'Bulgaria',d:'+359'},{f:'🇧🇫',n:'Burkina Faso',d:'+226'},
+    {f:'🇧🇮',n:'Burundi',d:'+257'},{f:'🇨🇻',n:'Cabo Verde',d:'+238'},{f:'🇰🇭',n:'Cambodia',d:'+855'},
+    {f:'🇨🇲',n:'Cameroon',d:'+237'},{f:'🇨🇦',n:'Canada',d:'+1'},{f:'🇨🇫',n:'Central African Rep.',d:'+236'},
+    {f:'🇹🇩',n:'Chad',d:'+235'},{f:'🇨🇱',n:'Chile',d:'+56'},{f:'🇨🇳',n:'China',d:'+86'},
+    {f:'🇨🇴',n:'Colombia',d:'+57'},{f:'🇨🇬',n:'Congo',d:'+242'},{f:'🇨🇷',n:'Costa Rica',d:'+506'},
+    {f:'🇭🇷',n:'Croatia',d:'+385'},{f:'🇨🇺',n:'Cuba',d:'+53'},{f:'🇨🇾',n:'Cyprus',d:'+357'},
+    {f:'🇨🇿',n:'Czech Republic',d:'+420'},{f:'🇩🇰',n:'Denmark',d:'+45'},{f:'🇩🇯',n:'Djibouti',d:'+253'},
+    {f:'🇩🇴',n:'Dominican Rep.',d:'+1'},{f:'🇪🇨',n:'Ecuador',d:'+593'},{f:'🇪🇬',n:'Egypt',d:'+20'},
+    {f:'🇸🇻',n:'El Salvador',d:'+503'},{f:'🇬🇶',n:'Equatorial Guinea',d:'+240'},{f:'🇪🇷',n:'Eritrea',d:'+291'},
+    {f:'🇪🇪',n:'Estonia',d:'+372'},{f:'🇸🇿',n:'Eswatini',d:'+268'},{f:'🇪🇹',n:'Ethiopia',d:'+251'},
+    {f:'🇫🇯',n:'Fiji',d:'+679'},{f:'🇫🇮',n:'Finland',d:'+358'},{f:'🇫🇷',n:'France',d:'+33'},
+    {f:'🇬🇦',n:'Gabon',d:'+241'},{f:'🇬🇲',n:'Gambia',d:'+220'},{f:'🇬🇪',n:'Georgia',d:'+995'},
+    {f:'🇩🇪',n:'Germany',d:'+49'},{f:'🇬🇭',n:'Ghana',d:'+233'},{f:'🇬🇷',n:'Greece',d:'+30'},
+    {f:'🇬🇹',n:'Guatemala',d:'+502'},{f:'🇬🇳',n:'Guinea',d:'+224'},{f:'🇬🇾',n:'Guyana',d:'+592'},
+    {f:'🇭🇹',n:'Haiti',d:'+509'},{f:'🇭🇳',n:'Honduras',d:'+504'},{f:'🇭🇰',n:'Hong Kong',d:'+852'},
+    {f:'🇭🇺',n:'Hungary',d:'+36'},{f:'🇮🇸',n:'Iceland',d:'+354'},{f:'🇮🇳',n:'India',d:'+91'},
+    {f:'🇮🇩',n:'Indonesia',d:'+62'},{f:'🇮🇷',n:'Iran',d:'+98'},{f:'🇮🇶',n:'Iraq',d:'+964'},
+    {f:'🇮🇪',n:'Ireland',d:'+353'},{f:'🇮🇱',n:'Israel',d:'+972'},{f:'🇮🇹',n:'Italy',d:'+39'},
+    {f:'🇯🇲',n:'Jamaica',d:'+1'},{f:'🇯🇵',n:'Japan',d:'+81'},{f:'🇯🇴',n:'Jordan',d:'+962'},
+    {f:'🇰🇿',n:'Kazakhstan',d:'+7'},{f:'🇰🇪',n:'Kenya',d:'+254'},{f:'🇰🇼',n:'Kuwait',d:'+965'},
+    {f:'🇰🇬',n:'Kyrgyzstan',d:'+996'},{f:'🇱🇦',n:'Laos',d:'+856'},{f:'🇱🇻',n:'Latvia',d:'+371'},
+    {f:'🇱🇧',n:'Lebanon',d:'+961'},{f:'🇱🇸',n:'Lesotho',d:'+266'},{f:'🇱🇷',n:'Liberia',d:'+231'},
+    {f:'🇱🇾',n:'Libya',d:'+218'},{f:'🇱🇮',n:'Liechtenstein',d:'+423'},{f:'🇱🇹',n:'Lithuania',d:'+370'},
+    {f:'🇱🇺',n:'Luxembourg',d:'+352'},{f:'🇲🇴',n:'Macao',d:'+853'},{f:'🇲🇬',n:'Madagascar',d:'+261'},
+    {f:'🇲🇼',n:'Malawi',d:'+265'},{f:'🇲🇾',n:'Malaysia',d:'+60'},{f:'🇲🇻',n:'Maldives',d:'+960'},
+    {f:'🇲🇱',n:'Mali',d:'+223'},{f:'🇲🇹',n:'Malta',d:'+356'},{f:'🇲🇷',n:'Mauritania',d:'+222'},
+    {f:'🇲🇺',n:'Mauritius',d:'+230'},{f:'🇲🇽',n:'Mexico',d:'+52'},{f:'🇲🇩',n:'Moldova',d:'+373'},
+    {f:'🇲🇨',n:'Monaco',d:'+377'},{f:'🇲🇳',n:'Mongolia',d:'+976'},{f:'🇲🇪',n:'Montenegro',d:'+382'},
+    {f:'🇲🇦',n:'Morocco',d:'+212'},{f:'🇲🇿',n:'Mozambique',d:'+258'},{f:'🇲🇲',n:'Myanmar',d:'+95'},
+    {f:'🇳🇦',n:'Namibia',d:'+264'},{f:'🇳🇵',n:'Nepal',d:'+977'},{f:'🇳🇱',n:'Netherlands',d:'+31'},
+    {f:'🇳🇿',n:'New Zealand',d:'+64'},{f:'🇳🇮',n:'Nicaragua',d:'+505'},{f:'🇳🇪',n:'Niger',d:'+227'},
+    {f:'🇳🇬',n:'Nigeria',d:'+234'},{f:'🇰🇵',n:'North Korea',d:'+850'},{f:'🇲🇰',n:'North Macedonia',d:'+389'},
+    {f:'🇳🇴',n:'Norway',d:'+47'},{f:'🇴🇲',n:'Oman',d:'+968'},{f:'🇵🇰',n:'Pakistan',d:'+92'},
+    {f:'🇵🇸',n:'Palestine',d:'+970'},{f:'🇵🇦',n:'Panama',d:'+507'},{f:'🇵🇬',n:'Papua New Guinea',d:'+675'},
+    {f:'🇵🇾',n:'Paraguay',d:'+595'},{f:'🇵🇪',n:'Peru',d:'+51'},{f:'🇵🇭',n:'Philippines',d:'+63'},
+    {f:'🇵🇱',n:'Poland',d:'+48'},{f:'🇵🇹',n:'Portugal',d:'+351'},{f:'🇶🇦',n:'Qatar',d:'+974'},
+    {f:'🇷🇴',n:'Romania',d:'+40'},{f:'🇷🇺',n:'Russia',d:'+7'},{f:'🇷🇼',n:'Rwanda',d:'+250'},
+    {f:'🇸🇦',n:'Saudi Arabia',d:'+966'},{f:'🇸🇳',n:'Senegal',d:'+221'},{f:'🇷🇸',n:'Serbia',d:'+381'},
+    {f:'🇸🇱',n:'Sierra Leone',d:'+232'},{f:'🇸🇬',n:'Singapore',d:'+65'},{f:'🇸🇰',n:'Slovakia',d:'+421'},
+    {f:'🇸🇮',n:'Slovenia',d:'+386'},{f:'🇸🇴',n:'Somalia',d:'+252'},{f:'🇿🇦',n:'South Africa',d:'+27'},
+    {f:'🇰🇷',n:'South Korea',d:'+82'},{f:'🇸🇸',n:'South Sudan',d:'+211'},{f:'🇪🇸',n:'Spain',d:'+34'},
+    {f:'🇱🇰',n:'Sri Lanka',d:'+94'},{f:'🇸🇩',n:'Sudan',d:'+249'},{f:'🇸🇷',n:'Suriname',d:'+597'},
+    {f:'🇸🇪',n:'Sweden',d:'+46'},{f:'🇨🇭',n:'Switzerland',d:'+41'},{f:'🇸🇾',n:'Syria',d:'+963'},
+    {f:'🇹🇼',n:'Taiwan',d:'+886'},{f:'🇹🇯',n:'Tajikistan',d:'+992'},{f:'🇹🇿',n:'Tanzania',d:'+255'},
+    {f:'🇹🇭',n:'Thailand',d:'+66'},{f:'🇹🇬',n:'Togo',d:'+228'},{f:'🇹🇹',n:'Trinidad & Tobago',d:'+1'},
+    {f:'🇹🇳',n:'Tunisia',d:'+216'},{f:'🇹🇷',n:'Turkey',d:'+90'},{f:'🇹🇲',n:'Turkmenistan',d:'+993'},
+    {f:'🇺🇬',n:'Uganda',d:'+256'},{f:'🇺🇦',n:'Ukraine',d:'+380'},{f:'🇦🇪',n:'UAE',d:'+971'},
+    {f:'🇬🇧',n:'United Kingdom',d:'+44'},{f:'🇺🇸',n:'United States',d:'+1'},{f:'🇺🇾',n:'Uruguay',d:'+598'},
+    {f:'🇺🇿',n:'Uzbekistan',d:'+998'},{f:'🇻🇪',n:'Venezuela',d:'+58'},{f:'🇻🇳',n:'Vietnam',d:'+84'},
+    {f:'🇾🇪',n:'Yemen',d:'+967'},{f:'🇿🇲',n:'Zambia',d:'+260'},{f:'🇿🇼',n:'Zimbabwe',d:'+263'}
+  ];
+
+  let _phoneSelections = { reg: { d:'+1', f:'🌍' }, popup: { d:'+1', f:'🌍' } };
+
+  function buildPhoneDropdown(dropdownId, prefix) {
+    const dd = document.getElementById(dropdownId);
+    if (!dd || dd.children.length) return;
+    dd.innerHTML = _COUNTRIES.map(c =>
+      `<div class="phone-country" onclick="selectCountry('${prefix}','${c.d}','${c.f}','${dropdownId}')">`+
+      `<span>${c.f}</span><span style="flex:1">${c.n}</span><span style="color:var(--muted);font-size:0.65rem">${c.d}</span></div>`
+    ).join('');
+  }
+
+  function togglePhoneDropdown(dropdownId) {
+    const prefix = dropdownId.includes('popup') ? 'popup' : 'reg';
+    buildPhoneDropdown(dropdownId, prefix);
+    const dd = document.getElementById(dropdownId);
+    const isOpen = dd.classList.contains('open');
+    // Close all dropdowns first
+    document.querySelectorAll('.phone-dropdown').forEach(d => d.classList.remove('open'));
+    if (!isOpen) {
+      dd.classList.add('open');
+      // Close on outside click
+      setTimeout(() => document.addEventListener('click', function h(e) {
+        if (!dd.contains(e.target) && !e.target.closest('.phone-flag-btn')) {
+          dd.classList.remove('open');
+          document.removeEventListener('click', h);
+        }
+      }), 10);
+    }
+  }
+
+  function selectCountry(prefix, dialcode, flag, dropdownId) {
+    _phoneSelections[prefix] = { d: dialcode, f: flag };
+    const flagEl = document.getElementById(prefix === 'popup' ? 'popupPhoneFlag' : 'regPhoneFlag');
+    const codeEl = document.getElementById(prefix === 'popup' ? 'popupDialCode' : 'regDialCode');
+    if (flagEl) flagEl.textContent = flag;
+    if (codeEl) codeEl.textContent = dialcode;
+    document.getElementById(dropdownId).classList.remove('open');
+  }
+
+  function getPhoneValue(prefix) {
+    const num = (document.getElementById(prefix === 'popup' ? 'popupPhone' : 'authPhone') || {}).value || '';
+    if (!num.trim()) return '';
+    return _phoneSelections[prefix].d + num.trim().replace(/\s/g,'');
+  }
+
+  // Phone popup for existing users
+  function showPhonePopup() {
+    document.getElementById('phonePopupBg').classList.add('show');
+  }
+  function dismissPhonePopup() {
+    document.getElementById('phonePopupBg').classList.remove('show');
+    try { localStorage.setItem('pp_phone_skipped','1'); } catch {}
+  }
+  async function submitPhonePopup() {
+    const phone = getPhoneValue('popup');
+    if (!phone) { dismissPhonePopup(); return; }
+    try {
+      await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'update_phone', token: _sessionToken, phone })
+      });
+    } catch {}
+    dismissPhonePopup();
+    try { localStorage.setItem('pp_phone_saved','1'); } catch {}
+  }
+
+  // Show popup for logged-in users who have no phone saved
+  function checkPhonePopup() {
+    try {
+      if (!_currentUser) return;
+      if (localStorage.getItem('pp_phone_skipped')) return;
+      if (localStorage.getItem('pp_phone_saved')) return;
+      if (_currentUser.phone) return;
+      setTimeout(showPhonePopup, 2000);
+    } catch {}
+  }
+
   // ── Landing page (signed-out homepage) ──
   function showLanding() {
     document.getElementById('landingOverlay').classList.add('show');
@@ -4820,6 +5032,224 @@
     } catch {}
   })();
 
+  // ── Phone number selector ──
+  const COUNTRIES = [
+    {code:'AF',flag:'🇦🇫',name:'Afghanistan',dial:'+93'},
+    {code:'AL',flag:'🇦🇱',name:'Albania',dial:'+355'},
+    {code:'DZ',flag:'🇩🇿',name:'Algeria',dial:'+213'},
+    {code:'AR',flag:'🇦🇷',name:'Argentina',dial:'+54'},
+    {code:'AM',flag:'🇦🇲',name:'Armenia',dial:'+374'},
+    {code:'AU',flag:'🇦🇺',name:'Australia',dial:'+61'},
+    {code:'AT',flag:'🇦🇹',name:'Austria',dial:'+43'},
+    {code:'AZ',flag:'🇦🇿',name:'Azerbaijan',dial:'+994'},
+    {code:'BH',flag:'🇧🇭',name:'Bahrain',dial:'+973'},
+    {code:'BD',flag:'🇧🇩',name:'Bangladesh',dial:'+880'},
+    {code:'BY',flag:'🇧🇾',name:'Belarus',dial:'+375'},
+    {code:'BE',flag:'🇧🇪',name:'Belgium',dial:'+32'},
+    {code:'BZ',flag:'🇧🇿',name:'Belize',dial:'+501'},
+    {code:'BO',flag:'🇧🇴',name:'Bolivia',dial:'+591'},
+    {code:'BA',flag:'🇧🇦',name:'Bosnia',dial:'+387'},
+    {code:'BR',flag:'🇧🇷',name:'Brazil',dial:'+55'},
+    {code:'BN',flag:'🇧🇳',name:'Brunei',dial:'+673'},
+    {code:'BG',flag:'🇧🇬',name:'Bulgaria',dial:'+359'},
+    {code:'KH',flag:'🇰🇭',name:'Cambodia',dial:'+855'},
+    {code:'CM',flag:'🇨🇲',name:'Cameroon',dial:'+237'},
+    {code:'CA',flag:'🇨🇦',name:'Canada',dial:'+1'},
+    {code:'CL',flag:'🇨🇱',name:'Chile',dial:'+56'},
+    {code:'CN',flag:'🇨🇳',name:'China',dial:'+86'},
+    {code:'CO',flag:'🇨🇴',name:'Colombia',dial:'+57'},
+    {code:'CD',flag:'🇨🇩',name:'Congo',dial:'+243'},
+    {code:'CR',flag:'🇨🇷',name:'Costa Rica',dial:'+506'},
+    {code:'HR',flag:'🇭🇷',name:'Croatia',dial:'+385'},
+    {code:'CU',flag:'🇨🇺',name:'Cuba',dial:'+53'},
+    {code:'CY',flag:'🇨🇾',name:'Cyprus',dial:'+357'},
+    {code:'CZ',flag:'🇨🇿',name:'Czech Republic',dial:'+420'},
+    {code:'DK',flag:'🇩🇰',name:'Denmark',dial:'+45'},
+    {code:'EC',flag:'🇪🇨',name:'Ecuador',dial:'+593'},
+    {code:'EG',flag:'🇪🇬',name:'Egypt',dial:'+20'},
+    {code:'SV',flag:'🇸🇻',name:'El Salvador',dial:'+503'},
+    {code:'EE',flag:'🇪🇪',name:'Estonia',dial:'+372'},
+    {code:'ET',flag:'🇪🇹',name:'Ethiopia',dial:'+251'},
+    {code:'FI',flag:'🇫🇮',name:'Finland',dial:'+358'},
+    {code:'FR',flag:'🇫🇷',name:'France',dial:'+33'},
+    {code:'GE',flag:'🇬🇪',name:'Georgia',dial:'+995'},
+    {code:'DE',flag:'🇩🇪',name:'Germany',dial:'+49'},
+    {code:'GH',flag:'🇬🇭',name:'Ghana',dial:'+233'},
+    {code:'GR',flag:'🇬🇷',name:'Greece',dial:'+30'},
+    {code:'GT',flag:'🇬🇹',name:'Guatemala',dial:'+502'},
+    {code:'HN',flag:'🇭🇳',name:'Honduras',dial:'+504'},
+    {code:'HK',flag:'🇭🇰',name:'Hong Kong',dial:'+852'},
+    {code:'HU',flag:'🇭🇺',name:'Hungary',dial:'+36'},
+    {code:'IS',flag:'🇮🇸',name:'Iceland',dial:'+354'},
+    {code:'IN',flag:'🇮🇳',name:'India',dial:'+91'},
+    {code:'ID',flag:'🇮🇩',name:'Indonesia',dial:'+62'},
+    {code:'IR',flag:'🇮🇷',name:'Iran',dial:'+98'},
+    {code:'IQ',flag:'🇮🇶',name:'Iraq',dial:'+964'},
+    {code:'IE',flag:'🇮🇪',name:'Ireland',dial:'+353'},
+    {code:'IL',flag:'🇮🇱',name:'Israel',dial:'+972'},
+    {code:'IT',flag:'🇮🇹',name:'Italy',dial:'+39'},
+    {code:'JM',flag:'🇯🇲',name:'Jamaica',dial:'+1-876'},
+    {code:'JP',flag:'🇯🇵',name:'Japan',dial:'+81'},
+    {code:'JO',flag:'🇯🇴',name:'Jordan',dial:'+962'},
+    {code:'KZ',flag:'🇰🇿',name:'Kazakhstan',dial:'+7'},
+    {code:'KE',flag:'🇰🇪',name:'Kenya',dial:'+254'},
+    {code:'KW',flag:'🇰🇼',name:'Kuwait',dial:'+965'},
+    {code:'KG',flag:'🇰🇬',name:'Kyrgyzstan',dial:'+996'},
+    {code:'LV',flag:'🇱🇻',name:'Latvia',dial:'+371'},
+    {code:'LB',flag:'🇱🇧',name:'Lebanon',dial:'+961'},
+    {code:'LY',flag:'🇱🇾',name:'Libya',dial:'+218'},
+    {code:'LI',flag:'🇱🇮',name:'Liechtenstein',dial:'+423'},
+    {code:'LT',flag:'🇱🇹',name:'Lithuania',dial:'+370'},
+    {code:'LU',flag:'🇱🇺',name:'Luxembourg',dial:'+352'},
+    {code:'MO',flag:'🇲🇴',name:'Macau',dial:'+853'},
+    {code:'MY',flag:'🇲🇾',name:'Malaysia',dial:'+60'},
+    {code:'MV',flag:'🇲🇻',name:'Maldives',dial:'+960'},
+    {code:'MT',flag:'🇲🇹',name:'Malta',dial:'+356'},
+    {code:'MX',flag:'🇲🇽',name:'Mexico',dial:'+52'},
+    {code:'MD',flag:'🇲🇩',name:'Moldova',dial:'+373'},
+    {code:'MC',flag:'🇲🇨',name:'Monaco',dial:'+377'},
+    {code:'MN',flag:'🇲🇳',name:'Mongolia',dial:'+976'},
+    {code:'ME',flag:'🇲🇪',name:'Montenegro',dial:'+382'},
+    {code:'MA',flag:'🇲🇦',name:'Morocco',dial:'+212'},
+    {code:'MZ',flag:'🇲🇿',name:'Mozambique',dial:'+258'},
+    {code:'MM',flag:'🇲🇲',name:'Myanmar',dial:'+95'},
+    {code:'NA',flag:'🇳🇦',name:'Namibia',dial:'+264'},
+    {code:'NP',flag:'🇳🇵',name:'Nepal',dial:'+977'},
+    {code:'NL',flag:'🇳🇱',name:'Netherlands',dial:'+31'},
+    {code:'NZ',flag:'🇳🇿',name:'New Zealand',dial:'+64'},
+    {code:'NI',flag:'🇳🇮',name:'Nicaragua',dial:'+505'},
+    {code:'NG',flag:'🇳🇬',name:'Nigeria',dial:'+234'},
+    {code:'NO',flag:'🇳🇴',name:'Norway',dial:'+47'},
+    {code:'OM',flag:'🇴🇲',name:'Oman',dial:'+968'},
+    {code:'PK',flag:'🇵🇰',name:'Pakistan',dial:'+92'},
+    {code:'PS',flag:'🇵🇸',name:'Palestine',dial:'+970'},
+    {code:'PA',flag:'🇵🇦',name:'Panama',dial:'+507'},
+    {code:'PY',flag:'🇵🇾',name:'Paraguay',dial:'+595'},
+    {code:'PE',flag:'🇵🇪',name:'Peru',dial:'+51'},
+    {code:'PH',flag:'🇵🇭',name:'Philippines',dial:'+63'},
+    {code:'PL',flag:'🇵🇱',name:'Poland',dial:'+48'},
+    {code:'PT',flag:'🇵🇹',name:'Portugal',dial:'+351'},
+    {code:'QA',flag:'🇶🇦',name:'Qatar',dial:'+974'},
+    {code:'RO',flag:'🇷🇴',name:'Romania',dial:'+40'},
+    {code:'RU',flag:'🇷🇺',name:'Russia',dial:'+7'},
+    {code:'SA',flag:'🇸🇦',name:'Saudi Arabia',dial:'+966'},
+    {code:'SN',flag:'🇸🇳',name:'Senegal',dial:'+221'},
+    {code:'RS',flag:'🇷🇸',name:'Serbia',dial:'+381'},
+    {code:'SG',flag:'🇸🇬',name:'Singapore',dial:'+65'},
+    {code:'SK',flag:'🇸🇰',name:'Slovakia',dial:'+421'},
+    {code:'SI',flag:'🇸🇮',name:'Slovenia',dial:'+386'},
+    {code:'SO',flag:'🇸🇴',name:'Somalia',dial:'+252'},
+    {code:'ZA',flag:'🇿🇦',name:'South Africa',dial:'+27'},
+    {code:'KR',flag:'🇰🇷',name:'South Korea',dial:'+82'},
+    {code:'SS',flag:'🇸🇸',name:'South Sudan',dial:'+211'},
+    {code:'ES',flag:'🇪🇸',name:'Spain',dial:'+34'},
+    {code:'LK',flag:'🇱🇰',name:'Sri Lanka',dial:'+94'},
+    {code:'SD',flag:'🇸🇩',name:'Sudan',dial:'+249'},
+    {code:'SE',flag:'🇸🇪',name:'Sweden',dial:'+46'},
+    {code:'CH',flag:'🇨🇭',name:'Switzerland',dial:'+41'},
+    {code:'SY',flag:'🇸🇾',name:'Syria',dial:'+963'},
+    {code:'TW',flag:'🇹🇼',name:'Taiwan',dial:'+886'},
+    {code:'TJ',flag:'🇹🇯',name:'Tajikistan',dial:'+992'},
+    {code:'TZ',flag:'🇹🇿',name:'Tanzania',dial:'+255'},
+    {code:'TH',flag:'🇹🇭',name:'Thailand',dial:'+66'},
+    {code:'TN',flag:'🇹🇳',name:'Tunisia',dial:'+216'},
+    {code:'TR',flag:'🇹🇷',name:'Turkey',dial:'+90'},
+    {code:'TM',flag:'🇹🇲',name:'Turkmenistan',dial:'+993'},
+    {code:'UG',flag:'🇺🇬',name:'Uganda',dial:'+256'},
+    {code:'UA',flag:'🇺🇦',name:'Ukraine',dial:'+380'},
+    {code:'AE',flag:'🇦🇪',name:'UAE',dial:'+971'},
+    {code:'GB',flag:'🇬🇧',name:'United Kingdom',dial:'+44'},
+    {code:'US',flag:'🇺🇸',name:'United States',dial:'+1'},
+    {code:'UY',flag:'🇺🇾',name:'Uruguay',dial:'+598'},
+    {code:'UZ',flag:'🇺🇿',name:'Uzbekistan',dial:'+998'},
+    {code:'VE',flag:'🇻🇪',name:'Venezuela',dial:'+58'},
+    {code:'VN',flag:'🇻🇳',name:'Vietnam',dial:'+84'},
+    {code:'YE',flag:'🇾🇪',name:'Yemen',dial:'+967'},
+    {code:'ZM',flag:'🇿🇲',name:'Zambia',dial:'+260'},
+    {code:'ZW',flag:'🇿🇼',name:'Zimbabwe',dial:'+263'},
+  ];
+
+  let _selectedCountry = COUNTRIES.find(c => c.code === 'GB');
+  let _popupSelectedCountry = COUNTRIES.find(c => c.code === 'GB');
+
+  function buildDropdown(ddEl, onSelect) {
+    ddEl.innerHTML = COUNTRIES.map(c =>
+      `<div class="phone-country" data-code="${c.code}" onclick="(${onSelect.toString()})(${JSON.stringify(c)})">
+        <span>${c.flag}</span><span>${c.name}</span><span style="color:var(--muted);font-size:0.65rem;margin-left:auto">${c.dial}</span>
+      </div>`
+    ).join('');
+  }
+
+  function togglePhoneDropdown(mode) {
+    const dd = document.getElementById(mode === 'popup' ? 'phonePopupDropdown' : 'phoneDropdown');
+    if (!dd._built) {
+      const handler = mode === 'popup' ? 'selectPopupCountry' : 'selectCountry';
+      dd.innerHTML = COUNTRIES.map(c =>
+        `<div class="phone-country" onclick="${handler}(${JSON.stringify(c).replace(/"/g, '&quot;')})">
+          <span>${c.flag}</span>&nbsp;<span>${c.name}</span>&nbsp;<span style="color:var(--muted);font-size:0.65rem;margin-left:auto">${c.dial}</span>
+        </div>`
+      ).join('');
+      dd._built = true;
+    }
+    dd.classList.toggle('open');
+    setTimeout(() => { document.addEventListener('click', function closeDD(e) {
+      if (!dd.contains(e.target) && !dd.previousElementSibling.contains(e.target)) {
+        dd.classList.remove('open'); document.removeEventListener('click', closeDD);
+      }
+    }); }, 10);
+  }
+
+  function selectCountry(c) {
+    _selectedCountry = c;
+    document.getElementById('phoneFlag').textContent = c.flag;
+    document.getElementById('phoneDialCode').textContent = c.dial;
+    document.getElementById('phoneDropdown').classList.remove('open');
+  }
+  function selectPopupCountry(c) {
+    _popupSelectedCountry = c;
+    document.getElementById('phonePopupFlag').textContent = c.flag;
+    document.getElementById('phonePopupDialCode').textContent = c.dial;
+    document.getElementById('phonePopupDropdown').classList.remove('open');
+  }
+
+  function getFullPhone() {
+    const num = (document.getElementById('authPhone') || {value:''}).value.trim().replace(/\s+/g,'');
+    if (!num) return null;
+    return (_selectedCountry ? _selectedCountry.dial : '+44') + num;
+  }
+
+  // ── Phone popup for existing users without phone ──
+  function showPhonePopup() { document.getElementById('phonePopupBg').classList.add('show'); }
+  function dismissPhonePopup() {
+    document.getElementById('phonePopupBg').classList.remove('show');
+    try { localStorage.setItem('pp_phone_skipped', '1'); } catch {}
+  }
+  async function submitPhonePopup() {
+    const num = document.getElementById('phonePopupInput').value.trim().replace(/\s+/g,'');
+    if (!num) { dismissPhonePopup(); return; }
+    const full = (_popupSelectedCountry ? _popupSelectedCountry.dial : '+44') + num;
+    if (_sessionToken) {
+      try {
+        await fetch('/api/auth', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ action: 'update_phone', token: _sessionToken, phone: full })
+        });
+      } catch {}
+    }
+    dismissPhonePopup();
+  }
+
+  // Show phone popup after login if user has no phone and hasn't skipped
+  function checkPhonePopup() {
+    try {
+      if (sessionStorage.getItem('pp_phone_skipped')) return;
+      if (localStorage.getItem('pp_phone_skipped')) return;
+      const u = JSON.parse(localStorage.getItem('pp_user') || 'null');
+      if (u && !u.phone) setTimeout(showPhonePopup, 2000);
+    } catch {}
+  }
+
   // ── Fetch site_config (maintenance message + version) on load ──
   (async function fetchSiteConfig() {
     try {
@@ -4844,6 +5274,33 @@
   })();
 </script>
 
+<!-- Phone number popup for existing users -->
+<div class="phone-popup-bg" id="phonePopupBg">
+  <div class="phone-popup">
+    <div class="phone-popup-title">Add your phone number</div>
+    <p class="phone-popup-sub">Add your phone number to your account.<br>This helps with account recovery.</p>
+    <div class="auth-field">
+      <label>Phone Number</label>
+      <div class="phone-wrapper" id="popupPhoneWrapper">
+        <button type="button" class="phone-flag-btn" id="popupFlagBtn" onclick="togglePhoneDropdown('popupPhoneDropdown')">
+          <span class="phone-flag" id="popupPhoneFlag">🌍</span>
+          <span class="phone-arrow">▾</span>
+        </button>
+        <div class="phone-dropdown" id="popupPhoneDropdown"></div>
+        <div class="phone-input-wrap">
+          <span class="phone-input-legend">Phone</span>
+          <div class="phone-input-row">
+            <span class="phone-dialcode" id="popupDialCode">+1</span>
+            <input class="phone-input-field" id="popupPhone" type="tel" placeholder="000 000 0000" inputmode="numeric">
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="auth-btn" style="margin-top:1rem" onclick="submitPhonePopup()">Save Phone Number</button>
+    <button class="phone-popup-skip" onclick="dismissPhonePopup()">Skip for now</button>
+  </div>
+</div>
+
 <!-- Landing overlay for signed-out users -->
 <div class="landing-overlay" id="landingOverlay">
   <div class="landing-logo">Paper<span>Finder</span></div>
@@ -4853,6 +5310,33 @@
     <button class="landing-btn landing-btn-secondary" onclick="closeLanding();setAuthMode('register');openAuth('register')">Register</button>
   </div>
   <button class="landing-skip" onclick="closeLandingAsGuest()">Continue as guest &mdash; 1 free paper</button>
+</div>
+
+
+<!-- Phone number popup for existing users -->
+<div class="phone-popup-bg" id="phonePopupBg">
+  <div class="phone-popup">
+    <div class="phone-popup-title">Add Your Phone Number</div>
+    <p class="phone-popup-sub">Add a phone number to your account. This is optional and helps with account recovery.</p>
+    <div class="auth-field">
+      <div class="phone-wrapper" id="phonePopupWrapper">
+        <div class="phone-flag-btn" id="phonePopupFlagBtn" onclick="togglePhoneDropdown('popup')">
+          <span class="phone-flag" id="phonePopupFlag">🇬🇧</span>
+          <span class="phone-arrow">▼</span>
+        </div>
+        <div class="phone-input-wrap">
+          <span class="phone-input-legend">Phone</span>
+          <div class="phone-input-row">
+            <span class="phone-dialcode" id="phonePopupDialCode">+44</span>
+            <input class="phone-input-field" id="phonePopupInput" type="tel" placeholder="7700 900000" autocomplete="tel" inputmode="numeric">
+          </div>
+        </div>
+        <div class="phone-dropdown" id="phonePopupDropdown"></div>
+      </div>
+    </div>
+    <button class="auth-btn" onclick="submitPhonePopup()" style="margin-top:0.8rem">Save Phone Number</button>
+    <button class="phone-popup-skip" onclick="dismissPhonePopup()">Skip for now</button>
+  </div>
 </div>
 
 <!-- Auth Modal -->
@@ -4867,12 +5351,47 @@
           <div class="ain-dark"></div><div class="ain-border"></div><div class="ain-glow"></div>
           <input class="auth-input" id="authEmail" type="email" placeholder="your@email.com" autocomplete="email" oninput="authInputTyping('wrapEmail')" onblur="authInputBlur('wrapEmail')">
         </div>
+      
+      <div class="auth-field">
+        <label>Phone Number <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+        <div class="phone-wrapper" id="regPhoneWrapper">
+          <button type="button" class="phone-flag-btn" id="regFlagBtn" onclick="togglePhoneDropdown('regPhoneDropdown')">
+            <span class="phone-flag" id="regPhoneFlag">🌍</span>
+            <span class="phone-arrow">▾</span>
+          </button>
+          <div class="phone-dropdown" id="regPhoneDropdown"></div>
+          <div class="phone-input-wrap">
+            <span class="phone-input-legend">Phone</span>
+            <div class="phone-input-row">
+              <span class="phone-dialcode" id="regDialCode">+1</span>
+              <input class="phone-input-field" id="authPhone" type="tel" placeholder="000 000 0000" inputmode="numeric">
+            </div>
+          </div>
+        </div>
       </div>
+    </div>
       <div class="auth-field">
         <label>Username</label>
         <div class="auth-input-wrap" id="wrapUsername">
           <div class="ain-dark"></div><div class="ain-border"></div><div class="ain-glow"></div>
           <input class="auth-input" id="authUsername" type="text" placeholder="username" autocomplete="username" oninput="authInputTyping('wrapUsername')" onblur="authInputBlur('wrapUsername')">
+        </div>
+      </div>
+      <div class="auth-field">
+        <label>Phone Number <span style="font-size:0.6rem;color:var(--muted)">(optional)</span></label>
+        <div class="phone-wrapper" id="phoneWrapper">
+          <div class="phone-flag-btn" id="phoneFlagBtn" onclick="togglePhoneDropdown()">
+            <span class="phone-flag" id="phoneFlag">🇬🇧</span>
+            <span class="phone-arrow">▼</span>
+          </div>
+          <div class="phone-input-wrap">
+            <span class="phone-input-legend">Phone</span>
+            <div class="phone-input-row">
+              <span class="phone-dialcode" id="phoneDialCode">+44</span>
+              <input class="phone-input-field" id="authPhone" type="tel" placeholder="7700 900000" autocomplete="tel" inputmode="numeric">
+            </div>
+          </div>
+          <div class="phone-dropdown" id="phoneDropdown"></div>
         </div>
       </div>
     </div>
@@ -4895,6 +5414,8 @@
     </div>
     <div class="auth-error" id="authError"></div>
     <button class="auth-btn" id="authSubmitBtn" onclick="submitAuth()">Sign In</button>
+    <p id="authFreeTag" style="display:none;text-align:center;font-family:Space Mono,monospace;font-size:0.62rem;color:var(--success);margin-top:0.35rem;letter-spacing:0.05em">✓ 100% Free!</p>
+    <div id="authFreeNote" style="display:none;text-align:center;font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--accent);margin-top:0.4rem;letter-spacing:0.06em">100% Free!</div>
     <div class="auth-switch">
       <span id="authSwitchText">Don't have an account?</span>
       <a onclick="toggleAuthMode()">
