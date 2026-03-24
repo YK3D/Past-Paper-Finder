@@ -114,8 +114,9 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Username already taken' });
 
     const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || null;
+    const { phone } = req.body || {};
     const created = await db('users', 'POST',
-      { email, username, password_hash: hashPass(password), ip, last_seen: new Date().toISOString() });
+      { email, username, password_hash: hashPass(password), ip, phone: phone || null, last_seen: new Date().toISOString() });
     if (!Array.isArray(created) || !created[0])
       return res.status(500).json({ error: 'Registration failed' });
 
@@ -212,6 +213,30 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Invalid credentials' });
 
     await db(`users?id=eq.${user.id}`, 'PATCH', { password_hash: hashPass(newPassword) });
+    return res.status(200).json({ ok: true });
+  }
+
+  // ── Update phone ──
+  if (action === 'update_phone') {
+    const { token, phone } = req.body || {};
+    if (!token || !phone) return res.status(400).json({ error: 'token and phone required' });
+    const s = await db(`sessions?token=eq.${encodeURIComponent(token)}&select=username,expires_at&limit=1`);
+    if (!Array.isArray(s) || !s[0] || new Date(s[0].expires_at) < new Date())
+      return res.status(401).json({ error: 'Invalid token' });
+    await db(`users?username=eq.${encodeURIComponent(s[0].username)}`, 'PATCH', { phone });
+    // Update cached user so popup doesn't show again
+    const u = await db(`users?username=eq.${encodeURIComponent(s[0].username)}&select=id,username,email,phone&limit=1`);
+    return res.status(200).json({ ok: true, user: Array.isArray(u) && u[0] ? u[0] : null });
+  }
+
+  // ── Update phone ──
+  if (action === 'update_phone') {
+    const { token: tok, phone: newPhone } = req.body;
+    if (!tok || !newPhone) return res.status(400).json({ error: 'Missing fields' });
+    const s = await db(`sessions?token=eq.${encodeURIComponent(tok)}&select=username,expires_at&limit=1`);
+    if (!Array.isArray(s) || !s[0] || new Date(s[0].expires_at) < new Date())
+      return res.status(401).json({ error: 'Invalid token' });
+    await db(`users?username=eq.${encodeURIComponent(s[0].username)}`, 'PATCH', { phone: newPhone });
     return res.status(200).json({ ok: true });
   }
 
