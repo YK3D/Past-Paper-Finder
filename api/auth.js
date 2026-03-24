@@ -142,12 +142,12 @@ export default async function handler(req, res) {
     const isEmail = identifier.includes('@');
     const isPhone = /^[+0-9]/.test(identifier) && identifier.replace(/[^0-9]/g,'').length >= 7;
     if (isEmail) {
-      users = await db(`users?email=eq.${encodeURIComponent(identifier)}&select=id,username,email,password_hash,banned&limit=1`);
+      users = await db(`users?email=eq.${encodeURIComponent(identifier)}&select=id,username,email,phone,password_hash,banned&limit=1`);
     } else if (isPhone) {
       // Phone stored as +countrycodenumber — match exactly or as suffix
       users = await db(`users?phone=eq.${encodeURIComponent(identifier)}&select=id,username,email,phone,password_hash,banned&limit=1`);
     } else {
-      users = await db(`users?username=eq.${encodeURIComponent(identifier)}&select=id,username,email,password_hash,banned&limit=1`);
+      users = await db(`users?username=eq.${encodeURIComponent(identifier)}&select=id,username,email,phone,password_hash,banned&limit=1`);
     }
     const user = Array.isArray(users) && users[0];
     if (!user || user.password_hash !== hashPass(password))
