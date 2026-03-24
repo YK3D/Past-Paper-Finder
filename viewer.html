@@ -3531,9 +3531,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       <div class="file-chip-bar-inline" id="fileChipBar"></div>
       <div class="topbar-right">
         <button class="topbar-action" onclick="sharePaper()">&#8679; Share</button>
-
         <button class="topbar-action topbar-dl-mobile" onclick="downloadPaper()">&#8659; Download</button>
-
       </div>
     </div>
     <div id="landscapeHint" style="display:none;font-family:Space Mono,monospace;font-size:0.6rem;color:#666;padding:0.3rem 0.8rem;flex-shrink:0">
@@ -3545,24 +3543,10 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     </div>
 
     <div class="audio-area" id="audioArea">
-      <div class="audio-filename" id="audioFilename"></div>
-      <div class="a-progress-wrap">
-        <span class="a-time" id="aTime">0:00 / 0:00</span>
-        <input type="range" class="a-progress" id="aProgress" value="0" min="0" step="0.1">
-      </div>
-      <div class="audio-controls">
-        <button class="a-btn" onclick="aSeek(-10)">&#8592;10</button>
-        <button class="a-btn a-play" id="aPlayBtn" onclick="toggleAudio()">&#9654;</button>
-        <button class="a-btn" onclick="aSeek(10)">10&#8594;</button>
-        <select class="a-speed" id="aSpeedSel" onchange="document.getElementById('audioEl').playbackRate=parseFloat(this.value)">
-          <option value="0.75">0.75x</option>
-          <option value="1" selected>1x</option>
-          <option value="1.25">1.25x</option>
-          <option value="1.5">1.5x</option>
-          <option value="2">2x</option>
-        </select>
-      </div>
-      <audio id="audioEl" onended="document.getElementById('aPlayBtn').innerHTML='&#9654;'" ontimeupdate="updateATime()" onloadedmetadata="updateATime()"></audio>
+      <p class="audio-filename" id="audioFilename" style="font-family:'Space Mono',monospace;font-size:0.8rem;color:#ccc;margin-bottom:0.8rem"></p>
+      <audio id="audioEl" controls autoplay style="width:100%;max-width:500px;border-radius:8px;background:var(--surface)">
+        <source id="audioSrc" src="" type="audio/mpeg">
+      </audio>
     </div>
   </div>
 
@@ -3801,8 +3785,9 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       document.getElementById('pdfCanvasArea').style.display = 'none';
       document.getElementById('thumbSidebar').style.display = 'none';
       document.getElementById('audioFilename').textContent = url.split('/').pop();
-      const a = document.getElementById('audioEl');
-      a.src = '/api/download-pdf?url=' + encodeURIComponent(url);
+      const src = document.getElementById('audioSrc');
+      const a   = document.getElementById('audioEl');
+      src.src = '/api/download-pdf?url=' + encodeURIComponent(url);
       a.load();
     } else {
       document.getElementById('audioArea').classList.remove('show');
