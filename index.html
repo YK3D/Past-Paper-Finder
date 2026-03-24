@@ -5091,9 +5091,10 @@
   }
   function checkPhonePopup() {
     try {
-      if (localStorage.getItem('pp_phone_skipped')) return;
-      const u = JSON.parse(localStorage.getItem('pp_user')||'null');
-      if (u && !u.phone) setTimeout(showPhonePopup, 2000);
+      // Use the live _currentUser object (fresh from server) not the stale localStorage cache
+      if (!_currentUser) return;
+      if (_currentUser.phone) return; // already has a phone number — never show popup
+      setTimeout(showPhonePopup, 2000);
     } catch {}
   }
 
