@@ -3783,18 +3783,12 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       document.getElementById('thumbSidebar').style.display = 'none';
       document.getElementById('audioFilename').textContent = url.split('/').pop();
       const audioArea = document.getElementById('audioArea');
-      // Remove previous audio element if present
-      const old = audioArea.querySelector('audio');
-      if (old) old.remove();
-      // Build exactly as specified
-      const audioEl = document.createElement('audio');
-      audioEl.controls = true;
-      audioEl.style.cssText = 'width:100%;max-width:500px;';
-      const sourceEl = document.createElement('source');
-      sourceEl.src = '/api/download-pdf?url=' + encodeURIComponent(url);
-      sourceEl.type = 'audio/mpeg';
-      audioEl.appendChild(sourceEl);
-      audioArea.appendChild(audioEl);
+      const prev = audioArea.querySelector('audio');
+      if (prev) prev.remove();
+      // Remove previous audio if present
+      const _oldAudio = audioArea.querySelector('audio');
+      if (_oldAudio) _oldAudio.remove();
+      audioArea.innerHTML += '<audio controls autoplay muted loop><source src="/api/download-pdf?url=' + encodeURIComponent(url) + '">This browser does not support HTML5 audio</audio>';
     } else {
       document.getElementById('audioArea').classList.remove('show');
       document.getElementById('pdfCanvasArea').style.display = '';
