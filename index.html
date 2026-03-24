@@ -4374,24 +4374,19 @@
   })();
 
   function smoothScrollToBottom() {
-    const start = window.scrollY;
-    // Scroll to the version tag, not the very bottom (blank lines are below it)
-    const versionEl = document.querySelector('.version-tag');
-    const end = versionEl
-      ? window.scrollY + versionEl.getBoundingClientRect().bottom - window.innerHeight + 16
-      : document.body.scrollHeight;
-    const dist = end - start;
+    const rb = document.getElementById('resultBox');
+    if (!rb) return;
+    const rbRect  = rb.getBoundingClientRect();
+    const centreY = window.scrollY + rbRect.top + rbRect.height / 2 - window.innerHeight / 2;
+    const start   = window.scrollY;
+    const dist    = centreY - start;
     if (Math.abs(dist) < 2) return;
-    // Constant speed: ~600px per second, min 120ms, max 600ms
-    const duration = Math.min(Math.max(Math.abs(dist) / 0.6, 120), 600);
+    const duration  = Math.min(Math.max(Math.abs(dist) / 0.6, 120), 600);
     const startTime = performance.now();
-    function easeInOutSine(t) {
-      return -(Math.cos(Math.PI * t) - 1) / 2;
-    }
+    function ease(t) { return -(Math.cos(Math.PI * t) - 1) / 2; }
     function step(now) {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      window.scrollTo(0, start + dist * easeInOutSine(progress));
+      const progress = Math.min((now - startTime) / duration, 1);
+      window.scrollTo(0, start + dist * ease(progress));
       if (progress < 1) requestAnimationFrame(step);
     }
     requestAnimationFrame(step);
@@ -5164,13 +5159,23 @@
             <span id="popupFlag">🇬🇧</span><span class="phone-caret">▾</span>
           </div>
           <span class="phone-dial" id="popupDial">+44</span>
-          <input class="phone-num-input" id="popupPhone" type="tel" placeholder="7700 900000" inputmode="numeric" autocomplete="tel">
+          <input class="phone-num-input" id="popupPhone" type="tel" placeholder="7700 900000" inputmode="numeric" autocomplete="tel" oninput="this.value=this.value.replace(/[^0-9 ]/g,'')">
         </div>
         <div class="phone-dd" id="popupDD"></div>
       </div>
     </div>
     <button class="auth-btn" onclick="submitPhonePopup()" style="margin-top:0.8rem">Save</button>
   </div>
+</div>
+
+<div class="landing-overlay" id="landingOverlay">
+  <div class="landing-logo">Paper<span>Finder</span></div>
+  <p class="landing-sub">Find and open CAIE &amp; AQA past papers instantly.<br>Sign in to get full access.</p>
+  <div class="landing-btns">
+    <button class="landing-btn landing-btn-primary" onclick="closeLanding();openAuth('login')">Sign In</button>
+    <button class="landing-btn landing-btn-secondary" onclick="closeLanding();setAuthMode('register');openAuth('register')">Register</button>
+  </div>
+  <button class="landing-skip" onclick="closeLandingAsGuest()">Continue as guest &mdash; 1 free paper</button>
 </div>
 
 <!-- Auth Modal -->
@@ -5202,7 +5207,7 @@
               <span id="phoneFlag">🇬🇧</span><span class="phone-caret">▾</span>
             </div>
             <span class="phone-dial" id="phoneDial">+44</span>
-            <input class="phone-num-input" id="authPhone" type="tel" placeholder="7700 900000" inputmode="numeric" autocomplete="tel">
+            <input class="phone-num-input" id="authPhone" type="tel" placeholder="7700 900000" inputmode="numeric" autocomplete="tel" oninput="this.value=this.value.replace(/[^0-9 ]/g,'')">
           </div>
           <div class="phone-dd" id="phoneDD"></div>
         </div>
@@ -5213,7 +5218,7 @@
         <label>Email or Username</label>
         <div class="auth-input-wrap" id="wrapIdent">
           <div class="ain-dark"></div><div class="ain-border"></div><div class="ain-glow"></div>
-          <input class="auth-input" id="authIdentifier" type="text" placeholder="email or username" autocomplete="username" oninput="authInputTyping('wrapIdent')" onblur="authInputBlur('wrapIdent')">
+          <input class="auth-input" id="authIdentifier" type="text" placeholder="email, username or phone" autocomplete="username" oninput="authInputTyping('wrapIdent')" onblur="authInputBlur('wrapIdent')">
         </div>
       </div>
     </div>
