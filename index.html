@@ -4718,17 +4718,17 @@
   function openAuth(mode) {
     _authMode = mode || 'login';
     document.getElementById('authError').textContent = '';
-    const _fn = document.getElementById('authFreeNote'); if (_fn) _fn.style.display = isReg ? 'block' : 'none';
+    const _fn = document.getElementById('authFreeNote'); if (_fn) _fn.style.display = (mode === 'register') ? 'block' : 'none';
     document.getElementById('authPassword').value = '';
     setAuthMode(_authMode);
-    document.getElementById('authModalBg').classList.add('show');
+    const _mb = document.getElementById('authModalBg'); if (_mb) _mb.classList.add('show');
     setTimeout(() => {
       const f = _authMode === 'login' ? document.getElementById('authIdentifier') : document.getElementById('authEmail');
       if (f) f.focus();
     }, 100);
   }
 
-  function closeAuth() { document.getElementById('authModalBg').classList.remove('show'); }
+  function closeAuth() { const _mb = document.getElementById('authModalBg'); if (_mb) _mb.classList.remove('show'); }
 
   function setAuthMode(mode) {
     _authMode = mode;
@@ -4991,110 +4991,6 @@
     {f:'🇾🇪',n:'Yemen',d:'+967'},{f:'🇿🇲',n:'Zambia',d:'+260'},{f:'🇿🇼',n:'Zimbabwe',d:'+263'}
   ];
 
-  let _phoneSelections = { reg: { d:'+1', f:'🌍' }, popup: { d:'+1', f:'🌍' } };
-
-  function buildPhoneDropdown(dropdownId, prefix) {
-    const dd = document.getElementById(dropdownId);
-    if (!dd || dd.children.length) return;
-    dd.innerHTML = _COUNTRIES.map(c =>
-      `<div class="phone-country" onclick="selectCountry('${prefix}','${c.d}','${c.f}','${dropdownId}')">`+
-      `<span>${c.f}</span><span style="flex:1">${c.n}</span><span style="color:var(--muted);font-size:0.65rem">${c.d}</span></div>`
-    ).join('');
-  }
-
-  function togglePhoneDropdown(dropdownId) {
-    const prefix = dropdownId.includes('popup') ? 'popup' : 'reg';
-    buildPhoneDropdown(dropdownId, prefix);
-    const dd = document.getElementById(dropdownId);
-    const isOpen = dd.classList.contains('open');
-    // Close all dropdowns first
-    document.querySelectorAll('.phone-dropdown').forEach(d => d.classList.remove('open'));
-    if (!isOpen) {
-      dd.classList.add('open');
-      // Close on outside click
-      setTimeout(() => document.addEventListener('click', function h(e) {
-        if (!dd.contains(e.target) && !e.target.closest('.phone-flag-btn')) {
-          dd.classList.remove('open');
-          document.removeEventListener('click', h);
-        }
-      }), 10);
-    }
-  }
-
-  function selectCountry(prefix, dialcode, flag, dropdownId) {
-    _phoneSelections[prefix] = { d: dialcode, f: flag };
-    const flagEl = document.getElementById(prefix === 'popup' ? 'popupPhoneFlag' : 'regPhoneFlag');
-    const codeEl = document.getElementById(prefix === 'popup' ? 'popupDialCode' : 'regDialCode');
-    if (flagEl) flagEl.textContent = flag;
-    if (codeEl) codeEl.textContent = dialcode;
-    document.getElementById(dropdownId).classList.remove('open');
-  }
-
-  function getPhoneValue(prefix) {
-    const num = (document.getElementById(prefix === 'popup' ? 'popupPhone' : 'authPhone') || {}).value || '';
-    if (!num.trim()) return '';
-    return _phoneSelections[prefix].d + num.trim().replace(/\s/g,'');
-  }
-
-  // Phone popup for existing users
-  function showPhonePopup() {
-    document.getElementById('phonePopupBg').classList.add('show');
-  }
-  function dismissPhonePopup() {
-    document.getElementById('phonePopupBg').classList.remove('show');
-    try { localStorage.setItem('pp_phone_skipped','1'); } catch {}
-  }
-  async function submitPhonePopup() {
-    const phone = getPhoneValue('popup');
-    if (!phone) { dismissPhonePopup(); return; }
-    try {
-      await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'update_phone', token: _sessionToken, phone })
-      });
-    } catch {}
-    dismissPhonePopup();
-    try { localStorage.setItem('pp_phone_saved','1'); } catch {}
-  }
-
-  // Show popup for logged-in users who have no phone saved
-  function checkPhonePopup() {
-    try {
-      if (!_currentUser) return;
-      if (localStorage.getItem('pp_phone_skipped')) return;
-      if (localStorage.getItem('pp_phone_saved')) return;
-      if (_currentUser.phone) return;
-      setTimeout(showPhonePopup, 2000);
-    } catch {}
-  }
-
-  // ── Landing page (signed-out homepage) ──
-  function showLanding() {
-    document.getElementById('landingOverlay').classList.add('show');
-  }
-  function closeLanding() {
-    document.getElementById('landingOverlay').classList.remove('show');
-    try { sessionStorage.setItem('pp_landing_seen', '1'); } catch {}
-  }
-  function closeLandingAsGuest() {
-    closeLanding();
-    try { sessionStorage.setItem('pp_guest_mode', '1'); } catch {}
-  }
-  // Show landing to new guests only — after splash animation fully completes
-  (function() {
-    try {
-      const hasToken = !!localStorage.getItem('pp_token');
-      const seen     = sessionStorage.getItem('pp_landing_seen');
-      // Splash takes ~2600ms total (1400 wait + 400 fade + 780 fly animation)
-      // Add extra buffer so landing never overlaps splash
-      if (!hasToken && !seen) {
-        setTimeout(function() { if (!_currentUser) showLanding(); }, 3000);
-      }
-    } catch {}
-  })();
-
-  // ── Phone number field ──
   const COUNTRIES = [
     {f:'🇦🇫',n:'Afghanistan',d:'+93'},{f:'🇦🇱',n:'Albania',d:'+355'},{f:'🇩🇿',n:'Algeria',d:'+213'},
     {f:'🇦🇷',n:'Argentina',d:'+54'},{f:'🇦🇲',n:'Armenia',d:'+374'},{f:'🇦🇺',n:'Australia',d:'+61'},
@@ -5118,77 +5014,81 @@
     {f:'🇱🇧',n:'Lebanon',d:'+961'},{f:'🇱🇾',n:'Libya',d:'+218'},{f:'🇱🇮',n:'Liechtenstein',d:'+423'},
     {f:'🇱🇹',n:'Lithuania',d:'+370'},{f:'🇱🇺',n:'Luxembourg',d:'+352'},{f:'🇲🇾',n:'Malaysia',d:'+60'},
     {f:'🇲🇻',n:'Maldives',d:'+960'},{f:'🇲🇹',n:'Malta',d:'+356'},{f:'🇲🇽',n:'Mexico',d:'+52'},
-    {f:'🇲🇩',n:'Moldova',d:'+373'},{f:'🇲🇦',n:'Morocco',d:'+212'},{f:'🇲🇲',n:'Myanmar',d:'+95'},
-    {f:'🇳🇵',n:'Nepal',d:'+977'},{f:'🇳🇱',n:'Netherlands',d:'+31'},{f:'🇳🇿',n:'New Zealand',d:'+64'},
-    {f:'🇳🇬',n:'Nigeria',d:'+234'},{f:'🇳🇴',n:'Norway',d:'+47'},{f:'🇴🇲',n:'Oman',d:'+968'},
-    {f:'🇵🇰',n:'Pakistan',d:'+92'},{f:'🇵🇸',n:'Palestine',d:'+970'},{f:'🇵🇦',n:'Panama',d:'+507'},
-    {f:'🇵🇾',n:'Paraguay',d:'+595'},{f:'🇵🇪',n:'Peru',d:'+51'},{f:'🇵🇭',n:'Philippines',d:'+63'},
-    {f:'🇵🇱',n:'Poland',d:'+48'},{f:'🇵🇹',n:'Portugal',d:'+351'},{f:'🇶🇦',n:'Qatar',d:'+974'},
-    {f:'🇷🇴',n:'Romania',d:'+40'},{f:'🇷🇺',n:'Russia',d:'+7'},{f:'🇸🇦',n:'Saudi Arabia',d:'+966'},
-    {f:'🇷🇸',n:'Serbia',d:'+381'},{f:'🇸🇬',n:'Singapore',d:'+65'},{f:'🇸🇰',n:'Slovakia',d:'+421'},
-    {f:'🇸🇮',n:'Slovenia',d:'+386'},{f:'🇸🇴',n:'Somalia',d:'+252'},{f:'🇿🇦',n:'South Africa',d:'+27'},
-    {f:'🇰🇷',n:'South Korea',d:'+82'},{f:'🇪🇸',n:'Spain',d:'+34'},{f:'🇱🇰',n:'Sri Lanka',d:'+94'},
-    {f:'🇸🇩',n:'Sudan',d:'+249'},{f:'🇸🇪',n:'Sweden',d:'+46'},{f:'🇨🇭',n:'Switzerland',d:'+41'},
-    {f:'🇸🇾',n:'Syria',d:'+963'},{f:'🇹🇼',n:'Taiwan',d:'+886'},{f:'🇹🇿',n:'Tanzania',d:'+255'},
-    {f:'🇹🇭',n:'Thailand',d:'+66'},{f:'🇹🇳',n:'Tunisia',d:'+216'},{f:'🇹🇷',n:'Turkey',d:'+90'},
+    {f:'🇲🇦',n:'Morocco',d:'+212'},{f:'🇲🇲',n:'Myanmar',d:'+95'},{f:'🇳🇵',n:'Nepal',d:'+977'},
+    {f:'🇳🇱',n:'Netherlands',d:'+31'},{f:'🇳🇿',n:'New Zealand',d:'+64'},{f:'🇳🇬',n:'Nigeria',d:'+234'},
+    {f:'🇳🇴',n:'Norway',d:'+47'},{f:'🇴🇲',n:'Oman',d:'+968'},{f:'🇵🇰',n:'Pakistan',d:'+92'},
+    {f:'🇵🇸',n:'Palestine',d:'+970'},{f:'🇵🇦',n:'Panama',d:'+507'},{f:'🇵🇾',n:'Paraguay',d:'+595'},
+    {f:'🇵🇪',n:'Peru',d:'+51'},{f:'🇵🇭',n:'Philippines',d:'+63'},{f:'🇵🇱',n:'Poland',d:'+48'},
+    {f:'🇵🇹',n:'Portugal',d:'+351'},{f:'🇶🇦',n:'Qatar',d:'+974'},{f:'🇷🇴',n:'Romania',d:'+40'},
+    {f:'🇷🇺',n:'Russia',d:'+7'},{f:'🇸🇦',n:'Saudi Arabia',d:'+966'},{f:'🇷🇸',n:'Serbia',d:'+381'},
+    {f:'🇸🇬',n:'Singapore',d:'+65'},{f:'🇸🇰',n:'Slovakia',d:'+421'},{f:'🇸🇮',n:'Slovenia',d:'+386'},
+    {f:'🇸🇴',n:'Somalia',d:'+252'},{f:'🇿🇦',n:'South Africa',d:'+27'},{f:'🇰🇷',n:'South Korea',d:'+82'},
+    {f:'🇪🇸',n:'Spain',d:'+34'},{f:'🇱🇰',n:'Sri Lanka',d:'+94'},{f:'🇸🇩',n:'Sudan',d:'+249'},
+    {f:'🇸🇪',n:'Sweden',d:'+46'},{f:'🇨🇭',n:'Switzerland',d:'+41'},{f:'🇸🇾',n:'Syria',d:'+963'},
+    {f:'🇹🇼',n:'Taiwan',d:'+886'},{f:'🇹🇿',n:'Tanzania',d:'+255'},{f:'🇹🇭',n:'Thailand',d:'+66'},
+    {f:'🇹🇳',n:'Tunisia',d:'+216'},{f:'🇹🇷',n:'Turkey',d:'+90'},{f:'🇹🇲',n:'Turkmenistan',d:'+993'},
     {f:'🇺🇬',n:'Uganda',d:'+256'},{f:'🇺🇦',n:'Ukraine',d:'+380'},{f:'🇦🇪',n:'UAE',d:'+971'},
     {f:'🇬🇧',n:'United Kingdom',d:'+44'},{f:'🇺🇸',n:'United States',d:'+1'},
     {f:'🇺🇾',n:'Uruguay',d:'+598'},{f:'🇺🇿',n:'Uzbekistan',d:'+998'},{f:'🇻🇪',n:'Venezuela',d:'+58'},
-    {f:'🇻🇳',n:'Vietnam',d:'+84'},{f:'🇾🇪',n:'Yemen',d:'+967'},{f:'🇿🇦',n:'Zambia',d:'+260'},
+    {f:'🇻🇳',n:'Vietnam',d:'+84'},{f:'🇾🇪',n:'Yemen',d:'+967'},{f:'🇿🇲',n:'Zambia',d:'+260'},
     {f:'🇿🇼',n:'Zimbabwe',d:'+263'},
   ];
-
-  // Build dropdown and wire up flag button
-  function initPhoneField(flagBtnId, ddId, flagId, dialId) {
-    const dd = document.getElementById(ddId);
-    if (!dd) return;
-    dd.innerHTML = COUNTRIES.map(c =>
-      `<div class="phone-dd-item" onclick="pickCountry('${flagId}','${dialId}','${ddId}','${c.f}','${c.d}')">
-        <span>${c.f}</span><span>${c.n}</span><span class="pd-dial">${c.d}</span>
-      </div>`
-    ).join('');
-    // Close on outside click
-    document.addEventListener('click', function(e) {
-      const btn = document.getElementById(flagBtnId);
-      if (btn && !btn.contains(e.target) && !dd.contains(e.target)) dd.classList.remove('open');
-    });
-  }
 
   function togglePhoneDD(ddId, btnId) {
     const dd = document.getElementById(ddId);
     if (!dd) return;
-    if (!dd._built) { initPhoneField(btnId, ddId, ddId.replace('DD','Flag'), ddId.replace('DD','Dial')); dd._built = true; }
+    if (!dd._built) {
+      dd.innerHTML = COUNTRIES.map(c =>
+        `<div class="phone-dd-item" onclick="pickCountry('${ddId}','${c.f}','${c.d}')">${c.f}&nbsp;${c.n}<span class="pd-dial">${c.d}</span></div>`
+      ).join('');
+      dd._built = true;
+      document.addEventListener('click', function h(e) {
+        const btn = document.getElementById(btnId);
+        if (btn && !btn.contains(e.target) && !dd.contains(e.target)) dd.classList.remove('open');
+      });
+    }
     dd.classList.toggle('open');
   }
 
-  function pickCountry(flagId, dialId, ddId, flag, dial) {
-    const f = document.getElementById(flagId); if (f) f.textContent = flag;
-    const d = document.getElementById(dialId); if (d) d.textContent = dial;
-    const dd = document.getElementById(ddId); if (dd) dd.classList.remove('open');
+  function pickCountry(ddId, flag, dial) {
+    const dd = document.getElementById(ddId);
+    if (dd) dd.classList.remove('open');
+    // Update flag and dial for the correct field
+    if (ddId === 'phoneDD') {
+      const f = document.getElementById('phoneFlag'); if (f) f.textContent = flag;
+      const d = document.getElementById('phoneDial'); if (d) d.textContent = dial;
+    } else if (ddId === 'popupDD') {
+      const f = document.getElementById('popupFlag'); if (f) f.textContent = flag;
+      const d = document.getElementById('popupDial'); if (d) d.textContent = dial;
+    }
   }
 
   function getFullPhone(dialId, inputId) {
     const dial  = (document.getElementById(dialId)  || {}).textContent || '';
     const num   = (document.getElementById(inputId) || {}).value || '';
     const clean = num.trim().replace(/\s+/g,'');
-    return clean ? dial + clean : null;
+    return clean ? dial.trim() + clean : null;
   }
 
   // ── Phone popup ──
-  function showPhonePopup() { const el = document.getElementById('phonePopupBg'); if (el) el.classList.add('show'); }
+  function showPhonePopup() {
+    const el = document.getElementById('phonePopupBg');
+    if (el) el.classList.add('show');
+  }
   function dismissPhonePopup() {
-    const el = document.getElementById('phonePopupBg'); if (el) el.classList.remove('show');
+    const el = document.getElementById('phonePopupBg');
+    if (el) el.classList.remove('show');
     try { localStorage.setItem('pp_phone_skipped','1'); } catch {}
   }
   async function submitPhonePopup() {
-    const phone = getFullPhone('popupDial', 'popupPhone');
+    const phone = getFullPhone('popupDial','popupPhone');
     if (phone && _sessionToken) {
       try {
         await fetch('/api/auth', {
-          method: 'POST', headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({ action: 'update_phone', token: _sessionToken, phone })
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ action:'update_phone', token:_sessionToken, phone })
         });
-        const u = JSON.parse(localStorage.getItem('pp_user') || 'null');
+        const u = JSON.parse(localStorage.getItem('pp_user')||'null');
         if (u) { u.phone = phone; localStorage.setItem('pp_user', JSON.stringify(u)); }
       } catch {}
     }
@@ -5197,16 +5097,35 @@
   function checkPhonePopup() {
     try {
       if (localStorage.getItem('pp_phone_skipped')) return;
-      const u = JSON.parse(localStorage.getItem('pp_user') || 'null');
+      const u = JSON.parse(localStorage.getItem('pp_user')||'null');
       if (u && !u.phone) setTimeout(showPhonePopup, 2000);
     } catch {}
   }
 
-  // Initialise phone fields on DOMContentLoaded
-  document.addEventListener('DOMContentLoaded', () => {
-    initPhoneField('phoneFlagBtn','phoneDD','phoneFlag','phoneDial');
-    initPhoneField('popupFlagBtn','popupDD','popupFlag','popupDial');
-  });
+  // ── Landing page (signed-out homepage) ──  // ── Landing page (signed-out homepage) ──
+  function showLanding() {
+    const _lo = document.getElementById('landingOverlay'); if (_lo) _lo.classList.add('show');
+  }
+  function closeLanding() {
+    const _lo2 = document.getElementById('landingOverlay'); if (_lo2) _lo2.classList.remove('show');
+    try { sessionStorage.setItem('pp_landing_seen', '1'); } catch {}
+  }
+  function closeLandingAsGuest() {
+    closeLanding();
+    try { sessionStorage.setItem('pp_guest_mode', '1'); } catch {}
+  }
+  // Show landing to new guests only — after splash animation fully completes
+  (function() {
+    try {
+      const hasToken = !!localStorage.getItem('pp_token');
+      const seen     = sessionStorage.getItem('pp_landing_seen');
+      // Splash takes ~2600ms total (1400 wait + 400 fade + 780 fly animation)
+      // Add extra buffer so landing never overlaps splash
+      if (!hasToken && !seen) {
+        setTimeout(function() { if (!_currentUser) showLanding(); }, 3000);
+      }
+    } catch {}
+  })();
 
   // ── Fetch site_config (maintenance message + version) on load ──
   (async function fetchSiteConfig() {
