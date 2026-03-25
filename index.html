@@ -4789,6 +4789,7 @@
       }
       _currentUser = d.user; _sessionToken = d.token;
       try { localStorage.setItem('pp_token', d.token); localStorage.setItem('pp_user', JSON.stringify(d.user)); } catch {}
+      console.log('[DEBUG] full server response:', JSON.stringify(d));
       updateAuthUI(); syncFavsFromDB(); closeAuth(); checkPhonePopup();
     } catch(e) { err.textContent = 'Connection error'; }
     btn.disabled = false;
