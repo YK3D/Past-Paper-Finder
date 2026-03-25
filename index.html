@@ -1810,7 +1810,7 @@
   <div style="font-size:2rem">&#128683;</div>
   <div>Your access to PaperFinder has been restricted.</div>
   <div id="banReason" style="font-weight:400;font-size:0.75rem;max-width:480px;line-height:1.6;opacity:0.9"></div>
-  <div style="font-size:0.65rem;opacity:0.7;margin-top:0.4rem">Contact <a href="mailto:youssef.masoud@outlook.com" style="color:var(--accent);text-decoration:none">youssef.masoud@outlook.com</a> to appeal</div>
+  <div style="font-size:0.65rem;opacity:0.7;margin-top:0.4rem">Contact <a href="/cdn-cgi/l/email-protection#9ae3f5efe9e9fffcb4f7fbe9f5effedaf5efeef6f5f5f1b4f9f5f7" style="color:var(--accent);text-decoration:none"><span class="__cf_email__" data-cfemail="b3cadcc6c0c0d6d59dded2c0dcc6d7f3dcc6c7dfdcdcd89dd0dcde">[email&#160;protected]</span></a> to appeal</div>
 </div>
 <div id="maintenanceBanner" style="display:none;padding:0.4rem 1rem;text-align:center;font-family:Space Mono,monospace;font-size:0.75rem;font-weight:600;z-index:9999;width:100%;box-sizing:border-box"></div>
 
@@ -1980,7 +1980,7 @@
       <div class="contact-section">
         <p class="contact-label">Contact</p>
         <p class="contact-name">Youssef Karim</p>
-        <a href="mailto:youssef.masoud@outlook.com" style="color:var(--accent);text-decoration:none">youssef.masoud@outlook.com</a>
+        <a href="/cdn-cgi/l/email-protection#433a2c36303026256d2e22302c3627032c36372f2c2c286d202c2e" style="color:var(--accent);text-decoration:none"><span class="__cf_email__" data-cfemail="50293f25232335367e3d31233f2534103f25243c3f3f3b7e333f3d">[email&#160;protected]</span></a>
       </div>
 
       <div class="rating-section">
@@ -2320,7 +2320,7 @@
 
 </div><!-- /#view-wrapper -->
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   // Always start at top
   if (history.scrollRestoration) history.scrollRestoration = 'manual';
   window.scrollTo(0, 0);
@@ -4789,7 +4789,6 @@
       }
       _currentUser = d.user; _sessionToken = d.token;
       try { localStorage.setItem('pp_token', d.token); localStorage.setItem('pp_user', JSON.stringify(d.user)); } catch {}
-      console.log('[DEBUG] full server response:', JSON.stringify(d));
       updateAuthUI(); syncFavsFromDB(); closeAuth(); checkPhonePopup();
     } catch(e) { err.textContent = 'Connection error'; }
     btn.disabled = false;
@@ -5090,11 +5089,17 @@
     }
     dismissPhonePopup();
   }
-  function checkPhonePopup() {
+  async function checkPhonePopup() {
     try {
-      // Use the live _currentUser object (fresh from server) not the stale localStorage cache
-      if (!_currentUser) return;
-      if (_currentUser.phone) return; // already has a phone number — never show popup
+      if (!_currentUser || !_sessionToken) return;
+      const r = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'verify', token: _sessionToken })
+      });
+      const d = await r.json();
+      console.log('[PHONE] verify response:', JSON.stringify(d.user));
+      if (d.user && d.user.phone) return;
       setTimeout(showPhonePopup, 2000);
     } catch {}
   }
@@ -5263,14 +5268,4 @@
       <button class="auth-btn" onclick="submitChangePassword()" style="margin-top:0.4rem">Update Password</button>
     </div>
     <div style="font-family:Space Mono,monospace;font-size:0.6rem;color:var(--muted);text-align:center;margin-top:0.7rem;line-height:1.5">
-      Contact <a href="mailto:youssef.masoud@outlook.com" style="color:var(--accent);text-decoration:none">youssef.masoud@outlook.com</a> to change credentials
-    </div>
-  </div>
-</div>
-
-
-<!-- Status/maintenance bar from site_config -->
-<div id="statusBar" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#1a1a1a;border-top:1px solid var(--border);padding:0.4rem 1rem;font-family:Space Mono,monospace;font-size:0.65rem;color:var(--muted);text-align:center;z-index:999"></div>
-
-</body>
-</html>
+      Contact <a href="/cdn-cgi/l/email-protection#e29b8d9791918784cc8f83918d9786a28d97968e8d8d89cc818d8f" st
