@@ -1,65 +1,65 @@
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
 
-const HEADERS = {
+const H = {
   'apikey': SUPABASE_KEY,
   'Authorization': `Bearer ${SUPABASE_KEY}`,
   'Content-Type': 'application/json',
 };
 
 async function dbGet(path) {
-  const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { headers: HEADERS });
-  const text = await r.text();
-  try { return JSON.parse(text); } catch { return []; }
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { headers: H });
+  const t = await r.text();
+  try { return JSON.parse(t); } catch { return []; }
 }
 
-async function dbPost(path, body) {
+async function dbPost(path, body, prefer = 'return=minimal') {
   const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     method: 'POST',
-    headers: { ...HEADERS, 'Prefer': 'return=minimal' },
+    headers: { ...H, 'Prefer': prefer },
     body: JSON.stringify(body)
   });
-  if (!r.ok) {
-    const err = await r.text();
-    console.error(`[DB POST ${path}] ${r.status}: ${err}`);
-    return { ok: false, error: err };
-  }
-  return { ok: true };
+  const t = await r.text();
+  if (!r.ok) console.error(`[POST ${path}] ${r.status}: ${t}`);
+  return { ok: r.ok, status: r.status, body: t };
 }
 
 async function dbPatch(path, body) {
   const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     method: 'PATCH',
-    headers: { ...HEADERS, 'Prefer': 'return=minimal' },
+    headers: { ...H, 'Prefer': 'return=minimal' },
     body: JSON.stringify(body)
   });
-  if (!r.ok) {
-    const err = await r.text();
-    console.error(`[DB PATCH ${path}] ${r.status}: ${err}`);
-  }
+  if (!r.ok) console.error(`[PATCH ${path}] ${r.status}: ${await r.text()}`);
   return r.ok;
 }
 
 async function dbDelete(path) {
   const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    method: 'DELETE',
-    headers: { ...HEADERS, 'Prefer': 'return=minimal' }
+    method: 'DELETE', headers: { ...H, 'Prefer': 'return=minimal' }
   });
   return r.ok;
+}
+
+// Execute raw SQL via Supabase RPC (for upsert with increment)
+async function dbRpc(fn, params) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
+    method: 'POST',
+    headers: H,
+    body: JSON.stringify(params)
+  });
+  const t = await r.text();
+  if (!r.ok) console.error(`[RPC ${fn}] ${r.status}: ${t}`);
+  return { ok: r.ok, body: t };
 }
 
 async function getUsernameFromToken(token) {
   if (!token) return null;
   try {
-    const s = await dbGet(`sessions?token=eq.${encodeURIComponent(token)}&select=username,user_id,expires_at&limit=1`);
+    const s = await dbGet(`sessions?token=eq.${encodeURIComponent(token)}&select=username,expires_at&limit=1`);
     if (!Array.isArray(s) || !s[0]) return null;
     if (new Date(s[0].expires_at) < new Date()) return null;
-    if (s[0].username) return s[0].username;
-    if (s[0].user_id) {
-      const u = await dbGet(`users?id=eq.${s[0].user_id}&select=username&limit=1`);
-      return Array.isArray(u) && u[0] ? u[0].username : null;
-    }
-    return null;
+    return s[0].username || null;
   } catch { return null; }
 }
 
@@ -73,7 +73,7 @@ export default async function handler(req, res) {
   const body = req.body || {};
   const { action, periodStart } = body;
 
-  // ── Site config ──
+  // ── Site config (public) ──
   if (action === 'site_config') {
     const rows = await dbGet('site_config?select=key,value');
     const cfg = {};
@@ -81,21 +81,13 @@ export default async function handler(req, res) {
     return res.status(200).json(cfg);
   }
 
-  // ── Leaderboard — papers viewed ──
+  // ── Leaderboard papers (public) — direct count column ──
   if (action === 'leaderboard_papers') {
-    const rows = await dbGet('paper_views?select=username&limit=100000');
-    if (!Array.isArray(rows)) return res.status(200).json([]);
-    const counts = {};
-    for (const r of rows) {
-      if (r.username) counts[r.username] = (counts[r.username] || 0) + 1;
-    }
-    return res.status(200).json(
-      Object.entries(counts).map(([username, count]) => ({ username, count }))
-        .sort((a, b) => b.count - a.count).slice(0, 100)
-    );
+    const rows = await dbGet('paper_views?select=username,count&order=count.desc&limit=100');
+    return res.status(200).json(Array.isArray(rows) ? rows : []);
   }
 
-  // ── Leaderboard — time on site ──
+  // ── Leaderboard time (public) ──
   if (action === 'leaderboard_time') {
     const rows = await dbGet('time_sessions?select=username,seconds,date&limit=200000');
     if (!Array.isArray(rows)) return res.status(200).json([]);
@@ -106,21 +98,33 @@ export default async function handler(req, res) {
       totals[r.username] = (totals[r.username] || 0) + Math.round(Number(r.seconds) || 0);
     }
     return res.status(200).json(
-      Object.entries(totals).map(([username, seconds]) => ({ username, seconds }))
-        .sort((a, b) => b.seconds - a.seconds).slice(0, 100)
+      Object.entries(totals)
+        .map(([username, seconds]) => ({ username, seconds }))
+        .sort((a, b) => b.seconds - a.seconds)
+        .slice(0, 100)
     );
   }
 
   // ══ AUTHENTICATED ══
   const username = await getUsernameFromToken(token);
-  if (!username) return res.status(401).json({ error: 'Not authenticated' });
+  if (!username) {
+    console.error(`[user-data] Auth failed for token: ${token ? token.slice(0,8) : 'none'}`);
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
 
-  // ── Paper view ──
+  // ── Paper view — increment user's count (upsert) ──
   if (action === 'view_paper') {
-    const { url } = body;
-    if (!url) return res.status(400).json({ error: 'No URL' });
-    const result = await dbPost('paper_views', { username, paper_url: url });
-    return res.status(200).json(result.ok ? { ok: true } : { ok: false, error: result.error });
+    // Check if row exists
+    const existing = await dbGet(`paper_views?username=eq.${encodeURIComponent(username)}&select=id,count&limit=1`);
+    if (Array.isArray(existing) && existing[0]) {
+      await dbPatch(
+        `paper_views?username=eq.${encodeURIComponent(username)}`,
+        { count: (existing[0].count || 0) + 1, updated_at: new Date().toISOString() }
+      );
+    } else {
+      await dbPost('paper_views', { username, count: 1 });
+    }
+    return res.status(200).json({ ok: true });
   }
 
   // ── Time tracking ──
@@ -132,8 +136,8 @@ export default async function handler(req, res) {
       `time_sessions?username=eq.${encodeURIComponent(username)}&date=eq.${today}&select=id,seconds&limit=1`
     );
     if (Array.isArray(existing) && existing[0]) {
-      const newSecs = Math.round(Number(existing[0].seconds) || 0) + secs;
-      await dbPatch(`time_sessions?id=eq.${existing[0].id}`, { seconds: newSecs });
+      await dbPatch(`time_sessions?id=eq.${existing[0].id}`,
+        { seconds: Math.round(Number(existing[0].seconds) || 0) + secs });
     } else {
       await dbPost('time_sessions', { username, seconds: secs, date: today });
     }
@@ -143,11 +147,11 @@ export default async function handler(req, res) {
   // ── My stats ──
   if (action === 'my_stats') {
     const [views, time] = await Promise.all([
-      dbGet(`paper_views?username=eq.${encodeURIComponent(username)}&select=id`),
+      dbGet(`paper_views?username=eq.${encodeURIComponent(username)}&select=count&limit=1`),
       dbGet(`time_sessions?username=eq.${encodeURIComponent(username)}&select=seconds`)
     ]);
     return res.status(200).json({
-      views:   Array.isArray(views) ? views.length : 0,
+      views:   Array.isArray(views) && views[0] ? (views[0].count || 0) : 0,
       seconds: Array.isArray(time) ? time.reduce((s, r) => s + Math.round(Number(r.seconds) || 0), 0) : 0
     });
   }
@@ -194,14 +198,6 @@ export default async function handler(req, res) {
         { username, paper_url: paperUrl, messages: JSON.stringify(messages) });
     }
     return res.status(200).json({ ok: true });
-  }
-
-  // ── View paper (from viewer) ──
-  if (action === 'view_paper') {
-    const { url } = body;
-    if (!url) return res.status(400).json({ error: 'No URL' });
-    const result = await dbPost('paper_views', { username, paper_url: url });
-    return res.status(200).json({ ok: result.ok });
   }
 
   return res.status(400).json({ error: 'Unknown action' });
