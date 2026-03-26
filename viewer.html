@@ -3630,17 +3630,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         }
       } catch {}
 
-      // Track paper view
-      try {
-        const tok = localStorage.getItem('pp_token');
-        if (tok && pdfUrl) {
-          fetch('/api/user-data', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-session-token': tok },
-            body: JSON.stringify({ action: 'view_paper', token: tok, url: pdfUrl })
-          }).catch(() => {});
-        }
-      } catch {}
+
     } catch (e) {
       msg.textContent = 'Could not load PDF: ' + e.message;
     }
