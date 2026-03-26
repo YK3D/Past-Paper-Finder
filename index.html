@@ -1663,8 +1663,141 @@
   .landing-btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
   .landing-btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
   .landing-btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
-  .landing-skip { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: var(--muted); cursor: pointer; text-decoration: underline; background: none; border: none; }
-  .landing-skip:hover { color: var(--text); }
+  .landing-skip {
+    font-family: 'Space Mono', monospace; font-size: 0.82rem; color: var(--muted);
+    cursor: pointer; background: rgba(255,255,255,0.06); border: 1px solid #444;
+    border-radius: 8px; padding: 0.65rem 1.8rem; text-decoration: none;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .landing-skip:hover { background: rgba(255,255,255,0.1); color: var(--text); border-color: #666; }
+
+
+  .phone-wrapper {
+    display: flex; align-items: stretch;
+    border: 1px solid var(--border); border-radius: 8px;
+    background: var(--bg); overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+  }
+  .phone-wrapper:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,229,255,0.1); }
+  .phone-flag-btn {
+    display: flex; align-items: center; gap: 0.3rem;
+    padding: 0.55rem 0.6rem; background: var(--surface);
+    border: none; border-right: 1px solid var(--border);
+    cursor: pointer; flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .phone-flag-btn:hover { background: rgba(255,255,255,0.05); }
+  .phone-flag { font-size: 1.1rem; line-height: 1; }
+  .phone-arrow { font-size: 0.5rem; color: var(--muted); }
+  .phone-dropdown {
+    display: none; position: absolute;
+    top: calc(100% + 4px); left: 0;
+    width: 260px; max-height: 220px; overflow-y: auto;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; z-index: 200;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .phone-dropdown.open { display: block; }
+  .phone-dropdown::-webkit-scrollbar { width: 4px; }
+  .phone-dropdown::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
+  .phone-country {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.45rem 0.8rem; cursor: pointer;
+    font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--text);
+    transition: background 0.1s;
+  }
+  .phone-country:hover { background: rgba(0,229,255,0.08); }
+  .phone-country.selected { background: rgba(0,229,255,0.12); color: var(--accent); }
+  .phone-input-wrap { display: flex; flex-direction: column; justify-content: center; padding: 0 0.6rem; flex: 1; }
+  .phone-input-legend { font-size: 0.55rem; font-family: 'Space Mono', monospace; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+  .phone-input-row { display: flex; align-items: center; }
+  .phone-dialcode { font-family: 'Space Mono', monospace; font-size: 0.8rem; color: var(--muted); margin-right: 0.3rem; white-space: nowrap; }
+  .phone-input-field {
+    width: 100%; background: transparent; border: none; outline: none;
+    font-family: 'Space Mono', monospace; font-size: 0.85rem; color: var(--text);
+    padding: 0;
+  }
+  /* ── Phone popup for existing users ── */
+  .phone-popup-bg {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7); z-index: 2000;
+    align-items: center; justify-content: center;
+  }
+  .phone-popup-bg.show { display: flex; }
+  .phone-popup {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.8rem; width: 340px; max-width: 95vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .phone-popup-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; margin-bottom: 0.4rem; }
+  .phone-popup-sub { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); margin-bottom: 1.2rem; line-height: 1.6; }
+
+
+  /* ── Phone number field (styled like board selector, bbn glow) ── */
+  .phone-glow-wrap {
+    position: relative; border-radius: 8px; overflow: visible;
+  }
+  .phone-glow-wrap .bbn-dark,
+  .phone-glow-wrap .bbn-border,
+  .phone-glow-wrap .bbn-glow {
+    opacity: 0; transition: opacity 0.3s ease;
+  }
+  .phone-glow-wrap:focus-within .bbn-dark,
+  .phone-glow-wrap:focus-within .bbn-border { opacity: 1; }
+  .phone-glow-wrap:focus-within .bbn-glow { opacity: 0.5; }
+  .phone-inner {
+    position: relative; z-index: 2;
+    display: flex; align-items: center;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+  }
+  .phone-flag-btn {
+    display: flex; align-items: center; gap: 0.25rem;
+    padding: 0 0.6rem; height: 38px; cursor: pointer;
+    background: rgba(255,255,255,0.05); border-right: 1px solid var(--border);
+    flex-shrink: 0; font-size: 1rem;
+  }
+  .phone-flag-btn:hover { background: rgba(255,255,255,0.1); }
+  .phone-caret { font-size: 0.5rem; color: var(--muted); }
+  .phone-dial { font-family: 'Space Mono', monospace; font-size: 0.8rem; color: var(--muted); padding: 0 0.3rem 0 0.5rem; white-space: nowrap; flex-shrink: 0; }
+  .phone-num-input {
+    flex: 1; background: transparent; border: none; outline: none;
+    color: var(--text); font-family: 'Space Mono', monospace;
+    font-size: 0.85rem; padding: 0.6rem 0.6rem 0.6rem 0;
+  }
+  .phone-dd {
+    position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; max-height: 200px; overflow-y: auto;
+    z-index: 300; display: none;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  }
+  .phone-dd.open { display: block; }
+  .phone-dd::-webkit-scrollbar { width: 4px; }
+  .phone-dd::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
+  .phone-dd-item {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.4rem 0.7rem; cursor: pointer;
+    font-family: 'Space Mono', monospace; font-size: 0.68rem; color: var(--text);
+  }
+  .phone-dd-item:hover { background: rgba(0,229,255,0.08); color: var(--accent); }
+  .phone-dd-item .pd-dial { color: var(--muted); margin-left: auto; font-size: 0.62rem; }
+
+  /* ── Phone popup ── */
+  .phone-popup-bg {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75); z-index: 2000;
+    align-items: center; justify-content: center;
+  }
+  .phone-popup-bg.show { display: flex; }
+  .phone-popup {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.8rem; width: 340px; max-width: 95vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .phone-popup-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; margin-bottom: 0.4rem; }
+  .phone-popup-sub { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); margin-bottom: 1.2rem; line-height: 1.6; }
 
 
 </style>
@@ -1677,7 +1810,7 @@
   <div style="font-size:2rem">&#128683;</div>
   <div>Your access to PaperFinder has been restricted.</div>
   <div id="banReason" style="font-weight:400;font-size:0.75rem;max-width:480px;line-height:1.6;opacity:0.9"></div>
-  <div style="font-size:0.65rem;opacity:0.7;margin-top:0.4rem">Contact <a href="mailto:youssef.masoud@outlook.com" style="color:var(--accent);text-decoration:none">youssef.masoud@outlook.com</a> to appeal</div>
+  <div style="font-size:0.65rem;opacity:0.7;margin-top:0.4rem">Contact <a href="mailto:youssef.masoud@outlook.com?subject=Past%20Paper%20Finder%20Contact" onclick="setEmailBody(this)" style="color:var(--accent);text-decoration:none">youssef.masoud@outlook.com</a> to appeal</div>
 </div>
 <div id="maintenanceBanner" style="display:none;padding:0.4rem 1rem;text-align:center;font-family:Space Mono,monospace;font-size:0.75rem;font-weight:600;z-index:9999;width:100%;box-sizing:border-box"></div>
 
@@ -1847,7 +1980,7 @@
       <div class="contact-section">
         <p class="contact-label">Contact</p>
         <p class="contact-name">Youssef Karim</p>
-        <a href="mailto:youssef.masoud@outlook.com" style="color:var(--accent);text-decoration:none">youssef.masoud@outlook.com</a>
+        <a href="mailto:youssef.masoud@outlook.com?subject=Past%20Paper%20Finder%20Contact" onclick="setEmailBody(this)" style="color:var(--accent);text-decoration:none">youssef.masoud@outlook.com</a>
       </div>
 
       <div class="rating-section">
@@ -2973,6 +3106,12 @@
   const _JSONBIN_ID  = '';
   const _JSONBIN_KEY = '';
   const _JSONBIN_URL = _JSONBIN_ID ? `https://api.jsonbin.io/v3/b/${_JSONBIN_ID}` : null;
+
+  function setEmailBody(a) {
+    const user = _currentUser ? _currentUser.username : '';
+    const body = user ? 'Username: ' + user + '%0A%0A' : '';
+    a.href = 'mailto:youssef.masoud@outlook.com?subject=Past%20Paper%20Finder%20Contact&body=' + body;
+  }
 
   async function lbIncrement() {
     // Track in DB if logged in
@@ -4241,24 +4380,19 @@
   })();
 
   function smoothScrollToBottom() {
-    const start = window.scrollY;
-    // Scroll to the version tag, not the very bottom (blank lines are below it)
-    const versionEl = document.querySelector('.version-tag');
-    const end = versionEl
-      ? window.scrollY + versionEl.getBoundingClientRect().bottom - window.innerHeight + 16
-      : document.body.scrollHeight;
-    const dist = end - start;
+    const rb = document.getElementById('resultBox');
+    if (!rb) return;
+    const rbRect  = rb.getBoundingClientRect();
+    const centreY = window.scrollY + rbRect.top + rbRect.height / 2 - window.innerHeight / 2;
+    const start   = window.scrollY;
+    const dist    = centreY - start;
     if (Math.abs(dist) < 2) return;
-    // Constant speed: ~600px per second, min 120ms, max 600ms
-    const duration = Math.min(Math.max(Math.abs(dist) / 0.6, 120), 600);
+    const duration  = Math.min(Math.max(Math.abs(dist) / 0.6, 120), 600);
     const startTime = performance.now();
-    function easeInOutSine(t) {
-      return -(Math.cos(Math.PI * t) - 1) / 2;
-    }
+    function ease(t) { return -(Math.cos(Math.PI * t) - 1) / 2; }
     function step(now) {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      window.scrollTo(0, start + dist * easeInOutSine(progress));
+      const progress = Math.min((now - startTime) / duration, 1);
+      window.scrollTo(0, start + dist * ease(progress));
       if (progress < 1) requestAnimationFrame(step);
     }
     requestAnimationFrame(step);
@@ -4562,7 +4696,7 @@
             _currentUser = null; _sessionToken = null;
             localStorage.removeItem('pp_token'); localStorage.removeItem('pp_user');
             updateAuthUI();
-          } else { _currentUser = d.user; updateAuthUI(); syncFavsFromDB(); }
+          } else { _currentUser = d.user; updateAuthUI(); syncFavsFromDB(); checkPhonePopup(); }
         }).catch(() => {});
       }
     } catch {}
@@ -4585,16 +4719,17 @@
   function openAuth(mode) {
     _authMode = mode || 'login';
     document.getElementById('authError').textContent = '';
+    const _fn = document.getElementById('authFreeNote'); if (_fn) _fn.style.display = (mode === 'register') ? 'block' : 'none';
     document.getElementById('authPassword').value = '';
     setAuthMode(_authMode);
-    document.getElementById('authModalBg').classList.add('show');
+    const _mb = document.getElementById('authModalBg'); if (_mb) _mb.classList.add('show');
     setTimeout(() => {
       const f = _authMode === 'login' ? document.getElementById('authIdentifier') : document.getElementById('authEmail');
       if (f) f.focus();
     }, 100);
   }
 
-  function closeAuth() { document.getElementById('authModalBg').classList.remove('show'); }
+  function closeAuth() { const _mb = document.getElementById('authModalBg'); if (_mb) _mb.classList.remove('show'); }
 
   function setAuthMode(mode) {
     _authMode = mode;
@@ -4603,6 +4738,7 @@
     document.getElementById('authRegisterFields').style.display = isReg ? '' : 'none';
     document.getElementById('authLoginFields').style.display = isReg ? 'none' : '';
     document.getElementById('authSubmitBtn').textContent = isReg ? 'Create Account' : 'Sign In';
+
     document.getElementById('authSwitchText').textContent = isReg ? 'Already have an account?' : "Don't have an account?";
     document.getElementById('authSwitchLink').textContent = isReg ? 'Sign In' : 'Register';
     document.getElementById('authError').textContent = '';
@@ -4643,7 +4779,11 @@
     const password = document.getElementById('authPassword').value;
     let body;
     if (_authMode === 'register') {
-      body = { action: 'register', email: document.getElementById('authEmail').value.trim(), username: document.getElementById('authUsername').value.trim(), password, deviceId: _deviceId };
+      const _ph = getFullPhone('phoneDial','authPhone');
+      if (_ph && _ph.replace(/[^0-9]/g,'').length < 7) {
+        err.textContent = 'Phone number must be at least 7 digits'; btn.disabled = false; return;
+      }
+      body = { action: 'register', email: document.getElementById('authEmail').value.trim(), username: document.getElementById('authUsername').value.trim(), password, deviceId: _deviceId, phone: _ph };
     } else {
       body = { action: 'login', identifier: document.getElementById('authIdentifier').value.trim(), password, deviceId: _deviceId };
     }
@@ -4659,7 +4799,7 @@
       }
       _currentUser = d.user; _sessionToken = d.token;
       try { localStorage.setItem('pp_token', d.token); localStorage.setItem('pp_user', JSON.stringify(d.user)); } catch {}
-      updateAuthUI(); syncFavsFromDB(); closeAuth();
+      updateAuthUI(); syncFavsFromDB(); closeAuth(); checkPhonePopup();
     } catch(e) { err.textContent = 'Connection error'; }
     btn.disabled = false;
   }
@@ -4795,12 +4935,190 @@
     } catch {}
   }, 60000);
 
-  // ── Landing page (signed-out homepage) ──
+  // ── Phone number picker ──
+  const _COUNTRIES = [
+    {f:'🇦🇫',n:'Afghanistan',d:'+93'},{f:'🇦🇱',n:'Albania',d:'+355'},{f:'🇩🇿',n:'Algeria',d:'+213'},
+    {f:'🇦🇩',n:'Andorra',d:'+376'},{f:'🇦🇴',n:'Angola',d:'+244'},{f:'🇦🇷',n:'Argentina',d:'+54'},
+    {f:'🇦🇲',n:'Armenia',d:'+374'},{f:'🇦🇺',n:'Australia',d:'+61'},{f:'🇦🇹',n:'Austria',d:'+43'},
+    {f:'🇦🇿',n:'Azerbaijan',d:'+994'},{f:'🇧🇭',n:'Bahrain',d:'+973'},{f:'🇧🇩',n:'Bangladesh',d:'+880'},
+    {f:'🇧🇾',n:'Belarus',d:'+375'},{f:'🇧🇪',n:'Belgium',d:'+32'},{f:'🇧🇿',n:'Belize',d:'+501'},
+    {f:'🇧🇯',n:'Benin',d:'+229'},{f:'🇧🇹',n:'Bhutan',d:'+975'},{f:'🇧🇴',n:'Bolivia',d:'+591'},
+    {f:'🇧🇦',n:'Bosnia',d:'+387'},{f:'🇧🇼',n:'Botswana',d:'+267'},{f:'🇧🇷',n:'Brazil',d:'+55'},
+    {f:'🇧🇳',n:'Brunei',d:'+673'},{f:'🇧🇬',n:'Bulgaria',d:'+359'},{f:'🇧🇫',n:'Burkina Faso',d:'+226'},
+    {f:'🇧🇮',n:'Burundi',d:'+257'},{f:'🇨🇻',n:'Cabo Verde',d:'+238'},{f:'🇰🇭',n:'Cambodia',d:'+855'},
+    {f:'🇨🇲',n:'Cameroon',d:'+237'},{f:'🇨🇦',n:'Canada',d:'+1'},{f:'🇨🇫',n:'Central African Rep.',d:'+236'},
+    {f:'🇹🇩',n:'Chad',d:'+235'},{f:'🇨🇱',n:'Chile',d:'+56'},{f:'🇨🇳',n:'China',d:'+86'},
+    {f:'🇨🇴',n:'Colombia',d:'+57'},{f:'🇨🇬',n:'Congo',d:'+242'},{f:'🇨🇷',n:'Costa Rica',d:'+506'},
+    {f:'🇭🇷',n:'Croatia',d:'+385'},{f:'🇨🇺',n:'Cuba',d:'+53'},{f:'🇨🇾',n:'Cyprus',d:'+357'},
+    {f:'🇨🇿',n:'Czech Republic',d:'+420'},{f:'🇩🇰',n:'Denmark',d:'+45'},{f:'🇩🇯',n:'Djibouti',d:'+253'},
+    {f:'🇩🇴',n:'Dominican Rep.',d:'+1'},{f:'🇪🇨',n:'Ecuador',d:'+593'},{f:'🇪🇬',n:'Egypt',d:'+20'},
+    {f:'🇸🇻',n:'El Salvador',d:'+503'},{f:'🇬🇶',n:'Equatorial Guinea',d:'+240'},{f:'🇪🇷',n:'Eritrea',d:'+291'},
+    {f:'🇪🇪',n:'Estonia',d:'+372'},{f:'🇸🇿',n:'Eswatini',d:'+268'},{f:'🇪🇹',n:'Ethiopia',d:'+251'},
+    {f:'🇫🇯',n:'Fiji',d:'+679'},{f:'🇫🇮',n:'Finland',d:'+358'},{f:'🇫🇷',n:'France',d:'+33'},
+    {f:'🇬🇦',n:'Gabon',d:'+241'},{f:'🇬🇲',n:'Gambia',d:'+220'},{f:'🇬🇪',n:'Georgia',d:'+995'},
+    {f:'🇩🇪',n:'Germany',d:'+49'},{f:'🇬🇭',n:'Ghana',d:'+233'},{f:'🇬🇷',n:'Greece',d:'+30'},
+    {f:'🇬🇹',n:'Guatemala',d:'+502'},{f:'🇬🇳',n:'Guinea',d:'+224'},{f:'🇬🇾',n:'Guyana',d:'+592'},
+    {f:'🇭🇹',n:'Haiti',d:'+509'},{f:'🇭🇳',n:'Honduras',d:'+504'},{f:'🇭🇰',n:'Hong Kong',d:'+852'},
+    {f:'🇭🇺',n:'Hungary',d:'+36'},{f:'🇮🇸',n:'Iceland',d:'+354'},{f:'🇮🇳',n:'India',d:'+91'},
+    {f:'🇮🇩',n:'Indonesia',d:'+62'},{f:'🇮🇷',n:'Iran',d:'+98'},{f:'🇮🇶',n:'Iraq',d:'+964'},
+    {f:'🇮🇪',n:'Ireland',d:'+353'},{f:'🇮🇱',n:'Israel',d:'+972'},{f:'🇮🇹',n:'Italy',d:'+39'},
+    {f:'🇯🇲',n:'Jamaica',d:'+1'},{f:'🇯🇵',n:'Japan',d:'+81'},{f:'🇯🇴',n:'Jordan',d:'+962'},
+    {f:'🇰🇿',n:'Kazakhstan',d:'+7'},{f:'🇰🇪',n:'Kenya',d:'+254'},{f:'🇰🇼',n:'Kuwait',d:'+965'},
+    {f:'🇰🇬',n:'Kyrgyzstan',d:'+996'},{f:'🇱🇦',n:'Laos',d:'+856'},{f:'🇱🇻',n:'Latvia',d:'+371'},
+    {f:'🇱🇧',n:'Lebanon',d:'+961'},{f:'🇱🇸',n:'Lesotho',d:'+266'},{f:'🇱🇷',n:'Liberia',d:'+231'},
+    {f:'🇱🇾',n:'Libya',d:'+218'},{f:'🇱🇮',n:'Liechtenstein',d:'+423'},{f:'🇱🇹',n:'Lithuania',d:'+370'},
+    {f:'🇱🇺',n:'Luxembourg',d:'+352'},{f:'🇲🇴',n:'Macao',d:'+853'},{f:'🇲🇬',n:'Madagascar',d:'+261'},
+    {f:'🇲🇼',n:'Malawi',d:'+265'},{f:'🇲🇾',n:'Malaysia',d:'+60'},{f:'🇲🇻',n:'Maldives',d:'+960'},
+    {f:'🇲🇱',n:'Mali',d:'+223'},{f:'🇲🇹',n:'Malta',d:'+356'},{f:'🇲🇷',n:'Mauritania',d:'+222'},
+    {f:'🇲🇺',n:'Mauritius',d:'+230'},{f:'🇲🇽',n:'Mexico',d:'+52'},{f:'🇲🇩',n:'Moldova',d:'+373'},
+    {f:'🇲🇨',n:'Monaco',d:'+377'},{f:'🇲🇳',n:'Mongolia',d:'+976'},{f:'🇲🇪',n:'Montenegro',d:'+382'},
+    {f:'🇲🇦',n:'Morocco',d:'+212'},{f:'🇲🇿',n:'Mozambique',d:'+258'},{f:'🇲🇲',n:'Myanmar',d:'+95'},
+    {f:'🇳🇦',n:'Namibia',d:'+264'},{f:'🇳🇵',n:'Nepal',d:'+977'},{f:'🇳🇱',n:'Netherlands',d:'+31'},
+    {f:'🇳🇿',n:'New Zealand',d:'+64'},{f:'🇳🇮',n:'Nicaragua',d:'+505'},{f:'🇳🇪',n:'Niger',d:'+227'},
+    {f:'🇳🇬',n:'Nigeria',d:'+234'},{f:'🇰🇵',n:'North Korea',d:'+850'},{f:'🇲🇰',n:'North Macedonia',d:'+389'},
+    {f:'🇳🇴',n:'Norway',d:'+47'},{f:'🇴🇲',n:'Oman',d:'+968'},{f:'🇵🇰',n:'Pakistan',d:'+92'},
+    {f:'🇵🇸',n:'Palestine',d:'+970'},{f:'🇵🇦',n:'Panama',d:'+507'},{f:'🇵🇬',n:'Papua New Guinea',d:'+675'},
+    {f:'🇵🇾',n:'Paraguay',d:'+595'},{f:'🇵🇪',n:'Peru',d:'+51'},{f:'🇵🇭',n:'Philippines',d:'+63'},
+    {f:'🇵🇱',n:'Poland',d:'+48'},{f:'🇵🇹',n:'Portugal',d:'+351'},{f:'🇶🇦',n:'Qatar',d:'+974'},
+    {f:'🇷🇴',n:'Romania',d:'+40'},{f:'🇷🇺',n:'Russia',d:'+7'},{f:'🇷🇼',n:'Rwanda',d:'+250'},
+    {f:'🇸🇦',n:'Saudi Arabia',d:'+966'},{f:'🇸🇳',n:'Senegal',d:'+221'},{f:'🇷🇸',n:'Serbia',d:'+381'},
+    {f:'🇸🇱',n:'Sierra Leone',d:'+232'},{f:'🇸🇬',n:'Singapore',d:'+65'},{f:'🇸🇰',n:'Slovakia',d:'+421'},
+    {f:'🇸🇮',n:'Slovenia',d:'+386'},{f:'🇸🇴',n:'Somalia',d:'+252'},{f:'🇿🇦',n:'South Africa',d:'+27'},
+    {f:'🇰🇷',n:'South Korea',d:'+82'},{f:'🇸🇸',n:'South Sudan',d:'+211'},{f:'🇪🇸',n:'Spain',d:'+34'},
+    {f:'🇱🇰',n:'Sri Lanka',d:'+94'},{f:'🇸🇩',n:'Sudan',d:'+249'},{f:'🇸🇷',n:'Suriname',d:'+597'},
+    {f:'🇸🇪',n:'Sweden',d:'+46'},{f:'🇨🇭',n:'Switzerland',d:'+41'},{f:'🇸🇾',n:'Syria',d:'+963'},
+    {f:'🇹🇼',n:'Taiwan',d:'+886'},{f:'🇹🇯',n:'Tajikistan',d:'+992'},{f:'🇹🇿',n:'Tanzania',d:'+255'},
+    {f:'🇹🇭',n:'Thailand',d:'+66'},{f:'🇹🇬',n:'Togo',d:'+228'},{f:'🇹🇹',n:'Trinidad & Tobago',d:'+1'},
+    {f:'🇹🇳',n:'Tunisia',d:'+216'},{f:'🇹🇷',n:'Turkey',d:'+90'},{f:'🇹🇲',n:'Turkmenistan',d:'+993'},
+    {f:'🇺🇬',n:'Uganda',d:'+256'},{f:'🇺🇦',n:'Ukraine',d:'+380'},{f:'🇦🇪',n:'UAE',d:'+971'},
+    {f:'🇬🇧',n:'United Kingdom',d:'+44'},{f:'🇺🇸',n:'United States',d:'+1'},{f:'🇺🇾',n:'Uruguay',d:'+598'},
+    {f:'🇺🇿',n:'Uzbekistan',d:'+998'},{f:'🇻🇪',n:'Venezuela',d:'+58'},{f:'🇻🇳',n:'Vietnam',d:'+84'},
+    {f:'🇾🇪',n:'Yemen',d:'+967'},{f:'🇿🇲',n:'Zambia',d:'+260'},{f:'🇿🇼',n:'Zimbabwe',d:'+263'}
+  ];
+
+  const COUNTRIES = [
+    {f:'🇦🇫',n:'Afghanistan',d:'+93'},{f:'🇦🇱',n:'Albania',d:'+355'},{f:'🇩🇿',n:'Algeria',d:'+213'},
+    {f:'🇦🇷',n:'Argentina',d:'+54'},{f:'🇦🇲',n:'Armenia',d:'+374'},{f:'🇦🇺',n:'Australia',d:'+61'},
+    {f:'🇦🇹',n:'Austria',d:'+43'},{f:'🇦🇿',n:'Azerbaijan',d:'+994'},{f:'🇧🇭',n:'Bahrain',d:'+973'},
+    {f:'🇧🇩',n:'Bangladesh',d:'+880'},{f:'🇧🇾',n:'Belarus',d:'+375'},{f:'🇧🇪',n:'Belgium',d:'+32'},
+    {f:'🇧🇴',n:'Bolivia',d:'+591'},{f:'🇧🇦',n:'Bosnia',d:'+387'},{f:'🇧🇷',n:'Brazil',d:'+55'},
+    {f:'🇧🇳',n:'Brunei',d:'+673'},{f:'🇧🇬',n:'Bulgaria',d:'+359'},{f:'🇰🇭',n:'Cambodia',d:'+855'},
+    {f:'🇨🇲',n:'Cameroon',d:'+237'},{f:'🇨🇦',n:'Canada',d:'+1'},{f:'🇨🇱',n:'Chile',d:'+56'},
+    {f:'🇨🇳',n:'China',d:'+86'},{f:'🇨🇴',n:'Colombia',d:'+57'},{f:'🇨🇷',n:'Costa Rica',d:'+506'},
+    {f:'🇭🇷',n:'Croatia',d:'+385'},{f:'🇨🇺',n:'Cuba',d:'+53'},{f:'🇨🇾',n:'Cyprus',d:'+357'},
+    {f:'🇨🇿',n:'Czech Republic',d:'+420'},{f:'🇩🇰',n:'Denmark',d:'+45'},{f:'🇪🇨',n:'Ecuador',d:'+593'},
+    {f:'🇪🇬',n:'Egypt',d:'+20'},{f:'🇪🇪',n:'Estonia',d:'+372'},{f:'🇪🇹',n:'Ethiopia',d:'+251'},
+    {f:'🇫🇮',n:'Finland',d:'+358'},{f:'🇫🇷',n:'France',d:'+33'},{f:'🇬🇪',n:'Georgia',d:'+995'},
+    {f:'🇩🇪',n:'Germany',d:'+49'},{f:'🇬🇭',n:'Ghana',d:'+233'},{f:'🇬🇷',n:'Greece',d:'+30'},
+    {f:'🇬🇹',n:'Guatemala',d:'+502'},{f:'🇭🇳',n:'Honduras',d:'+504'},{f:'🇭🇰',n:'Hong Kong',d:'+852'},
+    {f:'🇭🇺',n:'Hungary',d:'+36'},{f:'🇮🇸',n:'Iceland',d:'+354'},{f:'🇮🇳',n:'India',d:'+91'},
+    {f:'🇮🇩',n:'Indonesia',d:'+62'},{f:'🇮🇷',n:'Iran',d:'+98'},{f:'🇮🇶',n:'Iraq',d:'+964'},
+    {f:'🇮🇪',n:'Ireland',d:'+353'},{f:'🇮🇱',n:'Israel',d:'+972'},{f:'🇮🇹',n:'Italy',d:'+39'},
+    {f:'🇯🇵',n:'Japan',d:'+81'},{f:'🇯🇴',n:'Jordan',d:'+962'},{f:'🇰🇿',n:'Kazakhstan',d:'+7'},
+    {f:'🇰🇪',n:'Kenya',d:'+254'},{f:'🇰🇼',n:'Kuwait',d:'+965'},{f:'🇱🇻',n:'Latvia',d:'+371'},
+    {f:'🇱🇧',n:'Lebanon',d:'+961'},{f:'🇱🇾',n:'Libya',d:'+218'},{f:'🇱🇮',n:'Liechtenstein',d:'+423'},
+    {f:'🇱🇹',n:'Lithuania',d:'+370'},{f:'🇱🇺',n:'Luxembourg',d:'+352'},{f:'🇲🇾',n:'Malaysia',d:'+60'},
+    {f:'🇲🇻',n:'Maldives',d:'+960'},{f:'🇲🇹',n:'Malta',d:'+356'},{f:'🇲🇽',n:'Mexico',d:'+52'},
+    {f:'🇲🇦',n:'Morocco',d:'+212'},{f:'🇲🇲',n:'Myanmar',d:'+95'},{f:'🇳🇵',n:'Nepal',d:'+977'},
+    {f:'🇳🇱',n:'Netherlands',d:'+31'},{f:'🇳🇿',n:'New Zealand',d:'+64'},{f:'🇳🇬',n:'Nigeria',d:'+234'},
+    {f:'🇳🇴',n:'Norway',d:'+47'},{f:'🇴🇲',n:'Oman',d:'+968'},{f:'🇵🇰',n:'Pakistan',d:'+92'},
+    {f:'🇵🇸',n:'Palestine',d:'+970'},{f:'🇵🇦',n:'Panama',d:'+507'},{f:'🇵🇾',n:'Paraguay',d:'+595'},
+    {f:'🇵🇪',n:'Peru',d:'+51'},{f:'🇵🇭',n:'Philippines',d:'+63'},{f:'🇵🇱',n:'Poland',d:'+48'},
+    {f:'🇵🇹',n:'Portugal',d:'+351'},{f:'🇶🇦',n:'Qatar',d:'+974'},{f:'🇷🇴',n:'Romania',d:'+40'},
+    {f:'🇷🇺',n:'Russia',d:'+7'},{f:'🇸🇦',n:'Saudi Arabia',d:'+966'},{f:'🇷🇸',n:'Serbia',d:'+381'},
+    {f:'🇸🇬',n:'Singapore',d:'+65'},{f:'🇸🇰',n:'Slovakia',d:'+421'},{f:'🇸🇮',n:'Slovenia',d:'+386'},
+    {f:'🇸🇴',n:'Somalia',d:'+252'},{f:'🇿🇦',n:'South Africa',d:'+27'},{f:'🇰🇷',n:'South Korea',d:'+82'},
+    {f:'🇪🇸',n:'Spain',d:'+34'},{f:'🇱🇰',n:'Sri Lanka',d:'+94'},{f:'🇸🇩',n:'Sudan',d:'+249'},
+    {f:'🇸🇪',n:'Sweden',d:'+46'},{f:'🇨🇭',n:'Switzerland',d:'+41'},{f:'🇸🇾',n:'Syria',d:'+963'},
+    {f:'🇹🇼',n:'Taiwan',d:'+886'},{f:'🇹🇿',n:'Tanzania',d:'+255'},{f:'🇹🇭',n:'Thailand',d:'+66'},
+    {f:'🇹🇳',n:'Tunisia',d:'+216'},{f:'🇹🇷',n:'Turkey',d:'+90'},{f:'🇹🇲',n:'Turkmenistan',d:'+993'},
+    {f:'🇺🇬',n:'Uganda',d:'+256'},{f:'🇺🇦',n:'Ukraine',d:'+380'},{f:'🇦🇪',n:'UAE',d:'+971'},
+    {f:'🇬🇧',n:'United Kingdom',d:'+44'},{f:'🇺🇸',n:'United States',d:'+1'},
+    {f:'🇺🇾',n:'Uruguay',d:'+598'},{f:'🇺🇿',n:'Uzbekistan',d:'+998'},{f:'🇻🇪',n:'Venezuela',d:'+58'},
+    {f:'🇻🇳',n:'Vietnam',d:'+84'},{f:'🇾🇪',n:'Yemen',d:'+967'},{f:'🇿🇲',n:'Zambia',d:'+260'},
+    {f:'🇿🇼',n:'Zimbabwe',d:'+263'},
+  ];
+
+  function togglePhoneDD(ddId, btnId) {
+    const dd = document.getElementById(ddId);
+    if (!dd) return;
+    if (!dd._built) {
+      dd.innerHTML = COUNTRIES.map(c =>
+        `<div class="phone-dd-item" onclick="pickCountry('${ddId}','${c.f}','${c.d}')">${c.f}&nbsp;${c.n}<span class="pd-dial">${c.d}</span></div>`
+      ).join('');
+      dd._built = true;
+      document.addEventListener('click', function h(e) {
+        const btn = document.getElementById(btnId);
+        if (btn && !btn.contains(e.target) && !dd.contains(e.target)) dd.classList.remove('open');
+      });
+    }
+    dd.classList.toggle('open');
+  }
+
+  function pickCountry(ddId, flag, dial) {
+    const dd = document.getElementById(ddId);
+    if (dd) dd.classList.remove('open');
+    // Update flag and dial for the correct field
+    if (ddId === 'phoneDD') {
+      const f = document.getElementById('phoneFlag'); if (f) f.textContent = flag;
+      const d = document.getElementById('phoneDial'); if (d) d.textContent = dial;
+    } else if (ddId === 'popupDD') {
+      const f = document.getElementById('popupFlag'); if (f) f.textContent = flag;
+      const d = document.getElementById('popupDial'); if (d) d.textContent = dial;
+    }
+  }
+
+  function getFullPhone(dialId, inputId) {
+    const dial  = (document.getElementById(dialId)  || {}).textContent || '';
+    const num   = (document.getElementById(inputId) || {}).value || '';
+    const clean = num.trim().replace(/\s+/g,'');
+    return clean ? dial.trim() + clean : null;
+  }
+
+  // ── Phone popup ──
+  function showPhonePopup() {
+    const el = document.getElementById('phonePopupBg');
+    if (el) el.classList.add('show');
+  }
+  function dismissPhonePopup() {
+    const el = document.getElementById('phonePopupBg');
+    if (el) el.classList.remove('show');
+    try { localStorage.setItem('pp_phone_skipped','1'); } catch {}
+  }
+  async function submitPhonePopup() {
+    const phone = getFullPhone('popupDial','popupPhone');
+    if (phone && _sessionToken) {
+      try {
+        await fetch('/api/auth', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ action:'update_phone', token:_sessionToken, phone })
+        });
+        const u = JSON.parse(localStorage.getItem('pp_user')||'null');
+        if (u) { u.phone = phone; localStorage.setItem('pp_user', JSON.stringify(u)); }
+      } catch {}
+    }
+    dismissPhonePopup();
+  }
+  async function checkPhonePopup() {
+    try {
+      if (!_currentUser || !_sessionToken) return;
+      const r = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'verify', token: _sessionToken })
+      });
+      const d = await r.json();
+      if (d.user && d.user.phone) return;
+      setTimeout(showPhonePopup, 2000);
+    } catch {}
+  }
+
+  // ── Landing page (signed-out homepage) ──  // ── Landing page (signed-out homepage) ──
   function showLanding() {
-    document.getElementById('landingOverlay').classList.add('show');
+    const _lo = document.getElementById('landingOverlay'); if (_lo) _lo.classList.add('show');
   }
   function closeLanding() {
-    document.getElementById('landingOverlay').classList.remove('show');
+    const _lo2 = document.getElementById('landingOverlay'); if (_lo2) _lo2.classList.remove('show');
     try { sessionStorage.setItem('pp_landing_seen', '1'); } catch {}
   }
   function closeLandingAsGuest() {
@@ -4844,7 +5162,28 @@
   })();
 </script>
 
-<!-- Landing overlay for signed-out users -->
+<!-- Phone number popup -->
+<div class="phone-popup-bg" id="phonePopupBg">
+  <div class="phone-popup">
+    <div class="phone-popup-title">Add Your Phone Number</div>
+    <p class="phone-popup-sub">Optional — helps with account recovery.</p>
+    <div class="auth-field">
+      <div class="phone-glow-wrap">
+        <div class="bbn-dark"></div><div class="bbn-border"></div><div class="bbn-glow"></div>
+        <div class="phone-inner">
+          <div class="phone-flag-btn" id="popupFlagBtn" onclick="togglePhoneDD('popupDD','popupFlagBtn')">
+            <span id="popupFlag">🇬🇧</span><span class="phone-caret">▾</span>
+          </div>
+          <span class="phone-dial" id="popupDial">+44</span>
+          <input class="phone-num-input" id="popupPhone" type="tel" placeholder="7700 900000" inputmode="numeric" autocomplete="tel" oninput="this.value=this.value.replace(/[^0-9 ]/g,'')">
+        </div>
+        <div class="phone-dd" id="popupDD"></div>
+      </div>
+    </div>
+    <button class="auth-btn" onclick="submitPhonePopup()" style="margin-top:0.8rem">Save</button>
+  </div>
+</div>
+
 <div class="landing-overlay" id="landingOverlay">
   <div class="landing-logo">Paper<span>Finder</span></div>
   <p class="landing-sub">Find and open CAIE &amp; AQA past papers instantly.<br>Sign in to get full access.</p>
@@ -4856,7 +5195,7 @@
 </div>
 
 <!-- Auth Modal -->
-<div class="auth-modal-bg" id="authModalBg" onclick="if(event.target===this)closeAuth()">
+<div class="auth-modal-bg" id="authModalBg">
   <div class="auth-modal">
     <button class="auth-close" onclick="closeAuth()">&#10005;</button>
     <div class="auth-title" id="authTitle">Sign <span>In</span></div>
@@ -4875,13 +5214,27 @@
           <input class="auth-input" id="authUsername" type="text" placeholder="username" autocomplete="username" oninput="authInputTyping('wrapUsername')" onblur="authInputBlur('wrapUsername')">
         </div>
       </div>
+      <div class="auth-field">
+        <label>Phone <span style="font-size:0.6rem;color:var(--muted)">(optional)</span></label>
+        <div class="phone-glow-wrap" id="phoneGlowWrap">
+          <div class="bbn-dark"></div><div class="bbn-border"></div><div class="bbn-glow"></div>
+          <div class="phone-inner" id="phoneInner">
+            <div class="phone-flag-btn" id="phoneFlagBtn" onclick="togglePhoneDD('phoneDD','phoneFlagBtn')">
+              <span id="phoneFlag">🇬🇧</span><span class="phone-caret">▾</span>
+            </div>
+            <span class="phone-dial" id="phoneDial">+44</span>
+            <input class="phone-num-input" id="authPhone" type="tel" placeholder="7700 900000" inputmode="numeric" autocomplete="tel" oninput="this.value=this.value.replace(/[^0-9 ]/g,'')">
+          </div>
+          <div class="phone-dd" id="phoneDD"></div>
+        </div>
+      </div>
     </div>
     <div id="authLoginFields">
       <div class="auth-field">
         <label>Email or Username</label>
         <div class="auth-input-wrap" id="wrapIdent">
           <div class="ain-dark"></div><div class="ain-border"></div><div class="ain-glow"></div>
-          <input class="auth-input" id="authIdentifier" type="text" placeholder="email or username" autocomplete="username" oninput="authInputTyping('wrapIdent')" onblur="authInputBlur('wrapIdent')">
+          <input class="auth-input" id="authIdentifier" type="text" placeholder="email, username or phone" autocomplete="username" oninput="authInputTyping('wrapIdent')" onblur="authInputBlur('wrapIdent')">
         </div>
       </div>
     </div>
@@ -4895,6 +5248,8 @@
     </div>
     <div class="auth-error" id="authError"></div>
     <button class="auth-btn" id="authSubmitBtn" onclick="submitAuth()">Sign In</button>
+    <div id="authFreeNote" style="display:none;text-align:center;font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--accent);margin-top:0.5rem;letter-spacing:0.08em;font-weight:700">🎉 100% Free!</div>
+    <p id="authFreeTag" style="display:none;text-align:center;font-family:Space Mono,monospace;font-size:0.62rem;color:var(--success);margin-top:0.35rem;letter-spacing:0.05em">✓ 100% Free!</p>
     <div class="auth-switch">
       <span id="authSwitchText">Don't have an account?</span>
       <a onclick="toggleAuthMode()">
@@ -4922,13 +5277,12 @@
       <button class="auth-btn" onclick="submitChangePassword()" style="margin-top:0.4rem">Update Password</button>
     </div>
     <div style="font-family:Space Mono,monospace;font-size:0.6rem;color:var(--muted);text-align:center;margin-top:0.7rem;line-height:1.5">
-      Contact <a href="mailto:youssef.masoud@outlook.com" style="color:var(--accent);text-decoration:none">youssef.masoud@outlook.com</a> to change credentials
+      Contact <a href="mailto:youssef.masoud@outlook.com?subject=Past%20Paper%20Finder%20Contact" onclick="setEmailBody(this)" style="color:var(--accent);text-decoration:none">youssef.masoud@outlook.com</a>
+      to appeal
     </div>
   </div>
 </div>
 
-
-<!-- Status/maintenance bar from site_config -->
 <div id="statusBar" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#1a1a1a;border-top:1px solid var(--border);padding:0.4rem 1rem;font-family:Space Mono,monospace;font-size:0.65rem;color:var(--muted);text-align:center;z-index:999"></div>
 
 </body>
