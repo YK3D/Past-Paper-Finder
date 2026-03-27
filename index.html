@@ -1810,7 +1810,7 @@
   <div style="font-size:2rem">&#128683;</div>
   <div>Your access to PaperFinder has been restricted.</div>
   <div id="banReason" style="font-weight:400;font-size:0.75rem;max-width:480px;line-height:1.6;opacity:0.9"></div>
-  <div style="font-size:0.65rem;opacity:0.7;margin-top:0.4rem">Contact <a href="/cdn-cgi/l/email-protection#d0a9bfa5a3a3b5b6febdb1a3bfa5b490bfa5a4bcbfbfbbfeb3bfbdefa3a5b2bab5b3a4ed80b1a3a4f5e2e080b1a0b5a2f5e2e096b9beb4b5a2f5e2e093bfbea4b1b3a4" onclick="setEmailBody(this)" style="color:var(--accent);text-decoration:none"><span class="__cf_email__" data-cfemail="2f56405a5c5c4a4901424e5c405a4b6f405a5b43404044014c4042">[email&#160;protected]</span></a> to appeal</div>
+  <div style="font-size:0.65rem;opacity:0.7;margin-top:0.4rem">Contact <a id="emailAppeal" href="#" onclick="setEmailBody(this);return false;" style="color:var(--accent);text-decoration:none">contact support</a> to appeal</div>
 </div>
 <div id="maintenanceBanner" style="display:none;padding:0.4rem 1rem 0.4rem 1rem;font-family:Space Mono,monospace;font-size:0.75rem;font-weight:600;z-index:9999;width:100%;box-sizing:border-box;position:relative;align-items:center;justify-content:center;gap:0.5rem"><span id="maintenanceBannerText"></span><button onclick="document.getElementById('maintenanceBanner').style.display='none'" style="position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1rem;line-height:1;opacity:0.7;color:inherit;padding:0.1rem 0.3rem" title="Dismiss">&#10005;</button></div>
 
@@ -1980,7 +1980,7 @@
       <div class="contact-section">
         <p class="contact-label">Contact</p>
         <p class="contact-name">Youssef Karim</p>
-        <a href="/cdn-cgi/l/email-protection#fa83958f89899f9cd4979b89958f9eba958f8e96959591d4999597c5898f98909f998ec7aa9b898edfc8caaa9b8a9f88dfc8cabc93949e9f88dfc8cab995948e9b998e" onclick="setEmailBody(this)" style="color:var(--accent);text-decoration:none"><span class="__cf_email__" data-cfemail="1c6573696f6f797a32717d6f7369785c73696870737377327f7371">[email&#160;protected]</span></a>
+        <a id="emailContact" href="#" onclick="setEmailBody(this);return false;" style="color:var(--accent);text-decoration:none">get in touch</a>
       </div>
 
       <div class="rating-section">
@@ -2320,7 +2320,7 @@
 
 </div><!-- /#view-wrapper -->
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
   // Always start at top
   if (history.scrollRestoration) history.scrollRestoration = 'manual';
   window.scrollTo(0, 0);
@@ -3107,11 +3107,21 @@
   const _JSONBIN_KEY = '';
   const _JSONBIN_URL = _JSONBIN_ID ? `https://api.jsonbin.io/v3/b/${_JSONBIN_ID}` : null;
 
+  // Email built at runtime — never in static HTML so Cloudflare can't obfuscate it
+  const _EM = ['youssef', '.masoud', '@', 'outlook', '.com'].join('');
   function setEmailBody(a) {
     const user = _currentUser ? _currentUser.username : '';
     const body = user ? 'Username: ' + user + '%0A%0A' : '';
-    a.href = 'mailto:youssef.masoud@outlook.com?subject=Past%20Paper%20Finder%20Contact&body=' + body;
+    a.href = 'mailto:' + _EM + '?subject=Past%20Paper%20Finder%20Contact&body=' + body;
+    a.textContent = _EM;
   }
+  // Set link text on load
+  document.addEventListener('DOMContentLoaded', () => {
+    ['emailContact','emailAppeal'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = _EM;
+    });
+  });
 
   async function lbIncrement() {
     // Track in DB if logged in
@@ -4720,6 +4730,7 @@
     _authMode = mode || 'login';
     document.getElementById('authError').textContent = '';
     const _fn = document.getElementById('authFreeNote'); if (_fn) _fn.style.display = (mode === 'register') ? 'block' : 'none';
+    const _tn = document.getElementById('authTosNote'); if (_tn) _tn.style.display = (mode === 'register') ? 'block' : 'none';
     document.getElementById('authPassword').value = '';
     setAuthMode(_authMode);
     const _mb = document.getElementById('authModalBg'); if (_mb) _mb.classList.add('show');
@@ -5194,7 +5205,7 @@
   <p class="landing-sub">Find and open CAIE &amp; AQA past papers instantly.<br>Sign in to get full access.</p>
   <div class="landing-btns">
     <button class="landing-btn landing-btn-primary" onclick="closeLanding();openAuth('login')">Sign In</button>
-    <button class="landing-btn landing-btn-secondary" onclick="closeLanding();setAuthMode('register');openAuth('register')">Register</button>
+    <button class="landing-btn landing-btn-secondary" onclick="closeLanding();setAuthMode('register');openAuth('register')">Register<br><span style="font-size:0.6rem;font-weight:400;color:#888;letter-spacing:0.05em">100% Free</span></button>
   </div>
   <button class="landing-skip" onclick="closeLandingAsGuest()">Continue as guest &mdash; 1 free paper</button>
 </div>
@@ -5254,6 +5265,7 @@
     <div class="auth-error" id="authError"></div>
     <button class="auth-btn" id="authSubmitBtn" onclick="submitAuth()">Sign In</button>
     <div id="authFreeNote" style="display:none;text-align:center;font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--accent);margin-top:0.5rem;letter-spacing:0.08em;font-weight:700">🎉 100% Free!</div>
+    <div id="authTosNote" style="display:none;text-align:center;font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--muted);margin-top:0.6rem;line-height:1.6">By registering, you agree to the <a href="/terms.html" target="_blank" style="color:var(--accent);text-decoration:none">Terms of Service</a> and the <a href="/privacy.html" target="_blank" style="color:var(--accent);text-decoration:none">Privacy Policy</a></div>
     <p id="authFreeTag" style="display:none;text-align:center;font-family:Space Mono,monospace;font-size:0.62rem;color:var(--success);margin-top:0.35rem;letter-spacing:0.05em">✓ 100% Free!</p>
     <div class="auth-switch">
       <span id="authSwitchText">Don't have an account?</span>
@@ -5282,4 +5294,18 @@
       <button class="auth-btn" onclick="submitChangePassword()" style="margin-top:0.4rem">Update Password</button>
     </div>
     <div style="font-family:Space Mono,monospace;font-size:0.6rem;color:var(--muted);text-align:center;margin-top:0.7rem;line-height:1.5">
-      Contact <a href="/cdn-cgi/l/email-pr
+      Contact <a id="emailAppeal2" href="#" onclick="setEmailBody(this);return false;" style="color:var(--accent);text-decoration:none">contact support</a>
+      to appeal
+    </div>
+  </div>
+</div>
+
+<div id="statusBar" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#1a1a1a;border-top:1px solid var(--border);padding:0.4rem 1rem;font-family:Space Mono,monospace;font-size:0.65rem;color:var(--muted);text-align:center;z-index:999"></div>
+
+<div style="text-align:center;padding:0.8rem 1rem 3rem;font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;border-top:1px solid #1a1a24;margin-top:0.5rem">
+  <a href="/terms.html" style="color:var(--muted);text-decoration:none" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">Terms of Service</a>
+  <a href="/privacy.html" style="color:var(--muted);text-decoration:none" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">Privacy Policy</a>
+</div>
+
+</body>
+</html>
