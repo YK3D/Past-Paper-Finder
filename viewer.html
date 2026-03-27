@@ -3974,13 +3974,8 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         ? '\n\n--- MARK SCHEME ---\n(Use these mark points when checking answers. Only state marks that appear here.)\n\n' + _msText
         : '\n\n--- MARK SCHEME ---\nNot available for this paper.';
 
-      // Additional files context (ER, GT, IN etc) — full text, no truncation
-      let extraCtx = '';
-      for (const [label, text] of Object.entries(_allFilesText || {})) {
-        if (label !== 'QP' && label !== 'MS' && text) {
-          extraCtx += '\n\n--- ' + label + ' ---\n' + text;
-        }
-      }
+      // Only QP and MS are given to the AI
+      const extraCtx = '';
 
       const context = fileCtx + qpCtx + msCtx + extraCtx;
 
