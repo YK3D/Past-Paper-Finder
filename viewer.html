@@ -3876,7 +3876,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       if (!ab) return;
       const doc = await pdfjsLib.getDocument({ data: ab }).promise;
       const pages = [];
-      for (let i = 1; i <= Math.min(doc.numPages, 20); i++) {
+      for (let i = 1; i <= doc.numPages; i++) {
         const pg = await doc.getPage(i);
         const tc = await pg.getTextContent();
         pages.push(tc.items.map(s => s.str).join(' '));
@@ -3892,7 +3892,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   async function extractText() {
     if (!pdfDoc) return;
     _pdfText = [];
-    for (let i = 1; i <= Math.min(pdfDoc.numPages, 20); i++) {
+    for (let i = 1; i <= pdfDoc.numPages; i++) {
       const pg = await pdfDoc.getPage(i);
       const tc = await pg.getTextContent();
       _pdfText.push(tc.items.map(s => s.str).join(' '));
@@ -3968,17 +3968,17 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       // Build context from all fetched file texts
       const fileCtx = _aiFileList ? 'Available files for this paper: ' + _aiFileList + '\n\n' : '';
       const qpCtx  = _pdfText.length
-        ? 'QUESTION PAPER TEXT:\n\n' + _pdfText.join('\n\n---\n\n').slice(0, 5000)
+        ? 'QUESTION PAPER TEXT:\n\n' + _pdfText.join('\n\n---\n\n')
         : 'No question paper text could be extracted.';
       const msCtx  = _msText
-        ? '\n\n--- MARK SCHEME ---\n(Use these mark points when checking answers. Only state marks that appear here.)\n\n' + _msText.slice(0, 4000)
+        ? '\n\n--- MARK SCHEME ---\n(Use these mark points when checking answers. Only state marks that appear here.)\n\n' + _msText
         : '\n\n--- MARK SCHEME ---\nNot available for this paper.';
 
-      // Additional files context (ER, GT, IN etc)
+      // Additional files context (ER, GT, IN etc) — full text, no truncation
       let extraCtx = '';
       for (const [label, text] of Object.entries(_allFilesText || {})) {
         if (label !== 'QP' && label !== 'MS' && text) {
-          extraCtx += '\n\n--- ' + label + ' ---\n' + text.slice(0, 2000);
+          extraCtx += '\n\n--- ' + label + ' ---\n' + text;
         }
       }
 
