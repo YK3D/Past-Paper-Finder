@@ -3876,10 +3876,10 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       if (!ab) return;
       const doc = await pdfjsLib.getDocument({ data: ab }).promise;
       const pages = [];
-      for (let i = 1; i <= doc.numPages; i++) {
+      for (let i = 2; i <= doc.numPages; i++) {  // skip page 1
         const pg = await doc.getPage(i);
         const tc = await pg.getTextContent();
-        pages.push(tc.items.map(s => s.str).join(' '));
+        pages.push(tc.items.map(s => s.str).filter(s => s !== '.').join(' '));
       }
       _allFilesText[label] = pages.join('\n\n---\n\n');
       console.log('[PaperAI] ' + label + ' loaded, chars:', _allFilesText[label].length);
@@ -3892,10 +3892,10 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   async function extractText() {
     if (!pdfDoc) return;
     _pdfText = [];
-    for (let i = 1; i <= pdfDoc.numPages; i++) {
+    for (let i = 2; i <= pdfDoc.numPages; i++) {  // skip page 1
       const pg = await pdfDoc.getPage(i);
       const tc = await pg.getTextContent();
-      _pdfText.push(tc.items.map(s => s.str).join(' '));
+      _pdfText.push(tc.items.map(s => s.str).filter(s => s !== '.').join(' '));
     }
     const h = document.getElementById('aiHint');
     h.innerHTML = "Suggested: <span onclick=\"aiAsk('Summarise this paper')\">Summarise</span> &middot; <span onclick=\"aiAsk('What topics does this cover?')\">Topics</span> &middot; <span onclick=\"aiAsk('Explain question 1')\">Q1</span>";
