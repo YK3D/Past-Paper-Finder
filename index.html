@@ -2004,17 +2004,7 @@
       </div>
       <p class="version-tag" style="font-size:0.85rem;font-weight:700;color:var(--muted)" id="versionDisplay">Version 47.4</p>
       <p class="version-tag" style="font-size:0.65rem;color:var(--muted);margin-top:0.2rem">Powered by papacambridge.com</p>
-      <p class="version-tag">‎</p>
-      <p class="version-tag">‎</p>
-      <p class="version-tag">‎</p>
-      <p class="version-tag">‎</p>
-      <p class="version-tag">‎</p>
-      <p class="version-tag">‎</p>
-      <p class="version-tag">‎</p>
-      <p class="version-tag">‎</p>
-      <p class="version-tag">‎</p>
-      <p class="version-tag">‎</p>
-    </div>
+                                                                </div>
   </div>
 
 </div>
@@ -4729,7 +4719,6 @@
   function openAuth(mode) {
     _authMode = mode || 'login';
     document.getElementById('authError').textContent = '';
-    const _fn = document.getElementById('authFreeNote'); if (_fn) _fn.style.display = (mode === 'register') ? 'block' : 'none';
     const _tn = document.getElementById('authTosNote'); if (_tn) _tn.style.display = (mode === 'register') ? 'block' : 'none';
     document.getElementById('authPassword').value = '';
     setAuthMode(_authMode);
@@ -5264,9 +5253,7 @@
     </div>
     <div class="auth-error" id="authError"></div>
     <button class="auth-btn" id="authSubmitBtn" onclick="submitAuth()">Sign In</button>
-    <div id="authFreeNote" style="display:none;text-align:center;font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--accent);margin-top:0.5rem;letter-spacing:0.08em;font-weight:700">🎉 100% Free!</div>
     <div id="authTosNote" style="display:none;text-align:center;font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--muted);margin-top:0.6rem;line-height:1.6">By registering, you agree to the <a href="/terms.html" target="_blank" style="color:var(--accent);text-decoration:none">Terms of Service</a> and the <a href="/privacy.html" target="_blank" style="color:var(--accent);text-decoration:none">Privacy Policy</a></div>
-    <p id="authFreeTag" style="display:none;text-align:center;font-family:Space Mono,monospace;font-size:0.62rem;color:var(--success);margin-top:0.35rem;letter-spacing:0.05em">✓ 100% Free!</p>
     <div class="auth-switch">
       <span id="authSwitchText">Don't have an account?</span>
       <a onclick="toggleAuthMode()">
