@@ -3999,19 +3999,25 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     aiDiv.classList.add('streaming');
 
     try {
-      // Build context from all fetched file texts
+      // Build context — cap at 30,000 chars total to avoid 413 errors
+      const MAX_CTX = 30000;
       const fileCtx = _aiFileList ? 'Available files for this paper: ' + _aiFileList + '\n\n' : '';
-      const qpCtx  = _pdfText.length
-        ? 'QUESTION PAPER TEXT:\n\n' + _pdfText.join('\n\n---\n\n')
+      const qpRaw   = _pdfText.length ? _pdfText.join('\n\n---\n\n') : '';
+      const msRaw   = _msText || '';
+
+      // Split budget: 55% QP, 45% MS (MS is more useful for marking)
+      const qpBudget = Math.floor(MAX_CTX * 0.55);
+      const msBudget = MAX_CTX - qpBudget;
+
+      const qpCtx = qpRaw.length
+        ? 'QUESTION PAPER TEXT:\n\n' + qpRaw.slice(0, qpBudget)
         : 'No question paper text could be extracted.';
-      const msCtx  = _msText
-        ? '\n\n--- MARK SCHEME ---\n(Use these mark points when checking answers. Only state marks that appear here.)\n\n' + _msText
+      const msCtx = msRaw.length
+        ? '\n\n--- MARK SCHEME ---\n(Only state marks that appear here.)\n\n' + msRaw.slice(0, msBudget)
         : '\n\n--- MARK SCHEME ---\nNot available for this paper.';
 
-      // Only QP and MS are given to the AI
-      const extraCtx = '';
-
-      const context = fileCtx + qpCtx + msCtx + extraCtx;
+      const context = fileCtx + qpCtx + msCtx;
+      console.log('[AI] context chars:', context.length);
 
       const resp = await fetch('/api/chat', {
         method: 'POST',
