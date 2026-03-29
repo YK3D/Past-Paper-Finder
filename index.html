@@ -4463,7 +4463,7 @@
     const params = new URLSearchParams();
     params.set('url', generatedUrl);
     if (fileUrls.length > 1) params.set('files', fileUrls.join(','));
-    window.location.href = '/viewer.html?' + params.toString();
+    window.open('/viewer.html?' + params.toString(), '_blank');
   }
 
   function shareUrl() {

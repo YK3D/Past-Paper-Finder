@@ -3648,18 +3648,27 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
           await renderPageAppend(i);
         }
       } else {
-        // ── Desktop/iOS: object > embed > iframe fallback ──
+        // ── Desktop/iOS: direct URL in object > embed > iframe ──
+        // Use direct URL (not proxy) — same as before PDF.js changes
         msg.style.display = 'none';
-        area.innerHTML =
-          '<object data="' + url + '" type="application/pdf" width="100%" height="100%">' +
-            '<p>Your browser does not support PDFs. <a href="' + url + '">Download the PDF</a>.</p>' +
+        area.innerHTML = '';
+
+        // Destroy the entire canvas area and replace it with a fresh node
+        // This is the only reliable way to force all browsers to load a new file
+        const newArea = document.createElement('div');
+        newArea.id = 'pdfCanvasArea';
+        newArea.className = area.className;
+        newArea.innerHTML =
+          '<div class="pdf-loading-msg" id="pdfLoadMsg" style="display:none"></div>' +
+          '<object data="' + url + '" type="application/pdf" width="100%" height="100%" style="display:block;border:none;width:100%;height:100%">' +
             '<embed src="' + url + '" type="application/pdf" width="100%" height="100%" />' +
             '<iframe src="' + url + '" width="100%" height="100%" style="border:none">' +
               'Your browser does not support PDFs. <a href="' + url + '">Download the PDF</a>.' +
             '</iframe>' +
           '</object>';
+        area.parentNode.replaceChild(newArea, area);
 
-        // Background: load via PDF.js for text extraction only
+        // Background: PDF.js for text extraction only
         try {
           const resp = await fetch(proxyUrl);
           if (resp.ok) {
@@ -3888,15 +3897,20 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     renderFileChips(_files, url);
     _aiFileList = _files.map(f => f.label).join(', ');
 
-    // Fetch ONLY MS for AI (QP text extracted separately via extractText)
+    // Fetch MS for AI — always use the MS file URL regardless of what's currently open
     _allFilesText = {};
+    _msText = '';
     const msFile = _files.find(f => !f.audio && f.label && f.label.toUpperCase().startsWith('MS'));
-    if (msFile && msFile.url !== url) {
+    if (msFile) {
       fetchMsBackground(msFile.url);
     } else {
-      // Fallback: derive MS URL from QP URL
-      const msUrlDerived = url.replace(/_qp_/i, '_ms_').replace(/_in_/i, '_ms_').replace(/_ci_/i, '_ms_');
-      if (msUrlDerived !== url) fetchMsBackground(msUrlDerived);
+      // Fallback: derive MS URL from any file URL in the set
+      const anyUrl = _files.length ? _files[0].url : url;
+      const msUrlDerived = anyUrl.replace(/_qp_/i, '_ms_').replace(/_ms_/i, '_ms_').replace(/_in_/i, '_ms_').replace(/_ci_/i, '_ms_');
+      const qpUrl = _files.find(f => f.label && f.label.toUpperCase().startsWith('QP'));
+      const sourceUrl = qpUrl ? qpUrl.url : anyUrl;
+      const msDerived = sourceUrl.replace(/_qp_/i, '_ms_').replace(/_in_/i, '_ms_').replace(/_ci_/i, '_ms_');
+      if (msDerived !== sourceUrl) fetchMsBackground(msDerived);
     }
   }
 
