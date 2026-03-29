@@ -3897,15 +3897,20 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     renderFileChips(_files, url);
     _aiFileList = _files.map(f => f.label).join(', ');
 
-    // Fetch ONLY MS for AI (QP text extracted separately via extractText)
+    // Fetch MS for AI — always use the MS file URL regardless of what's currently open
     _allFilesText = {};
+    _msText = '';
     const msFile = _files.find(f => !f.audio && f.label && f.label.toUpperCase().startsWith('MS'));
-    if (msFile && msFile.url !== url) {
+    if (msFile) {
       fetchMsBackground(msFile.url);
     } else {
-      // Fallback: derive MS URL from QP URL
-      const msUrlDerived = url.replace(/_qp_/i, '_ms_').replace(/_in_/i, '_ms_').replace(/_ci_/i, '_ms_');
-      if (msUrlDerived !== url) fetchMsBackground(msUrlDerived);
+      // Fallback: derive MS URL from any file URL in the set
+      const anyUrl = _files.length ? _files[0].url : url;
+      const msUrlDerived = anyUrl.replace(/_qp_/i, '_ms_').replace(/_ms_/i, '_ms_').replace(/_in_/i, '_ms_').replace(/_ci_/i, '_ms_');
+      const qpUrl = _files.find(f => f.label && f.label.toUpperCase().startsWith('QP'));
+      const sourceUrl = qpUrl ? qpUrl.url : anyUrl;
+      const msDerived = sourceUrl.replace(/_qp_/i, '_ms_').replace(/_in_/i, '_ms_').replace(/_ci_/i, '_ms_');
+      if (msDerived !== sourceUrl) fetchMsBackground(msDerived);
     }
   }
 
