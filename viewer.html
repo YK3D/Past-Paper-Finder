@@ -3563,9 +3563,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       <select class="ai-model-select" id="aiModelSelect" title="Select AI model">
         <option value="gemini-2.0-flash-lite">Flash Lite</option>
         <option value="gemini-2.0-flash">Flash 2.0</option>
-        <option value="gemini-1.5-flash">Flash 1.5</option>
         <option value="groq-llama">Llama (Groq)</option>
-        <option value="groq-deepseek">DeepSeek (Groq)</option>
       </select>
       <button class="ai-clear-btn" onclick="clearAiChat()">Clear</button>
       <button class="ai-toggle-btn" id="aiToggleBtn" onclick="toggleAiPanel()">&#8250;</button>
@@ -4043,7 +4041,11 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       });
 
       if (!resp.ok) {
-        if (resp.status === 429) throw new Error('Rate limit — wait and try again.');
+        if (resp.status === 429) {
+          let msg = 'Rate limit reached on all keys — please switch to a different model using the selector above.';
+          try { const d = await resp.json(); if (d.error) msg = d.error; } catch {}
+          throw new Error(msg);
+        }
         if (resp.status === 401) throw new Error('Invalid API key.');
         throw new Error('API error ' + resp.status);
       }
