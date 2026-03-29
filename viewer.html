@@ -3648,29 +3648,45 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
           await renderPageAppend(i);
         }
       } else {
-        // ── Desktop/iOS: object > embed > iframe ──
-        // Must create fresh DOM elements (not innerHTML) to force browser to reload
+        // ── Desktop/iOS: proxy URL through object > embed > iframe ──
+        // Using proxyUrl (not direct URL) strips X-Frame-Options/CORS headers
         msg.style.display = 'none';
         area.innerHTML = '';
 
-        // Build HTML string — most reliable way to force fresh load on every switch
-        const enc = encodeURIComponent(url);
-        const dl  = 'Your browser does not support PDFs. <a href="' + url + '">Download the PDF</a>.';
-        const html =
-          '<object data="' + url + '" type="application/pdf" width="100%" height="100%" style="display:block;border:none">' +
-            '<embed src="' + url + '" type="application/pdf" width="100%" height="100%">' +
-            '<iframe src="' + url + '" width="100%" height="100%" style="border:none">' +
-              dl +
-            '</iframe>' +
-          '</object>';
+        // Append a timestamp to bust any browser cache of the proxy response
+        const bustUrl = proxyUrl + '&_t=' + Date.now();
+        const dl = 'Your browser does not support PDFs. <a href="' + proxyUrl + '">Download the PDF</a>.';
 
-        // Insert into a fresh wrapper — forces browser to treat as new resource
+        // Create entirely new elements each call — guarantees reload
         const wrapper = document.createElement('div');
-        wrapper.style.cssText = 'width:100%;height:100%;';
-        wrapper.innerHTML = html;
+        wrapper.style.cssText = 'width:100%;height:100%;display:block;';
+
+        const obj = document.createElement('object');
+        obj.setAttribute('data', bustUrl);
+        obj.setAttribute('type', 'application/pdf');
+        obj.setAttribute('width', '100%');
+        obj.setAttribute('height', '100%');
+        obj.style.cssText = 'display:block;border:none;';
+
+        const emb = document.createElement('embed');
+        emb.setAttribute('src', bustUrl);
+        emb.setAttribute('type', 'application/pdf');
+        emb.setAttribute('width', '100%');
+        emb.setAttribute('height', '100%');
+
+        const frm = document.createElement('iframe');
+        frm.setAttribute('src', bustUrl);
+        frm.setAttribute('width', '100%');
+        frm.setAttribute('height', '100%');
+        frm.style.border = 'none';
+        frm.textContent = dl;
+
+        obj.appendChild(emb);
+        obj.appendChild(frm);
+        wrapper.appendChild(obj);
         area.appendChild(wrapper);
 
-        // Background: load via PDF.js for text extraction only
+        // Background: PDF.js for text extraction only
         try {
           const resp = await fetch(proxyUrl);
           if (resp.ok) {
