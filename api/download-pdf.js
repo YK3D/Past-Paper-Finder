@@ -11,7 +11,6 @@ export default async function handler(req, res) {
       redirect: 'manual'
     });
 
-    // Redirected = file not found
     if (!response.ok || response.status !== 200) {
       return res.status(404).json({ error: 'File not found' });
     }
