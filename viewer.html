@@ -3429,6 +3429,14 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .ai-panel.collapsed .ai-input-row,
 .ai-panel.collapsed .ai-title-text,
 .ai-panel.collapsed .ai-clear-btn { display: none !important; }
+.ai-model-select {
+  background: #1a1a1a; border: 1px solid #333; border-radius: 6px;
+  color: var(--muted); font-family: 'Space Mono', monospace; font-size: 0.58rem;
+  padding: 0.2rem 0.4rem; cursor: pointer; outline: none; flex-shrink: 0;
+  max-width: 120px;
+}
+.ai-model-select:focus { border-color: var(--accent); }
+.ai-model-select option { background: #1a1a1a; }
 .ai-topbar {
   display: flex; align-items: center; gap: 0.5rem; padding: 0.7rem 0.8rem;
   border-bottom: 1px solid #333; flex-shrink: 0; background: #222;
@@ -3502,6 +3510,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 @media (max-width: 700px) {
   .viewer-root { flex-direction: column; }
   .viewer-centre { flex: 1; min-height: 0; padding-bottom: 52px; }
+  .ai-panel { padding-bottom: 0; }
   .ai-panel {
     position: fixed !important;
     bottom: 0; left: 0; right: 0;
@@ -3551,6 +3560,11 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   <div class="ai-panel" id="aiPanel">
     <div class="ai-topbar">
       <div class="ai-title-text">Paper<span>AI</span></div>
+      <select class="ai-model-select" id="aiModelSelect" title="Select AI model">
+        <option value="gemini-2.0-flash-lite">Flash Lite</option>
+        <option value="gemini-2.0-flash">Flash 2.0</option>
+        <option value="groq-llama">Llama (Groq)</option>
+      </select>
       <button class="ai-clear-btn" onclick="clearAiChat()">Clear</button>
       <button class="ai-toggle-btn" id="aiToggleBtn" onclick="toggleAiPanel()">&#8250;</button>
     </div>
@@ -4019,14 +4033,19 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       const context = fileCtx + qpCtx + msCtx;
       console.log('[AI] context chars:', context.length);
 
+      const selectedModel = (document.getElementById('aiModelSelect') || {}).value || 'gemini-2.0-flash-lite';
       const resp = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: _aiHistory, context, url: pdfUrl })
+        body: JSON.stringify({ messages: _aiHistory, context, url: pdfUrl, model: selectedModel })
       });
 
       if (!resp.ok) {
-        if (resp.status === 429) throw new Error('Rate limit — wait and try again.');
+        if (resp.status === 429) {
+          let msg = 'Rate limit reached on all keys — please switch to a different model using the selector above.';
+          try { const d = await resp.json(); if (d.error) msg = d.error; } catch {}
+          throw new Error(msg);
+        }
         if (resp.status === 401) throw new Error('Invalid API key.');
         throw new Error('API error ' + resp.status);
       }
