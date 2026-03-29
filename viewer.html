@@ -3316,15 +3316,21 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 /* Mobile-only download button */
 .topbar-dl-mobile { display: none; }
 @media (max-width: 700px) {
-  .topbar-dl-mobile { display: inline-flex !important; }
+  .topbar-dl-mobile {
+    display: inline-flex !important;
+    background: rgba(34,197,94,0.15) !important;
+    border-color: #22c55e !important;
+    color: #22c55e !important;
+  }
+  .topbar-dl-mobile:hover { background: #22c55e !important; color: #000 !important; }
 }
 .topbar-action {
-  background: transparent; border: 1px solid #444; border-radius: 6px;
-  color: #aaa; font-size: 0.65rem; padding: 0.25rem 0.5rem;
+  background: #1e1e1e; border: 1px solid #555; border-radius: 6px;
+  color: #ccc; font-size: 0.68rem; padding: 0.3rem 0.65rem;
   cursor: pointer; white-space: nowrap; font-family: 'Space Mono', monospace;
-  transition: border-color 0.15s, color 0.15s;
+  transition: all 0.2s; font-weight: 600;
 }
-.topbar-action:hover { border-color: var(--accent); color: var(--accent); }
+.topbar-action:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.06); }
 
 /* ── File chip bar (inline in topbar) ── */
 .file-chip-bar-inline {
@@ -3332,20 +3338,20 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   align-items: center; flex-shrink: 0;
 }
 .file-chip {
-  padding: 0.2rem 0.6rem; border-radius: 20px; border: 1px solid #444;
-  font-family: 'Space Mono', monospace; font-size: 0.6rem;
-  cursor: pointer; background: transparent; color: #888;
-  transition: all 0.15s; white-space: nowrap;
+  padding: 0.3rem 0.75rem; border-radius: 20px; border: 1px solid #555;
+  font-family: 'Space Mono', monospace; font-size: 0.68rem;
+  cursor: pointer; background: #1e1e1e; color: #aaa;
+  transition: all 0.2s; white-space: nowrap; font-weight: 600;
 }
-.file-chip:hover { border-color: var(--accent); color: var(--accent); }
-.file-chip.active { background: transparent; color: var(--accent); border-color: var(--accent); font-weight: 700; }
+.file-chip:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.06); transform: translateY(-1px); }
+.file-chip.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; box-shadow: 0 2px 10px rgba(0,229,255,0.35); }
 .file-chip.audio { border-color: var(--accent2); color: var(--accent2); }
-.file-chip.audio.active { background: transparent; color: var(--accent); border-color: var(--accent); }
+.file-chip.audio.active { background: var(--accent); color: #000; border-color: var(--accent); }
 
 /* ── PDF canvas area ── */
 .pdf-canvas-area {
   flex: 1;
-  overflow: hidden;
+  overflow: auto;
   min-height: 0;
   background: #1a1a1a;
   box-sizing: border-box;
@@ -3430,11 +3436,13 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .ai-panel.collapsed .ai-title-text,
 .ai-panel.collapsed .ai-clear-btn { display: none !important; }
 .ai-model-select {
-  background: #1a1a1a; border: 1px solid #333; border-radius: 6px;
-  color: var(--muted); font-family: 'Space Mono', monospace; font-size: 0.58rem;
-  padding: 0.2rem 0.4rem; cursor: pointer; outline: none; flex-shrink: 0;
-  max-width: 120px;
+  background: #1e1e1e; border: 1px solid #555; border-radius: 6px;
+  color: #ccc; font-family: 'Space Mono', monospace; font-size: 0.65rem;
+  padding: 0.25rem 0.5rem; cursor: pointer; outline: none; flex-shrink: 0;
+  max-width: 130px; font-weight: 600;
+  transition: border-color 0.2s, color 0.2s;
 }
+.ai-model-select:hover { border-color: var(--accent); color: var(--accent); }
 .ai-model-select:focus { border-color: var(--accent); }
 .ai-model-select option { background: #1a1a1a; }
 .ai-topbar {
@@ -3450,12 +3458,12 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 }
 .ai-clear-btn:hover { border-color: var(--accent); color: var(--accent); }
 .ai-toggle-btn {
-  background: transparent; border: 1px solid #444; border-radius: 6px;
-  color: #888; font-size: 0.75rem; width: 26px; height: 26px;
+  background: rgba(0,229,255,0.1); border: 1px solid var(--accent); border-radius: 8px;
+  color: var(--accent); font-size: 1rem; width: 32px; height: 32px;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; flex-shrink: 0; transition: all 0.15s;
+  cursor: pointer; flex-shrink: 0; transition: all 0.2s; font-weight: 700;
 }
-.ai-toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
+.ai-toggle-btn:hover { background: var(--accent); color: #000; box-shadow: 0 2px 10px rgba(0,229,255,0.3); }
 .ai-messages { flex: 1; overflow-y: auto; padding: 0.8rem; display: flex; flex-direction: column; gap: 0.7rem; }
 .ai-messages::-webkit-scrollbar { width: 4px; }
 .ai-messages::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
@@ -3628,17 +3636,21 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     document.getElementById('thumbSidebar').innerHTML = '';
 
     try {
-      area.innerHTML = '';
       const proxyUrl = '/api/download-pdf?url=' + encodeURIComponent(url);
 
       if (_isAndroid) {
         // ── Android: use PDF.js canvas rendering ──
+        // Remove only old page containers, not the loading msg element
+        area.querySelectorAll('.pdf-page-container').forEach(el => el.remove());
         msg.style.display = 'flex';
         msg.textContent = 'Loading PDF…';
 
         const resp = await fetch(proxyUrl);
         if (!resp.ok) throw new Error('Could not fetch PDF (' + resp.status + ')');
         const buf = await resp.arrayBuffer();
+
+        // Clear any pages that rendered while fetching (rapid switch guard)
+        area.querySelectorAll('.pdf-page-container').forEach(el => el.remove());
 
         pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
         totalPages = pdfDoc.numPages;
