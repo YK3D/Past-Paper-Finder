@@ -3653,16 +3653,20 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         msg.style.display = 'none';
         area.innerHTML = '';
 
-        const wrapper = document.createElement('div');
-        wrapper.style.cssText = 'width:100%;height:100%;display:block;';
-        wrapper.innerHTML =
-          '<object data="' + url + '" type="application/pdf" width="100%" height="100%" style="display:block;border:none">' +
+        // Destroy the entire canvas area and replace it with a fresh node
+        // This is the only reliable way to force all browsers to load a new file
+        const newArea = document.createElement('div');
+        newArea.id = 'pdfCanvasArea';
+        newArea.className = area.className;
+        newArea.innerHTML =
+          '<div class="pdf-loading-msg" id="pdfLoadMsg" style="display:none"></div>' +
+          '<object data="' + url + '" type="application/pdf" width="100%" height="100%" style="display:block;border:none;width:100%;height:100%">' +
             '<embed src="' + url + '" type="application/pdf" width="100%" height="100%" />' +
             '<iframe src="' + url + '" width="100%" height="100%" style="border:none">' +
               'Your browser does not support PDFs. <a href="' + url + '">Download the PDF</a>.' +
             '</iframe>' +
           '</object>';
-        area.appendChild(wrapper);
+        area.parentNode.replaceChild(newArea, area);
 
         // Background: PDF.js for text extraction only
         try {
