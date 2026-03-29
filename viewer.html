@@ -3653,35 +3653,22 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         msg.style.display = 'none';
         area.innerHTML = '';
 
-        const obj = document.createElement('object');
-        obj.type   = 'application/pdf';
-        obj.width  = '100%';
-        obj.height = '100%';
-        obj.style.cssText = 'display:block;border:none;';
+        // Build HTML string — most reliable way to force fresh load on every switch
+        const enc = encodeURIComponent(url);
+        const dl  = 'Your browser does not support PDFs. <a href="' + url + '">Download the PDF</a>.';
+        const html =
+          '<object data="' + url + '" type="application/pdf" width="100%" height="100%" style="display:block;border:none">' +
+            '<embed src="' + url + '" type="application/pdf" width="100%" height="100%">' +
+            '<iframe src="' + url + '" width="100%" height="100%" style="border:none">' +
+              dl +
+            '</iframe>' +
+          '</object>';
 
-        const fallbackP = document.createElement('p');
-        fallbackP.innerHTML = 'Your browser does not support PDFs. <a href="' + url + '">Download the PDF</a>.';
-
-        const emb = document.createElement('embed');
-        emb.type   = 'application/pdf';
-        emb.width  = '100%';
-        emb.height = '100%';
-
-        const frm = document.createElement('iframe');
-        frm.width  = '100%';
-        frm.height = '100%';
-        frm.style.border = 'none';
-        frm.innerHTML = 'Your browser does not support PDFs. <a href="' + url + '">Download the PDF</a>.';
-
-        fallbackP.appendChild(emb);
-        fallbackP.appendChild(frm);
-        obj.appendChild(fallbackP);
-        area.appendChild(obj);
-
-        // Set src AFTER appending — forces fresh load on every switch
-        obj.data  = url;
-        emb.src   = url;
-        frm.src   = url;
+        // Insert into a fresh wrapper — forces browser to treat as new resource
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = 'width:100%;height:100%;';
+        wrapper.innerHTML = html;
+        area.appendChild(wrapper);
 
         // Background: load via PDF.js for text extraction only
         try {
