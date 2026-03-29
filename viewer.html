@@ -3609,14 +3609,13 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     try {
       area.innerHTML = '';
       const proxyUrl = '/api/download-pdf?url=' + encodeURIComponent(url);
+      // object first — embed fallback — iframe fallback (exact format as specified)
       area.innerHTML =
-        '<object data="' + proxyUrl + '" type="application/pdf" width="100%" height="100%" style="border:none;display:block;background:#fff">' +
-          '<embed src="' + proxyUrl + '" type="application/pdf" width="100%" height="100%" />' +
-          '<iframe src="' + proxyUrl + '" width="100%" height="100%" style="border:none">' +
-            '<p style="padding:1rem;font-family:Space Mono,monospace;font-size:0.8rem;color:#555">' +
-              'Your browser does not support PDF View. ' +
-              '<a href="' + proxyUrl + '" style="color:#00e5ff">Download the PDF</a>' +
-            '</p>' +
+        '<object data="' + url + '" type="application/pdf" width="100%" height="600px">' +
+          '<p>Your browser does not support PDFs. <a href="' + url + '">Download the PDF</a>.</p>' +
+          '<embed src="' + url + '" type="application/pdf" width="100%" height="600px" />' +
+          '<iframe src="' + url + '" width="100%" height="600px" style="border:none">' +
+            'Your browser does not support PDFs. <a href="' + url + '">Download the PDF</a>.' +
           '</iframe>' +
         '</object>';
 
@@ -3887,7 +3886,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       // Long Cambridge copyright paragraph
       /Permission to reproduce items where third-party owned material[\s\S]*?University of Cambridge\.?/gi,
       // Barcode patterns — sequences of only digits/spaces 8+ chars with no letters
-      /\b\d[\d\s]{7,}\b/g,
+      /\b(?![01\s]+\b)\d[\d\s]{7,}\b/g,  // allow binary (CS exams)
     ];
     let text = raw;
     for (const pat of boilerplate) text = text.replace(pat, ' ');
