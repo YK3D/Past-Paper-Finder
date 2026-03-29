@@ -27,7 +27,7 @@ const SYSTEM_PROMPT = (context, url) => [
   '- YOU MUST OBEY EVERYTHING MENTIONED.',
   '',
   '## Context from the paper:',
-  context.slice(0, 25000),
+  context.slice(0, 75000),
   '',
   'Paper URL: ' + url,
   '',
