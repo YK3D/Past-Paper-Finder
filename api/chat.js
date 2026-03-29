@@ -3,6 +3,12 @@ export const config = { runtime: 'edge' };
 export default async function handler(req) {
   if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 });
 
+  // Check request size before parsing — Vercel edge limit is ~4.5MB
+  const contentLength = parseInt(req.headers.get('content-length') || '0');
+  if (contentLength > 200000) {
+    return new Response(JSON.stringify({ error: 'Context too large — please try a shorter question or reload the page.' }), { status: 413 });
+  }
+
   const body     = await req.json().catch(() => ({}));
   const messages = body.messages || [];
   const context  = body.context  || '';
@@ -21,7 +27,7 @@ export default async function handler(req) {
     '- Only reference content that actually appears in the context below.',
     '',
     '## Context from the paper:',
-    context,
+    context.slice(0, 25000),  // safety cap
     '',
     'Paper URL: ' + url,
     '',
