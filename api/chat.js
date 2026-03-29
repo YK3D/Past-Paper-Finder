@@ -27,7 +27,7 @@ const SYSTEM_PROMPT = (context, url) => [
   '- YOU MUST OBEY EVERYTHING MENTIONED.',
   '',
   '## Context from the paper:',
-  context.slice(0, 25000),
+  context.slice(0, 75000),
   '',
   'Paper URL: ' + url,
   '',
@@ -144,7 +144,7 @@ export default async function handler(req) {
   const messages = body.messages || [];
   const context  = body.context  || '';
   const url      = body.url      || 'unknown';
-  const model    = body.model    || 'gemini-2.0-flash-lite';
+  const model    = body.model    || 'groq-llama';
 
   const systemPrompt = SYSTEM_PROMPT(context, url);
   const encoder = new TextEncoder();
