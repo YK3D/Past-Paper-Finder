@@ -3607,15 +3607,17 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     document.getElementById('thumbSidebar').innerHTML = '';
 
     try {
-      // Use <object> to display PDF — scrolls natively on all platforms
       area.innerHTML = '';
-      const obj = document.createElement('object');
-      obj.id = 'pdfObject';
-      obj.data = url;
-      obj.type = 'application/pdf';
-      obj.style.cssText = 'flex:1;width:100%;min-height:0;border:none;display:block;background:#fff;';
-      obj.innerHTML = '<p style="padding:1rem;font-family:Space Mono,monospace;font-size:0.8rem;color:#555">PDF cannot be displayed inline. <a href="' + url + '" target="_blank" style="color:#00e5ff">Open directly ↗</a></p>';
-      area.appendChild(obj);
+      const proxyUrl = '/api/download-pdf?url=' + encodeURIComponent(url);
+      // object first — embed fallback — iframe fallback (exact format as specified)
+      area.innerHTML =
+        '<object data="' + url + '" type="application/pdf" width="100%" height="100%">' +
+          '<p>Your browser does not support PDFs. <a href="' + url + '">Download the PDF</a>.</p>' +
+          '<embed src="' + url + '" type="application/pdf" width="100%" height="100%" />' +
+          '<iframe src="' + url + '" width="100%" height="100%" style="border:none">' +
+            'Your browser does not support PDFs. <a href="' + url + '">Download the PDF</a>.' +
+          '</iframe>' +
+        '</object>';
 
       // Also try to extract text for AI in background via PDF.js
       try {
@@ -3870,6 +3872,34 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     else console.log('[PaperAI] MS fetch failed');
   }
 
+  // Clean extracted page text — strip boilerplate, barcodes, legal text
+  function cleanPageText(raw) {
+    // Skip pages containing BLANK PAGE
+    if (/BLANK\s*PAGE/i.test(raw)) return null;
+
+    // Strip known boilerplate strings
+    const boilerplate = [
+      /©\s*UCLES[^\n]*/gi,
+      /\[Turn over\]/gi,
+      /DO NOT WRITE IN THIS MARGIN/gi,
+      /BLANK PAGE/gi,
+      // Long Cambridge copyright paragraph
+      /Permission to reproduce items where third-party owned material[\s\S]*?University of Cambridge\.?/gi,
+      // Barcode patterns — sequences of only digits/spaces 8+ chars with no letters
+      /\b(?![01\s]+\b)\d[\d\s]{7,}\b/g,  // allow binary (CS exams)
+    ];
+    let text = raw;
+    for (const pat of boilerplate) text = text.replace(pat, ' ');
+
+    // Remove standalone dots and asterisks
+    text = text.split(' ').filter(w => w !== '.' && w !== '*' && w.trim() !== '').join(' ');
+
+    // Collapse multiple spaces
+    text = text.replace(/\s{2,}/g, ' ').trim();
+
+    return text.length > 10 ? text : null;  // discard near-empty pages
+  }
+
   async function fetchFileForAI(fileUrl, label) {
     try {
       const ab = await fetch('/api/download-pdf?url=' + encodeURIComponent(fileUrl)).then(r => r.ok ? r.arrayBuffer() : null);
@@ -3879,7 +3909,9 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       for (let i = 2; i <= doc.numPages; i++) {  // skip page 1
         const pg = await doc.getPage(i);
         const tc = await pg.getTextContent();
-        pages.push(tc.items.map(s => s.str).filter(s => s !== '.').join(' '));
+        const rawFetch = tc.items.map(s => s.str).join(' ');
+        const cleanedFetch = cleanPageText(rawFetch);
+        if (cleanedFetch) pages.push(cleanedFetch);
       }
       _allFilesText[label] = pages.join('\n\n---\n\n');
       console.log('[PaperAI] ' + label + ' loaded, chars:', _allFilesText[label].length);
@@ -3895,7 +3927,9 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     for (let i = 2; i <= pdfDoc.numPages; i++) {  // skip page 1
       const pg = await pdfDoc.getPage(i);
       const tc = await pg.getTextContent();
-      _pdfText.push(tc.items.map(s => s.str).filter(s => s !== '.').join(' '));
+      const rawQp = tc.items.map(s => s.str).join(' ');
+      const cleanedQp = cleanPageText(rawQp);
+      if (cleanedQp) _pdfText.push(cleanedQp);
     }
     const h = document.getElementById('aiHint');
     h.innerHTML = "Suggested: <span onclick=\"aiAsk('Summarise this paper')\">Summarise</span> &middot; <span onclick=\"aiAsk('What topics does this cover?')\">Topics</span> &middot; <span onclick=\"aiAsk('Explain question 1')\">Q1</span>";
@@ -3965,19 +3999,25 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     aiDiv.classList.add('streaming');
 
     try {
-      // Build context from all fetched file texts
+      // Build context — cap at 30,000 chars total to avoid 413 errors
+      const MAX_CTX = 30000;
       const fileCtx = _aiFileList ? 'Available files for this paper: ' + _aiFileList + '\n\n' : '';
-      const qpCtx  = _pdfText.length
-        ? 'QUESTION PAPER TEXT:\n\n' + _pdfText.join('\n\n---\n\n')
+      const qpRaw   = _pdfText.length ? _pdfText.join('\n\n---\n\n') : '';
+      const msRaw   = _msText || '';
+
+      // Split budget: 55% QP, 45% MS (MS is more useful for marking)
+      const qpBudget = Math.floor(MAX_CTX * 0.55);
+      const msBudget = MAX_CTX - qpBudget;
+
+      const qpCtx = qpRaw.length
+        ? 'QUESTION PAPER TEXT:\n\n' + qpRaw.slice(0, qpBudget)
         : 'No question paper text could be extracted.';
-      const msCtx  = _msText
-        ? '\n\n--- MARK SCHEME ---\n(Use these mark points when checking answers. Only state marks that appear here.)\n\n' + _msText
+      const msCtx = msRaw.length
+        ? '\n\n--- MARK SCHEME ---\n(Only state marks that appear here.)\n\n' + msRaw.slice(0, msBudget)
         : '\n\n--- MARK SCHEME ---\nNot available for this paper.';
 
-      // Only QP and MS are given to the AI
-      const extraCtx = '';
-
-      const context = fileCtx + qpCtx + msCtx + extraCtx;
+      const context = fileCtx + qpCtx + msCtx;
+      console.log('[AI] context chars:', context.length);
 
       const resp = await fetch('/api/chat', {
         method: 'POST',
