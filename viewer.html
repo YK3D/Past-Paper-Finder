@@ -3648,16 +3648,40 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
           await renderPageAppend(i);
         }
       } else {
-        // ── Desktop/iOS: object > embed > iframe fallback ──
+        // ── Desktop/iOS: object > embed > iframe ──
+        // Must create fresh DOM elements (not innerHTML) to force browser to reload
         msg.style.display = 'none';
-        area.innerHTML =
-          '<object data="' + url + '" type="application/pdf" width="100%" height="100%">' +
-            '<p>Your browser does not support PDFs. <a href="' + url + '">Download the PDF</a>.</p>' +
-            '<embed src="' + url + '" type="application/pdf" width="100%" height="100%" />' +
-            '<iframe src="' + url + '" width="100%" height="100%" style="border:none">' +
-              'Your browser does not support PDFs. <a href="' + url + '">Download the PDF</a>.' +
-            '</iframe>' +
-          '</object>';
+        area.innerHTML = '';
+
+        const obj = document.createElement('object');
+        obj.type   = 'application/pdf';
+        obj.width  = '100%';
+        obj.height = '100%';
+        obj.style.cssText = 'display:block;border:none;';
+
+        const fallbackP = document.createElement('p');
+        fallbackP.innerHTML = 'Your browser does not support PDFs. <a href="' + url + '">Download the PDF</a>.';
+
+        const emb = document.createElement('embed');
+        emb.type   = 'application/pdf';
+        emb.width  = '100%';
+        emb.height = '100%';
+
+        const frm = document.createElement('iframe');
+        frm.width  = '100%';
+        frm.height = '100%';
+        frm.style.border = 'none';
+        frm.innerHTML = 'Your browser does not support PDFs. <a href="' + url + '">Download the PDF</a>.';
+
+        fallbackP.appendChild(emb);
+        fallbackP.appendChild(frm);
+        obj.appendChild(fallbackP);
+        area.appendChild(obj);
+
+        // Set src AFTER appending — forces fresh load on every switch
+        obj.data  = url;
+        emb.src   = url;
+        frm.src   = url;
 
         // Background: load via PDF.js for text extraction only
         try {
