@@ -3,10 +3,9 @@ export const config = { runtime: 'edge' };
 export default async function handler(req) {
   if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 });
 
-  // Check request size before parsing — Vercel edge limit is ~4.5MB
   const contentLength = parseInt(req.headers.get('content-length') || '0');
   if (contentLength > 200000) {
-    return new Response(JSON.stringify({ error: 'Context too large — please try a shorter question or reload the page.' }), { status: 413 });
+    return new Response(JSON.stringify({ error: 'Context too large — please reload the page.' }), { status: 413 });
   }
 
   const body     = await req.json().catch(() => ({}));
@@ -25,9 +24,14 @@ export default async function handler(req) {
     '- If the mark scheme is not in the context, say "I don\'t have the mark scheme for this paper" — never invent mark points.',
     '- If a question is unclear from the extracted text, say so — do not guess.',
     '- Only reference content that actually appears in the context below.',
+    '- if a mark scheme contains multiple possible answers, mention ALL of them even if the question does not require all answers.',
+    '- when asked to ANSWER a specific question, do not answer other questions as well.',
+    '- when asked to ANSWER a question, you MUST always refer to the mark scheme.',
+    '- when asked to EXPLAIN a question, you MUST always refer to the mark scheme.',
+    '- YOU MUST OBEY EVERYTHING MENTIONED.',
     '',
     '## Context from the paper:',
-    context.slice(0, 25000),  // safety cap
+    context.slice(0, 25000),
     '',
     'Paper URL: ' + url,
     '',
@@ -39,43 +43,38 @@ export default async function handler(req) {
     '- For humanities: use PEEL structure',
     '- Use tables for comparisons, equations with units for science',
     '- Be concise — no padding',
-    '- use emojis generously but not too excessively',
-    '- if a mark scheme contains multiple possible answers, please mention ALL of them EVEN IF the question doesnt require all of the answers.',
-    '- when asked to ANSWER a specific question, do not answer other questions as well',
-    '- when asked to ANSWER a question, you MUST always refer to the mark scheme',
-    '- when asked to EXPLAIN a question, you MUST always refer to the mark scheme',
-    '- YOU MUST OBEY EVERYTHING MENTIONED ',
+    '- Use emojis generously but not excessively',
   ].join('\n');
 
-  // Gemini uses a different messages format — convert from OpenAI format
   const geminiContents = messages.slice(-10).map(m => ({
     role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }]
   }));
 
+  // gemini-2.0-flash-lite: 30 RPM, 1500 req/day — higher limits than 2.0-flash
   const resp = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:streamGenerateContent?alt=sse&key=${apiKey}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: systemPrompt }] },
         contents: geminiContents,
-        generationConfig: {
-          temperature: 0.4,
-          maxOutputTokens: 1024,
-        }
+        generationConfig: { temperature: 0.4, maxOutputTokens: 1024 }
       })
     }
   );
 
-  if (!resp.ok) return new Response(await resp.text(), { status: resp.status });
+  if (!resp.ok) {
+    const errText = await resp.text();
+    if (resp.status === 429) return new Response(JSON.stringify({ error: 'Rate limit — please wait a moment and try again.' }), { status: 429 });
+    return new Response(errText, { status: resp.status });
+  }
 
   const encoder = new TextEncoder();
   const reader  = resp.body.getReader();
   const decoder = new TextDecoder();
 
-  // Convert Gemini SSE stream → our existing SSE format (delta.text)
   const stream = new ReadableStream({
     async start(ctrl) {
       let buf = '';
