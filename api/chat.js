@@ -1,7 +1,16 @@
 export const config = { runtime: 'edge' };
 
-const GEMINI_KEY = process.env.GEMINI_API_KEY;
-const GROQ_KEY   = process.env.GROQ_API_KEY;
+// Primary keys
+const GEMINI_KEY  = process.env.GEMINI_API_KEY;
+const GROQ_KEY    = process.env.GROQ_API_KEY;
+
+// Backup keys — add these in Vercel env vars
+const GEMINI_KEY2 = process.env.GEMINI_API_KEY_2;
+const GEMINI_KEY3 = process.env.GEMINI_API_KEY_3;
+const GROQ_KEY2   = process.env.GROQ_API_KEY_2;
+const GROQ_KEY3   = process.env.GROQ_API_KEY_3;
+
+const RATE_LIMIT_MSG = 'Rate limit reached on all available keys — please switch to a different model using the selector above.';
 
 const SYSTEM_PROMPT = (context, url) => [
   'You are PastPaperAI — an expert exam tutor for CAIE and AQA students.',
@@ -33,19 +42,14 @@ const SYSTEM_PROMPT = (context, url) => [
   '- Use emojis generously but not excessively',
 ].join('\n');
 
-// Gemini streaming call
-async function callGemini(model, systemPrompt, messages) {
-  const geminiModel = model === 'gemini-1.5-flash' ? 'gemini-1.5-flash'
-    : model === 'gemini-2.0-flash' ? 'gemini-2.0-flash'
-    : 'gemini-2.0-flash-lite';
-
+async function tryGemini(key, geminiModel, systemPrompt, messages) {
+  if (!key) return null;
   const contents = messages.slice(-10).map(m => ({
     role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }]
   }));
-
-  return fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:streamGenerateContent?alt=sse&key=${GEMINI_KEY}`,
+  const r = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:streamGenerateContent?alt=sse&key=${key}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -56,17 +60,14 @@ async function callGemini(model, systemPrompt, messages) {
       })
     }
   );
+  return r;
 }
 
-// Groq streaming call
-async function callGroq(model, systemPrompt, messages) {
-  const groqModel = model === 'groq-deepseek'
-    ? 'deepseek-r1-distill-llama-70b'
-    : 'llama-3.3-70b-versatile';
-
-  return fetch('https://api.groq.com/openai/v1/chat/completions', {
+async function tryGroq(key, groqModel, systemPrompt, messages) {
+  if (!key) return null;
+  const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_KEY}` },
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
     body: JSON.stringify({
       model: groqModel,
       messages: [{ role: 'system', content: systemPrompt }, ...messages.slice(-10)],
@@ -75,9 +76,9 @@ async function callGroq(model, systemPrompt, messages) {
       stream: true
     })
   });
+  return r;
 }
 
-// Convert Gemini SSE → our delta.text format
 function makeGeminiStream(resp, encoder) {
   const reader = resp.body.getReader();
   const decoder = new TextDecoder();
@@ -106,7 +107,6 @@ function makeGeminiStream(resp, encoder) {
   });
 }
 
-// Convert Groq/OpenAI SSE → our delta.text format
 function makeGroqStream(resp, encoder) {
   const reader = resp.body.getReader();
   const decoder = new TextDecoder();
@@ -133,6 +133,10 @@ function makeGroqStream(resp, encoder) {
   });
 }
 
+function isRateLimit(resp) {
+  return resp && (resp.status === 429 || resp.status === 413);
+}
+
 export default async function handler(req) {
   if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 });
 
@@ -146,43 +150,42 @@ export default async function handler(req) {
   const encoder = new TextEncoder();
   const isGroq = model.startsWith('groq-');
 
-  // Try primary model
+  const streamOk = (resp, type) => {
+    const stream = type === 'groq' ? makeGroqStream(resp, encoder) : makeGeminiStream(resp, encoder);
+    return new Response(stream, {
+      headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' }
+    });
+  };
+
   try {
-    const apiKey = isGroq ? GROQ_KEY : GEMINI_KEY;
-    if (!apiKey) throw new Error('API key not set');
-
-    const resp = isGroq
-      ? await callGroq(model, systemPrompt, messages)
-      : await callGemini(model, systemPrompt, messages);
-
-    if (resp.ok) {
-      const stream = isGroq
-        ? makeGroqStream(resp, encoder)
-        : makeGeminiStream(resp, encoder);
-      return new Response(stream, {
-        headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' }
-      });
-    }
-
-    // Rate limited — try fallback
-    if (resp.status === 429 || resp.status === 413) {
-      // Fallback: if was Gemini try Groq, if was Groq try Gemini
-      const fallbackIsGroq = !isGroq && !!GROQ_KEY;
-      const fallbackResp = fallbackIsGroq
-        ? await callGroq('groq-llama', systemPrompt, messages)
-        : await callGemini('gemini-1.5-flash', systemPrompt, messages);
-
-      if (fallbackResp.ok) {
-        const stream = fallbackIsGroq
-          ? makeGroqStream(fallbackResp, encoder)
-          : makeGeminiStream(fallbackResp, encoder);
-        return new Response(stream, {
-          headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' }
-        });
+    if (isGroq) {
+      // Try Groq key 1, 2, 3 in order
+      const groqModel = 'llama-3.3-70b-versatile';
+      for (const key of [GROQ_KEY, GROQ_KEY2, GROQ_KEY3]) {
+        const r = await tryGroq(key, groqModel, systemPrompt, messages);
+        if (!r) continue;
+        if (r.ok) return streamOk(r, 'groq');
+        if (!isRateLimit(r)) return new Response(await r.text(), { status: r.status });
+        // rate limited — try next key
+      }
+    } else {
+      // Gemini — try key 1, 2, 3 in order
+      const geminiModel = model === 'gemini-2.0-flash' ? 'gemini-2.0-flash' : 'gemini-2.0-flash-lite';
+      for (const key of [GEMINI_KEY, GEMINI_KEY2, GEMINI_KEY3]) {
+        const r = await tryGemini(key, geminiModel, systemPrompt, messages);
+        if (!r) continue;
+        if (r.ok) return streamOk(r, 'gemini');
+        if (!isRateLimit(r)) return new Response(await r.text(), { status: r.status });
+        // rate limited — try next key
       }
     }
 
-    return new Response(await resp.text(), { status: resp.status });
+    // All keys exhausted — tell user to switch models
+    return new Response(
+      JSON.stringify({ error: RATE_LIMIT_MSG }),
+      { status: 429, headers: { 'Content-Type': 'application/json' } }
+    );
+
   } catch (e) {
     return new Response(JSON.stringify({ error: e.message }), { status: 500 });
   }
