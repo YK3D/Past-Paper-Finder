@@ -1852,8 +1852,12 @@
   background: rgba(62,228,254,0.07); border: 1px solid rgba(62,228,254,0.15);
   border-radius: 4px; padding: 0.1rem 0.4rem; color: var(--accent);
 }
+.qs-result-qnum {
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.75rem;
+  color: var(--accent); margin-bottom: 0.25rem;
+}
 .qs-result-question {
-  font-family: 'Space Mono', monospace; font-size: 0.72rem;
+  font-family: 'Syne', sans-serif; font-size: 0.78rem; font-weight: 600;
   color: var(--text); line-height: 1.6; margin-bottom: 0.6rem;
 }
 .qs-result-links { display: flex; gap: 0.5rem; flex-wrap: wrap; }
@@ -1871,11 +1875,18 @@
   color: var(--muted); text-align: center; padding: 1.5rem 0;
 }
 .qs-result-ms {
-  font-family: 'Space Mono', monospace; font-size: 0.63rem;
-  color: #22c55e; background: rgba(34,197,94,0.05);
-  border: 1px solid rgba(34,197,94,0.15); border-radius: 6px;
-  padding: 0.5rem 0.7rem; margin-bottom: 0.6rem;
-  white-space: pre-wrap; line-height: 1.6;
+  background: rgba(34,197,94,0.04); border: 1px solid rgba(34,197,94,0.15);
+  border-radius: 6px; padding: 0.6rem 0.8rem; margin-bottom: 0.6rem;
+}
+.qs-ms-label {
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.65rem;
+  color: #22c55e; letter-spacing: 0.06em; text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+.qs-ms-pre {
+  font-family: 'Space Mono', monospace; font-size: 0.62rem;
+  color: #86efac; white-space: pre-wrap; word-break: break-word;
+  line-height: 1.7; margin: 0; overflow-x: auto;
 }
 </style>
   <script defer src="/_vercel/speed-insights/script.js"></script>
@@ -5244,24 +5255,45 @@
   })();
   // ── Question Search (via caiefinder data API) ──
   // Parse caiefinder plain-text response format
-  function parseQsResults(text) {
+  function stripHtml(s) {
+    return s.replace(/<script[\s\S]*?<\/script>/gi, '')
+            .replace(/<[^>]+>/g, '')
+            .replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ');
+  }
+
+  function parseQsResults(rawText) {
+    // Strip all HTML tags — caiefinder response may contain inline scripts/tags
+    const text = stripHtml(rawText);
     const results = [];
     const base = 'https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/';
 
-    // Split on result headers: lines like "IGCSE - Subject (CODE) Session Year Varient: N"
-    const blocks = (function(){const out=[],ls=text.split('\n');let buf=[];for(let li=0;li<ls.length;li++){const l=ls[li],nl=ls[li+1]||'';if(buf.length&&/^[A-Z]/.test(l)&&l.indexOf('(')>-1&&/\d{4}/.test(l)&&nl.indexOf('\u2193 FOUND \u2193')>-1){out.push(buf.join('\n'));buf=[];}buf.push(l);}if(buf.length)out.push(buf.join('\n'));return out;})()
+    // Split into blocks — each block starts with a header line followed by ↓ FOUND ↓
+    const blocks = (function(){
+      const out = [], ls = text.split('\n');
+      let buf = [];
+      for (let li = 0; li < ls.length; li++) {
+        const l = ls[li], nl = ls[li+1] || '';
+        if (buf.length && /^[A-Z]/.test(l) && l.indexOf('(') > -1 && /\d{4}/.test(l) && nl.indexOf('↓ FOUND ↓') > -1) {
+          out.push(buf.join('\n'));
+          buf = [];
+        }
+        buf.push(l);
+      }
+      if (buf.length) out.push(buf.join('\n'));
+      return out;
+    })();
 
     for (let i = 0; i < blocks.length; i++) {
       const block = blocks[i];
       if (!block.includes('↓ FOUND ↓')) continue;
       const lines = block.trim().split('\n');
 
-      // Header line e.g. "IGCSE - Computer Science (0478) May/June 2022 Varient: 2 Paper: 1"
+      // Header: "IGCSE - Computer Science (0478) May/June 2022 Varient: 2 Paper: 1"
       const hLine = lines[0] || '';
       const hm = hLine.match(/^(.+?)\s+\((\d{4})\)\s+([\w/]+)\s+(\d{4})(?:.*?Varient:\s*(\d+))?(?:.*?Paper:\s*(\d+))?/i);
       if (!hm) continue;
 
-      const dashIdx = hLine.indexOf(' - ');
+      const dashIdx  = hLine.indexOf(' - ');
       const examLevel = dashIdx > -1 ? hLine.substring(0, dashIdx).trim() : '';
       const subject   = dashIdx > -1 ? hLine.substring(dashIdx + 3, hLine.indexOf('(')).trim() : hm[1];
       const code      = hm[2];
@@ -5270,40 +5302,44 @@
       const variant   = hm[5] || '';
       const paper     = hm[6] || '';
 
-      // QP filename: "↓ FOUND ↓ in 0478_s22_qp_12 ←"
-      const foundLine = lines.find(function(l) { return l.includes('↓ FOUND ↓'); }) || '';
-      const qpMatch   = foundLine.match(/in\s+([\w]+)\s*←/);
+      // QP filename from "↓ FOUND ↓ in 0478_s22_qp_12 ←"
+      const foundLine = lines.find(function(l){ return l.includes('↓ FOUND ↓'); }) || '';
+      const qpMatch   = foundLine.match(/in\s+(\w+)\s*←/);
       const qpFile    = qpMatch ? qpMatch[1] + '.pdf' : '';
 
-      // Question text: line starting with — or –
-      const qNumLine  = lines.find(function(l) { return /^Question No:/i.test(l.trim()); }) || '';
-      const qNum      = qNumLine.replace(/Question No:/i, '').trim();
-      const qLine     = lines.find(function(l) { return /^[—–\-]\s*/.test(l.trim()); }) || '';
-      const qText     = (qNum ? 'Q' + qNum + ': ' : '') + qLine.replace(/^[—–\-]+\s*/, '').trim();
+      // Question number: "Question No: 7"
+      const qNumLine = lines.find(function(l){ return /^Question No:/i.test(l.trim()); }) || '';
+      const qNum     = qNumLine.replace(/Question No:/i,'').trim();
 
-      // MS filename: "↓ Below is the answer... in 0478_s22_ms_12 ←"
-      const msLine    = lines.find(function(l) { return l.includes('↓ Below is the answer'); }) || '';
-      const msMatch   = msLine.match(/in\s+([\w]+)\s*←/);
-      const msFile    = msMatch ? msMatch[1] + '.pdf' : qpFile.replace('_qp_', '_ms_').replace('_qp.', '_ms.');
+      // Question text: line starting with — (em dash or hyphen)
+      const qLine    = lines.find(function(l){ return /^[\u2014\u2013\-]/.test(l.trim()); }) || '';
+      const qText    = qLine.replace(/^[\u2014\u2013\-]+\s*/, '').trim();
 
-      // MS answer text — lines after the MS header, before PUBLISHED
-      const msIdx     = lines.findIndex(function(l) { return l.includes('↓ Below is the answer'); });
-      const pubIdx    = lines.findIndex(function(l) { return l.includes('PUBLISHED'); });
-      const msLines   = msIdx > -1 ? lines.slice(msIdx + 1, pubIdx > msIdx ? pubIdx : msIdx + 20) : [];
-      const msSnippet = msLines.join('\n').replace(/\s+/g, ' ').trim().substring(0, 400);
+      // MS filename from "↓ Below is the answer ↓ in 0478_s22_ms_12 ←"
+      const msLine   = lines.find(function(l){ return l.includes('↓ Below is the answer'); }) || '';
+      const msMatch  = msLine.match(/in\s+(\w+)\s*←/);
+      const msFile   = msMatch ? msMatch[1] + '.pdf' : qpFile.replace('_qp_','_ms_').replace('_qp.','_ms.');
+
+      // MS answer lines — between MS header and PUBLISHED, preserve whitespace
+      const msIdx  = lines.findIndex(function(l){ return l.includes('↓ Below is the answer'); });
+      const pubIdx = lines.findIndex(function(l){ return l.includes('PUBLISHED'); });
+      const endIdx = pubIdx > msIdx && pubIdx > -1 ? pubIdx : Math.min(msIdx + 25, lines.length);
+      const msLines = msIdx > -1 ? lines.slice(msIdx + 1, endIdx) : [];
+      // Remove leading blank lines, keep internal formatting
+      const msText = msLines.join('\n').replace(/^[\s\n]+/, '').replace(/[\s\n]+$/, '');
 
       results.push({
-        subject:   subject,
-        code:      code,
-        exam:      examLevel,
-        year:      year,
-        session:   session,
-        paper:     variant ? 'Variant ' + variant + (paper ? ', Paper ' + paper : '') : (paper ? 'Paper ' + paper : ''),
-        question:  qText || 'See paper',
-        msSnippet: msSnippet,
-        qpUrl:     qpFile ? base + qpFile : '',
-        msUrl:     msFile ? base + msFile : '',
-        sourceUrl: 'https://caiefinder.com',
+        subject:    subject,
+        code:       code,
+        exam:       examLevel,
+        year:       year,
+        session:    session,
+        paper:      variant ? 'Variant ' + variant + (paper ? ', Paper ' + paper : '') : (paper ? 'Paper ' + paper : ''),
+        qNum:       qNum,
+        question:   qText || 'See paper',
+        msSnippet:  msText,
+        qpUrl:      qpFile ? base + qpFile : '',
+        msUrl:      msFile ? base + msFile : '',
       });
       if (results.length >= 8) break;
     }
@@ -5358,11 +5394,15 @@
         const qpLink = item.qpUrl ? '<a class="qs-result-link" href="' + item.qpUrl + '" target="_blank">Question Paper ↗</a>' : '';
         const msLink = item.msUrl ? '<a class="qs-result-link ms" href="' + item.msUrl + '" target="_blank">Mark Scheme ↗</a>' : '';
         const caieLink = item.sourceUrl ? '<a class="qs-result-link" href="' + item.sourceUrl + '" target="_blank" style="color:#666;border-color:rgba(128,128,128,0.25)">View on CaieFinder ↗</a>' : '';
+        const qHeader = item.qNum
+          ? '<div class="qs-result-qnum">Question ' + item.qNum + '</div>'
+          : '';
         const msSnip = item.msSnippet
-          ? '<div class="qs-result-ms">' + item.msSnippet.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>'
+          ? '<div class="qs-result-ms"><div class="qs-ms-label">Mark Scheme Answer</div><pre class="qs-ms-pre">' + item.msSnippet.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</pre></div>'
           : '';
         return '<div class="qs-result-card">'
           + '<div class="qs-result-meta">' + tags + '</div>'
+          + qHeader
           + '<div class="qs-result-question">' + item.question.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>'
           + msSnip
           + '<div class="qs-result-links">' + qpLink + msLink + caieLink + '</div>'
