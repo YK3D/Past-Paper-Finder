@@ -39,7 +39,7 @@
     --bg: #0a0a0f;
     --surface: #13131a;
     --border: #2a2a3a;
-    --accent: #3EE4FE;
+    --accent: #00e5ff;
     --accent2: #ff4d6d;
     --text: #e8e8f0;
     --muted: #6b6b85;
@@ -49,7 +49,7 @@
     --bg: #f0f2f8;
     --surface: #ffffff;
     --border: #d0d4e8;
-    --accent: #2ab5cc;
+    --accent: #0099bb;
     --accent2: #e03050;
     --text: #1a1a2e;
     --muted: #7070a0;
@@ -1627,7 +1627,7 @@
 –bg: #0a0a0f;
 –surface: #13131a;
 –border: #2a2a3a;
-–accent: #3EE4FE;
+–accent: #00e5ff;
 –accent2: #ff4d6d;
 –text: #e8e8f0;
 –muted: #6b6b85;
@@ -1637,7 +1637,7 @@ body.light {
 –bg: #f0f2f8;
 –surface: #ffffff;
 –border: #d0d4e8;
-–accent: #2ab5cc;
+–accent: #0099bb;
 –accent2: #e03050;
 –text: #1a1a2e;
 –muted: #7070a0;
@@ -3321,12 +3321,12 @@ color: #22c55e !important;
 .topbar-dl-mobile:hover { background: #22c55e !important; color: #000 !important; }
 }
 .topbar-action {
-background: transparent; border: 1px solid #444; border-radius: 6px;
-color: #aaa; font-size: 0.65rem; padding: 0.25rem 0.5rem;
+background: #1e1e1e; border: 1px solid #555; border-radius: 6px;
+color: #ccc; font-size: 0.68rem; padding: 0.3rem 0.65rem;
 cursor: pointer; white-space: nowrap; font-family: ‘Space Mono’, monospace;
-transition: border-color 0.15s, color 0.15s;
+transition: all 0.2s; font-weight: 600;
 }
-.topbar-action:hover { border-color: var(–accent); color: var(–accent); }
+.topbar-action:hover { border-color: var(–accent); color: var(–accent); background: rgba(0,229,255,0.06); }
 
 /* ── File chip bar (inline in topbar) ── */
 .file-chip-bar-inline {
@@ -3334,13 +3334,13 @@ display: flex; flex-wrap: wrap; gap: 0.3rem;
 align-items: center; flex-shrink: 0;
 }
 .file-chip {
-padding: 0.2rem 0.6rem; border-radius: 20px; border: 1px solid var(–accent);
-font-family: ‘Space Mono’, monospace; font-size: 0.6rem;
-cursor: pointer; background: transparent; color: var(–accent);
-transition: all 0.15s; white-space: nowrap;
+padding: 0.3rem 0.75rem; border-radius: 20px; border: 1px solid #555;
+font-family: ‘Space Mono’, monospace; font-size: 0.68rem;
+cursor: pointer; background: #1e1e1e; color: #aaa;
+transition: all 0.2s; white-space: nowrap; font-weight: 600;
 }
-.file-chip:hover { background: rgba(0,229,255,0.12); }
-.file-chip.active { background: var(–accent); color: #000; border-color: var(–accent); font-weight: 700; }
+.file-chip:hover { border-color: var(–accent); color: var(–accent); background: rgba(0,229,255,0.06); transform: translateY(-1px); }
+.file-chip.active { background: var(–accent); color: #000; border-color: var(–accent); font-weight: 700; box-shadow: 0 2px 10px rgba(0,229,255,0.35); }
 .file-chip.audio { border-color: var(–accent2); color: var(–accent2); }
 .file-chip.audio.active { background: var(–accent); color: #000; border-color: var(–accent); }
 
@@ -3435,11 +3435,13 @@ transition: width 0.25s ease; overflow: hidden;
 .ai-panel.collapsed .ai-topbar { justify-content: center; padding: 0; }
 .ai-panel.collapsed .ai-toggle-btn { margin: auto; }
 .ai-model-select {
-background: #1a1a1a; border: 1px solid #333; border-radius: 6px;
-color: #fff; font-family: ‘Space Mono’, monospace; font-size: 0.58rem;
-padding: 0.2rem 0.4rem; cursor: pointer; outline: none; flex-shrink: 0;
-max-width: 120px;
+background: #1e1e1e; border: 1px solid #555; border-radius: 6px;
+color: #ccc; font-family: ‘Space Mono’, monospace; font-size: 0.65rem;
+padding: 0.25rem 0.5rem; cursor: pointer; outline: none; flex-shrink: 0;
+max-width: 130px; font-weight: 600;
+transition: border-color 0.2s, color 0.2s;
 }
+.ai-model-select:hover { border-color: var(–accent); color: var(–accent); }
 .ai-model-select:focus { border-color: var(–accent); }
 .ai-model-select option { background: #1a1a1a; }
 .ai-topbar {
@@ -3456,11 +3458,11 @@ font-family: ‘Space Mono’, monospace; transition: all 0.15s;
 .ai-clear-btn:hover { border-color: var(–accent); color: var(–accent); }
 .ai-toggle-btn {
 background: rgba(0,229,255,0.1); border: 1px solid var(–accent); border-radius: 8px;
-color: var(–accent); font-size: 1.1rem; width: 32px; height: 32px;
+color: var(–accent); font-size: 1rem; width: 32px; height: 32px;
 display: flex; align-items: center; justify-content: center;
 cursor: pointer; flex-shrink: 0; transition: all 0.2s; font-weight: 700;
 }
-.ai-toggle-btn:hover { background: var(–accent); color: #000; }
+.ai-toggle-btn:hover { background: var(–accent); color: #000; box-shadow: 0 2px 10px rgba(0,229,255,0.3); }
 .ai-messages { flex: 1; overflow-y: auto; padding: 0.8rem; display: flex; flex-direction: column; gap: 0.7rem; }
 .ai-messages::-webkit-scrollbar { width: 4px; }
 .ai-messages::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
@@ -3500,7 +3502,7 @@ content: “”; position: absolute; top: 50%; left: 50%; width: 600px; height: 
 @keyframes cgs { 100% { transform: translate(-50%,-50%) rotate(360deg); } }
 .ai-textarea {
 position: relative; z-index: 2; width: 100%; background: transparent; border: none;
-border-radius: 8px; color: #fff; font-family: ‘Anthropic Sans’,‘Helvetica Neue’,Arial,sans-serif;
+border-radius: 8px; color: var(–text); font-family: ‘Anthropic Sans’,‘Helvetica Neue’,Arial,sans-serif;
 font-size: 0.7rem; padding: 0.5rem 0.65rem; outline: none; resize: none; height: 56px; display: block;
 }
 .ai-send-btn {
@@ -3583,7 +3585,7 @@ overflow: hidden;
       <button class="ai-toggle-btn" id="aiToggleBtn" onclick="toggleAiPanel()">&#8250;</button>
     </div>
     <div class="ai-messages" id="aiMessages">
-      <div class="ai-msg ai">Hi! I'm PastPaperAI &#127891;<br><br>Ask me anything about this exam &mdash; I can explain questions, summarise topics &amp; answer questions.<br><br><span style="font-size:0.62rem;color:#666">PastPaperAI may make mistakes. For reference only.</span></div>
+      <div class="ai-msg ai">Hi! I&rsquo;m PastPaperAI &#127891;<br><br>Ask me anything about this exam &mdash; I can explain questions, summarise topics &amp; answer questions.<br><br><span style="font-size:0.62rem;color:#666">PastPaperAI may make mistakes. For reference only.</span></div>
     </div>
     <div class="ai-hint" id="aiHint"></div>
     <div class="ai-input-row">
