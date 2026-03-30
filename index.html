@@ -5326,58 +5326,31 @@
       }
     } catch {}
   })();
-  // ── Question Search ──
-  function stripHtml(s) {
-    return s.replace(/<script[\s\S]*?<\/script>/gi,'').replace(/<[^>]+>/g,'')
-            .replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ');
-  }
-  function parseQsResults(rawText) {
-    const text = stripHtml(rawText);
-    const results = [];
-    const base = 'https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/';
-    const lines = text.split('\n');
-    const blocks = [];
-    let buf = [];
-    for (let li = 0; li < lines.length; li++) {
-      const l = lines[li].trimEnd();
-      const nl = (lines[li+1]||'').trimEnd();
-      if (buf.length && /^[A-Z]/.test(l) && /\(\d{4}\)/.test(l) && nl.indexOf('\u2193 FOUND \u2193') > -1) {
-        blocks.push(buf.join('\n')); buf = [];
-      }
-      buf.push(l);
-    }
-    if (buf.length) blocks.push(buf.join('\n'));
-    for (let i = 0; i < blocks.length; i++) {
-      const block = blocks[i];
-      if (!block.includes('\u2193 FOUND \u2193')) continue;
-      const headerIdx = block.search(/^[A-Z][^\n]+\(\d{4}\)/m);
-      const cleanBlock = headerIdx > 0 ? block.substring(headerIdx) : block;
-      const blines = cleanBlock.split('\n');
-      const hLine = blines[0] || '';
-      const hm = hLine.match(/^(.+?)\s+\((\d{4})\)\s+([\w/]+)\s+(\d{4})(?:.*?Varient:\s*(\d+))?(?:.*?Paper:\s*(\d+))?/i);
-      if (!hm) continue;
-      const dashIdx = hLine.indexOf(' - ');
-      const examLevel = dashIdx > -1 ? hLine.substring(0, dashIdx).trim() : '';
-      const subject   = dashIdx > -1 ? hLine.substring(dashIdx+3, hLine.indexOf('(')).trim() : hm[1];
-      const code = hm[2], session = hm[3], year = hm[4], variant = hm[5]||'', paper = hm[6]||'';
-      const foundLine = blines.find(function(l){return l.includes('\u2193 FOUND \u2193');}) || '';
-      const qpMatch = foundLine.match(/in\s+(\w+)\s*\u2190/);
-      const qpFile = qpMatch ? qpMatch[1]+'.pdf' : '';
-      const msLine = blines.find(function(l){return l.includes('\u2193 Below is the answer');}) || '';
-      const msMatch = msLine.match(/in\s+(\w+)\s*\u2190/);
-      const msFile = msMatch ? msMatch[1]+'.pdf' : qpFile.replace('_qp_','_ms_').replace('_qp.','_ms.');
-      results.push({ subject, code, exam: examLevel, year, session,
-        paper: variant ? 'Variant '+variant+(paper?', Paper '+paper:'') : (paper?'Paper '+paper:''),
-        rawBlock: cleanBlock.trim(), qpUrl: qpFile ? base+qpFile : '', msUrl: msFile ? base+msFile : '' });
-      if (results.length >= 8) break;
-    }
-    return results;
-  }
+  // ── Question Search (AI-parsed via Groq) ──
   function buildCaieUrl(q, subs, zone) {
     const p = new URLSearchParams();
     p.set('subs', subs||''); p.set('zone', zone||''); p.set('search', q);
     return 'https://caiefinder.com/search/?'+p.toString();
   }
+
+  function renderQsResults(parsed) {
+    const base = 'https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/';
+    return parsed.map(function(item) {
+      const qpUrl = item.qpFile ? base + item.qpFile + '.pdf' : '';
+      const msUrl = item.msFile ? base + item.msFile + '.pdf' : '';
+      const tags = [item.subject, item.code, item.exam, item.year, item.session,
+        item.variant ? 'Variant '+item.variant+(item.paper?', Paper '+item.paper:'') : (item.paper?'Paper '+item.paper:'')]
+        .filter(Boolean).map(function(t){ return '<span>'+t.replace(/</g,'&lt;')+'</span>'; }).join('');
+      const qpLink = qpUrl ? '<a class="qs-result-link" href="'+qpUrl+'" target="_blank">Question Paper ↗</a>' : '';
+      const msLink = msUrl ? '<a class="qs-result-link ms" href="'+msUrl+'" target="_blank">Mark Scheme ↗</a>' : '';
+      return '<div class="qs-result-card">'
+        +'<div class="qs-result-meta">'+tags+'</div>'
+        +'<pre class="qs-raw-block">'+item.rawBlock.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</pre>'
+        +'<div class="qs-result-links">'+qpLink+msLink+'</div>'
+        +'</div>';
+    }).join('');
+  }
+
   async function runQuestionSearch() {
     const input = document.getElementById('qsInput');
     const btn   = document.getElementById('qsBtn');
@@ -5386,40 +5359,53 @@
     const zone  = (document.getElementById('qsZone')||{}).value||'';
     const query = (input.value||'').trim();
     if (!query) return;
+
     btn.disabled = true; btn.textContent = 'Searching…';
-    res.innerHTML = '<p class="qs-no-results" style="color:var(--muted)">Searching…</p>';
+    res.innerHTML = '<p class="qs-no-results" style="color:var(--muted)">Fetching results…</p>';
     res.style.display = 'flex';
+
     try {
+      // Step 1: fetch raw text from caiefinder
       const params = new URLSearchParams();
       params.set('subs', subs); params.set('zone', zone); params.set('search', query);
-      let text = null;
+      let rawText = null;
       try {
         const r = await fetch('https://data.caiefinder.com/search/data/?'+params.toString(), {headers:{'Accept':'text/html,*/*'}});
-        if (!r.ok) throw new Error('status '+r.status);
-        text = await r.text();
+        if (!r.ok) throw new Error('caiefinder status '+r.status);
+        rawText = await r.text();
       } catch(corsErr) {
         window.open(buildCaieUrl(query,subs,zone), '_blank');
         res.innerHTML = '<p class="qs-no-results">Opening on caiefinder.com in a new tab…</p>';
         btn.disabled = false; btn.textContent = 'Search'; return;
       }
-      const parsed = parseQsResults(text);
-      if (!parsed.length) {
+
+      // Strip HTML tags from response
+      rawText = rawText.replace(/<script[\s\S]*?<\/script>/gi,'').replace(/<[^>]+>/g,'')
+                       .replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ');
+
+      if (!rawText || rawText.trim().length < 20) {
         res.innerHTML = '<p class="qs-no-results">No results — <a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">search on caiefinder.com ↗</a></p>';
         return;
       }
-      res.innerHTML = parsed.map(function(item) {
-        const tags = [item.subject,item.code,item.exam,item.year,item.session,item.paper]
-          .filter(Boolean).map(function(t){return '<span>'+t.replace(/</g,'&lt;')+'</span>';}).join('');
-        const qpLink = item.qpUrl ? '<a class="qs-result-link" href="'+item.qpUrl+'" target="_blank">Question Paper ↗</a>' : '';
-        const msLink = item.msUrl ? '<a class="qs-result-link ms" href="'+item.msUrl+'" target="_blank">Mark Scheme ↗</a>' : '';
-        return '<div class="qs-result-card">'
-          +'<div class="qs-result-meta">'+tags+'</div>'
-          +'<pre class="qs-raw-block">'+item.rawBlock.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</pre>'
-          +'<div class="qs-result-links">'+qpLink+msLink+'</div>'
-          +'</div>';
-      }).join('');
+
+      // Step 2: send to AI parser
+      res.innerHTML = '<p class="qs-no-results" style="color:var(--muted)">Parsing results with AI…</p>';
+      const parseResp = await fetch('/api/parse-qs', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ rawText })
+      });
+      const parseData = await parseResp.json();
+
+      if (!parseData.results || !parseData.results.length) {
+        res.innerHTML = '<p class="qs-no-results">No results parsed — <a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">search on caiefinder.com ↗</a></p>';
+        return;
+      }
+
+      res.innerHTML = renderQsResults(parseData.results);
+
     } catch(e) {
-      res.innerHTML = '<p class="qs-no-results">Error — <a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">try caiefinder.com ↗</a></p>';
+      res.innerHTML = '<p class="qs-no-results">Error: '+e.message+' — <a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">try caiefinder.com ↗</a></p>';
     } finally {
       btn.disabled = false; btn.textContent = 'Search';
     }
