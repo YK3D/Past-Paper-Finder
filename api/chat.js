@@ -180,13 +180,14 @@ if (!isRateLimit(r)) return new Response(await r.text(), { status: r.status });
 }
 }
 
-```
+
 // All keys exhausted — tell user to switch models
 return new Response(
   JSON.stringify({ error: RATE_LIMIT_MSG }),
   { status: 429, headers: { 'Content-Type': 'application/json' } }
 );
-```
+
+
 
 } catch (e) {
 return new Response(JSON.stringify({ error: e.message }), { status: 500 });
