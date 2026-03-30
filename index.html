@@ -1870,6 +1870,13 @@
   font-family: 'Space Mono', monospace; font-size: 0.72rem;
   color: var(--muted); text-align: center; padding: 1.5rem 0;
 }
+.qs-result-ms {
+  font-family: 'Space Mono', monospace; font-size: 0.63rem;
+  color: #22c55e; background: rgba(34,197,94,0.05);
+  border: 1px solid rgba(34,197,94,0.15); border-radius: 6px;
+  padding: 0.5rem 0.7rem; margin-bottom: 0.6rem;
+  white-space: pre-wrap; line-height: 1.6;
+}
 </style>
   <script defer src="/_vercel/speed-insights/script.js"></script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1496392952885490" crossorigin="anonymous"></script>
@@ -5236,11 +5243,21 @@
     } catch {}
   })();
   // ── Question Search (via caiefinder data API) ──
+  function buildCaieUrl(q, subs, zone) {
+    const p = new URLSearchParams();
+    p.set('subs', subs || '');
+    p.set('zone', zone || '');
+    p.set('search', q);
+    return 'https://caiefinder.com/search/?' + p.toString();
+  }
   async function runQuestionSearch() {
     const input   = document.getElementById('qsInput');
     const btn     = document.getElementById('qsBtn');
     const results = document.getElementById('qsResults');
     const query   = (input.value || '').trim();
+    // Update direct link
+    const dl = document.getElementById('qsDirectLink');
+    if (dl) dl.href = buildCaieUrl(query, subs, zone);
     if (!query) return;
     const subs = (document.getElementById('qsSubs') || {}).value || '';
     const zone = (document.getElementById('qsZone') || {}).value || '';
@@ -5258,7 +5275,7 @@
 
       if (!data.results || !data.results.length) {
         results.innerHTML = '<p class="qs-no-results">No results found — try different words, or '
-          + '<a href="https://caiefinder.com/search/?search=' + encodeURIComponent(query) + '" target="_blank" style="color:var(--accent)">search on caiefinder.com ↗</a></p>';
+          + '<a href="' + buildCaieUrl(query, subs, zone) + '" target="_blank" style="color:var(--accent)">search on caiefinder.com ↗</a></p>';
         return;
       }
 
@@ -5270,15 +5287,19 @@
         const qpLink = item.qpUrl ? '<a class="qs-result-link" href="' + item.qpUrl + '" target="_blank">Question Paper ↗</a>' : '';
         const msLink = item.msUrl ? '<a class="qs-result-link ms" href="' + item.msUrl + '" target="_blank">Mark Scheme ↗</a>' : '';
         const caieLink = item.sourceUrl ? '<a class="qs-result-link" href="' + item.sourceUrl + '" target="_blank" style="color:#666;border-color:rgba(128,128,128,0.25)">View on CaieFinder ↗</a>' : '';
+        const msSnip = item.msSnippet
+          ? '<div class="qs-result-ms">' + item.msSnippet.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>'
+          : '';
         return '<div class="qs-result-card">'
           + '<div class="qs-result-meta">' + tags + '</div>'
           + '<div class="qs-result-question">' + item.question.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>'
+          + msSnip
           + '<div class="qs-result-links">' + qpLink + msLink + caieLink + '</div>'
           + '</div>';
       }).join('');
     } catch(e) {
       results.innerHTML = '<p class="qs-no-results">Search failed — '
-        + '<a href="https://caiefinder.com/search/?search=' + encodeURIComponent(query) + '" target="_blank" style="color:var(--accent)">try caiefinder.com directly ↗</a></p>';
+        + '<a href="' + buildCaieUrl(query, subs, zone) + '" target="_blank" style="color:var(--accent)">try caiefinder.com directly ↗</a></p>';
     } finally {
       btn.disabled = false;
       btn.textContent = 'Search';
@@ -5443,9 +5464,13 @@
     </select>
   </div>
   <div class="question-search-row">
-    <input class="question-search-input" id="qsInput" type="text" placeholder="e.g. calculate the velocity of the particle" onkeydown="if(event.key==='Enter')runQuestionSearch()">
+    <input class="question-search-input" id="qsInput" type="text" placeholder="e.g. six statements are given about storage" onkeydown="if(event.key==='Enter')runQuestionSearch()">
     <button class="question-search-btn" id="qsBtn" onclick="runQuestionSearch()">Search</button>
   </div>
+  <p style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--muted);margin-top:0.5rem">
+    Results powered by <a href="https://caiefinder.com" target="_blank" style="color:var(--accent)">caiefinder.com</a> &nbsp;·&nbsp;
+    <a id="qsDirectLink" href="https://caiefinder.com/search/" target="_blank" style="color:var(--muted)">Open directly on CaieFinder ↗</a>
+  </p>
   <div class="question-search-results" id="qsResults" style="display:none"></div>
 
 </div>
