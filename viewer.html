@@ -3332,6 +3332,47 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 }
 .topbar-action:hover { border-color: var(--accent); color: var(--accent); }
 
+/* ── Timer & Clock ── */
+.timer-clock-bar {
+  display: flex; align-items: center; gap: 0.4rem;
+  padding: 0.3rem 0.8rem; background: #1a1a1a;
+  border-bottom: 1px solid #2a2a2a; flex-shrink: 0;
+  font-family: 'Space Mono', monospace; font-size: 0.65rem;
+  flex-wrap: wrap; overflow: hidden;
+  transition: max-height 0.25s ease, padding 0.25s ease;
+  max-height: 80px;
+}
+.timer-clock-bar.collapsed {
+  max-height: 32px; padding-top: 0.15rem; padding-bottom: 0.15rem;
+}
+.clock-display {
+  color: #aaa; letter-spacing: 0.05em; min-width: 5rem;
+}
+.timer-display {
+  color: var(--accent); font-weight: 700; letter-spacing: 0.08em;
+  min-width: 5.5rem; transition: color 0.3s;
+}
+.timer-display.warning { color: #f59e0b; }
+.timer-display.danger  { color: #ef4444; animation: timerPulse 1s ease-in-out infinite; }
+@keyframes timerPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.timer-btn {
+  background: transparent; border: 1px solid #444; border-radius: 5px;
+  color: #888; font-size: 0.6rem; padding: 0.15rem 0.4rem;
+  cursor: pointer; font-family: 'Space Mono', monospace;
+  transition: all 0.15s; white-space: nowrap;
+}
+.timer-btn:hover { border-color: var(--accent); color: var(--accent); }
+.timer-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(62,228,254,0.08); }
+.timer-btn.danger { border-color: #ef4444; color: #ef4444; }
+.timer-sep { color: #333; user-select: none; }
+.timer-preset-wrap { display: flex; gap: 0.3rem; align-items: center; }
+.timer-custom-input {
+  background: #111; border: 1px solid #333; border-radius: 5px;
+  color: #ccc; font-family: 'Space Mono', monospace; font-size: 0.6rem;
+  width: 3.5rem; padding: 0.15rem 0.3rem; outline: none; text-align: center;
+}
+.timer-custom-input:focus { border-color: var(--accent); }
+
 /* ── File chip bar (inline in topbar) ── */
 .file-chip-bar-inline {
   display: flex; flex-wrap: wrap; gap: 0.3rem;
@@ -3571,6 +3612,29 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         <button class="topbar-action topbar-dl-mobile" onclick="downloadPaper()">&#8659; Download</button>
       </div>
     </div>
+    <!-- Timer & Clock Bar -->
+    <div class="timer-clock-bar" id="timerClockBar">
+      <button class="timer-btn" id="timerCollapseBtn" onclick="timerBarToggle()" title="Hide/show timer" style="border-color:#555;padding:0.1rem 0.35rem;font-size:0.7rem">&#9650;</button>
+      <span id="clockDisplay" class="clock-display">00:00:00</span>
+      <span class="timer-sep" id="timerBarInner">|</span>
+      <div id="timerBarInner" style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap">
+        <span id="timerDisplay" class="timer-display">00:00</span>
+        <button class="timer-btn active" id="timerStartBtn" onclick="timerToggle()">&#9654; Start</button>
+        <button class="timer-btn" onclick="timerReset()">&#8635; Reset</button>
+        <span class="timer-sep">|</span>
+        <button class="timer-btn" id="swBtn" onclick="timerModeSwitch('stopwatch')" style="border-color:var(--accent);color:var(--accent)">Stopwatch</button>
+        <button class="timer-btn" id="cdBtn" onclick="timerModeSwitch('countdown')">Countdown</button>
+        <div id="countdownPresets" style="display:none;align-items:center;gap:0.3rem;flex-wrap:wrap" class="timer-preset-wrap">
+          <button class="timer-btn" onclick="timerSetPreset(30)">30m</button>
+          <button class="timer-btn" onclick="timerSetPreset(45)">45m</button>
+          <button class="timer-btn" onclick="timerSetPreset(60)">1h</button>
+          <button class="timer-btn" onclick="timerSetPreset(90)">1.5h</button>
+          <button class="timer-btn" onclick="timerSetPreset(120)">2h</button>
+          <input class="timer-custom-input" id="timerCustomInput" type="text" placeholder="min" title="Custom minutes" onkeydown="if(event.key==='Enter')timerSetCustom()">
+        </div>
+      </div>
+    </div>
+
     <div id="landscapeHint" style="display:none;font-family:Space Mono,monospace;font-size:0.6rem;color:#666;padding:0.3rem 0.8rem;flex-shrink:0">
       &#128261; Switch to landscape for best view
     </div>
@@ -4061,7 +4125,134 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     return div;
   }
 
-  function aiAsk(q) { document.getElementById('aiInput').value = q; sendAiMsg(); }
+  // ── Clock & Timer System ──
+  let _clockInterval = null;
+  let _timerInterval = null;
+  let _timerRunning  = false;
+  let _timerSeconds  = 0;
+  let _timerTarget   = 0;
+  let _timerMode     = 'stopwatch';
+  let _timerBarOpen  = true;
+
+  function pad2(n) { return String(Math.floor(n)).padStart(2, '0'); }
+
+  function formatTimer(s) {
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    return h > 0 ? pad2(h) + ':' + pad2(m) + ':' + pad2(sec) : pad2(m) + ':' + pad2(sec);
+  }
+
+  function clockTick() {
+    const now = new Date();
+    const el = document.getElementById('clockDisplay');
+    if (el) el.textContent = pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + ':' + pad2(now.getSeconds());
+  }
+
+  function timerTick() {
+    const disp = document.getElementById('timerDisplay');
+    if (!disp) return;
+    if (_timerMode === 'countdown') {
+      _timerSeconds = Math.max(0, _timerSeconds - 1);
+      disp.textContent = formatTimer(_timerSeconds);
+      const pct = _timerTarget > 0 ? _timerSeconds / _timerTarget : 1;
+      disp.className = 'timer-display' + (_timerSeconds === 0 ? ' danger' : pct <= 0.1 ? ' danger' : pct <= 0.25 ? ' warning' : '');
+      if (_timerSeconds === 0) {
+        timerStop();
+        disp.textContent = "TIME'S UP";
+        disp.className = 'timer-display danger';
+        let f = 0; const orig = document.title;
+        const fl = setInterval(function() {
+          document.title = f++ % 2 === 0 ? "TIME'S UP — " + orig : orig;
+          if (f > 10) { clearInterval(fl); document.title = orig; }
+        }, 600);
+      }
+    } else {
+      _timerSeconds++;
+      disp.textContent = formatTimer(_timerSeconds);
+      disp.className = 'timer-display';
+    }
+  }
+
+  function timerToggle() {
+    const btn = document.getElementById('timerStartBtn');
+    if (_timerRunning) {
+      timerStop();
+    } else {
+      _timerRunning = true;
+      _timerInterval = setInterval(timerTick, 1000);
+      if (btn) { btn.innerHTML = '&#9646;&#9646; Pause'; btn.classList.add('active'); }
+    }
+  }
+
+  function timerStop() {
+    _timerRunning = false;
+    clearInterval(_timerInterval); _timerInterval = null;
+    const btn = document.getElementById('timerStartBtn');
+    if (btn) { btn.innerHTML = '&#9654; Start'; btn.classList.remove('active'); }
+  }
+
+  function timerReset() {
+    timerStop();
+    _timerSeconds = _timerMode === 'countdown' && _timerTarget > 0 ? _timerTarget : 0;
+    const disp = document.getElementById('timerDisplay');
+    if (disp) { disp.textContent = formatTimer(_timerSeconds); disp.className = 'timer-display'; }
+  }
+
+  function timerModeSwitch(mode) {
+    timerStop();
+    _timerMode = mode;
+    _timerSeconds = 0;
+    _timerTarget  = 0;
+    const disp = document.getElementById('timerDisplay');
+    if (disp) { disp.textContent = '00:00'; disp.className = 'timer-display'; }
+    const presets = document.getElementById('countdownPresets');
+    if (presets) presets.style.display = mode === 'countdown' ? 'flex' : 'none';
+    const swBtn = document.getElementById('swBtn');
+    const cdBtn = document.getElementById('cdBtn');
+    if (swBtn) { swBtn.style.borderColor = mode === 'stopwatch' ? 'var(--accent)' : ''; swBtn.style.color = mode === 'stopwatch' ? 'var(--accent)' : ''; }
+    if (cdBtn) { cdBtn.style.borderColor = mode === 'countdown' ? 'var(--accent)' : ''; cdBtn.style.color = mode === 'countdown' ? 'var(--accent)' : ''; }
+  }
+
+  function timerSetPreset(minutes) {
+    timerStop();
+    _timerTarget  = minutes * 60;
+    _timerSeconds = _timerTarget;
+    const disp = document.getElementById('timerDisplay');
+    if (disp) { disp.textContent = formatTimer(_timerSeconds); disp.className = 'timer-display'; }
+    document.querySelectorAll('#countdownPresets .timer-btn').forEach(function(b) {
+      const label = minutes >= 60 ? (minutes/60) + 'h' : minutes + 'm';
+      b.classList.toggle('active', b.textContent.trim() === label);
+    });
+  }
+
+  function timerSetCustom() {
+    const inp = document.getElementById('timerCustomInput');
+    if (!inp) return;
+    const mins = parseFloat(inp.value);
+    if (!mins || mins <= 0) return;
+    inp.value = '';
+    timerSetPreset(mins);
+  }
+
+  function timerBarToggle() {
+    _timerBarOpen = !_timerBarOpen;
+    const bar = document.getElementById('timerClockBar');
+    const btn = document.getElementById('timerCollapseBtn');
+    const inner = document.getElementById('timerBarInner');
+    if (bar) bar.classList.toggle('collapsed', !_timerBarOpen);
+    if (btn) btn.innerHTML = _timerBarOpen ? '&#9650;' : '&#9660;';
+    if (inner) inner.style.display = _timerBarOpen ? 'flex' : 'none';
+  }
+
+  clockTick();
+  _clockInterval = setInterval(clockTick, 1000);
+  (function() {
+    const disp = document.getElementById('timerDisplay');
+    if (disp) disp.textContent = '00:00';
+  })();
+
+    function aiAsk(q) { document.getElementById('aiInput').value = q; sendAiMsg(); }
 
   async function sendAiMsg() {
     const input = document.getElementById('aiInput');
