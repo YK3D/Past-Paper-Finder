@@ -34,6 +34,18 @@ context,
 ].join(’\n’);
 }
 
+function readBody(req) {
+return new Promise(function(resolve, reject) {
+if (req.body) return resolve(req.body);
+let data = ‘’;
+req.on(‘data’, function(chunk) { data += chunk; });
+req.on(‘end’, function() {
+try { resolve(JSON.parse(data)); } catch(e) { resolve({}); }
+});
+req.on(‘error’, function(e) { resolve({}); });
+});
+}
+
 async function tryGroq(key, systemPrompt, messages) {
 return fetch(‘https://api.groq.com/openai/v1/chat/completions’, {
 method: ‘POST’,
@@ -76,21 +88,14 @@ function pipeGroqStream(resp, res) {
 res.setHeader(‘Content-Type’, ‘text/event-stream’);
 res.setHeader(‘Cache-Control’, ‘no-cache’);
 res.setHeader(‘Connection’, ‘keep-alive’);
-
 const reader = resp.body.getReader();
 const decoder = new TextDecoder();
 let buf = ‘’;
-
 function pump() {
 return reader.read().then(function(chunk) {
-if (chunk.done) {
-res.write(‘data: [DONE]\n\n’);
-res.end();
-return;
-}
+if (chunk.done) { res.write(‘data: [DONE]\n\n’); res.end(); return; }
 buf += decoder.decode(chunk.value, { stream: true });
-const lines = buf.split(’\n’);
-buf = lines.pop();
+const lines = buf.split(’\n’); buf = lines.pop();
 for (let i = 0; i < lines.length; i++) {
 const line = lines[i];
 if (!line.startsWith(’data: ’) || line === ‘data: [DONE]’) continue;
@@ -98,12 +103,11 @@ try {
 const d = JSON.parse(line.slice(6));
 const text = d.choices && d.choices[0] && d.choices[0].delta && d.choices[0].delta.content;
 if (text) res.write(’data: ’ + JSON.stringify({ delta: { text: text } }) + ‘\n\n’);
-} catch (e) {}
+} catch(e) {}
 }
 return pump();
 });
 }
-
 pump().catch(function() { res.end(); });
 }
 
@@ -111,21 +115,14 @@ function pipeGeminiStream(resp, res) {
 res.setHeader(‘Content-Type’, ‘text/event-stream’);
 res.setHeader(‘Cache-Control’, ‘no-cache’);
 res.setHeader(‘Connection’, ‘keep-alive’);
-
 const reader = resp.body.getReader();
 const decoder = new TextDecoder();
 let buf = ‘’;
-
 function pump() {
 return reader.read().then(function(chunk) {
-if (chunk.done) {
-res.write(‘data: [DONE]\n\n’);
-res.end();
-return;
-}
+if (chunk.done) { res.write(‘data: [DONE]\n\n’); res.end(); return; }
 buf += decoder.decode(chunk.value, { stream: true });
-const lines = buf.split(’\n’);
-buf = lines.pop();
+const lines = buf.split(’\n’); buf = lines.pop();
 for (let i = 0; i < lines.length; i++) {
 const line = lines[i];
 if (!line.startsWith(’data: ’)) continue;
@@ -133,14 +130,14 @@ const raw = line.slice(6).trim();
 if (!raw || raw === ‘[DONE]’) continue;
 try {
 const d = JSON.parse(raw);
-const text = d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts && d.candidates[0].content.parts[0] && d.candidates[0].content.parts[0].text;
+const parts = d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts;
+const text = parts && parts[0] && parts[0].text;
 if (text) res.write(’data: ’ + JSON.stringify({ delta: { text: text } }) + ‘\n\n’);
-} catch (e) {}
+} catch(e) {}
 }
 return pump();
 });
 }
-
 pump().catch(function() { res.end(); });
 }
 
@@ -151,7 +148,7 @@ res.setHeader(‘Access-Control-Allow-Headers’, ‘Content-Type’);
 if (req.method === ‘OPTIONS’) return res.status(200).end();
 if (req.method !== ‘POST’) return res.status(405).end();
 
-const body     = req.body || {};
+const body     = await readBody(req);
 const messages = body.messages || [];
 const context  = body.context  || ‘’;
 const url      = body.url      || ‘unknown’;
@@ -162,30 +159,26 @@ const isGroq = model.indexOf(‘groq’) === 0;
 
 try {
 if (isGroq) {
+if (!GROQ_KEYS.length) return res.status(500).json({ error: ‘GROQ_API_KEY not configured’ });
 for (let i = 0; i < GROQ_KEYS.length; i++) {
 const r = await tryGroq(GROQ_KEYS[i], systemPrompt, messages);
 if (r.ok) return pipeGroqStream(r, res);
 if (r.status !== 429 && r.status !== 413) {
-const text = await r.text();
-return res.status(r.status).json({ error: text });
+return res.status(r.status).json({ error: await r.text() });
 }
 }
 } else {
+if (!GEMINI_KEYS.length) return res.status(500).json({ error: ‘GEMINI_API_KEY not configured’ });
 const geminiModel = model === ‘gemini-2.0-flash’ ? ‘gemini-2.0-flash’ : ‘gemini-2.0-flash-lite’;
 for (let i = 0; i < GEMINI_KEYS.length; i++) {
 const r = await tryGemini(GEMINI_KEYS[i], geminiModel, systemPrompt, messages);
 if (r.ok) return pipeGeminiStream(r, res);
 if (r.status !== 429 && r.status !== 413) {
-const text = await r.text();
-return res.status(r.status).json({ error: text });
+return res.status(r.status).json({ error: await r.text() });
 }
 }
 }
-
-```
 return res.status(429).json({ error: RATE_LIMIT_MSG });
-```
-
 } catch (e) {
 return res.status(500).json({ error: e.message });
 }
