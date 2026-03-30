@@ -5235,49 +5235,17 @@
       }
     } catch {}
   })();
-  // ── Question Search (via caiefinder.com) ──
-  async function runQuestionSearch() {
-    const input = document.getElementById('qsInput');
-    const btn   = document.getElementById('qsBtn');
-    const results = document.getElementById('qsResults');
-    const query = (input.value || '').trim();
+  // ── Question Search (redirects to caiefinder.com) ──
+  function runQuestionSearch() {
+    const query = (document.getElementById('qsInput').value || '').trim();
     if (!query) return;
-    btn.disabled = true;
-    btn.textContent = 'Searching…';
-    results.innerHTML = '<p class="qs-no-results">Searching caiefinder.com…</p>';
-    try {
-      const subs = (document.getElementById('qsSubs') || {}).value || '';
-      const zone = (document.getElementById('qsZone') || {}).value || '';
-      const r = await fetch('/api/question-search?q=' + encodeURIComponent(query) + '&subs=' + encodeURIComponent(subs) + '&zone=' + encodeURIComponent(zone));
-      const data = await r.json();
-      if (!data.results || !data.results.length) {
-        results.innerHTML = '<p class="qs-no-results">No results found. Try different words.</p>';
-        return;
-      }
-      results.innerHTML = data.results.map(function(item) {
-        const metaTags = [
-          item.subject   ? '<span>' + item.subject   + '</span>' : '',
-          item.code      ? '<span>' + item.code      + '</span>' : '',
-          item.exam      ? '<span>' + item.exam      + '</span>' : '',
-          item.year      ? '<span>' + item.year      + '</span>' : '',
-          item.session   ? '<span>' + item.session   + '</span>' : '',
-          item.paper     ? '<span>Paper ' + item.paper + '</span>' : '',
-        ].filter(Boolean).join('');
-        const qpLink = item.qpUrl ? '<a class="qs-result-link" href="' + item.qpUrl + '" target="_blank">Question Paper ↗</a>' : '';
-        const msLink = item.msUrl ? '<a class="qs-result-link ms" href="' + item.msUrl + '" target="_blank">Mark Scheme ↗</a>' : '';
-        const srcLink = item.sourceUrl ? '<a class="qs-result-link" href="' + item.sourceUrl + '" target="_blank" style="color:#888;border-color:rgba(128,128,128,0.3)">Source ↗</a>' : '';
-        return '<div class="qs-result-card">'
-          + '<div class="qs-result-meta">' + metaTags + '</div>'
-          + '<div class="qs-result-question">' + item.question.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>'
-          + '<div class="qs-result-links">' + qpLink + msLink + srcLink + '</div>'
-          + '</div>';
-      }).join('');
-    } catch(e) {
-      results.innerHTML = '<p class="qs-no-results">Search failed — ' + e.message + '</p>';
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Search';
-    }
+    const subs = (document.getElementById('qsSubs') || {}).value || '';
+    const zone = (document.getElementById('qsZone') || {}).value || '';
+    // Build caiefinder search URL — results open on their site
+    const params = new URLSearchParams({ search: query });
+    if (subs) params.set('subs', subs);
+    if (zone) params.set('zone', zone);
+    window.open('https://caiefinder.com/search/?' + params.toString(), '_blank');
   }
 
 
@@ -5405,7 +5373,7 @@
 
 <div class="question-search-section" id="questionSearchSection">
   <div class="question-search-title">Question <span>Finder</span></div>
-  <p class="question-search-sub">Search for any CAIE question using 3–9 consecutive words from the question text. Powered by caiefinder.com.</p>
+  <p class="question-search-sub">Search any CAIE past paper question using 3–9 consecutive words. Results open on caiefinder.com.</p>
   <div class="question-search-row" style="flex-wrap:wrap;gap:0.4rem;margin-bottom:0.5rem">
     <select class="question-search-select" id="qsSubs">
       <option value="">All Subjects</option>
@@ -5439,9 +5407,9 @@
   </div>
   <div class="question-search-row">
     <input class="question-search-input" id="qsInput" type="text" placeholder="e.g. calculate the velocity of the particle" onkeydown="if(event.key==='Enter')runQuestionSearch()">
-    <button class="question-search-btn" id="qsBtn" onclick="runQuestionSearch()">Search</button>
+    <button class="question-search-btn" id="qsBtn" onclick="runQuestionSearch()">Search on CaieFinder &#8599;</button>
   </div>
-  <div class="question-search-results" id="qsResults"></div>
+
 </div>
 
 <div id="statusBar" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#1a1a1a;border-top:1px solid var(--border);padding:0.4rem 1rem;font-family:Space Mono,monospace;font-size:0.65rem;color:var(--muted);text-align:center;z-index:999"></div>
