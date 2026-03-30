@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.01, maximum-scale=5.0">
-<title>Past Paper Finder</title> 
+<title>Past Paper Finder</title>
 
 <!-- SEO Meta -->
 <meta name="description" content="Find and open CAIE & AQA past papers and mark schemes instantly. Made by Youssef Karim.">
@@ -5254,13 +5254,10 @@
     const input   = document.getElementById('qsInput');
     const btn     = document.getElementById('qsBtn');
     const results = document.getElementById('qsResults');
+    const subs    = (document.getElementById('qsSubs') || {}).value || '';
+    const zone    = (document.getElementById('qsZone') || {}).value || '';
     const query   = (input.value || '').trim();
-    // Update direct link
-    const dl = document.getElementById('qsDirectLink');
-    if (dl) dl.href = buildCaieUrl(query, subs, zone);
     if (!query) return;
-    const subs = (document.getElementById('qsSubs') || {}).value || '';
-    const zone = (document.getElementById('qsZone') || {}).value || '';
 
     btn.disabled = true;
     btn.textContent = 'Searching…';
