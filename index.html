@@ -1822,6 +1822,13 @@
   transition: border-color 0.2s;
 }
 .question-search-input:focus { border-color: var(--accent); }
+.question-search-select {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); font-family: 'Space Mono', monospace; font-size: 0.68rem;
+  padding: 0.4rem 0.6rem; outline: none; cursor: pointer; transition: border-color 0.2s;
+}
+.question-search-select:focus { border-color: var(--accent); }
+.question-search-select option { background: var(--surface); }
 .question-search-btn {
   background: var(--accent); border: none; border-radius: 8px;
   color: #000; font-family: 'Syne', sans-serif; font-weight: 700;
@@ -5239,7 +5246,9 @@
     btn.textContent = 'Searching…';
     results.innerHTML = '<p class="qs-no-results">Searching caiefinder.com…</p>';
     try {
-      const r = await fetch('/api/question-search?q=' + encodeURIComponent(query));
+      const subs = (document.getElementById('qsSubs') || {}).value || '';
+      const zone = (document.getElementById('qsZone') || {}).value || '';
+      const r = await fetch('/api/question-search?q=' + encodeURIComponent(query) + '&subs=' + encodeURIComponent(subs) + '&zone=' + encodeURIComponent(zone));
       const data = await r.json();
       if (!data.results || !data.results.length) {
         results.innerHTML = '<p class="qs-no-results">No results found. Try different words.</p>';
@@ -5396,7 +5405,38 @@
 
 <div class="question-search-section" id="questionSearchSection">
   <div class="question-search-title">Question <span>Finder</span></div>
-  <p class="question-search-sub">Search for a question using 3–9 consecutive words from any CAIE past paper. Powered by caiefinder.com.</p>
+  <p class="question-search-sub">Search for any CAIE question using 3–9 consecutive words from the question text. Powered by caiefinder.com.</p>
+  <div class="question-search-row" style="flex-wrap:wrap;gap:0.4rem;margin-bottom:0.5rem">
+    <select class="question-search-select" id="qsSubs">
+      <option value="">All Subjects</option>
+      <option value="mathematics">Mathematics</option>
+      <option value="chemistry">Chemistry</option>
+      <option value="physics">Physics</option>
+      <option value="biology">Biology</option>
+      <option value="accounting">Accounting</option>
+      <option value="businessstudies">Business Studies</option>
+      <option value="economics">Economics</option>
+      <option value="english">English</option>
+      <option value="computerscience">Computer Science</option>
+      <option value="agriculture">Agriculture</option>
+      <option value="artdesign">Art &amp; Design</option>
+      <option value="geography">Geography</option>
+      <option value="history">History</option>
+      <option value="psychology">Psychology</option>
+      <option value="sociology">Sociology</option>
+      <option value="statistics">Statistics</option>
+      <option value="thinkingskills">Thinking Skills</option>
+      <option value="law">Law</option>
+      <option value="traveltourism">Travel &amp; Tourism</option>
+    </select>
+    <select class="question-search-select" id="qsZone">
+      <option value="">GCE &amp; IGCSE</option>
+      <option value="o">O Level GCE</option>
+      <option value="a">A Level GCE</option>
+      <option value="oa">All of GCE</option>
+      <option value="ig">All of IGCSE</option>
+    </select>
+  </div>
   <div class="question-search-row">
     <input class="question-search-input" id="qsInput" type="text" placeholder="e.g. calculate the velocity of the particle" onkeydown="if(event.key==='Enter')runQuestionSearch()">
     <button class="question-search-btn" id="qsBtn" onclick="runQuestionSearch()">Search</button>
