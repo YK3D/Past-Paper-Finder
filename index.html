@@ -35,7 +35,7 @@
     --bg: #0a0a0f;
     --surface: #13131a;
     --border: #2a2a3a;
-    --accent: #00e5ff;
+    --accent: #3EE4FE;
     --accent2: #ff4d6d;
     --text: #e8e8f0;
     --muted: #6b6b85;
@@ -45,7 +45,7 @@
     --bg: #f0f2f8;
     --surface: #ffffff;
     --border: #d0d4e8;
-    --accent: #0099bb;
+    --accent: #2ab5cc;
     --accent2: #e03050;
     --text: #1a1a2e;
     --muted: #7070a0;
@@ -1800,6 +1800,69 @@
   .phone-popup-sub { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); margin-bottom: 1.2rem; line-height: 1.6; }
 
 
+
+/* ── Question Search Section ── */
+.question-search-section {
+  width: 100%; max-width: 680px; margin: 2.5rem auto 0; padding: 0 1rem;
+}
+.question-search-title {
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem;
+  color: var(--text); margin-bottom: 0.3rem;
+}
+.question-search-title span { color: var(--accent); }
+.question-search-sub {
+  font-family: 'Space Mono', monospace; font-size: 0.68rem;
+  color: var(--muted); margin-bottom: 1rem; line-height: 1.6;
+}
+.question-search-row { display: flex; gap: 0.5rem; align-items: stretch; }
+.question-search-input {
+  flex: 1; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-family: 'Space Mono', monospace;
+  font-size: 0.75rem; padding: 0.6rem 0.9rem; outline: none;
+  transition: border-color 0.2s;
+}
+.question-search-input:focus { border-color: var(--accent); }
+.question-search-btn {
+  background: var(--accent); border: none; border-radius: 8px;
+  color: #000; font-family: 'Syne', sans-serif; font-weight: 700;
+  font-size: 0.78rem; padding: 0 1.2rem; cursor: pointer;
+  transition: opacity 0.2s; white-space: nowrap; flex-shrink: 0;
+}
+.question-search-btn:hover { opacity: 0.85; }
+.question-search-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.question-search-results { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+.qs-result-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0.9rem 1rem; transition: border-color 0.2s;
+}
+.qs-result-card:hover { border-color: var(--accent); }
+.qs-result-meta {
+  font-family: 'Space Mono', monospace; font-size: 0.6rem;
+  color: var(--muted); margin-bottom: 0.4rem;
+  display: flex; flex-wrap: wrap; gap: 0.5rem;
+}
+.qs-result-meta span {
+  background: rgba(62,228,254,0.07); border: 1px solid rgba(62,228,254,0.15);
+  border-radius: 4px; padding: 0.1rem 0.4rem; color: var(--accent);
+}
+.qs-result-question {
+  font-family: 'Space Mono', monospace; font-size: 0.72rem;
+  color: var(--text); line-height: 1.6; margin-bottom: 0.6rem;
+}
+.qs-result-links { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.qs-result-link {
+  font-family: 'Space Mono', monospace; font-size: 0.62rem;
+  color: var(--accent); text-decoration: none;
+  border: 1px solid rgba(62,228,254,0.3);
+  border-radius: 5px; padding: 0.15rem 0.5rem; transition: all 0.15s;
+}
+.qs-result-link:hover { background: rgba(62,228,254,0.08); }
+.qs-result-link.ms { color: #a78bfa; border-color: rgba(167,139,250,0.3); }
+.qs-result-link.ms:hover { background: rgba(167,139,250,0.08); }
+.qs-no-results {
+  font-family: 'Space Mono', monospace; font-size: 0.72rem;
+  color: var(--muted); text-align: center; padding: 1.5rem 0;
+}
 </style>
   <script defer src="/_vercel/speed-insights/script.js"></script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1496392952885490" crossorigin="anonymous"></script>
@@ -5165,6 +5228,50 @@
       }
     } catch {}
   })();
+  // ── Question Search (via caiefinder.com) ──
+  async function runQuestionSearch() {
+    const input = document.getElementById('qsInput');
+    const btn   = document.getElementById('qsBtn');
+    const results = document.getElementById('qsResults');
+    const query = (input.value || '').trim();
+    if (!query) return;
+    btn.disabled = true;
+    btn.textContent = 'Searching…';
+    results.innerHTML = '<p class="qs-no-results">Searching caiefinder.com…</p>';
+    try {
+      const r = await fetch('/api/question-search?q=' + encodeURIComponent(query));
+      const data = await r.json();
+      if (!data.results || !data.results.length) {
+        results.innerHTML = '<p class="qs-no-results">No results found. Try different words.</p>';
+        return;
+      }
+      results.innerHTML = data.results.map(function(item) {
+        const metaTags = [
+          item.subject   ? '<span>' + item.subject   + '</span>' : '',
+          item.code      ? '<span>' + item.code      + '</span>' : '',
+          item.exam      ? '<span>' + item.exam      + '</span>' : '',
+          item.year      ? '<span>' + item.year      + '</span>' : '',
+          item.session   ? '<span>' + item.session   + '</span>' : '',
+          item.paper     ? '<span>Paper ' + item.paper + '</span>' : '',
+        ].filter(Boolean).join('');
+        const qpLink = item.qpUrl ? '<a class="qs-result-link" href="' + item.qpUrl + '" target="_blank">Question Paper ↗</a>' : '';
+        const msLink = item.msUrl ? '<a class="qs-result-link ms" href="' + item.msUrl + '" target="_blank">Mark Scheme ↗</a>' : '';
+        const srcLink = item.sourceUrl ? '<a class="qs-result-link" href="' + item.sourceUrl + '" target="_blank" style="color:#888;border-color:rgba(128,128,128,0.3)">Source ↗</a>' : '';
+        return '<div class="qs-result-card">'
+          + '<div class="qs-result-meta">' + metaTags + '</div>'
+          + '<div class="qs-result-question">' + item.question.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>'
+          + '<div class="qs-result-links">' + qpLink + msLink + srcLink + '</div>'
+          + '</div>';
+      }).join('');
+    } catch(e) {
+      results.innerHTML = '<p class="qs-no-results">Search failed — ' + e.message + '</p>';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Search';
+    }
+  }
+
+
 </script>
 
 <!-- Phone number popup -->
@@ -5285,6 +5392,16 @@
       to appeal
     </div>
   </div>
+</div>
+
+<div class="question-search-section" id="questionSearchSection">
+  <div class="question-search-title">Question <span>Finder</span></div>
+  <p class="question-search-sub">Search for a question using 3–9 consecutive words from any CAIE past paper. Powered by caiefinder.com.</p>
+  <div class="question-search-row">
+    <input class="question-search-input" id="qsInput" type="text" placeholder="e.g. calculate the velocity of the particle" onkeydown="if(event.key==='Enter')runQuestionSearch()">
+    <button class="question-search-btn" id="qsBtn" onclick="runQuestionSearch()">Search</button>
+  </div>
+  <div class="question-search-results" id="qsResults"></div>
 </div>
 
 <div id="statusBar" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#1a1a1a;border-top:1px solid var(--border);padding:0.4rem 1rem;font-family:Space Mono,monospace;font-size:0.65rem;color:var(--muted);text-align:center;z-index:999"></div>
