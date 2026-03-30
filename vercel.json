@@ -1,9 +1,18 @@
 {
   "outputDirectory": ".",
   "rewrites": [
-    { "source": "/codes",       "destination": "/codes.html" },
-    { "source": "/leaderboard", "destination": "/leaderboard.html" },
-    { "source": "/viewer",      "destination": "/viewer.html" }
+    {
+      "source": "/codes",
+      "destination": "/codes.html"
+    },
+    {
+      "source": "/leaderboard",
+      "destination": "/leaderboard.html"
+    },
+    {
+      "source": "/viewer",
+      "destination": "/viewer.html"
+    }
   ],
   "functions": {
     "api/chat.js": {
@@ -11,6 +20,9 @@
     },
     "api/question-search.js": {
       "maxDuration": 15
+    },
+    "api/parse-qs.js": {
+      "maxDuration": 20
     }
   }
 }
