@@ -18,9 +18,6 @@
     "api/chat.js": {
       "maxDuration": 30
     },
-    "api/question-search.js": {
-      "maxDuration": 15
-    },
     "api/parse-qs.js": {
       "maxDuration": 20
     }
