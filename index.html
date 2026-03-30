@@ -5235,17 +5235,54 @@
       }
     } catch {}
   })();
-  // ── Question Search (redirects to caiefinder.com) ──
-  function runQuestionSearch() {
-    const query = (document.getElementById('qsInput').value || '').trim();
+  // ── Question Search (via caiefinder data API) ──
+  async function runQuestionSearch() {
+    const input   = document.getElementById('qsInput');
+    const btn     = document.getElementById('qsBtn');
+    const results = document.getElementById('qsResults');
+    const query   = (input.value || '').trim();
     if (!query) return;
     const subs = (document.getElementById('qsSubs') || {}).value || '';
     const zone = (document.getElementById('qsZone') || {}).value || '';
-    // Build caiefinder search URL — results open on their site
-    const params = new URLSearchParams({ search: query });
-    if (subs) params.set('subs', subs);
-    if (zone) params.set('zone', zone);
-    window.open('https://caiefinder.com/search/?' + params.toString(), '_blank');
+
+    btn.disabled = true;
+    btn.textContent = 'Searching…';
+    results.innerHTML = '<p class="qs-no-results" style="color:var(--muted)">Searching…</p>';
+    results.style.display = 'flex';
+
+    try {
+      const r = await fetch('/api/question-search?q=' + encodeURIComponent(query)
+        + '&subs=' + encodeURIComponent(subs)
+        + '&zone=' + encodeURIComponent(zone));
+      const data = await r.json();
+
+      if (!data.results || !data.results.length) {
+        results.innerHTML = '<p class="qs-no-results">No results found — try different words, or '
+          + '<a href="https://caiefinder.com/search/?search=' + encodeURIComponent(query) + '" target="_blank" style="color:var(--accent)">search on caiefinder.com ↗</a></p>';
+        return;
+      }
+
+      results.innerHTML = data.results.map(function(item) {
+        const tags = [item.subject, item.code, item.exam, item.year, item.session, item.paper]
+          .filter(Boolean)
+          .map(function(t) { return '<span>' + t.replace(/</g,'&lt;') + '</span>'; })
+          .join('');
+        const qpLink = item.qpUrl ? '<a class="qs-result-link" href="' + item.qpUrl + '" target="_blank">Question Paper ↗</a>' : '';
+        const msLink = item.msUrl ? '<a class="qs-result-link ms" href="' + item.msUrl + '" target="_blank">Mark Scheme ↗</a>' : '';
+        const caieLink = item.sourceUrl ? '<a class="qs-result-link" href="' + item.sourceUrl + '" target="_blank" style="color:#666;border-color:rgba(128,128,128,0.25)">View on CaieFinder ↗</a>' : '';
+        return '<div class="qs-result-card">'
+          + '<div class="qs-result-meta">' + tags + '</div>'
+          + '<div class="qs-result-question">' + item.question.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>'
+          + '<div class="qs-result-links">' + qpLink + msLink + caieLink + '</div>'
+          + '</div>';
+      }).join('');
+    } catch(e) {
+      results.innerHTML = '<p class="qs-no-results">Search failed — '
+        + '<a href="https://caiefinder.com/search/?search=' + encodeURIComponent(query) + '" target="_blank" style="color:var(--accent)">try caiefinder.com directly ↗</a></p>';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Search';
+    }
   }
 
 
@@ -5407,8 +5444,9 @@
   </div>
   <div class="question-search-row">
     <input class="question-search-input" id="qsInput" type="text" placeholder="e.g. calculate the velocity of the particle" onkeydown="if(event.key==='Enter')runQuestionSearch()">
-    <button class="question-search-btn" id="qsBtn" onclick="runQuestionSearch()">Search on CaieFinder &#8599;</button>
+    <button class="question-search-btn" id="qsBtn" onclick="runQuestionSearch()">Search</button>
   </div>
+  <div class="question-search-results" id="qsResults" style="display:none"></div>
 
 </div>
 
