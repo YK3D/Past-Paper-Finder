@@ -8,96 +8,111 @@ module.exports = async function handler(req, res) {
   const zone = (req.query.zone || '').trim();
   if (!q) return res.status(400).json({ error: 'No query' });
 
+  // Build URL — always use ? query params, always include subs= and zone= even if empty
+  const params = new URLSearchParams();
+  params.set('subs', subs);  // empty string if no subject selected
+  params.set('zone', zone);  // empty string if no zone selected
+  params.set('search', q);
+
+  const caieUrl    = 'https://caiefinder.com/search/?' + params.toString();
+  const dataApiUrl = 'https://data.caiefinder.com/search/data/?' + params.toString();
+
   try {
-    // Exact API used by caiefinder's JS bundle
-    const params = new URLSearchParams({ search: q });
-    if (subs) params.set('subs', subs);
-    if (zone) params.set('zone', zone);
-
-    const apiUrl = 'https://data.caiefinder.com/search/data/?' + params.toString();
-
-    const r = await fetch(apiUrl, {
+    const r = await fetch(dataApiUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,*/*;q=0.8',
-        'Referer': 'https://caiefinder.com/search/?' + params.toString(),
+        'Accept': 'text/html,*/*;q=0.8',
+        'Referer': caieUrl,
         'Origin': 'https://caiefinder.com',
       }
     });
 
-    if (!r.ok) return res.status(r.status).json({ error: 'data.caiefinder.com returned ' + r.status });
+    if (!r.ok) return res.status(r.status).json({ error: 'caiefinder returned ' + r.status, fallback: caieUrl });
 
-    const html = await r.text();
-    const results = parseHtml(html);
-    return res.status(200).json({ results });
+    const text = await r.text();
+    const results = parseResults(text);
+    return res.status(200).json({ results, fallback: caieUrl });
 
   } catch(e) {
-    return res.status(500).json({ error: e.message });
+    return res.status(500).json({ error: e.message, fallback: caieUrl });
   }
 };
 
-// Parse caiefinder's HTML response — results are rendered as divs/links with paper info
-function parseHtml(html) {
+// Parse caiefinder's text response format:
+//
+// Total search results: N
+//
+// IGCSE - Computer Science (0478) May/June 2020 Varient: 2 Paper: 1
+// ↓ FOUND ↓ in 0478_s20_qp_12 ← Open question paper's PDF
+// Question No: 9
+// — (a) six statements are given about storage devices.
+// ↓ Below is the answer to this question ↓ in 0478_s20_ms_12 ← Open original marks scheme's PDF
+// [mark scheme text...]
+
+function parseResults(text) {
   const results = [];
+  const base = 'https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/';
 
-  // Extract total count (for info only)
-  // const totalMatch = html.match(/Total search results:.*?(\d+)/i);
+  // Split by the result header pattern
+  // Each result starts with a line like: "IGCSE - Subject (CODE) Session Year Varient: N Paper: N"
+  const blocks = text.split(/\n(?=[A-Z][^\n]+\([0-9]{4}\)[^\n]+\n↓ FOUND ↓)/);
 
-  // caiefinder renders each result as a block containing:
-  // - subject name, code, year, session
-  // - a link to /pastpapers/view/[level]/[Subject (code)]/[year]/filename.pdf
-  // - question text in a div with class "quesdata" or similar
+  for (const block of blocks) {
+    if (!block.includes('↓ FOUND ↓')) continue;
 
-  // Extract all PDF links with their surrounding context
-  const pdfPattern = /href="(\/pastpapers\/(?:view|pdf)\/[^"]+\.pdf)"/gi;
-  const seen = new Set();
-  let match;
+    const lines = block.split('\n');
 
-  while ((match = pdfPattern.exec(html)) !== null) {
-    const path = match[1]; // e.g. /pastpapers/view/IGCSE/Mathematics (0580)/2023/0580_s23_qp_12.pdf
-    const filename = path.split('/').pop();
-    if (seen.has(filename)) continue;
-    seen.add(filename);
+    // Line 0: "IGCSE - Computer Science (0478) May/June 2020 Varient: 2 Paper: 1"
+    const headerLine = lines[0] || '';
+    const headerMatch = headerLine.match(/^(.+?)\s+\((\d{4})\)\s+(\w+\/\w+|\w+)\s+(\d{4})(?:\s+Varient:\s*(\d+))?(?:\s+Paper:\s*(\d+))?/i);
+    if (!headerMatch) continue;
 
-    // Only process QP files
-    const fileMatch = filename.match(/^(\d{4})_([smw])(\d{2})_([a-z]+)(?:_(\d{1,2}))?\.pdf$/i);
-    if (!fileMatch) continue;
-    if (fileMatch[4] !== 'qp' && fileMatch[4] !== 'in' && fileMatch[4] !== 'ci') continue;
+    const examLevel = headerLine.split(' - ')[0].trim();    // e.g. "IGCSE"
+    const subject   = headerMatch[1].replace(/^[^-]+-\s*/, '').trim(); // e.g. "Computer Science"
+    const code      = headerMatch[2];
+    const session   = headerMatch[3];   // e.g. "May/June"
+    const year      = headerMatch[4];   // e.g. "2020"
+    const variant   = headerMatch[5] || '';
+    const paper     = headerMatch[6] || '';
 
-    const code    = fileMatch[1];
-    const sess    = fileMatch[2];
-    const yr      = fileMatch[3];
-    const variant = fileMatch[5] || '';
-    const session = sess === 's' ? 'May/June' : sess === 'w' ? 'Oct/Nov' : 'Feb/Mar';
+    // Line 1: "↓ FOUND ↓ in 0478_s20_qp_12 ← Open question paper's PDF"
+    const foundLine = lines[1] || '';
+    const qpFileMatch = foundLine.match(/in\s+(\S+)\s*←/);
+    const qpFile = qpFileMatch ? qpFileMatch[1] + '.pdf' : '';
 
-    // Extract subject and level from path
-    const parts   = path.split('/');
-    // parts: ['', 'pastpapers', 'view', 'IGCSE', 'Mathematics (0580)', '2023', 'filename.pdf']
-    const level   = parts[3] || '';
-    const subject = (parts[4] || '').replace(/\s*\(\d+\)$/, '').trim() || codeToSubject(code);
+    // Question number line: "Question No: 9"
+    const qNumLine = lines.find(l => l.startsWith('Question No:')) || '';
+    const qNum = qNumLine.replace('Question No:', '').trim();
 
-    // Extract question text — find the surrounding text near this link
-    const linkIdx = html.indexOf(match[0]);
-    // Look for quesdata class or surrounding text
-    const before  = html.substring(Math.max(0, linkIdx - 600), linkIdx);
-    const after   = html.substring(linkIdx, Math.min(html.length, linkIdx + 600));
-    const chunk   = (before + after).replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/gi, ' ').replace(/\s+/g, ' ').trim();
+    // Question text: line starting with "—"
+    const qTextLine = lines.find(l => l.startsWith('—') || l.startsWith('\u2014')) || '';
+    const questionText = qNum
+      ? 'Q' + qNum + ' ' + qTextLine.replace(/^[\u2014\-]+\s*/, '').trim()
+      : qTextLine.replace(/^[\u2014\-]+\s*/, '').trim();
 
-    const base  = 'https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/';
-    const qpFn  = filename;
-    const msFn  = qpFn.replace(/_qp_/, '_ms_').replace(/_in_/, '_ms_').replace(/_ci_/, '_ms_');
+    // MS file line: "↓ Below is the answer to this question ↓ in 0478_s20_ms_12 ← ..."
+    const msFoundLine = lines.find(l => l.includes('↓ Below is the answer')) || '';
+    const msFileMatch = msFoundLine.match(/in\s+(\S+)\s*←/);
+    const msFile = msFileMatch ? msFileMatch[1] + '.pdf' : qpFile.replace('_qp_', '_ms_');
+
+    // Extract mark scheme text — everything after the MS line
+    const msLineIdx = lines.findIndex(l => l.includes('↓ Below is the answer'));
+    const msText = msLineIdx > -1
+      ? lines.slice(msLineIdx + 1).join('\n').replace(/\s+/g, ' ').trim().substring(0, 400)
+      : '';
 
     results.push({
       subject,
       code,
-      exam:    level,
-      year:    '20' + yr,
+      exam: examLevel,
+      year,
       session,
-      paper:   variant ? 'Variant ' + parseInt(variant) : '',
-      question: chunk.length > 20 ? chunk.substring(0, 320) + '…' : 'See paper',
-      qpUrl:   base + qpFn,
-      msUrl:   base + msFn,
-      sourceUrl: 'https://caiefinder.com' + path.replace('/pdf/', '/view/'),
+      paper: variant ? 'Variant ' + variant + (paper ? ', Paper ' + paper : '') : (paper ? 'Paper ' + paper : ''),
+      question: questionText || 'See paper',
+      msSnippet: msText,
+      qpUrl: qpFile ? base + qpFile : '',
+      msUrl: msFile ? base + msFile : '',
+      sourceUrl: 'https://caiefinder.com',
     });
 
     if (results.length >= 8) break;
@@ -105,14 +120,3 @@ function parseHtml(html) {
 
   return results;
 }
-
-const SUBJECT_MAP = {
-  '0580':'Mathematics','0625':'Physics','0620':'Chemistry','0610':'Biology',
-  '0450':'Business Studies','0455':'Economics','0500':'English Language',
-  '0478':'Computer Science','0470':'History','0460':'Geography',
-  '9709':'Mathematics','9702':'Physics','9701':'Chemistry','9700':'Biology',
-  '9708':'Economics','9609':'Business Studies','9618':'Computer Science',
-  '0417':'Computer Science','0452':'Accounting','9706':'Accounting',
-  '0606':'Additional Mathematics','0607':'Cambridge International Mathematics',
-};
-function codeToSubject(code) { return SUBJECT_MAP[code] || code; }
