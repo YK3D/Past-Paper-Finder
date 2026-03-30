@@ -4,5 +4,10 @@
     { "source": "/codes",       "destination": "/codes.html" },
     { "source": "/leaderboard", "destination": "/leaderboard.html" },
     { "source": "/viewer",      "destination": "/viewer.html" }
-  ]
+  ],
+  "functions": {
+    "api/chat.js": {
+      "maxDuration": 30
+    }
+  }
 }
