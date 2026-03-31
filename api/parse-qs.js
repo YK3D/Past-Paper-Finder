@@ -74,6 +74,9 @@ module.exports = async function handler(req, res) {
 
   const validBlocks = blocks.filter(b => b.includes('\u2193 FOUND \u2193')).slice(0, 5);
 
+  // Log the first valid block for debugging
+  const blockPreview = validBlocks.length ? validBlocks[0].substring(0, 400) : '';
+
   if (!validBlocks.length) {
     return res.status(200).json({
       results: [],
@@ -113,7 +116,7 @@ module.exports = async function handler(req, res) {
     results.push({ subject, code, exam: examLevel, year, session, variant, paper, qpFile, msFile, rawBlock: cleanBlock });
   }
 
-  return res.status(200).json({ results, debug: { totalBlocks: blocks.length, validBlocks: validBlocks.length, parsed: results.length } });
+  return res.status(200).json({ results, debug: { totalBlocks: blocks.length, validBlocks: validBlocks.length, parsed: results.length, blockPreview } });
 };
 
 module.exports.config = { api: { bodyParser: { sizeLimit: '1mb' } } };
