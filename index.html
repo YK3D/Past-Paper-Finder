@@ -1912,16 +1912,10 @@
 .qs-result-link:hover{background:rgba(62,228,254,0.08)}
 .qs-result-link.ms{color:#a78bfa;border-color:rgba(167,139,250,0.3)}
 .qs-no-results{font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);text-align:center;padding:1.5rem 0}
-#qsLoader svg circle{fill:none;stroke-width:5;stroke-linecap:round;stroke:#3EE4FE}
-#qsLoader svg.circle-outer circle{stroke-dasharray:62.75 188.25}
-#qsLoader svg.circle-outer circle.back{animation:circle-outer135 1.8s ease infinite 0.3s}
-#qsLoader svg.circle-outer circle.front{animation:circle-outer135 1.8s ease infinite 0.15s}
-#qsLoader svg.circle-middle circle{stroke-dasharray:42.5 127.5}
-#qsLoader svg.circle-middle circle.back{animation:circle-middle6123 1.8s ease infinite 0.25s}
-#qsLoader svg.circle-middle circle.front{animation:circle-middle6123 1.8s ease infinite 0.1s}
-#qsLoader svg.circle-inner circle{stroke-dasharray:22 66}
-#qsLoader svg.circle-inner circle.back{animation:circle-inner162 1.8s ease infinite 0.2s}
-#qsLoader svg.circle-inner circle.front{animation:circle-inner162 1.8s ease infinite 0.05s}
+.wifi-loader-inner svg{position:absolute}
+.wifi-loader-inner svg.circle-outer{width:86px;height:86px;top:0;left:0}
+.wifi-loader-inner svg.circle-middle{width:60px;height:60px;top:13px;left:13px}
+.wifi-loader-inner svg.circle-inner{width:34px;height:34px;top:26px;left:26px}
 
 </style>
   <script defer src="/_vercel/speed-insights/script.js"></script>
@@ -2140,10 +2134,12 @@
     <input class="question-search-input" id="qsInput" type="text" placeholder="e.g. six statements are given about storage devices" onkeydown="if(event.key==='Enter')runQuestionSearch()">
     <button class="question-search-btn" id="qsBtn" onclick="runQuestionSearch()">Search</button>
   </div>
-  <div id="qsLoader" style="display:none;justify-content:center;padding:1.5rem 0;position:relative;width:86px;height:86px;margin:1rem auto">
-    <svg class="circle-outer" style="position:absolute;top:0;left:0;width:86px;height:86px"><circle class="back" cx="43" cy="43" r="40"></circle><circle class="front" cx="43" cy="43" r="40"></circle></svg>
-    <svg class="circle-middle" style="position:absolute;top:13px;left:13px;width:60px;height:60px"><circle class="back" cx="30" cy="30" r="27"></circle><circle class="front" cx="30" cy="30" r="27"></circle></svg>
-    <svg class="circle-inner" style="position:absolute;top:26px;left:26px;width:34px;height:34px"><circle class="back" cx="17" cy="17" r="14"></circle><circle class="front" cx="17" cy="17" r="14"></circle></svg>
+  <div id="qsLoader" style="display:none;text-align:center;padding:1.5rem 0">
+    <div class="wifi-loader-inner" style="display:inline-block;position:relative;width:86px;height:86px">
+      <svg class="circle-outer"><circle class="back" cx="43" cy="43" r="40"></circle><circle class="front" cx="43" cy="43" r="40"></circle></svg>
+      <svg class="circle-middle"><circle class="back" cx="30" cy="30" r="27"></circle><circle class="front" cx="30" cy="30" r="27"></circle></svg>
+      <svg class="circle-inner"><circle class="back" cx="17" cy="17" r="14"></circle><circle class="front" cx="17" cy="17" r="14"></circle></svg>
+    </div>
   </div>
   <div class="question-search-results" id="qsResults" style="display:none"></div>
 </div>
@@ -5381,7 +5377,7 @@
     res.style.display = 'none';
     res.innerHTML = '';
     const qsLoader = document.getElementById('qsLoader');
-    if (qsLoader) qsLoader.style.display = 'flex';
+    if (qsLoader) qsLoader.style.display = 'block';
 
     try {
       const parseResp = await fetch('https://past-paper-finder.vercel.app/api/parse-qs', {
