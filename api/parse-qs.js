@@ -90,7 +90,7 @@ ${rawText.substring(0, 12000)}`;
         'Authorization': 'Bearer ' + GROQ_KEY
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'llama-3.1-8b-instant',
         messages: [{ role: 'user', content: prompt }],
         max_tokens: 4096,
         temperature: 0
