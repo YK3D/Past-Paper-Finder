@@ -68,7 +68,7 @@ module.exports = async function handler(req, res) {
   }
 
   if (!starts.length) {
-    return res.status(200).json({ results: [], error: 'No exam headers found' });
+    return res.status(200).json({ results: [], error: 'No exam headers found', debug: text.substring(0, 500) });
   }
 
   for (let i = 0; i < starts.length && results.length < 8; i++) {
