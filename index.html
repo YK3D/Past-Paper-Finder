@@ -5409,12 +5409,8 @@
       }
 
       if (!parseData.results || !parseData.results.length) {
-        const dbg = parseData.debug ? JSON.stringify(parseData.debug) : '';
-        const err = parseData.error || 'No results found';
         res.style.display = 'flex';
-        res.innerHTML = '<p class="qs-no-results" style="color:#f87171">⚠ '+err+'</p>'
-          + (dbg ? '<pre style="font-size:0.6rem;color:var(--muted);white-space:pre-wrap;padding:0.5rem">'+dbg+'</pre>' : '')
-          + '<p class="qs-no-results"><a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">search on caiefinder.com ↗</a></p>';
+        res.innerHTML = '<p class="qs-no-results">No results — <a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">search on caiefinder.com ↗</a></p>';
         return;
       }
 
