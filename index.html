@@ -5402,19 +5402,28 @@
       const parseData = await parseResp.json();
 
       if (parseData.error && (!parseData.results || !parseData.results.length)) {
-        res.innerHTML = '<p class="qs-no-results">' + parseData.error + ' — <a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">search on caiefinder.com ↗</a></p>';
+        // Surface the actual error so we can diagnose it
+        res.style.display = 'flex';
+        res.innerHTML = '<p class="qs-no-results" style="color:#f87171">⚠ ' + parseData.error + '<br><a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">Search on caiefinder.com ↗</a></p>';
         return;
       }
 
       if (!parseData.results || !parseData.results.length) {
-        res.innerHTML = '<p class="qs-no-results">No results — <a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">search on caiefinder.com ↗</a></p>';
+        const dbg = parseData.debug ? JSON.stringify(parseData.debug) : '';
+        const err = parseData.error || 'No results found';
+        res.style.display = 'flex';
+        res.innerHTML = '<p class="qs-no-results" style="color:#f87171">⚠ '+err+'</p>'
+          + (dbg ? '<pre style="font-size:0.6rem;color:var(--muted);white-space:pre-wrap;padding:0.5rem">'+dbg+'</pre>' : '')
+          + '<p class="qs-no-results"><a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">search on caiefinder.com ↗</a></p>';
         return;
       }
 
+      res.style.display = 'flex';
       res.innerHTML = renderQsResults(parseData.results);
 
     } catch(e) {
-      res.innerHTML = '<p class="qs-no-results">Error: '+e.message+' — <a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">try caiefinder.com ↗</a></p>';
+      res.style.display = 'flex';
+      res.innerHTML = '<p class="qs-no-results" style="color:#f87171">⚠ Error: '+e.message+' — <a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">try caiefinder.com ↗</a></p>';
     } finally {
       btn.disabled = false; btn.textContent = 'Search';
       const _ql = document.getElementById('qsLoader');
