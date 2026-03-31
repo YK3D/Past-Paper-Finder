@@ -49,36 +49,38 @@ module.exports = async function handler(req, res) {
     .trim();
 
   if (!text || text.length < 20) {
-    return res.status(200).json({ results: [], error: 'Empty response from caiefinder' });
+    return res.status(200).json({ results: [], error: 'Empty response from caiefinder', debug: rawText.substring(0, 200) });
   }
 
-  // Split on every occurrence of a line matching the exam header pattern
-  // Use a regex split on the header pattern so we capture each exam separately
   const base = 'https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/';
   const results = [];
 
-  // Find all positions where a new exam header starts
-  // Pattern: line starting with "IGCSE - " or "O Levels - " or "A Levels - " etc.
-  const headerRe = /(?:^|\n)((?:IGCSE|O Levels?|A Levels?|International AS)[^\n]+\(\d{4}\)[^\n]+)\n(↓ FOUND ↓[^\n]*)/g;
-  let match;
-  const starts = [];
+  // Split on ↓ FOUND ↓ — each occurrence marks an exam result
+  // Everything between two ↓ FOUND ↓ markers (plus the header line before each) is one block
+  const foundMarker = '\u2193 FOUND \u2193';
+  const parts = text.split(foundMarker);
 
-  while ((match = headerRe.exec(text)) !== null) {
-    starts.push({ pos: match.index === 0 ? 0 : match.index + 1, header: match[1], foundLine: match[2] });
-  }
+  // parts[0] = preamble (total count etc)
+  // parts[1..n] = " in QPFILE ← ...\nQuestion No...\n...↓ Below...\n...mark scheme..."
+  // The header line for each result is the LAST non-empty line of the previous part
 
-  if (!starts.length) {
-    return res.status(200).json({ results: [], error: 'No exam headers found', debug: text.substring(0, 500) });
-  }
+  for (let i = 1; i < parts.length && results.length < 8; i++) {
+    const prevPart = parts[i - 1];
+    const thisPart = parts[i];
 
-  for (let i = 0; i < starts.length && results.length < 8; i++) {
-    const blockStart = starts[i].pos;
-    const blockEnd   = i + 1 < starts.length ? starts[i + 1].pos : text.length;
-    const block      = text.substring(blockStart, blockEnd).trim();
-    const hLine      = starts[i].header;
-    const foundLine  = starts[i].foundLine;
+    // Header line = last non-empty line of prevPart
+    const prevLines = prevPart.split('\n').map(l => l.trim()).filter(Boolean);
+    const hLine = prevLines[prevLines.length - 1] || '';
 
-    // Parse header
+    // QP file = first word after "in " at start of thisPart
+    const qpMatch = thisPart.match(/^\s*in\s+(\w+)\s*\u2190/);
+    const qpFile  = qpMatch ? qpMatch[1] : '';
+
+    // MS file = from "↓ Below is the answer ↓ in FILE ←"
+    const msMatch = thisPart.match(/\u2193 Below is the answer[^\n]* in\s+(\w+)\s*\u2190/);
+    const msFile  = msMatch ? msMatch[1] : (qpFile ? qpFile.replace('_qp_', '_ms_') : '');
+
+    // Parse header line
     const hm = hLine.match(/^(.+?)\s+\((\d{4})\)\s+([\w/]+)\s+(\d{4})(?:.*?Varient:\s*(\d+))?(?:.*?Paper:\s*(\d+))?/i);
     if (!hm) continue;
 
@@ -91,17 +93,17 @@ module.exports = async function handler(req, res) {
     const variant   = hm[5] || '';
     const paper     = hm[6] || '';
 
-    // Extract filenames
-    const qpMatch = foundLine.match(/in\s+(\w+)\s*←/);
-    const msLineM = block.match(/↓ Below is the answer[^\n]* in\s+(\w+)\s*←/);
-    const qpFile  = qpMatch ? qpMatch[1] : '';
-    const msFile  = msLineM ? msLineM[1] : (qpFile ? qpFile.replace('_qp_', '_ms_') : '');
+    // Raw block = header line + ↓ FOUND ↓ + this part (up to next header)
+    // Find where next header starts in thisPart to trim it
+    const nextHeaderIdx = thisPart.search(/\n[A-Z][^\n]+\(\d{4}\)[^\n]+\n/);
+    const blockBody = nextHeaderIdx > -1 ? thisPart.substring(0, nextHeaderIdx) : thisPart;
+    const rawBlock = (hLine + '\n' + foundMarker + blockBody).trim();
 
-    results.push({
-      subject, code, exam: examLevel, year, session, variant, paper,
-      qpFile, msFile,
-      rawBlock: block
-    });
+    results.push({ subject, code, exam: examLevel, year, session, variant, paper, qpFile, msFile, rawBlock });
+  }
+
+  if (!results.length) {
+    return res.status(200).json({ results: [], error: 'No results parsed', debug: text.substring(0, 400) });
   }
 
   return res.status(200).json({ results });
