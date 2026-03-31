@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1912,10 +1913,6 @@
 .qs-result-link:hover{background:rgba(62,228,254,0.08)}
 .qs-result-link.ms{color:#a78bfa;border-color:rgba(167,139,250,0.3)}
 .qs-no-results{font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);text-align:center;padding:1.5rem 0}
-.wifi-loader-inner svg{position:absolute}
-.wifi-loader-inner svg.circle-outer{width:86px;height:86px;top:0;left:0}
-.wifi-loader-inner svg.circle-middle{width:60px;height:60px;top:13px;left:13px}
-.wifi-loader-inner svg.circle-inner{width:34px;height:34px;top:26px;left:26px}
 
 </style>
   <script defer src="/_vercel/speed-insights/script.js"></script>
@@ -2133,13 +2130,6 @@
   <div class="question-search-row">
     <input class="question-search-input" id="qsInput" type="text" placeholder="e.g. six statements are given about storage devices" onkeydown="if(event.key==='Enter')runQuestionSearch()">
     <button class="question-search-btn" id="qsBtn" onclick="runQuestionSearch()">Search</button>
-  </div>
-  <div id="qsLoader" style="display:none;text-align:center;padding:1.5rem 0">
-    <div class="wifi-loader-inner" style="display:inline-block;position:relative;width:86px;height:86px">
-      <svg class="circle-outer"><circle class="back" cx="43" cy="43" r="40"></circle><circle class="front" cx="43" cy="43" r="40"></circle></svg>
-      <svg class="circle-middle"><circle class="back" cx="30" cy="30" r="27"></circle><circle class="front" cx="30" cy="30" r="27"></circle></svg>
-      <svg class="circle-inner"><circle class="back" cx="17" cy="17" r="14"></circle><circle class="front" cx="17" cy="17" r="14"></circle></svg>
-    </div>
   </div>
   <div class="question-search-results" id="qsResults" style="display:none"></div>
 </div>
@@ -5354,11 +5344,9 @@
         .filter(Boolean).map(function(t){ return '<span>'+t.replace(/</g,'&lt;')+'</span>'; }).join('');
       const qpLink = qpUrl ? '<a class="qs-result-link" href="'+qpUrl+'" target="_blank">Question Paper ↗</a>' : '';
       const msLink = msUrl ? '<a class="qs-result-link ms" href="'+msUrl+'" target="_blank">Mark Scheme ↗</a>' : '';
-      // Entire rawBlock in one <pre> — preserves all spacing including header line
-      const safe = item.rawBlock.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
       return '<div class="qs-result-card">'
         +'<div class="qs-result-meta">'+tags+'</div>'
-        +'<pre class="qs-raw-block" style="white-space:pre;overflow-x:auto">'+safe+'</pre>'
+        +'<pre class="qs-raw-block">'+item.rawBlock.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</pre>'
         +'<div class="qs-result-links">'+qpLink+msLink+'</div>'
         +'</div>';
     }).join('');
@@ -5374,10 +5362,8 @@
     if (!query) return;
 
     btn.disabled = true; btn.textContent = 'Searching…';
-    res.style.display = 'none';
-    res.innerHTML = '';
-    const qsLoader = document.getElementById('qsLoader');
-    if (qsLoader) qsLoader.style.display = 'block';
+    res.innerHTML = '<p class="qs-no-results" style="color:var(--muted)">Searching…</p>';
+    res.style.display = 'flex';
 
     try {
       const parseResp = await fetch('https://past-paper-finder.vercel.app/api/parse-qs', {
@@ -5405,8 +5391,6 @@
       res.innerHTML = '<p class="qs-no-results">Error: '+e.message+' — <a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">try caiefinder.com ↗</a></p>';
     } finally {
       btn.disabled = false; btn.textContent = 'Search';
-      const _ql = document.getElementById('qsLoader');
-      if (_ql) _ql.style.display = 'none';
     }
   }
 
