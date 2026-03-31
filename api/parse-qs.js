@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method !== 'POST') return res.status(405).end();
 
@@ -8,16 +8,14 @@ export default async function handler(req, res) {
   const GROQ_KEY = process.env.GROQ_API_KEY_3 || process.env.GROQ_API_KEY_2 || process.env.GROQ_API_KEY;
   if (!GROQ_KEY) return res.status(500).json({ error: 'No Groq key configured' });
 
-  // Step 1: fetch raw text from caiefinder server-side (no CORS issues)
   const params = new URLSearchParams();
   params.set('subs', subs || '');
   params.set('zone', zone || '');
   params.set('search', query);
-  const caieUrl = 'https://data.caiefinder.com/search/data/?' + params.toString();
 
   let rawText;
   try {
-    const caieResp = await fetch(caieUrl, {
+    const caieResp = await fetch('https://data.caiefinder.com/search/data/?' + params.toString(), {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36',
         'Accept': 'text/html,*/*',
@@ -25,13 +23,12 @@ export default async function handler(req, res) {
         'Origin': 'https://caiefinder.com'
       }
     });
-    if (!caieResp.ok) return res.status(200).json({ results: [], error: 'caiefinder returned ' + caieResp.status, fallback: 'https://caiefinder.com/search/?' + params.toString() });
+    if (!caieResp.ok) return res.status(200).json({ results: [], error: 'caiefinder returned ' + caieResp.status });
     rawText = await caieResp.text();
   } catch(e) {
-    return res.status(200).json({ results: [], error: 'caiefinder fetch failed: ' + e.message, fallback: 'https://caiefinder.com/search/?' + params.toString() });
+    return res.status(200).json({ results: [], error: 'caiefinder fetch failed: ' + e.message });
   }
 
-  // Strip HTML tags
   rawText = rawText
     .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<[^>]+>/g, '')
@@ -41,7 +38,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ results: [] });
   }
 
-  // Step 2: AI parse
   const prompt = `You are given raw text output from the CaieFinder past paper search engine.
 Split it into individual exam results. Each result starts with a header line like:
 "IGCSE - Computer Science (0478) May/June 2022 Varient: 2 Paper: 1"
@@ -95,4 +91,6 @@ ${rawText.substring(0, 12000)}`;
   } catch(e) {
     return res.status(500).json({ error: e.message });
   }
-}
+};
+
+module.exports.config = { api: { bodyParser: { sizeLimit: '1mb' } } };
