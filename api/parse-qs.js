@@ -1,4 +1,4 @@
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method !== 'POST') return res.status(405).end();
 
@@ -13,7 +13,7 @@ Split it into individual exam results. Each result starts with a header line lik
 "IGCSE - Computer Science (0478) May/June 2022 Varient: 2 Paper: 1"
 
 Return ONLY a JSON array. Each object must have exactly these fields:
-- "subject": string (e.g. "Computer Science") 
+- "subject": string (e.g. "Computer Science")
 - "code": string (e.g. "0478")
 - "exam": string (e.g. "IGCSE" or "O Levels" or "A Levels")
 - "year": string (e.g. "2022")
@@ -48,19 +48,17 @@ ${rawText.substring(0, 12000)}`;
 
     const data = await r.json();
     const content = data.choices?.[0]?.message?.content || '';
-
-    // Strip markdown fences if present
     const clean = content.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
 
     let results;
     try {
       results = JSON.parse(clean);
     } catch(e) {
-      return res.status(200).json({ results: [], raw: content, error: 'JSON parse failed: ' + e.message });
+      return res.status(200).json({ results: [], error: 'JSON parse failed: ' + e.message });
     }
 
     return res.status(200).json({ results });
   } catch(e) {
     return res.status(500).json({ error: e.message });
   }
-};
+}
