@@ -5410,7 +5410,8 @@
 
       if (!parseData.results || !parseData.results.length) {
         res.style.display = 'flex';
-        res.innerHTML = '<p class="qs-no-results">No results — <a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">search on caiefinder.com ↗</a></p>';
+        const _dbg = parseData.debug ? '<pre style="font-size:0.6rem;color:var(--muted);white-space:pre-wrap;overflow-x:auto;padding:0.5rem;border:1px solid var(--border);border-radius:6px;margin-top:0.5rem">'+String(parseData.debug).replace(/</g,'&lt;')+'</pre>' : '';
+        res.innerHTML = '<p class="qs-no-results" style="color:#f87171">⚠ '+(parseData.error||'No results')+'</p>'+_dbg+'<p class="qs-no-results"><a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">search on caiefinder.com ↗</a></p>';
         return;
       }
 
