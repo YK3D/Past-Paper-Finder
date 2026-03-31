@@ -1912,26 +1912,24 @@
 .qs-result-link:hover{background:rgba(62,228,254,0.08)}
 .qs-result-link.ms{color:#a78bfa;border-color:rgba(167,139,250,0.3)}
 .qs-no-results{font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);text-align:center;padding:1.5rem 0}
-#qsLoader { display:none; justify-content:center; align-items:center; padding:1.5rem 0; }
-#qsLoader .qs-wifi {
-  --front-color: var(--accent);
-  --back-color: var(--border);
-  width:64px; height:64px; border-radius:50px;
-  position:relative; display:flex; justify-content:center; align-items:center;
-}
-#qsLoader .qs-wifi svg { position:absolute; display:flex; }
-#qsLoader .qs-wifi svg circle { fill:none; stroke-width:5; stroke-linecap:round; }
+#qsLoader { display:none; justify-content:center; align-items:center; padding:2rem 0; }
+#qsLoader .qs-wifi { --front-color:var(--accent); --back-color:var(--border); width:64px; height:64px; border-radius:50px; position:relative; display:flex; justify-content:center; align-items:center; }
+#qsLoader .qs-wifi svg { position:absolute; display:flex; justify-content:center; align-items:center; }
+#qsLoader .qs-wifi svg circle { position:absolute; fill:none; stroke-width:6px; stroke-linecap:round; stroke-linejoin:round; transform:rotate(-100deg); transform-origin:center; }
 #qsLoader .qs-wifi svg circle.back  { stroke:var(--back-color); }
 #qsLoader .qs-wifi svg circle.front { stroke:var(--front-color); }
-#qsLoader .qs-wifi svg.circle-outer { height:86px; width:86px; stroke-dasharray:62.75 188.25; }
-#qsLoader .qs-wifi svg.circle-outer circle.back  { animation:circle-outer135 1.8s ease infinite 0.3s; }
-#qsLoader .qs-wifi svg.circle-outer circle.front { animation:circle-outer135 1.8s ease infinite 0.15s; }
-#qsLoader .qs-wifi svg.circle-middle { height:60px; width:60px; stroke-dasharray:42.5 127.5; }
+#qsLoader .qs-wifi svg.circle-outer  { height:86px; width:86px; }
+#qsLoader .qs-wifi svg.circle-outer  circle { stroke-dasharray:62.75 188.25; }
+#qsLoader .qs-wifi svg.circle-outer  circle.back  { animation:circle-outer135 1.8s ease infinite 0.3s; }
+#qsLoader .qs-wifi svg.circle-outer  circle.front { animation:circle-outer135 1.8s ease infinite 0.15s; }
+#qsLoader .qs-wifi svg.circle-middle { height:60px; width:60px; }
+#qsLoader .qs-wifi svg.circle-middle circle { stroke-dasharray:42.5 127.5; }
 #qsLoader .qs-wifi svg.circle-middle circle.back  { animation:circle-middle6123 1.8s ease infinite 0.25s; }
 #qsLoader .qs-wifi svg.circle-middle circle.front { animation:circle-middle6123 1.8s ease infinite 0.1s; }
-#qsLoader .qs-wifi svg.circle-inner { height:34px; width:34px; stroke-dasharray:22 66; }
-#qsLoader .qs-wifi svg.circle-inner circle.back  { animation:circle-inner162 1.8s ease infinite 0.2s; }
-#qsLoader .qs-wifi svg.circle-inner circle.front { animation:circle-inner162 1.8s ease infinite 0.05s; }
+#qsLoader .qs-wifi svg.circle-inner  { height:34px; width:34px; }
+#qsLoader .qs-wifi svg.circle-inner  circle { stroke-dasharray:22 66; }
+#qsLoader .qs-wifi svg.circle-inner  circle.back  { animation:circle-inner162 1.8s ease infinite 0.2s; }
+#qsLoader .qs-wifi svg.circle-inner  circle.front { animation:circle-inner162 1.8s ease infinite 0.05s; }
 
 </style>
   <script defer src="/_vercel/speed-insights/script.js"></script>
@@ -5372,7 +5370,7 @@
       const msLink = msUrl ? '<a class="qs-result-link ms" href="'+msUrl+'" target="_blank">Mark Scheme ↗</a>' : '';
       return '<div class="qs-result-card">'
         +'<div class="qs-result-meta">'+tags+'</div>'
-        +'<pre class="qs-raw-block">'+item.rawBlock.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</pre>'
+        +'<pre class="qs-raw-block" style="white-space:pre">'+item.rawBlock.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</pre>'
         +'<div class="qs-result-links">'+qpLink+msLink+'</div>'
         +'</div>';
     }).join('');
