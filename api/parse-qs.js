@@ -68,9 +68,19 @@ module.exports = async function handler(req, res) {
     const prevPart = parts[i - 1];
     const thisPart = parts[i];
 
-    // Header line = last non-empty line of prevPart
-    const prevLines = prevPart.split('\n').map(l => l.trim()).filter(Boolean);
-    const hLine = prevLines[prevLines.length - 1] || '';
+    // Header line = last non-empty line of prevPart (untrimmed to preserve spacing)
+    const prevLines = prevPart.split('\n');
+    // Find last line that contains a 4-digit subject code in parens
+    let hLine = '';
+    let hLineOriginal = '';
+    for (let j = prevLines.length - 1; j >= 0; j--) {
+      if (/\(\d{4}\)/.test(prevLines[j])) {
+        hLine = prevLines[j].trim();
+        hLineOriginal = prevLines[j];
+        break;
+      }
+    }
+    if (!hLine) continue;
 
     // QP file = first word after "in " at start of thisPart
     const qpMatch = thisPart.match(/^\s*in\s+(\w+)\s*\u2190/);
@@ -93,11 +103,11 @@ module.exports = async function handler(req, res) {
     const variant   = hm[5] || '';
     const paper     = hm[6] || '';
 
-    // Raw block = header line + ↓ FOUND ↓ + this part (up to next header)
+    // Raw block = original header line (preserving spacing) + ↓ FOUND ↓ + this part
     // Find where next header starts in thisPart to trim it
     const nextHeaderIdx = thisPart.search(/\n[A-Z][^\n]+\(\d{4}\)[^\n]+\n/);
     const blockBody = nextHeaderIdx > -1 ? thisPart.substring(0, nextHeaderIdx) : thisPart;
-    const rawBlock = (hLine + '\n' + foundMarker + blockBody).trim();
+    const rawBlock = (hLineOriginal + '\n' + foundMarker + blockBody).trim();
 
     results.push({ subject, code, exam: examLevel, year, session, variant, paper, qpFile, msFile, rawBlock });
   }
