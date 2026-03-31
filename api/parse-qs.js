@@ -24,7 +24,7 @@ module.exports = async function handler(req, res) {
   const { query, subs, zone } = body || {};
   if (!query) return res.status(400).json({ error: 'No query provided' });
 
-  const GROQ_KEY = process.env.GROQ_API_KEY_3 || process.env.GROQ_API_KEY_2 || process.env.GROQ_API_KEY;
+  const GROQ_KEY = process.env.QS_GROQ || process.env.GROQ_API_KEY_3 || process.env.GROQ_API_KEY_2 || process.env.GROQ_API_KEY;
   if (!GROQ_KEY) return res.status(500).json({ error: 'No Groq key configured' });
 
   // Step 1: fetch from caiefinder server-side
