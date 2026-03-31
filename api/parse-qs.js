@@ -19,16 +19,14 @@ module.exports = async function handler(req, res) {
   const { query, subs, zone } = body || {};
   if (!query) return res.status(400).json({ error: 'No query provided' });
 
-  // Fetch from caiefinder server-side
   const params = new URLSearchParams();
   params.set('subs', subs || '');
   params.set('zone', zone || '');
   params.set('search', query);
-  const caieUrl = 'https://data.caiefinder.com/search/data/?' + params.toString();
 
   let rawText;
   try {
-    const caieResp = await fetch(caieUrl, {
+    const caieResp = await fetch('https://data.caiefinder.com/search/data/?' + params.toString(), {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36',
         'Accept': 'text/html,*/*',
@@ -36,87 +34,77 @@ module.exports = async function handler(req, res) {
         'Origin': 'https://caiefinder.com'
       }
     });
-    if (!caieResp.ok) {
-      return res.status(200).json({ results: [], error: 'caiefinder HTTP ' + caieResp.status, debug: caieUrl });
-    }
+    if (!caieResp.ok) return res.status(200).json({ results: [], error: 'caiefinder HTTP ' + caieResp.status });
     rawText = await caieResp.text();
   } catch(e) {
-    return res.status(200).json({ results: [], error: 'caiefinder fetch failed: ' + e.message, debug: caieUrl });
+    return res.status(200).json({ results: [], error: 'caiefinder fetch failed: ' + e.message });
   }
 
   // Strip HTML
-  const stripped = rawText
+  const text = rawText
     .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<style[\s\S]*?<\/style>/gi, '')
     .replace(/<[^>]+>/g, '')
     .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&nbsp;/g, ' ')
-    .replace(/\n{3,}/g, '\n\n')
     .trim();
 
-  if (!stripped || stripped.length < 20) {
-    return res.status(200).json({ results: [], error: 'Empty response from caiefinder', debug: { rawLen: rawText.length, strippedLen: stripped.length } });
+  if (!text || text.length < 20) {
+    return res.status(200).json({ results: [], error: 'Empty response from caiefinder' });
   }
 
-  // Split into per-exam blocks
-  const lines = stripped.split('\n');
-  const blocks = [];
-  let buf = [];
-  for (let li = 0; li < lines.length; li++) {
-    const l = lines[li];
-    const nl = lines[li + 1] || '';
-    if (buf.length && /^[A-Z]/.test(l) && /\(\d{4}\)/.test(l) && nl.includes('\u2193 FOUND \u2193')) {
-      blocks.push(buf.join('\n'));
-      buf = [];
-    }
-    buf.push(l);
+  // Split on every occurrence of a line matching the exam header pattern
+  // Use a regex split on the header pattern so we capture each exam separately
+  const base = 'https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/';
+  const results = [];
+
+  // Find all positions where a new exam header starts
+  // Pattern: line starting with "IGCSE - " or "O Levels - " or "A Levels - " etc.
+  const headerRe = /(?:^|\n)((?:IGCSE|O Levels?|A Levels?|International AS)[^\n]+\(\d{4}\)[^\n]+)\n(↓ FOUND ↓[^\n]*)/g;
+  let match;
+  const starts = [];
+
+  while ((match = headerRe.exec(text)) !== null) {
+    starts.push({ pos: match.index === 0 ? 0 : match.index + 1, header: match[1], foundLine: match[2] });
   }
-  if (buf.length) blocks.push(buf.join('\n'));
 
-  const validBlocks = blocks.filter(b => b.includes('\u2193 FOUND \u2193')).slice(0, 5);
+  if (!starts.length) {
+    return res.status(200).json({ results: [], error: 'No exam headers found' });
+  }
 
-  // Log the first valid block for debugging
-  const blockPreview = validBlocks.length ? validBlocks[0].substring(0, 400) : '';
+  for (let i = 0; i < starts.length && results.length < 8; i++) {
+    const blockStart = starts[i].pos;
+    const blockEnd   = i + 1 < starts.length ? starts[i + 1].pos : text.length;
+    const block      = text.substring(blockStart, blockEnd).trim();
+    const hLine      = starts[i].header;
+    const foundLine  = starts[i].foundLine;
 
-  if (!validBlocks.length) {
-    return res.status(200).json({
-      results: [],
-      error: 'No exam blocks found after parsing',
-      debug: {
-        totalBlocks: blocks.length,
-        strippedPreview: stripped.substring(0, 300),
-        firstLine: lines[0],
-        hasFoundArrow: stripped.includes('\u2193 FOUND \u2193')
-      }
+    // Parse header
+    const hm = hLine.match(/^(.+?)\s+\((\d{4})\)\s+([\w/]+)\s+(\d{4})(?:.*?Varient:\s*(\d+))?(?:.*?Paper:\s*(\d+))?/i);
+    if (!hm) continue;
+
+    const dashIdx   = hLine.indexOf(' - ');
+    const examLevel = dashIdx > -1 ? hLine.substring(0, dashIdx).trim() : '';
+    const subject   = dashIdx > -1 ? hLine.substring(dashIdx + 3, hLine.indexOf('(')).trim() : hm[1];
+    const code      = hm[2];
+    const session   = hm[3];
+    const year      = hm[4];
+    const variant   = hm[5] || '';
+    const paper     = hm[6] || '';
+
+    // Extract filenames
+    const qpMatch = foundLine.match(/in\s+(\w+)\s*←/);
+    const msLineM = block.match(/↓ Below is the answer[^\n]* in\s+(\w+)\s*←/);
+    const qpFile  = qpMatch ? qpMatch[1] : '';
+    const msFile  = msLineM ? msLineM[1] : (qpFile ? qpFile.replace('_qp_', '_ms_') : '');
+
+    results.push({
+      subject, code, exam: examLevel, year, session, variant, paper,
+      qpFile, msFile,
+      rawBlock: block
     });
   }
 
-  const results = [];
-  for (const block of validBlocks) {
-    const foundMatch  = block.match(/\u2193 FOUND \u2193 in (\w+)\s*\u2190/);
-    const msMatch     = block.match(/\u2193 Below is the answer[^\n]* in (\w+)\s*\u2190/);
-    const headerMatch = block.match(/^([A-Z][^\n]+\((\d{4})\)\s+([\w/]+)\s+(\d{4})(?:[^\n]*?Varient:\s*(\d+))?(?:[^\n]*?Paper:\s*(\d+))?)/m);
-
-    if (!headerMatch) continue;
-
-    const hLine     = headerMatch[1];
-    const dashIdx   = hLine.indexOf(' - ');
-    const examLevel = dashIdx > -1 ? hLine.substring(0, dashIdx).trim() : '';
-    const subject   = dashIdx > -1 ? hLine.substring(dashIdx + 3, hLine.indexOf('(')).trim() : '';
-    const code      = headerMatch[2];
-    const session   = headerMatch[3];
-    const year      = headerMatch[4];
-    const variant   = headerMatch[5] || '';
-    const paper     = headerMatch[6] || '';
-    const qpFile    = foundMatch ? foundMatch[1] : '';
-    const msFile    = msMatch    ? msMatch[1]    : (qpFile ? qpFile.replace('_qp_', '_ms_') : '');
-
-    const headerIdx  = block.search(/^[A-Z][^\n]+\(\d{4}\)/m);
-    const cleanBlock = headerIdx > 0 ? block.substring(headerIdx).trim() : block.trim();
-
-    results.push({ subject, code, exam: examLevel, year, session, variant, paper, qpFile, msFile, rawBlock: cleanBlock });
-  }
-
-  return res.status(200).json({ results, debug: { totalBlocks: blocks.length, validBlocks: validBlocks.length, parsed: results.length, blockPreview } });
+  return res.status(200).json({ results });
 };
 
 module.exports.config = { api: { bodyParser: { sizeLimit: '1mb' } } };
