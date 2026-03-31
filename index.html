@@ -5361,44 +5361,26 @@
     if (!query) return;
 
     btn.disabled = true; btn.textContent = 'Searching…';
-    res.innerHTML = '<p class="qs-no-results" style="color:var(--muted)">Fetching results…</p>';
+    res.innerHTML = '<p class="qs-no-results" style="color:var(--muted)">Searching…</p>';
     res.style.display = 'flex';
 
     try {
-      // Step 1: fetch raw text from caiefinder
-      const params = new URLSearchParams();
-      params.set('subs', subs); params.set('zone', zone); params.set('search', query);
-      let rawText = null;
-      try {
-        const r = await fetch('https://data.caiefinder.com/search/data/?'+params.toString(), {headers:{'Accept':'text/html,*/*'}});
-        if (!r.ok) throw new Error('caiefinder status '+r.status);
-        rawText = await r.text();
-      } catch(corsErr) {
-        window.open(buildCaieUrl(query,subs,zone), '_blank');
-        res.innerHTML = '<p class="qs-no-results">Opening on caiefinder.com in a new tab…</p>';
-        btn.disabled = false; btn.textContent = 'Search'; return;
-      }
-
-      // Strip HTML tags from response
-      rawText = rawText.replace(/<script[\s\S]*?<\/script>/gi,'').replace(/<[^>]+>/g,'')
-                       .replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ');
-
-      if (!rawText || rawText.trim().length < 20) {
-        res.innerHTML = '<p class="qs-no-results">No results — <a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">search on caiefinder.com ↗</a></p>';
-        return;
-      }
-
-      // Step 2: send to AI parser
-      res.innerHTML = '<p class="qs-no-results" style="color:var(--muted)">Parsing results with AI…</p>';
       const parseResp = await fetch('/api/parse-qs', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ rawText })
+        body: JSON.stringify({ query, subs, zone })
       });
+
+      if (!parseResp.ok) throw new Error('Server error ' + parseResp.status);
       const parseData = await parseResp.json();
 
+      if (parseData.error && (!parseData.results || !parseData.results.length)) {
+        res.innerHTML = '<p class="qs-no-results">' + parseData.error + ' — <a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">search on caiefinder.com ↗</a></p>';
+        return;
+      }
+
       if (!parseData.results || !parseData.results.length) {
-        res.innerHTML = '<p class="qs-no-results">No results parsed — <a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">search on caiefinder.com ↗</a></p>';
+        res.innerHTML = '<p class="qs-no-results">No results — <a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">search on caiefinder.com ↗</a></p>';
         return;
       }
 
