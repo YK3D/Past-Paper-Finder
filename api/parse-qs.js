@@ -107,7 +107,13 @@ module.exports = async function handler(req, res) {
     // Find where next header starts in thisPart to trim it
     const nextHeaderIdx = thisPart.search(/\n[A-Z][^\n]+\(\d{4}\)[^\n]+\n/);
     const blockBody = nextHeaderIdx > -1 ? thisPart.substring(0, nextHeaderIdx) : thisPart;
-    const rawBlock = (hLineOriginal + '\n' + foundMarker + blockBody).trim();
+    // The line after ↓ FOUND ↓ collapses several fields onto one line — split them out
+    // Pattern: "in FILE ← Open question paper's PDFQuestion No: N —QUESTION TEXT ↓ Below..."
+    const rawBlockRaw = (hLineOriginal + '\n' + foundMarker + blockBody).trim();
+    const rawBlock = rawBlockRaw
+      .replace(/← Open question paper's PDF(?!\n)/g, "← Open question paper's PDF\n")
+      .replace(/ ↓ Below is the answer/g, '\n↓ Below is the answer')
+      .replace(/← Open original marks scheme's PDF(?!\n)/g, "← Open original marks scheme's PDF\n");
 
     results.push({ subject, code, exam: examLevel, year, session, variant, paper, qpFile, msFile, rawBlock });
   }
