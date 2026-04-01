@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.01, maximum-scale=5.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>Past Paper Finder</title>
 
 <!-- SEO Meta -->
@@ -1917,6 +1917,13 @@
 .qs-result-link.qs-ai-link{color:#f472b6;border-color:rgba(244,114,182,0.3)}
 .qs-result-link.qs-ai-link:hover{background:rgba(244,114,182,0.08)}
 .qs-no-results{font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);text-align:center;padding:1.5rem 0}
+.qs-fmtblock{font-family:Arial,sans-serif;font-size:0.72rem;line-height:1.8;margin:0 0 0.7rem 0;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:0.7rem 0.9rem;word-break:break-word;overflow-wrap:break-word;}
+.qs-hdr{color:#22c55e;text-align:center;font-weight:600;margin:0.15rem 0;}
+.qs-flink{color:#22c55e;font-weight:700;text-decoration:underline;}
+.qs-qnum{color:var(--muted);font-size:0.65rem;margin-top:0.4rem;}
+.qs-qtxt{color:#f97316;margin:0.2rem 0 0.3rem 0;}
+.qs-ans{color:var(--text);white-space:pre-wrap;}
+mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;}
 .qs-wifi{width:64px;height:64px;border-radius:50px;position:relative;display:flex;justify-content:center;align-items:center;}
 .qs-wifi svg{position:absolute;display:flex;}
 .qs-wifi svg circle{fill:none;stroke-width:5;stroke-linecap:round;}
@@ -2122,20 +2129,48 @@
       <option value="economics">Economics</option>
       <option value="english">English</option>
       <option value="computerscience">Computer Science</option>
+      <option value="agriculture">Agriculture</option>
+      <option value="artdesign">Art &amp; Design</option>
+      <option value="bangladeshstudies">Bangladesh Studies</option>
+      <option value="biblicalstudies">Biblical Studies</option>
+      <option value="classicalstudies">Classical Studies</option>
+      <option value="commerce">Commerce</option>
+      <option value="designtechnology">Design &amp; Technology</option>
+      <option value="designtextiles">Design &amp; Textiles</option>
+      <option value="designcommunication">Design and Communication</option>
+      <option value="developmentstudies">Development Studies</option>
+      <option value="digitalmediadesign">Digital Media &amp; Design</option>
+      <option value="divinity">Divinity</option>
+      <option value="drama">Drama</option>
+      <option value="enterprise">Enterprise</option>
+      <option value="environmentalmanagement">Environmental Management</option>
+      <option value="foodnutrition">Food &amp; Nutrition</option>
+      <option value="fashiontextiles">Fashion &amp; Textiles</option>
       <option value="geography">Geography</option>
+      <option value="globalperspectivesresearch">Global Perspectives &amp; Research</option>
+      <option value="hinduism">Hinduism</option>
       <option value="history">History</option>
+      <option value="informationcommunicationtechnology">Information &amp; Communication Technology</option>
+      <option value="informationtechnology">Information Technology</option>
+      <option value="islamicstudies">Islamic Studies</option>
+      <option value="islamiyat">Islamiyat</option>
+      <option value="law">Law</option>
+      <option value="marinescience">Marine Science</option>
+      <option value="mediastudies">Media Studies</option>
+      <option value="music">Music</option>
+      <option value="pakistanstudies">Pakistan Studies</option>
+      <option value="physicaleducation">Physical Education</option>
+      <option value="physicalscience">Physical Science</option>
       <option value="psychology">Psychology</option>
+      <option value="religiousstudies">Religious Studies</option>
+      <option value="sciencecombined">Science (Combined)</option>
+      <option value="sciencescoordinated">Sciences (Co-ordinated)</option>
       <option value="sociology">Sociology</option>
+      <option value="sportandphysicaleducation">Sport and Physical Education</option>
       <option value="statistics">Statistics</option>
       <option value="thinkingskills">Thinking Skills</option>
-      <option value="law">Law</option>
-      <option value="artdesign">Art &amp; Design</option>
-      <option value="designtechnology">Design &amp; Technology</option>
       <option value="traveltourism">Travel &amp; Tourism</option>
-      <option value="foodnutrition">Food &amp; Nutrition</option>
-      <option value="globalperspectivesresearch">Global Perspectives</option>
-      <option value="informationcommunicationtechnology">ICT</option>
-      <option value="sciencecombined">Science (Combined)</option>
+      <option value="worldliterature">World Literature</option>
     </select>
     <select class="question-search-select" id="qsZone">
       <option value="">GCE &amp; IGCSE</option>
@@ -2533,6 +2568,7 @@
       : Promise.resolve();
 
     _fontReady.then(function() {
+      // Wait until just before splashFadeOut fires (splash last child anim ends at 1.3s)
       setTimeout(function() {
         try {
           var splashTitle = splash.querySelector('.splash-title');
@@ -2597,7 +2633,7 @@
           // Morph failed — page is already visible, just clean up
           if (container) container.style.opacity = '1';
         }
-      }, 0);
+      },1250);
     });
   })();
 
@@ -5351,30 +5387,74 @@
     return 'https://caiefinder.com/search/?'+p.toString();
   }
 
-  function renderQsResults(parsed) {
+  function renderQsResults(parsed, query) {
     const base = 'https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/';
-    return parsed.map(function(item) {
-      const qpUrl = item.qpFile ? base + item.qpFile + '.pdf' : '';
-      const msUrl = item.msFile ? base + item.msFile + '.pdf' : '';
-      const tags = [item.subject, item.code, item.exam, item.year, item.session,
-        item.variant ? 'Variant '+item.variant+(item.paper?', Paper '+item.paper:'') : (item.paper?'Paper '+item.paper:'')]
-        .filter(Boolean).map(function(t){ return '<span>'+t.replace(/</g,'&lt;')+'</span>'; }).join('');
-      const qpLink = qpUrl ? '<a class="qs-result-link" href="'+qpUrl+'" target="_blank">Question Paper ↗</a>' : '';
-      const msLink = msUrl ? '<a class="qs-result-link ms" href="'+msUrl+'" target="_blank">Mark Scheme ↗</a>' : '';
-      let aiLink = '';
-      if (qpUrl) {
-        const vp = new URLSearchParams();
-        vp.set('url', qpUrl);
-        if (msUrl) vp.set('files', qpUrl+','+msUrl);
-        aiLink = '<a class="qs-result-link qs-ai-link" href="/viewer.html?'+vp.toString()+'" target="_blank">Open in PastPaperAI 🤖</a>';
+    function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function hlq(s){
+      if (!query) return esc(s);
+      var safe = esc(s);
+      query.trim().split(/\s+/).filter(Boolean).forEach(function(w){
+        safe = safe.replace(new RegExp('('+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark class="qs-highlight">$1</mark>');
+      });
+      return safe;
+    }
+    function formatBlock(rawBlock, qpUrl, msUrl){
+      // Strip last 2 non-empty lines
+      var lines = rawBlock.split('\n');
+      var removed=0;
+      while(removed<2 && lines.length){
+        if(lines[lines.length-1].trim()){lines.pop();removed++;}else{lines.pop();}
       }
+      while(lines.length && !lines[lines.length-1].trim()) lines.pop();
+      var html='', inAnswer=false;
+      for(var i=0;i<lines.length;i++){
+        var line=lines[i], t=line.trim();
+        if(!t){html+='<br>';continue;}
+        // Header line (has 4-digit code in parens)
+        if(i===0 || (/\(\d{4}\)/.test(t) && /Varient/.test(t))){
+          html+='<div class="qs-hdr">'+esc(t)+'</div>';continue;
+        }
+        // ↓ FOUND ↓
+        if(t.includes('\u2193 FOUND \u2193')){
+          var fm=t.match(/in\s+(\w+)\s*\u2190/);
+          html+='<div class="qs-hdr">'+(fm&&qpUrl?'\u2193 FOUND \u2193 in <a href="'+qpUrl+'" target="_blank" class="qs-flink">'+fm[1]+'</a> \u2190 Open question paper\'s PDF':esc(t))+'</div>';
+          continue;
+        }
+        // Question No
+        if(/^Question No:/i.test(t)){html+='<div class="qs-qnum">'+esc(t)+'</div>';continue;}
+        // Question text (em dash)
+        if(/^[\u2014\u2013\-]/.test(t)&&!inAnswer){html+='<div class="qs-qtxt">'+hlq(t)+'</div>';continue;}
+        // ↓ Below is the answer
+        if(t.includes('\u2193 Below is the answer')){
+          inAnswer=true;
+          var fm2=t.match(/in\s+(\w+)\s*\u2190/);
+          html+='<div class="qs-hdr">'+(fm2&&msUrl?'\u2193 Below is the answer to this question \u2193 in <a href="'+msUrl+'" target="_blank" class="qs-flink">'+fm2[1]+'</a> \u2190 Open original marks scheme\'s PDF':esc(t))+'</div>';
+          continue;
+        }
+        // Answer
+        if(inAnswer){html+='<div class="qs-ans">'+esc(line)+'</div>';continue;}
+        html+='<div>'+esc(line)+'</div>';
+      }
+      return html;
+    }
+    return parsed.map(function(item){
+      var qpUrl=item.qpFile?base+item.qpFile+'.pdf':'';
+      var msUrl=item.msFile?base+item.msFile+'.pdf':'';
+      var tags=[item.subject,item.code,item.exam,item.year,item.session,
+        item.variant?'Variant '+item.variant+(item.paper?', Paper '+item.paper:''):(item.paper?'Paper '+item.paper:'')]
+        .filter(Boolean).map(function(t){return '<span>'+esc(t)+'</span>';}).join('');
+      var qpLink=qpUrl?'<a class="qs-result-link" href="'+qpUrl+'" target="_blank">Question Paper \u2197</a>':'';
+      var msLink=msUrl?'<a class="qs-result-link ms" href="'+msUrl+'" target="_blank">Mark Scheme \u2197</a>':'';
+      var aiLink='';
+      if(qpUrl){var vp=new URLSearchParams();vp.set('url',qpUrl);if(msUrl)vp.set('files',qpUrl+','+msUrl);aiLink='<a class="qs-result-link qs-ai-link" href="/viewer.html?'+vp.toString()+'" target="_blank">Open in PastPaperAI \U0001F916</a>';}
       return '<div class="qs-result-card">'
         +'<div class="qs-result-meta">'+tags+'</div>'
-        +'<pre class="qs-raw-block">'+item.rawBlock.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</pre>'
+        +'<div class="qs-fmtblock">'+formatBlock(item.rawBlock,qpUrl,msUrl)+'</div>'
         +'<div class="qs-result-links">'+qpLink+msLink+aiLink+'</div>'
         +'</div>';
     }).join('');
   }
+
 
   async function runQuestionSearch() {
     const input = document.getElementById('qsInput');
@@ -5413,7 +5493,7 @@
       }
 
       res.style.display = 'flex';
-      res.innerHTML = renderQsResults(parseData.results);
+      res.innerHTML = renderQsResults(parseData.results, query);
 
     } catch(e) {
       res.innerHTML = '<p class="qs-no-results">Error: '+e.message+' — <a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">try caiefinder.com ↗</a></p>';
