@@ -1917,6 +1917,20 @@
 .qs-result-link.qs-ai-link{color:#f472b6;border-color:rgba(244,114,182,0.3)}
 .qs-result-link.qs-ai-link:hover{background:rgba(244,114,182,0.08)}
 .qs-no-results{font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);text-align:center;padding:1.5rem 0}
+.qs-wifi{width:64px;height:64px;border-radius:50px;position:relative;display:flex;justify-content:center;align-items:center;}
+.qs-wifi svg{position:absolute;display:flex;}
+.qs-wifi svg circle{fill:none;stroke-width:5;stroke-linecap:round;}
+.qs-wifi svg circle.back{stroke:var(--border);}
+.qs-wifi svg circle.front{stroke:var(--accent);}
+.qs-wifi svg.circle-outer{height:86px;width:86px;stroke-dasharray:62.75 188.25;}
+.qs-wifi svg.circle-outer circle.back{animation:circle-outer135 1.8s ease infinite 0.3s;}
+.qs-wifi svg.circle-outer circle.front{animation:circle-outer135 1.8s ease infinite 0.15s;}
+.qs-wifi svg.circle-middle{height:60px;width:60px;stroke-dasharray:42.5 127.5;}
+.qs-wifi svg.circle-middle circle.back{animation:circle-middle6123 1.8s ease infinite 0.25s;}
+.qs-wifi svg.circle-middle circle.front{animation:circle-middle6123 1.8s ease infinite 0.1s;}
+.qs-wifi svg.circle-inner{height:34px;width:34px;stroke-dasharray:22 66;}
+.qs-wifi svg.circle-inner circle.back{animation:circle-inner162 1.8s ease infinite 0.2s;}
+.qs-wifi svg.circle-inner circle.front{animation:circle-inner162 1.8s ease infinite 0.05s;}
 
 </style>
   <script defer src="/_vercel/speed-insights/script.js"></script>
@@ -2489,20 +2503,101 @@
 
   // ── Startup splash ──
   (function() {
-    var splash = document.getElementById('splash');
+    var splash    = document.getElementById('splash');
     var container = document.querySelector('.container');
-    if (!splash) { if (container) container.style.opacity = '1'; return; }
-    // If returning from codes page, skip splash immediately
-    if (sessionStorage.getItem('fromCodes')) {
-      splash.remove();
-      if (container) { container.style.transition = 'none'; container.style.opacity = '1'; }
-      return;
+
+    function revealPage() {
+      if (container) container.style.opacity = '1';
+      if (splash && splash.parentNode) splash.remove();
     }
-    // When splash's OWN fade-out animation ends, reveal container and remove splash
+
+    if (!splash) { revealPage(); return; }
+    if (sessionStorage.getItem('fromCodes')) {
+      if (container) { container.style.transition = 'none'; }
+      revealPage(); return;
+    }
+
+    // Failsafe: always reveal page after 3s no matter what
+    var failsafe = setTimeout(revealPage, 3000);
+
+    // When splash fade-out ends, reveal page
     splash.addEventListener('animationend', function(e) {
       if (e.animationName !== 'splashFadeOut') return;
-      if (container) container.style.opacity = '1';
-      splash.remove();
+      clearTimeout(failsafe);
+      revealPage();
+    });
+
+    // Text + logo morph animation — wrapped in try/catch so errors can't freeze the page
+    var _fontReady = (document.fonts && document.fonts.ready)
+      ? Promise.race([document.fonts.ready, new Promise(function(r){ setTimeout(r, 600); })])
+      : Promise.resolve();
+
+    _fontReady.then(function() {
+      setTimeout(function() {
+        try {
+          var splashTitle = splash.querySelector('.splash-title');
+          var splashLogo  = splash.querySelector('.splash-logo');
+          var h1          = document.querySelector('h1');
+          var headerLogo  = document.querySelector('.header-logo');
+
+          if (!splashTitle || !splashLogo || !h1 || !headerLogo) return;
+
+          var fromTitle = splashTitle.getBoundingClientRect();
+          var fromLogo  = splashLogo.getBoundingClientRect();
+
+          container.style.opacity = '1';
+          void container.offsetHeight;
+
+          var toTitle = h1.getBoundingClientRect();
+          var toLogo  = headerLogo.getBoundingClientRect();
+
+          if (!toTitle.width || !toLogo.width) return;
+
+          var ease = 'cubic-bezier(0.65, 0, 0.35, 1)';
+          var dur  = '0.55s';
+
+          // Title clone
+          var scaleX = fromTitle.width / toTitle.width;
+          var scaleY = fromTitle.height / (toTitle.height || 1);
+          var titleClone = splashTitle.cloneNode(true);
+          titleClone.style.cssText = 'position:fixed;top:'+toTitle.top+'px;left:'+toTitle.left+'px;'
+            +'width:'+toTitle.width+'px;height:'+toTitle.height+'px;margin:0;padding:0;'
+            +'font-family:Syne,sans-serif;font-size:'+parseFloat(getComputedStyle(h1).fontSize)+'px;'
+            +'font-weight:800;letter-spacing:-0.02em;color:var(--text);transform-origin:top left;'
+            +'transform:translate('+(fromTitle.left-toTitle.left)+'px,'+(fromTitle.top-toTitle.top)+'px)'
+            +' scale('+scaleX+','+scaleY+');z-index:10001;pointer-events:none;opacity:1;'
+            +'transition:transform '+dur+' '+ease+',opacity 0.2s ease 0.4s;will-change:transform,opacity;';
+          document.body.appendChild(titleClone);
+
+          // Logo clone
+          var lsX = fromLogo.width / (toLogo.width || 1);
+          var lsY = fromLogo.height / (toLogo.height || 1);
+          var logoClone = document.createElement('img');
+          logoClone.src = '/favicon.png';
+          logoClone.style.cssText = 'position:fixed;top:'+toLogo.top+'px;left:'+toLogo.left+'px;'
+            +'width:'+toLogo.width+'px;height:'+toLogo.height+'px;border-radius:6px;object-fit:cover;'
+            +'transform-origin:top left;'
+            +'transform:translate('+(fromLogo.left-toLogo.left)+'px,'+(fromLogo.top-toLogo.top)+'px)'
+            +' scale('+lsX+','+lsY+');z-index:10001;pointer-events:none;opacity:1;'
+            +'transition:transform '+dur+' '+ease+',opacity 0.2s ease 0.4s;will-change:transform,opacity;';
+          document.body.appendChild(logoClone);
+
+          requestAnimationFrame(function(){ requestAnimationFrame(function(){
+            titleClone.style.transform = 'translate(0,0) scale(1,1)';
+            titleClone.style.opacity   = '0';
+            logoClone.style.transform  = 'translate(0,0) scale(1,1)';
+            logoClone.style.opacity    = '0';
+            setTimeout(function(){
+              h1.style.opacity = '1';
+              headerLogo.style.opacity = '1';
+              setTimeout(function(){ titleClone.remove(); logoClone.remove(); }, 200);
+            }, 560);
+          });});
+        } catch(e) {
+          // Morph failed — page is already visible, just clean up
+          if (container) container.style.opacity = '1';
+        }
+      }, 0);
     });
   })();
 
@@ -5313,7 +5408,7 @@
 
       if (!parseData.results || !parseData.results.length) {
         res.style.display = 'flex';
-        res.innerHTML = '<p class="qs-no-results">No results — <a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">search on caiefinder.com ↗</a></p>';
+        res.innerHTML = '<p class="qs-no-results">No questions found for <strong style="color:var(--text)">'+query.replace(/</g,'&lt;')+'</strong><br><a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">Search on caiefinder.com ↗</a></p>';
         return;
       }
 
