@@ -180,18 +180,19 @@ module.exports = async function handler(req, res) {
         const r = await tryGemini(GEMINI_KEYS[i], geminiModel, systemPrompt, messages);
         if (r.ok) return pipeGeminiStream(r, res);
         const errText = await r.text();
+        console.error('[Gemini key ' + (i+1) + '] status=' + r.status + ' body=' + errText.slice(0, 500));
         // Only retry on rate limit (429) or overloaded (503) — treat other errors as fatal
         if (r.status === 429 || r.status === 503) {
           lastGeminiError = 'Key ' + (i+1) + ' rate limited (' + r.status + ')';
           continue; // try next key
         }
         // Fatal error — return it directly with the actual error message
-        return res.status(r.status).json({ error: 'Gemini error ' + r.status + ': ' + errText.slice(0, 300) });
+        return res.status(r.status).json({ error: 'Gemini error ' + r.status + ': ' + errText.slice(0, 500) });
       }
       // All keys rate-limited
       lastGeminiError = lastGeminiError || 'All Gemini keys exhausted';
     }
-    return res.status(429).json({ error: RATE_LIMIT_MSG });
+    return res.status(429).json({ error: RATE_LIMIT_MSG + ' (Last: ' + lastGeminiError + ')' });
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
