@@ -157,7 +157,7 @@ function pipeGeminiStream(resp, res) {
 module.exports.config = {
   api: {
     bodyParser: {
-      sizeLimit: '10mb'
+      sizeLimit: '20mb'
     }
   }
 };
