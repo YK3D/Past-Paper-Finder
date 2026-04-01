@@ -82,6 +82,11 @@ export default async function handler(req, res) {
   }
 
   // ── Leaderboard time (public) ──
+  if (action === 'subject_counts') {
+    const rows = await dbGet('subject_counts?select=code,count&order=count.desc&limit=100');
+    return res.status(200).json({ rows: rows || [] });
+  }
+
   if (action === 'leaderboard_time') {
     const rows = await dbGet('paper_views?select=username,seconds&order=seconds.desc&limit=100');
     return res.status(200).json(
@@ -109,6 +114,23 @@ export default async function handler(req, res) {
     } else {
       await dbPost('paper_views', { username, count: 1, seconds: 0 });
     }
+
+    // Also track per-subject count
+    const urlStr = body.url || '';
+    const codeMatch = urlStr.match(/\/([0-9]{4})_/);
+    const subjectCode = codeMatch ? codeMatch[1] : null;
+    if (subjectCode) {
+      try {
+        const existing = await dbGet(`subject_counts?code=eq.${encodeURIComponent(subjectCode)}&select=count`);
+        if (existing && existing.length) {
+          await dbPatch(`subject_counts?code=eq.${encodeURIComponent(subjectCode)}`,
+            { count: (existing[0].count || 0) + 1, updated_at: new Date().toISOString() });
+        } else {
+          await dbPost('subject_counts', { code: subjectCode, count: 1 });
+        }
+      } catch(e) { /* non-critical */ }
+    }
+
     return res.status(200).json({ ok: true });
   }
 
