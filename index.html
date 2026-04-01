@@ -1160,15 +1160,8 @@
     to   { opacity: 1; }
   }
 
-  /* page content hidden until splash done */
-  .container {
-    opacity: 0;
-    animation: containerFadeIn 0.4s ease 1.4s forwards;
-  }
-  @keyframes containerFadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-  }
+  /* page content hidden until splash done — splash covers it via z-index:9999 */
+  .container { opacity: 0; transition: opacity 0.4s ease; }
 
   .header-title-row .header-logo { display: none; }
 
@@ -2153,6 +2146,13 @@
     <input class="question-search-input" id="qsInput" type="search" placeholder="e.g. six statements are given about storage devices" onkeydown="if(event.key==='Enter')runQuestionSearch()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other" role="searchbox">
     <button class="question-search-btn" id="qsBtn" onclick="runQuestionSearch()">Search</button>
   </div>
+  <div id="qsLoader" style="display:none;justify-content:center;padding:1.5rem 0">
+    <div class="qs-wifi">
+      <svg class="circle-outer"><circle class="back" cx="43" cy="43" r="40"></circle><circle class="front" cx="43" cy="43" r="40"></circle></svg>
+      <svg class="circle-middle"><circle class="back" cx="30" cy="30" r="27"></circle><circle class="front" cx="30" cy="30" r="27"></circle></svg>
+      <svg class="circle-inner"><circle class="back" cx="17" cy="17" r="14"></circle><circle class="front" cx="17" cy="17" r="14"></circle></svg>
+    </div>
+  </div>
   <div class="question-search-results" id="qsResults" style="display:none"></div>
 </div>
       <a href="/leaderboard.html" class="lb-link-btn">🏆 Leaderboard</a>
@@ -2506,18 +2506,19 @@
   // ── Startup splash ──
   (function() {
     var splash = document.getElementById('splash');
-    if (!splash) return;
+    var container = document.querySelector('.container');
+    if (!splash) { if (container) container.style.opacity = '1'; return; }
     // If returning from codes page, skip splash immediately
     if (sessionStorage.getItem('fromCodes')) {
-      splash.style.animation = 'none';
-      splash.style.opacity = '0';
       splash.remove();
-      var c = document.querySelector('.container');
-      if (c) { c.style.animation = 'none'; c.style.opacity = '1'; }
+      if (container) { container.style.transition = 'none'; container.style.opacity = '1'; }
       return;
     }
-    // Remove from DOM after CSS fade-out animation completes (1.4s delay + 0.4s fade = 1.8s)
-    splash.addEventListener('animationend', function() { splash.remove(); });
+    // When splash finishes fading out, reveal container and remove splash
+    splash.addEventListener('animationend', function() {
+      if (container) container.style.opacity = '1';
+      splash.remove();
+    });
   })();
 
   // ── Haptic feedback (Android only, no-op on unsupported devices) ──
@@ -5310,8 +5311,10 @@ if (!query) return;
 
 ```
 btn.disabled = true; btn.textContent = 'Searching…';
-res.innerHTML = '<p class="qs-no-results" style="color:var(--muted)">Searching…</p>';
-res.style.display = 'flex';
+res.style.display = 'none';
+res.innerHTML = '';
+const qsLoader = document.getElementById('qsLoader');
+if (qsLoader) qsLoader.style.display = 'flex';
 
 try {
   const parseResp = await fetch('https://past-paper-finder.vercel.app/api/parse-qs', {
@@ -5339,6 +5342,8 @@ try {
   res.innerHTML = '<p class="qs-no-results">Error: '+e.message+' — <a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">try caiefinder.com ↗</a></p>';
 } finally {
   btn.disabled = false; btn.textContent = 'Search';
+  const _ql = document.getElementById('qsLoader');
+  if (_ql) _ql.style.display = 'none';
 }
 ```
 
