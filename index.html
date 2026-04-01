@@ -1924,18 +1924,21 @@
 .qs-qtxt{color:#f97316;margin:0.2rem 0 0.3rem 0;}
 .qs-ans{color:var(--text);white-space:pre-wrap;}
 mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;}
-.qs-wifi{width:86px;height:86px;position:relative;display:inline-block;}
-.qs-wifi svg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);}
-.qs-wifi svg circle{fill:none;stroke-width:5;stroke-linecap:round;}
-.qs-wifi svg circle.back{stroke:var(--border);}
-.qs-wifi svg circle.front{stroke:var(--accent);}
-.qs-wifi svg.circle-outer{height:86px;width:86px;stroke-dasharray:62.75 188.25;}
+.qs-wifi{--front-color:var(--accent);--back-color:var(--border);width:64px;height:64px;border-radius:50px;position:relative;display:flex;justify-content:center;align-items:center;}
+.qs-wifi svg{position:absolute;display:flex;justify-content:center;align-items:center;}
+.qs-wifi svg circle{position:absolute;fill:none;stroke-width:6px;stroke-linecap:round;stroke-linejoin:round;transform:rotate(-100deg);transform-origin:center;}
+.qs-wifi svg circle.back{stroke:var(--back-color);}
+.qs-wifi svg circle.front{stroke:var(--front-color);}
+.qs-wifi svg.circle-outer{height:86px;width:86px;}
+.qs-wifi svg.circle-outer circle{stroke-dasharray:62.75 188.25;}
 .qs-wifi svg.circle-outer circle.back{animation:circle-outer135 1.8s ease infinite 0.3s;}
 .qs-wifi svg.circle-outer circle.front{animation:circle-outer135 1.8s ease infinite 0.15s;}
-.qs-wifi svg.circle-middle{height:60px;width:60px;stroke-dasharray:42.5 127.5;}
+.qs-wifi svg.circle-middle{height:60px;width:60px;}
+.qs-wifi svg.circle-middle circle{stroke-dasharray:42.5 127.5;}
 .qs-wifi svg.circle-middle circle.back{animation:circle-middle6123 1.8s ease infinite 0.25s;}
 .qs-wifi svg.circle-middle circle.front{animation:circle-middle6123 1.8s ease infinite 0.1s;}
-.qs-wifi svg.circle-inner{height:34px;width:34px;stroke-dasharray:22 66;}
+.qs-wifi svg.circle-inner{height:34px;width:34px;}
+.qs-wifi svg.circle-inner circle{stroke-dasharray:22 66;}
 .qs-wifi svg.circle-inner circle.back{animation:circle-inner162 1.8s ease infinite 0.2s;}
 .qs-wifi svg.circle-inner circle.front{animation:circle-inner162 1.8s ease infinite 0.05s;}
 
@@ -2120,57 +2123,67 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
   <div class="question-search-row">
     <select class="question-search-select" id="qsSubs">
       <option value="">All Subjects</option>
+      <optgroup label="── Core ──">
       <option value="mathematics">Mathematics</option>
       <option value="chemistry">Chemistry</option>
       <option value="physics">Physics</option>
       <option value="biology">Biology</option>
-      <option value="accounting">Accounting</option>
-      <option value="businessstudies">Business Studies</option>
-      <option value="economics">Economics</option>
       <option value="english">English</option>
       <option value="computerscience">Computer Science</option>
+      <option value="economics">Economics</option>
+      <option value="accounting">Accounting</option>
+      <option value="businessstudies">Business Studies</option>
+      <option value="geography">Geography</option>
+      <option value="history">History</option>
+      <option value="psychology">Psychology</option>
+      <option value="sociology">Sociology</option>
+      <option value="statistics">Statistics</option>
+      <option value="law">Law</option>
+      </optgroup>
+      <optgroup label="── Sciences ──">
       <option value="agriculture">Agriculture</option>
+      <option value="environmentalmanagement">Environmental Management</option>
+      <option value="marinescience">Marine Science</option>
+      <option value="physicalscience">Physical Science</option>
+      <option value="sciencecombined">Science (Combined)</option>
+      <option value="sciencescoordinated">Sciences (Co-ordinated)</option>
+      </optgroup>
+      <optgroup label="── Arts & Design ──">
       <option value="artdesign">Art &amp; Design</option>
-      <option value="bangladeshstudies">Bangladesh Studies</option>
-      <option value="biblicalstudies">Biblical Studies</option>
-      <option value="classicalstudies">Classical Studies</option>
-      <option value="commerce">Commerce</option>
       <option value="designtechnology">Design &amp; Technology</option>
       <option value="designtextiles">Design &amp; Textiles</option>
       <option value="designcommunication">Design and Communication</option>
-      <option value="developmentstudies">Development Studies</option>
       <option value="digitalmediadesign">Digital Media &amp; Design</option>
-      <option value="divinity">Divinity</option>
       <option value="drama">Drama</option>
-      <option value="enterprise">Enterprise</option>
-      <option value="environmentalmanagement">Environmental Management</option>
-      <option value="foodnutrition">Food &amp; Nutrition</option>
       <option value="fashiontextiles">Fashion &amp; Textiles</option>
-      <option value="geography">Geography</option>
+      <option value="mediastudies">Media Studies</option>
+      <option value="music">Music</option>
+      </optgroup>
+      <optgroup label="── Humanities ──">
+      <option value="biblicalstudies">Biblical Studies</option>
+      <option value="classicalstudies">Classical Studies</option>
+      <option value="developmentstudies">Development Studies</option>
+      <option value="divinity">Divinity</option>
+      <option value="enterprise">Enterprise</option>
+      <option value="foodnutrition">Food &amp; Nutrition</option>
       <option value="globalperspectivesresearch">Global Perspectives &amp; Research</option>
       <option value="hinduism">Hinduism</option>
-      <option value="history">History</option>
       <option value="informationcommunicationtechnology">Information &amp; Communication Technology</option>
       <option value="informationtechnology">Information Technology</option>
       <option value="islamicstudies">Islamic Studies</option>
       <option value="islamiyat">Islamiyat</option>
-      <option value="law">Law</option>
-      <option value="marinescience">Marine Science</option>
-      <option value="mediastudies">Media Studies</option>
-      <option value="music">Music</option>
-      <option value="pakistanstudies">Pakistan Studies</option>
       <option value="physicaleducation">Physical Education</option>
-      <option value="physicalscience">Physical Science</option>
-      <option value="psychology">Psychology</option>
       <option value="religiousstudies">Religious Studies</option>
-      <option value="sciencecombined">Science (Combined)</option>
-      <option value="sciencescoordinated">Sciences (Co-ordinated)</option>
-      <option value="sociology">Sociology</option>
       <option value="sportandphysicaleducation">Sport and Physical Education</option>
-      <option value="statistics">Statistics</option>
       <option value="thinkingskills">Thinking Skills</option>
       <option value="traveltourism">Travel &amp; Tourism</option>
       <option value="worldliterature">World Literature</option>
+      </optgroup>
+      <optgroup label="── Regional ──">
+      <option value="bangladeshstudies">Bangladesh Studies</option>
+      <option value="commerce">Commerce</option>
+      <option value="pakistanstudies">Pakistan Studies</option>
+      </optgroup>
     </select>
     <select class="question-search-select" id="qsZone">
       <option value="">GCE &amp; IGCSE</option>
@@ -2181,7 +2194,9 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     </select>
   </div>
   <div class="question-search-row">
-    <input class="question-search-input" id="qsInput" type="text" placeholder="e.g. six statements are given about storage devices" onkeydown="if(event.key==='Enter')runQuestionSearch()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other" role="searchbox" readonly onfocus="this.removeAttribute('readonly')">
+    <input type="text" name="fakeusernameremembered" style="display:none" aria-hidden="true" tabindex="-1">
+    <input type="password" name="fakepasswordremembered" style="display:none" aria-hidden="true" tabindex="-1">
+    <input class="question-search-input" id="qsInput" type="text" placeholder="e.g. six statements are given about storage devices" onkeydown="if(event.key==='Enter')runQuestionSearch()" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other">
     <button class="question-search-btn" id="qsBtn" onclick="runQuestionSearch()">Search</button>
   </div>
   <div id="qsLoader" style="display:none;justify-content:center;padding:1.5rem 0">
@@ -2886,8 +2901,58 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     '9844':'Spanish Language & Literature',
     '9868':'Chinese Language & Literature',
     '9980':'Cambridge International Project Qualification',
-    '9990':'Psychology'
-  };
+    '9990':'Psychology',
+      // O Level additions
+    '7707':'Accounting','5038':'Agriculture','3180':'Arabic','6010':'Art','6090':'Art & Design',
+    '7094':'Bangladesh Studies','3204':'Bengali','2035':'Biblical Studies','5090':'Biology',
+    '7115':'Business Studies','7048':'CDT Design & Communication','5070':'Chemistry',
+    '7100':'Commerce','7101':'Commercial Studies','2210':'Computer Science',
+    '7010':'Computer Studies','6043':'Design & Technology','2281':'Economics',
+    '1123':'English Language','5014':'Environmental Management','6050':'Fashion & Fabrics',
+    '6130':'Fashion & Textiles','6065':'Food & Nutrition','3015':'French','2217':'Geography',
+    '3025':'German','2069':'Global Perspectives','3195':'Hindi','2055':'Hinduism',
+    '2147':'History','2134':'History (Modern World Affairs)','2158':'History World Affairs',
+    '5096':'Human & Social Biology','2056':'Islamic Religion & Culture','2068':'Islamic Studies',
+    '2058':'Islamiyat','2010':'Literature in English','5180':'Marine Science',
+    '4037':'Mathematics Additional','4024':'Mathematics D','3202':'Nepali',
+    '2059':'Pakistan Studies','5054':'Physics','7110':'Principles of Accounts',
+    '2048':'Religious Studies','5129':'Science Combined','3158':'Setswana',
+    '3205':'Sinhala','2251':'Sociology','3035':'Spanish','4040':'Statistics',
+    '3162':'Swahili','3206':'Tamil','3226':'Tamil','7096':'Travel & Tourism',
+    '3247':'Urdu','3248':'Urdu',
+    // AS/AL additions
+    '9706':'Accounting','8679':'Afrikaans','8779':'Afrikaans','9679':'Afrikaans',
+    '9713':'Applied ICT','8680':'Arabic','9680':'Arabic','9704':'Art & Design',
+    '9479':'Art & Design','9484':'Biblical Studies','9184':'Biology','9700':'Biology',
+    '9707':'Business Studies','9609':'Business','9980':'Cambridge IPQ',
+    '9185':'Chemistry','9701':'Chemistry','8238':'Chinese','8669':'Chinese',
+    '8681':'Chinese','9715':'Chinese','9868':'Chinese','9274':'Classical Studies',
+    '9608':'Computer Science','9618':'Computer Science','9691':'Computing',
+    '9481':'Design & Technology','9705':'Design & Technology','9631':'Design & Textiles',
+    '9011':'Divinity','8041':'Divinity','9482':'Drama','9708':'Economics',
+    '8274':'English','8287':'English','8693':'English','8695':'English',
+    '9093':'English','9276':'English Literature','9695':'English Literature',
+    '8021':'English General Paper','8291':'Environmental Management','9336':'Food Studies',
+    '8277':'French','8682':'French','9281':'French','9716':'French','8028':'French',
+    '8670':'French Literature','9898':'French Language & Literature',
+    '8001':'General Paper','8004':'General Paper','9278':'Geography','9696':'Geography',
+    '8027':'German','8683':'German','9717':'German','9897':'German Language & Literature',
+    '8275':'Global Perspectives','8987':'Global Perspectives','9239':'Global Perspectives & Research',
+    '8687':'Hindi','9687':'Hindi','8675':'Hindi Literature','9014':'Hinduism',
+    '9487':'Hinduism','8058':'Hinduism','9279':'History','9389':'History',
+    '9489':'History','9697':'History','9626':'Information Technology',
+    '9013':'Islamic Studies','8053':'Islamic Studies','9488':'Islamic Studies',
+    '8281':'Japanese','9084':'Law','8688':'Marathi','9688':'Marathi',
+    '9693':'Marine Science','9231':'Mathematics','9280':'Mathematics','9709':'Mathematics',
+    '9607':'Media Studies','9385':'Music','9483':'Music','9703':'Music','8663':'Music',
+    '8024':'Nepal Studies','9396':'Physical Education','8780':'Physical Science',
+    '9702':'Physics','8672':'Portuguese','8684':'Portuguese','9718':'Portuguese',
+    '9698':'Psychology','9990':'Psychology','9699':'Sociology','8022':'Spanish',
+    '8278':'Spanish','8279':'Spanish','8673':'Spanish','8685':'Spanish','9282':'Spanish',
+    '9719':'Spanish','8665':'Spanish','9844':'Spanish','8386':'Sport & Physical Education',
+    '9689':'Tamil','8689':'Tamil','8690':'Telugu','9690':'Telugu',
+    '9694':'Thinking Skills','9395':'Travel & Tourism','8686':'Urdu','9676':'Urdu','9686':'Urdu',
+};
 
   const caieCodesAll = new Set([
     '0262', '0400', '0408', '0409', '0410', '0411', '0413', '0415',
@@ -2918,7 +2983,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     '9990'
   ]);
   const alCodesAll = new Set(['8021','8028','8238','8274','8287','8291','8669','8679','8680','8681','8682','8693','8695','8779','9011','9084','9093','9184','9185','9231','9239','9274','9276','9279','9280','9281','9282','9336','9395','9396','9479','9481','9482','9483','9484','9487','9488','9489','9607','9608','9609','9618','9626','9631','9679','9680','9686','9687','9689','9691','9693','9694','9695','9696','9697','9698','9699','9700','9701','9702','9703','9704','9705','9706','9707','9708','9709','9713','9715','9716','9717','9718','9719','9844','9868','9980','9990']);
-  const olCodesAll = new Set(['1123','2035','2055','2056','2058','2068','2069','2134','2147','2158','2210','2217','2251','2281','3015','3025','3180','3195','3204','4024','4037','5014','5038','5054','5070','5090','5096','6010','6043','6050','6065','6090','6130','7010','7048','7094','7100','7101','7115','7707']);
+  const olCodesAll = new Set(['1123','2010','2035','2047','2048','2055','2056','2058','2059','2068','2069','2134','2147','2158','2210','2217','2251','2281','3015','3025','3035','3158','3162','3180','3195','3202','3204','3205','3206','3226','3247','3248','4024','4037','4040','5014','5038','5054','5070','5090','5096','5129','5180','6010','6043','6050','6065','6090','6130','7010','7048','7094','7096','7100','7101','7110','7115','7707']);
   const aqaCodesAll  = new Set(['2450','2760','2765','7041','7042','7101','7131','7136','7141','7151','7152','7162','7180','7181','7182','7183','7191','7192','7201','7261','7262','7356','7357','7366','7367','7381','7382','7401','7402','7403','7404','7405','7407','7408','7581','7582','7661','7662','7681','7682','7691','7692','7701','7702','7706','7707','7711','7712','8035','8061','8062','8063','8100','8132','8136','8145','8182','8192','8201','8236','8261','8271','8300','8382','8461','8462','8463','8464','8465','8520','8552','8572','8582','8585','8633','8638','8648','8658','8668','8673','8678','8683','8688','8698','8700','8702','8852','9201','9202','9203','9204','9210','9214','9215','9218','9221','9222','9223','9225','9230','9236','9237','9252','9257','9260','9264','9265','9269','9270','9275','9280','9285','9610','9615','9620','9625','9630','9635','9640','9645','9660','9665','9670','9675','9685','9697']);
 
 
@@ -5392,14 +5457,22 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
     function hlq(s){
       if (!query) return esc(s);
-      var safe = esc(s);
+      // Highlight BEFORE escaping so HTML chars don't break word boundaries
+      var result = s;
       query.trim().split(/\s+/).filter(Boolean).forEach(function(w){
-        safe = safe.replace(new RegExp('('+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark class="qs-highlight">$1</mark>');
+        result = result.replace(new RegExp('('+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'\x00$1\x01');
       });
-      return safe;
+      // Now escape, then restore markers
+      return esc(result).replace(/\x00/g,'<mark class="qs-highlight">').replace(/\x01/g,'</mark>');
     }
     function formatBlock(rawBlock, qpUrl, msUrl){
       var lines = rawBlock.split('\n');
+      // Remove last 2 non-empty lines
+      var removed=0;
+      while(removed<2 && lines.length){
+        if(lines[lines.length-1].trim()){lines.pop();removed++;}else{lines.pop();}
+      }
+      while(lines.length && !lines[lines.length-1].trim()) lines.pop();
       var html='', inAnswer=false;
       for(var i=0;i<lines.length;i++){
         var line=lines[i], t=line.trim();
@@ -5428,12 +5501,27 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
           continue;
         }
         // Answer
-        if(inAnswer){html+='<div class="qs-ans">'+esc(line).replace(/&amp;bull;/g,'•').replace(/&#8226;/g,'•')+'</div>';continue;}
+        if(inAnswer){var lineClean=line.replace(/•/g,'•');
+        html+='<div class="qs-ans">'+hlq(lineClean).replace(/&amp;bull;/g,'•').replace(/&amp;#8226;/g,'•')+'</div>';continue;}
         html+='<div>'+esc(line)+'</div>';
       }
       return html;
     }
-    return parsed.map(function(item){
+    // Deduplicate: merge cards with same session/year/variant/paper/body, different codes
+    var deduped = [];
+    parsed.forEach(function(item){
+      var key = [item.session,item.year,item.variant,item.paper,
+        item.rawBlock.replace(/\(\d{4}\)/g,'(CODE)').replace(/[A-Z0-9]{4}_[swm]\d{2}/gi,'FILE')
+      ].join('|');
+      var existing = deduped.find(function(d){ return d._key === key; });
+      if(existing){
+        existing.code += '/'+item.code;
+      } else {
+        item._key = key;
+        deduped.push(item);
+      }
+    });
+    return deduped.map(function(item){
       var qpUrl=item.qpFile?base+item.qpFile+'.pdf':'';
       var msUrl=item.msFile?base+item.msFile+'.pdf':'';
       var tags=[item.subject,item.code,item.exam,item.year,item.session,
