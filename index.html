@@ -2504,16 +2504,24 @@
       return;
     }
     const splash      = document.getElementById('splash');
-    const splashTitle = splash.querySelector('.splash-title');
-    const splashLogo  = splash.querySelector('.splash-logo');
+    const splashTitle = splash ? splash.querySelector('.splash-title') : null;
+    const splashLogo  = splash ? splash.querySelector('.splash-logo') : null;
     const container   = document.querySelector('.container');
     const h1          = document.querySelector('h1');
     const headerLogo  = document.querySelector('.header-logo');
+
+    // Safety: if any critical element missing, show page immediately
+    if (!splash || !splashTitle || !splashLogo || !container || !h1 || !headerLogo) {
+      if (container) { container.style.opacity = '1'; container.style.transform = 'none'; }
+      if (splash) splash.remove();
+      return;
+    }
 
     // Ensure fonts are loaded before measuring, then start animation
     const _fontReady = document.fonts ? Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 600))]) : Promise.resolve();
     _fontReady.then(() => {
     setTimeout(() => {
+      try {
       // 1. Measure splash elements BEFORE container reveal
       const fromTitle = splashTitle.getBoundingClientRect();
       const fromLogo  = splashLogo.getBoundingClientRect();
@@ -2597,6 +2605,10 @@
           setTimeout(() => { titleClone.remove(); logoClone.remove(); }, 200);
         }, 580);
       }));
+      } catch(e) {
+        if (container) { container.style.opacity = '1'; container.style.transform = 'none'; }
+        if (splash) splash.remove();
+      }
     }, 1400);
     }); // fonts.ready
   })();
@@ -5557,4 +5569,4 @@ try {
 </div>
 
 </body>
-</html> 
+</html>
