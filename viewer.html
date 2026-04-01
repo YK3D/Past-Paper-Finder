@@ -4322,10 +4322,12 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   async function sendAiMsg() {
     const input = document.getElementById('aiInput');
     const msg = input.value.trim();
-    if (!msg) return;
+    if (!msg && !_pendingImage) return;
     input.value = '';
-    addAiMsg('user', msg);
-    _aiHistory.push({ role: 'user', content: msg });
+    if (msg) {
+      addAiMsg('user', msg);
+      _aiHistory.push({ role: 'user', content: msg });
+    }
     _pendingImage = null;
     var inp2 = document.getElementById('aiInput');
     if (inp2) { inp2.disabled = false; inp2.placeholder = 'Ask about this paper…'; }
