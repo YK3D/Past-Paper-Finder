@@ -2495,33 +2495,36 @@
 
   // ── Startup splash ──
   (function() {
-    const splash    = document.getElementById('splash');
-    const container = document.querySelector('.container');
+    function showPage() {
+      var s = document.getElementById('splash');
+      var c = document.querySelector('.container');
+      if (s) s.remove();
+      if (c) { c.style.cssText += ';opacity:1!important;transform:none!important;transition:none'; }
+      // Also unhide via stylesheet override
+      var style = document.createElement('style');
+      style.textContent = '.container{opacity:1!important;transform:none!important;}';
+      document.head.appendChild(style);
+    }
 
     // Skip splash when returning from codes page
-    if (sessionStorage.getItem('fromCodes')) {
-      if (splash) splash.remove();
-      if (container) { container.style.opacity = '1'; container.style.transform = 'none'; }
-      return;
-    }
+    if (sessionStorage.getItem('fromCodes')) { showPage(); return; }
 
-    if (!splash || !container) {
-      if (container) { container.style.opacity = '1'; container.style.transform = 'none'; }
-      if (splash) splash.remove();
-      return;
-    }
+    var splash    = document.getElementById('splash');
+    var container = document.querySelector('.container');
+    if (!splash || !container) { showPage(); return; }
 
-    // After splash intro animations finish (~1.4s), fade it out and reveal page
+    // After splash intro animations (~1.4s), fade splash and reveal page
     setTimeout(function() {
-      // Reveal page
-      container.style.transition = 'opacity 0.4s ease';
+      splash.style.transition = 'opacity 0.35s ease';
+      splash.style.opacity    = '0';
+      container.style.transition = 'opacity 0.35s ease';
       container.style.opacity    = '1';
       container.style.transform  = 'none';
-      // Fade out splash
-      splash.style.transition = 'opacity 0.4s ease';
-      splash.style.opacity    = '0';
-      setTimeout(function() { splash.remove(); }, 420);
+      setTimeout(function() { splash.remove(); }, 380);
     }, 1400);
+
+    // Nuclear fallback — if still stuck after 4s, force show page
+    setTimeout(showPage, 4000);
   })();
 
   // ── Haptic feedback (Android only, no-op on unsupported devices) ──
