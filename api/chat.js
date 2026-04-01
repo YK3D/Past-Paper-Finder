@@ -1,7 +1,8 @@
 const GROQ_KEYS   = [process.env.GROQ_API_KEY, process.env.GROQ_API_KEY_2, process.env.GROQ_API_KEY_3].filter(Boolean);
-const GEMINI_KEYS = [process.env.GEMINI_API_KEY, process.env.GEMINI_API_KEY_2, process.env.GEMINI_API_KEY_3].filter(Boolean);
+const VISION_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct'; // vision-capable, free on Groq
+const GEMINI_KEYS = [process.env.GEMINI_API_KEY, process.env.GEMINI_API_KEY_2, process.env.GEMINI_API_KEY_3, process.env.GEMINI_API_KEY_4, process.env.GEMINI_API_KEY_5, process.env.GEMINI_API_KEY_6].filter(Boolean);
 
-const RATE_LIMIT_MSG = 'All Gemini keys are temporarily rate limited. Please wait a moment and try again, or switch to Llama using the model selector.';
+const RATE_LIMIT_MSG = 'Gemini free tier quota exhausted for today. Please switch to Llama (Groq) using the model selector above, or try again tomorrow.';
 
 function buildSystemPrompt(context, url) {
   return [
@@ -64,6 +65,43 @@ async function tryGemini(key, geminiModel, systemPrompt, messages) {
       })
     }
   );
+}
+
+async function tryGroqVision(key, systemPrompt, messages, image) {
+  // Build messages array with image in the last user message
+  const groqMessages = [{ role: 'system', content: systemPrompt }];
+  // Add history except last user message
+  const history = messages.slice(0, -1);
+  history.forEach(function(m) {
+    groqMessages.push({ role: m.role, content: m.content });
+  });
+  // Last user message with image
+  const lastMsg = messages[messages.length - 1];
+  const content = [
+    { type: 'text', text: lastMsg ? lastMsg.content : 'Solve this exam question.' }
+  ];
+  if (image && image.base64) {
+    content.unshift({
+      type: 'image_url',
+      image_url: { url: 'data:' + image.mimeType + ';base64,' + image.base64 }
+    });
+  }
+  groqMessages.push({ role: 'user', content: content });
+
+  return fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + key
+    },
+    body: JSON.stringify({
+      model: VISION_MODEL,
+      messages: groqMessages,
+      max_tokens: 2048,
+      temperature: 0.4,
+      stream: true
+    })
+  });
 }
 
 function pipeGroqStream(resp, res) {
@@ -161,10 +199,22 @@ module.exports = async function handler(req, res) {
   const model    = body.model    || 'groq-llama';
 
   const systemPrompt = buildSystemPrompt(context, url);
-  const isGroq = model.indexOf('groq') === 0;
+  const isGroq   = model.indexOf('groq') === 0;
+  const isVision  = model === 'groq-llama-vision';
+  const image     = body.image || null;
 
   try {
-    if (isGroq) {
+    if (isVision) {
+      if (!GROQ_KEYS.length) return res.status(500).json({ error: 'GROQ_API_KEY not configured.' });
+      if (!image || !image.base64) return res.status(400).json({ error: 'No image provided.' });
+      for (let i = 0; i < GROQ_KEYS.length; i++) {
+        const r = await tryGroqVision(GROQ_KEYS[i], systemPrompt, messages, image);
+        if (r.ok) return pipeGroqStream(r, res);
+        if (r.status === 429 || r.status === 503) continue;
+        return res.status(r.status).json({ error: await r.text() });
+      }
+      return res.status(429).json({ error: 'Vision model rate limited. Try again in a moment.' });
+    } else if (isGroq) {
       if (!GROQ_KEYS.length) return res.status(500).json({ error: 'GROQ_API_KEY not configured in Vercel environment variables.' });
       for (let i = 0; i < GROQ_KEYS.length; i++) {
         const r = await tryGroq(GROQ_KEYS[i], systemPrompt, messages);
@@ -192,7 +242,7 @@ module.exports = async function handler(req, res) {
       // All keys rate-limited
       lastGeminiError = lastGeminiError || 'All Gemini keys exhausted';
     }
-    return res.status(429).json({ error: RATE_LIMIT_MSG + ' (Last: ' + lastGeminiError + ')' });
+    return res.status(429).json({ error: RATE_LIMIT_MSG });
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
