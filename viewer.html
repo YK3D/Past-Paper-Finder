@@ -4130,19 +4130,35 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     if (!file) return;
     var reader = new FileReader();
     reader.onload = function(e) {
-      var dataUrl = e.target.result;
-      _pendingImage = { base64: dataUrl.split(',')[1], mimeType: file.type || 'image/jpeg', name: file.name };
-      var msgs = document.getElementById('aiMessages');
-      var prev = document.createElement('div');
-      prev.className = 'ai-msg user ai-img-bubble';
-      prev.innerHTML = '<img class="ai-img-preview" src="' + dataUrl + '" alt="Exam photo"><br><span style="font-size:0.7rem;opacity:0.7">&#128247; ' + file.name + ' — ready to send</span>';
-      msgs.appendChild(prev);
-      msgs.scrollTop = msgs.scrollHeight;
-      var sel = document.getElementById('aiModelSelect');
-      if (sel) sel.value = 'groq-llama-vision';
-      // Clear text input — image is sent alone, no text prompt
-      var inp = document.getElementById('aiInput');
-      if (inp) { inp.value = ''; inp.disabled = true; inp.placeholder = 'Image ready — click Send'; }
+      var originalDataUrl = e.target.result;
+      // Compress via canvas to max 800px wide, JPEG quality 0.7 (~100-300KB)
+      var img = new Image();
+      img.onload = function() {
+        var maxW = 1024, maxH = 1024;
+        var w = img.width, h = img.height;
+        if (w > maxW || h > maxH) {
+          var scale = Math.min(maxW / w, maxH / h);
+          w = Math.round(w * scale);
+          h = Math.round(h * scale);
+        }
+        var canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+        var sizeKB = Math.round(dataUrl.length * 0.75 / 1024);
+        _pendingImage = { base64: dataUrl.split(',')[1], mimeType: 'image/jpeg', name: file.name };
+        var msgs = document.getElementById('aiMessages');
+        var prev = document.createElement('div');
+        prev.className = 'ai-msg user ai-img-bubble';
+        prev.innerHTML = '<img class="ai-img-preview" src="' + dataUrl + '" alt="Exam photo"><br><span style="font-size:0.7rem;opacity:0.7">&#128247; ' + file.name + ' (' + sizeKB + 'KB) — ready to send</span>';
+        msgs.appendChild(prev);
+        msgs.scrollTop = msgs.scrollHeight;
+        var sel = document.getElementById('aiModelSelect');
+        if (sel) sel.value = 'groq-llama-vision';
+        var inp = document.getElementById('aiInput');
+        if (inp) { inp.value = ''; inp.disabled = true; inp.placeholder = 'Image ready — click Send'; }
+      };
+      img.src = originalDataUrl;
     };
     reader.readAsDataURL(file);
     input.value = '';
