@@ -68,36 +68,32 @@ async function tryGemini(key, geminiModel, systemPrompt, messages) {
 }
 
 async function tryGroqVision(key, systemPrompt, messages, image) {
-  // Groq vision: NO system message when sending images (causes 400)
-  // Embed system instructions into the first user message instead
-  // Also: stream must be false for vision requests
-  const lastMsg = messages[messages.length - 1];
-  const userText = lastMsg ? String(lastMsg.content) : 'Correct my answer.';
-
-  // Build a single user message: system context as text, then image, then user question
+  // Groq vision: image-only, no system message, no extra text (causes 400)
   const content = [
-    { type: 'text', text: 'You are PastPaperAI, an expert CAIE exam tutor. ' + userText },
     {
       type: 'image_url',
       image_url: { url: 'data:' + (image.mimeType || 'image/jpeg') + ';base64,' + image.base64 }
-    }
+    },
+    { type: "text", text: "You are an expert CAIE exam tutor. Correct the student answer shown in this image. Identify mistakes, explain what is wrong, and provide the correct answer with full working." }
   ];
 
   const groqMessages = [{ role: 'user', content: content }];
 
+  const reqBody = {
+    model: VISION_MODEL,
+    messages: groqMessages,
+    max_completion_tokens: 1024,
+    temperature: 0.4,
+    stream: false
+  };
+  console.log('[Vision] request body (truncated):', JSON.stringify(reqBody).substring(0, 500));
   return fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ' + key
     },
-    body: JSON.stringify({
-      model: VISION_MODEL,
-      messages: groqMessages,
-      max_completion_tokens: 2048,
-      temperature: 0.4,
-      stream: false
-    })
+    body: JSON.stringify(reqBody)
   });
 }
 
