@@ -1104,9 +1104,12 @@
     z-index: 9999;
     pointer-events: none;
     gap: 1rem;
+    animation: splashFadeOut 0.4s ease 1.4s forwards;
   }
-  #splash.done { }
-  @keyframes splashFadeOut { }
+  @keyframes splashFadeOut {
+    from { opacity: 1; }
+    to   { opacity: 0; pointer-events: none; }
+  }
   .splash-logo {
     width: 56px; height: 56px;
     border-radius: 14px;
@@ -1158,7 +1161,14 @@
   }
 
   /* page content hidden until splash done */
-  .container { opacity: 0; }
+  .container {
+    opacity: 0;
+    animation: containerFadeIn 0.4s ease 1.4s forwards;
+  }
+  @keyframes containerFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
 
   .header-title-row .header-logo { display: none; }
 
@@ -2495,28 +2505,19 @@
 
   // ── Startup splash ──
   (function() {
+    var splash = document.getElementById('splash');
+    if (!splash) return;
+    // If returning from codes page, skip splash immediately
     if (sessionStorage.getItem('fromCodes')) {
-      var s = document.getElementById('splash');
+      splash.style.animation = 'none';
+      splash.style.opacity = '0';
+      splash.remove();
       var c = document.querySelector('.container');
-      if (s) s.remove();
-      if (c) { c.style.opacity = '1'; c.style.transform = 'none'; }
+      if (c) { c.style.animation = 'none'; c.style.opacity = '1'; }
       return;
     }
-
-    // Wait for the last splash element's animation to end, then hide splash
-    var sub = document.querySelector('.splash-sub');
-    if (!sub) return;
-
-    sub.addEventListener('animationend', function() {
-      var splash    = document.getElementById('splash');
-      var container = document.querySelector('.container');
-      if (container) { container.style.opacity = '1'; container.style.transform = 'none'; }
-      if (splash) {
-        splash.style.transition = 'opacity 0.3s ease';
-        splash.style.opacity = '0';
-        setTimeout(function() { splash.remove(); }, 320);
-      }
-    });
+    // Remove from DOM after CSS fade-out animation completes (1.4s delay + 0.4s fade = 1.8s)
+    splash.addEventListener('animationend', function() { splash.remove(); });
   })();
 
   // ── Haptic feedback (Android only, no-op on unsupported devices) ──
