@@ -4140,8 +4140,9 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       msgs.scrollTop = msgs.scrollHeight;
       var sel = document.getElementById('aiModelSelect');
       if (sel) sel.value = 'groq-llama-vision';
+      // Clear text input — image is sent alone, no text prompt
       var inp = document.getElementById('aiInput');
-      if (inp && !inp.value.trim()) inp.value = 'Correct my answer';
+      if (inp) { inp.value = ''; inp.disabled = true; inp.placeholder = 'Image ready — click Send'; }
     };
     reader.readAsDataURL(file);
     input.value = '';
@@ -4326,6 +4327,8 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     addAiMsg('user', msg);
     _aiHistory.push({ role: 'user', content: msg });
     _pendingImage = null;
+    var inp2 = document.getElementById('aiInput');
+    if (inp2) { inp2.disabled = false; inp2.placeholder = 'Ask about this paper…'; }
     const btn = document.getElementById('aiSendBtn');
     btn.disabled = true;
     const aiDiv = addAiMsg('ai', '');
