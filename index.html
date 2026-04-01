@@ -3503,12 +3503,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       const fullYear = '20' + yr;
       selectBoard('CAIE');
       document.getElementById('code').value = code;
-      // Activate manual mode so dropdowns are fully editable immediately
-      _manualMode = true;
-      const mt = document.getElementById('manualToggle');
-      if (mt) { mt.classList.add('active'); mt.textContent = '✎ Using dropdowns'; }
-      const mh = document.getElementById('manualHint');
-      if (mh) mh.style.display = 'inline';
+
       populateYearRange(1990);
       repopulateFullSessions('CAIE');
       resetPapertypeStatic();
@@ -3539,11 +3534,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       const sess = sessMap[sessStr] || 's';
       selectBoard('AQA');
       document.getElementById('code').value = code;
-      _manualMode = true;
-      const mt2 = document.getElementById('manualToggle');
-      if (mt2) { mt2.classList.add('active'); mt2.textContent = '✎ Using dropdowns'; }
-      const mh2 = document.getElementById('manualHint');
-      if (mh2) mh2.style.display = 'inline';
+
       populateYearRange(1990);
       repopulateFullSessions('AQA');
       resetPapertypeStatic();
@@ -4475,7 +4466,8 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     if (!board)   { markFieldError('board');     showError('Missing Exam Board! Please select an exam board.'); return; }
     if (!code)    { markFieldError('code');      showError('Missing Subject Code! Please enter a subject code.'); return; }
     if (!/^\d{4}$/.test(code)) { markFieldError('code'); showError('Invalid Subject Code! Code must be exactly 4 digits.'); return; }
-    if ((board==='CAIE' && !caieCodesAll.has(code)) || (board==='AQA' && !aqaCodesAll.has(code))) {
+    const allCaie = new Set([...caieCodesAll, ...alCodesAll, ...olCodesAll]);
+    if ((board==='CAIE' && !allCaie.has(code)) || (board==='AQA' && !aqaCodesAll.has(code))) {
       const s = didYouMean(code, board);
       markFieldError('code');
       // build a best-guess URL for bypass
@@ -4497,7 +4489,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
         }
       }
       const otherBoard = board === 'CAIE' ? 'AQA' : 'CAIE';
-      const otherSet   = board === 'CAIE' ? aqaCodesAll : caieCodesAll;
+      const otherSet   = board === 'CAIE' ? aqaCodesAll : allCaie;
       if (otherSet.has(code)) {
         showError(`Invalid Subject Code! This code belongs to ${otherBoard}, not ${board}.`, guessUrl || null);
       } else {
