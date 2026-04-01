@@ -68,24 +68,27 @@ async function tryGemini(key, geminiModel, systemPrompt, messages) {
 }
 
 async function tryGroqVision(key, systemPrompt, messages, image) {
-  // Build messages array with image in the last user message
+  // Vision API: image must come BEFORE text in content array
+  // System prompt must be a separate system role message (not mixed with vision)
   const groqMessages = [{ role: 'system', content: systemPrompt }];
-  // Add history except last user message
+
+  // Add prior conversation history (all except last user message) as plain text
   const history = messages.slice(0, -1);
   history.forEach(function(m) {
-    groqMessages.push({ role: m.role, content: m.content });
+    groqMessages.push({ role: m.role, content: String(m.content) });
   });
-  // Last user message with image
+
+  // Last user message: image first, then text
   const lastMsg = messages[messages.length - 1];
-  const content = [
-    { type: 'text', text: lastMsg ? lastMsg.content : 'Solve this exam question.' }
-  ];
+  const userText = lastMsg ? String(lastMsg.content) : 'Solve this exam question.';
+  const content = [];
   if (image && image.base64) {
-    content.unshift({
+    content.push({
       type: 'image_url',
-      image_url: { url: 'data:' + image.mimeType + ';base64,' + image.base64 }
+      image_url: { url: 'data:' + (image.mimeType || 'image/jpeg') + ';base64,' + image.base64 }
     });
   }
+  content.push({ type: 'text', text: userText });
   groqMessages.push({ role: 'user', content: content });
 
   return fetch('https://api.groq.com/openai/v1/chat/completions', {
