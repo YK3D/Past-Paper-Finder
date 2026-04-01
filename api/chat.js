@@ -68,28 +68,22 @@ async function tryGemini(key, geminiModel, systemPrompt, messages) {
 }
 
 async function tryGroqVision(key, systemPrompt, messages, image) {
-  // Vision API: image must come BEFORE text in content array
-  // System prompt must be a separate system role message (not mixed with vision)
-  const groqMessages = [{ role: 'system', content: systemPrompt }];
-
-  // Add prior conversation history (all except last user message) as plain text
-  const history = messages.slice(0, -1);
-  history.forEach(function(m) {
-    groqMessages.push({ role: m.role, content: String(m.content) });
-  });
-
-  // Last user message: image first, then text
+  // Groq vision: NO system message when sending images (causes 400)
+  // Embed system instructions into the first user message instead
+  // Also: stream must be false for vision requests
   const lastMsg = messages[messages.length - 1];
-  const userText = lastMsg ? String(lastMsg.content) : 'Solve this exam question.';
-  const content = [];
-  if (image && image.base64) {
-    content.push({
+  const userText = lastMsg ? String(lastMsg.content) : 'Correct my answer.';
+
+  // Build a single user message: system context as text, then image, then user question
+  const content = [
+    { type: 'text', text: 'You are PastPaperAI, an expert CAIE exam tutor. ' + userText },
+    {
       type: 'image_url',
       image_url: { url: 'data:' + (image.mimeType || 'image/jpeg') + ';base64,' + image.base64 }
-    });
-  }
-  content.push({ type: 'text', text: userText });
-  groqMessages.push({ role: 'user', content: content });
+    }
+  ];
+
+  const groqMessages = [{ role: 'user', content: content }];
 
   return fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
@@ -100,9 +94,9 @@ async function tryGroqVision(key, systemPrompt, messages, image) {
     body: JSON.stringify({
       model: VISION_MODEL,
       messages: groqMessages,
-      max_tokens: 2048,
+      max_completion_tokens: 2048,
       temperature: 0.4,
-      stream: true
+      stream: false
     })
   });
 }
@@ -212,9 +206,21 @@ module.exports = async function handler(req, res) {
       if (!image || !image.base64) return res.status(400).json({ error: 'No image provided.' });
       for (let i = 0; i < GROQ_KEYS.length; i++) {
         const r = await tryGroqVision(GROQ_KEYS[i], systemPrompt, messages, image);
-        if (r.ok) return pipeGroqStream(r, res);
+        if (r.ok) {
+          // Vision returns non-streaming JSON — convert to SSE format
+          const data = await r.json();
+          const text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || '';
+          res.setHeader('Content-Type', 'text/event-stream');
+          res.setHeader('Cache-Control', 'no-cache');
+          res.write('data: ' + JSON.stringify({ delta: { text } }) + '\n\n');
+          res.write('data: [DONE]\n\n');
+          res.end();
+          return;
+        }
+        const errText = await r.text();
+        console.error('[Vision key ' + (i+1) + '] status=' + r.status + ' body=' + errText.slice(0, 300));
         if (r.status === 429 || r.status === 503) continue;
-        return res.status(r.status).json({ error: await r.text() });
+        return res.status(r.status).json({ error: 'Vision error ' + r.status + ': ' + errText.slice(0, 300) });
       }
       return res.status(429).json({ error: 'Vision model rate limited. Try again in a moment.' });
     } else if (isGroq) {
