@@ -2495,36 +2495,28 @@
 
   // ── Startup splash ──
   (function() {
-    function showPage() {
+    if (sessionStorage.getItem('fromCodes')) {
       var s = document.getElementById('splash');
       var c = document.querySelector('.container');
       if (s) s.remove();
-      if (c) { c.style.cssText += ';opacity:1!important;transform:none!important;transition:none'; }
-      // Also unhide via stylesheet override
-      var style = document.createElement('style');
-      style.textContent = '.container{opacity:1!important;transform:none!important;}';
-      document.head.appendChild(style);
+      if (c) { c.style.opacity = '1'; c.style.transform = 'none'; }
+      return;
     }
 
-    // Skip splash when returning from codes page
-    if (sessionStorage.getItem('fromCodes')) { showPage(); return; }
+    // Wait for the last splash element's animation to end, then hide splash
+    var sub = document.querySelector('.splash-sub');
+    if (!sub) return;
 
-    var splash    = document.getElementById('splash');
-    var container = document.querySelector('.container');
-    if (!splash || !container) { showPage(); return; }
-
-    // After splash intro animations (~1.4s), fade splash and reveal page
-    setTimeout(function() {
-      splash.style.transition = 'opacity 0.35s ease';
-      splash.style.opacity    = '0';
-      container.style.transition = 'opacity 0.35s ease';
-      container.style.opacity    = '1';
-      container.style.transform  = 'none';
-      setTimeout(function() { splash.remove(); }, 380);
-    }, 1400);
-
-    // Nuclear fallback — if still stuck after 4s, force show page
-    setTimeout(showPage, 4000);
+    sub.addEventListener('animationend', function() {
+      var splash    = document.getElementById('splash');
+      var container = document.querySelector('.container');
+      if (container) { container.style.opacity = '1'; container.style.transform = 'none'; }
+      if (splash) {
+        splash.style.transition = 'opacity 0.3s ease';
+        splash.style.opacity = '0';
+        setTimeout(function() { splash.remove(); }, 320);
+      }
+    });
   })();
 
   // ── Haptic feedback (Android only, no-op on unsupported devices) ──
