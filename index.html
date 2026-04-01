@@ -1920,12 +1920,12 @@
 .qs-fmtblock{font-family:Arial,sans-serif;font-size:0.72rem;line-height:1.8;margin:0 0 0.7rem 0;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:0.7rem 0.9rem;word-break:break-word;overflow-wrap:break-word;}
 .qs-hdr{color:#22c55e;text-align:center;font-weight:600;margin:0.15rem 0;}
 .qs-flink{color:#22c55e;font-weight:700;text-decoration:underline;}
-.qs-qnum{color:var(--muted);font-size:0.65rem;margin-top:0.4rem;}
+.qs-qnum{color:#f97316;font-size:0.72rem;font-weight:600;margin-top:0.4rem;}
 .qs-qtxt{color:#f97316;margin:0.2rem 0 0.3rem 0;}
 .qs-ans{color:var(--text);white-space:pre-wrap;}
 mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;}
-.qs-wifi{width:64px;height:64px;border-radius:50px;position:relative;display:flex;justify-content:center;align-items:center;}
-.qs-wifi svg{position:absolute;display:flex;}
+.qs-wifi{width:86px;height:86px;position:relative;display:inline-block;}
+.qs-wifi svg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);}
 .qs-wifi svg circle{fill:none;stroke-width:5;stroke-linecap:round;}
 .qs-wifi svg circle.back{stroke:var(--border);}
 .qs-wifi svg circle.front{stroke:var(--accent);}
@@ -5399,17 +5399,13 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       return safe;
     }
     function formatBlock(rawBlock, qpUrl, msUrl){
-      // Strip last 2 non-empty lines
       var lines = rawBlock.split('\n');
-      var removed=0;
-      while(removed<2 && lines.length){
-        if(lines[lines.length-1].trim()){lines.pop();removed++;}else{lines.pop();}
-      }
-      while(lines.length && !lines[lines.length-1].trim()) lines.pop();
       var html='', inAnswer=false;
       for(var i=0;i<lines.length;i++){
         var line=lines[i], t=line.trim();
         if(!t){html+='<br>';continue;}
+        // Skip PUBLISHED and the Q/A/Marks table header
+        if(t==='PUBLISHED'||/^Question\s+Answer\s+Marks/i.test(t)||/^Question\s{10,}Answer/i.test(t)){continue;}
         // Header line (has 4-digit code in parens)
         if(i===0 || (/\(\d{4}\)/.test(t) && /Varient/.test(t))){
           html+='<div class="qs-hdr">'+esc(t)+'</div>';continue;
@@ -5432,7 +5428,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
           continue;
         }
         // Answer
-        if(inAnswer){html+='<div class="qs-ans">'+esc(line)+'</div>';continue;}
+        if(inAnswer){html+='<div class="qs-ans">'+esc(line).replace(/&amp;bull;/g,'•').replace(/&#8226;/g,'•')+'</div>';continue;}
         html+='<div>'+esc(line)+'</div>';
       }
       return html;
@@ -5446,7 +5442,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       var qpLink=qpUrl?'<a class="qs-result-link" href="'+qpUrl+'" target="_blank">Question Paper \u2197</a>':'';
       var msLink=msUrl?'<a class="qs-result-link ms" href="'+msUrl+'" target="_blank">Mark Scheme \u2197</a>':'';
       var aiLink='';
-      if(qpUrl){var vp=new URLSearchParams();vp.set('url',qpUrl);if(msUrl)vp.set('files',qpUrl+','+msUrl);aiLink='<a class="qs-result-link qs-ai-link" href="/viewer.html?'+vp.toString()+'" target="_blank">Open in PastPaperAI \U0001F916</a>';}
+      if(qpUrl){var vp=new URLSearchParams();vp.set('url',qpUrl);if(msUrl)vp.set('files',qpUrl+','+msUrl);aiLink='<a class="qs-result-link qs-ai-link" href="/viewer.html?'+vp.toString()+'" target="_blank">Open in PastPaperAI 🤖</a>';}
       return '<div class="qs-result-card">'
         +'<div class="qs-result-meta">'+tags+'</div>'
         +'<div class="qs-fmtblock">'+formatBlock(item.rawBlock,qpUrl,msUrl)+'</div>'
