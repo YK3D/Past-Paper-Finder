@@ -2132,7 +2132,7 @@
     </select>
   </div>
   <div class="question-search-row">
-    <input class="question-search-input" id="qsInput" type="search" placeholder="e.g. six statements are given about storage devices" onkeydown="if(event.key==='Enter')runQuestionSearch()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other" role="searchbox">
+    <input class="question-search-input" id="qsInput" type="text" placeholder="e.g. six statements are given about storage devices" onkeydown="if(event.key==='Enter')runQuestionSearch()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other" role="searchbox" readonly onfocus="this.removeAttribute('readonly')">
     <button class="question-search-btn" id="qsBtn" onclick="runQuestionSearch()">Search</button>
   </div>
   <div id="qsLoader" style="display:none;justify-content:center;padding:1.5rem 0">
@@ -5312,10 +5312,12 @@
       }
 
       if (!parseData.results || !parseData.results.length) {
+        res.style.display = 'flex';
         res.innerHTML = '<p class="qs-no-results">No results — <a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">search on caiefinder.com ↗</a></p>';
         return;
       }
 
+      res.style.display = 'flex';
       res.innerHTML = renderQsResults(parseData.results);
 
     } catch(e) {
