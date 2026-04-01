@@ -1,7 +1,7 @@
 const GROQ_KEYS   = [process.env.GROQ_API_KEY, process.env.GROQ_API_KEY_2, process.env.GROQ_API_KEY_3].filter(Boolean);
 const GEMINI_KEYS = [process.env.GEMINI_API_KEY, process.env.GEMINI_API_KEY_2, process.env.GEMINI_API_KEY_3].filter(Boolean);
 
-const RATE_LIMIT_MSG = 'Rate limit reached on all available keys — please switch to a different model using the selector above.';
+const RATE_LIMIT_MSG = 'All Gemini keys are temporarily rate limited. Please wait a moment and try again, or switch to Llama using the model selector.';
 
 function buildSystemPrompt(context, url) {
   return [
@@ -169,20 +169,27 @@ module.exports = async function handler(req, res) {
       for (let i = 0; i < GROQ_KEYS.length; i++) {
         const r = await tryGroq(GROQ_KEYS[i], systemPrompt, messages);
         if (r.ok) return pipeGroqStream(r, res);
-        if (r.status !== 429 && r.status !== 413) {
-          return res.status(r.status).json({ error: await r.text() });
-        }
+        if (r.status === 429 || r.status === 413 || r.status === 503) continue;
+        return res.status(r.status).json({ error: await r.text() });
       }
     } else {
       if (!GEMINI_KEYS.length) return res.status(500).json({ error: 'GEMINI_API_KEY not configured in Vercel environment variables.' });
       const geminiModel = model === 'gemini-2.0-flash' ? 'gemini-2.0-flash' : 'gemini-2.0-flash-lite';
+      let lastGeminiError = '';
       for (let i = 0; i < GEMINI_KEYS.length; i++) {
         const r = await tryGemini(GEMINI_KEYS[i], geminiModel, systemPrompt, messages);
         if (r.ok) return pipeGeminiStream(r, res);
-        if (r.status !== 429 && r.status !== 413) {
-          return res.status(r.status).json({ error: await r.text() });
+        const errText = await r.text();
+        // Only retry on rate limit (429) or overloaded (503) — treat other errors as fatal
+        if (r.status === 429 || r.status === 503) {
+          lastGeminiError = 'Key ' + (i+1) + ' rate limited (' + r.status + ')';
+          continue; // try next key
         }
+        // Fatal error — return it directly with the actual error message
+        return res.status(r.status).json({ error: 'Gemini error ' + r.status + ': ' + errText.slice(0, 300) });
       }
+      // All keys rate-limited
+      lastGeminiError = lastGeminiError || 'All Gemini keys exhausted';
     }
     return res.status(429).json({ error: RATE_LIMIT_MSG });
   } catch (e) {
