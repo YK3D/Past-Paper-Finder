@@ -2117,6 +2117,11 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
         </div>
       </div>
     </div>
+<!-- Fake form to absorb browser autofill before real inputs -->
+<form id="qs-fake-form" style="display:none" aria-hidden="true" tabindex="-1">
+  <input type="text" name="username" tabindex="-1">
+  <input type="password" name="password" tabindex="-1">
+</form>
 <div class="question-search-section" id="questionSearchSection">
   <div class="question-search-title">Question <span>Finder</span></div>
   <p class="question-search-sub">Search any CAIE past paper question using 3–9 consecutive words. Powered by caiefinder.com.</p>
@@ -2194,7 +2199,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     </select>
   </div>
   <div class="question-search-row">
-    <input class="question-search-input" id="qsInput" name="q" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="e.g. six statements are given about storage devices" onkeydown="if(event.key==='Enter')runQuestionSearch()">
+    <input class="question-search-input" id="qsInput" name="qs" type="text" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" placeholder="e.g. six statements are given about storage devices" readonly onfocus="this.removeAttribute('readonly')" onkeydown="if(event.key==='Enter')runQuestionSearch()">
     <button class="question-search-btn" id="qsBtn" onclick="runQuestionSearch()">Search</button>
   </div>
   <div id="qsLoader" style="display:none;justify-content:center;padding:1.5rem 0">
