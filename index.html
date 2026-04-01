@@ -2193,7 +2193,8 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       <option value="ig">All of IGCSE</option>
     </select>
   </div>
-  <div class="question-search-row" id="qsInputRow">
+  <div class="question-search-row">
+    <input class="question-search-input" id="qsInput" name="q" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="e.g. six statements are given about storage devices" onkeydown="if(event.key==='Enter')runQuestionSearch()">
     <button class="question-search-btn" id="qsBtn" onclick="runQuestionSearch()">Search</button>
   </div>
   <div id="qsLoader" style="display:none;justify-content:center;padding:1.5rem 0">
@@ -2227,7 +2228,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
           <input type="radio" name="rating" id="s1" value="1">
           <label for="s1"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></label>
         </div>
-        <textarea id="ratingFeedback" maxlength="150" placeholder="Feedback, suggestions or issues (optional)&#8230;" style="width:100%;margin-top:0.7rem;padding:0.5rem 0.7rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:Space Mono,monospace;font-size:0.7rem;resize:none;height:70px;outline:none;box-sizing:border-box;transition:border-color 0.2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+        <textarea id="ratingFeedback" name="feedback" maxlength="150" autocomplete="off" placeholder="Feedback, suggestions or issues (optional)&#8230;" style="width:100%;margin-top:0.7rem;padding:0.5rem 0.7rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:Space Mono,monospace;font-size:0.7rem;resize:none;height:70px;outline:none;box-sizing:border-box;transition:border-color 0.2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
         <p style="text-align:right;font-family:Space Mono,monospace;font-size:0.6rem;color:var(--muted);margin-top:0.2rem" id="feedbackCount">0 / 150</p>
         <button class="rating-submit-btn" id="ratingSubmitBtn" onclick="submitRating()">Submit</button>
         <p class="rating-thanks" id="ratingThanks">Thanks for your feedback!</p>
@@ -3267,6 +3268,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     try {
       localStorage.setItem('pp_rating', value);
       localStorage.setItem('pp_rating_ts', Date.now().toString());
+      localStorage.setItem('pp_rating_feedback', feedback);
     } catch {}
   }
 
@@ -3282,6 +3284,16 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
           if (t) { t.textContent = 'Please wait ' + mins + ' more minute' + (mins > 1 ? 's' : '') + '.'; t.classList.add('show'); }
           const btn = document.getElementById('ratingSubmitBtn');
           if (btn) btn.disabled = true;
+          // Restore saved star and feedback
+          const savedStar = localStorage.getItem('pp_rating');
+          if (savedStar) {
+            const starEl = document.querySelector('.radio input[name="rating"][value="'+savedStar+'"]');
+            if (starEl) { starEl.checked = true; starEl.disabled = true; }
+            document.querySelectorAll('.radio input[name="rating"]').forEach(el => el.disabled = true);
+          }
+          const savedFeedback = localStorage.getItem('pp_rating_feedback');
+          const fbEl = document.getElementById('ratingFeedback');
+          if (fbEl && savedFeedback) { fbEl.value = savedFeedback; fbEl.disabled = true; }
         });
       }
     } catch {}
@@ -5443,27 +5455,6 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     } catch {}
   })();
   // ── Question Search (AI-parsed via Groq) ──
-  // Inject QS input via JS — browsers can't autofill dynamically-created inputs
-  (function(){
-    var row = document.getElementById('qsInputRow');
-    if (!row) return;
-    var inp = document.createElement('input');
-    inp.className = 'question-search-input';
-    inp.id = 'qsInput';
-    inp.setAttribute('type','text');
-    inp.setAttribute('placeholder','e.g. six statements are given about storage devices');
-    inp.setAttribute('autocomplete','off');
-    inp.setAttribute('autocorrect','off');
-    inp.setAttribute('autocapitalize','off');
-    inp.setAttribute('spellcheck','false');
-    inp.setAttribute('data-lpignore','true');
-    inp.setAttribute('data-1p-ignore','true');
-    inp.setAttribute('data-form-type','other');
-    inp.setAttribute('inputmode','search');
-    inp.onkeydown = function(e){ if(e.key==='Enter') runQuestionSearch(); };
-    row.insertBefore(inp, row.firstChild);
-  })();
-
   function buildCaieUrl(q, subs, zone) {
     const p = new URLSearchParams();
     p.set('subs', subs||''); p.set('zone', zone||''); p.set('search', q);
@@ -5497,7 +5488,9 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       while(lines.length && !lines[lines.length-1].trim()) lines.pop();
       var html='', inAnswer=false;
       for(var i=0;i<lines.length;i++){
-        var line=lines[i], t=line.trim();
+        // Decode &bull; and HTML bullet entities before any processing
+        var line=lines[i].replace(/&bull;/gi,'•').replace(/&#8226;/g,'•').replace(/&middot;/gi,'·');
+        var t=line.trim();
         if(!t){html+='<br>';continue;}
         // Skip PUBLISHED and the Q/A/Marks table header
         if(t==='PUBLISHED'||/^Question\s+Answer\s+Marks/i.test(t)||/^Question\s{10,}Answer/i.test(t)){continue;}
