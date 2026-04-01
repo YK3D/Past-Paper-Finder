@@ -2495,122 +2495,33 @@
 
   // ── Startup splash ──
   (function() {
+    const splash    = document.getElementById('splash');
+    const container = document.querySelector('.container');
+
     // Skip splash when returning from codes page
     if (sessionStorage.getItem('fromCodes')) {
-      const splash = document.getElementById('splash');
       if (splash) splash.remove();
-      const container = document.querySelector('.container');
       if (container) { container.style.opacity = '1'; container.style.transform = 'none'; }
       return;
     }
-    const splash      = document.getElementById('splash');
-    const splashTitle = splash ? splash.querySelector('.splash-title') : null;
-    const splashLogo  = splash ? splash.querySelector('.splash-logo') : null;
-    const container   = document.querySelector('.container');
-    const h1          = document.querySelector('h1');
-    const headerLogo  = document.querySelector('.header-logo');
 
-    // Safety: if any critical element missing, show page immediately
-    if (!splash || !splashTitle || !splashLogo || !container || !h1 || !headerLogo) {
+    if (!splash || !container) {
       if (container) { container.style.opacity = '1'; container.style.transform = 'none'; }
       if (splash) splash.remove();
       return;
     }
 
-    // Ensure fonts are loaded before measuring, then start animation
-    const _fontReady = document.fonts ? Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 600))]) : Promise.resolve();
-    _fontReady.then(() => {
-    setTimeout(() => {
-      try {
-      // 1. Measure splash elements BEFORE container reveal
-      const fromTitle = splashTitle.getBoundingClientRect();
-      const fromLogo  = splashLogo.getBoundingClientRect();
-
-      // 2. Reveal container instantly so h1 is at its true final position
-      container.style.opacity   = '1';
-      container.style.transform = 'none';
-      void container.offsetHeight; // force layout commit
-
-      // 3. Measure destinations — now at true final positions
-      const toTitle = h1.getBoundingClientRect();
-      const toLogo  = headerLogo.getBoundingClientRect();
-
-      const ease = 'cubic-bezier(0.65, 0, 0.35, 1)';
-      const dur  = '0.6s';
-
-      // 4a. Title clone — fixed at FROM position, uses transform to fly to TO
-      const scaleX = fromTitle.width  / (toTitle.width  || 1);
-      const scaleY = fromTitle.height / (toTitle.height || 1);
-
-      const titleClone = splashTitle.cloneNode(true);
-      titleClone.style.cssText = `
-        position: fixed;
-        top: ${toTitle.top}px;
-        left: ${toTitle.left}px;
-        width: ${toTitle.width}px;
-        height: ${toTitle.height}px;
-        margin: 0; padding: 0;
-        font-family: 'Syne', sans-serif;
-        font-size: ${parseFloat(getComputedStyle(h1).fontSize)}px;
-        font-weight: 800; letter-spacing: -0.02em;
-        color: var(--text);
-        transform-origin: top left;
-        transform: translate(${fromTitle.left - toTitle.left}px, ${fromTitle.top - toTitle.top}px) scale(${scaleX}, ${scaleY});
-        z-index: 10000; pointer-events: none; opacity: 1;
-        transition: transform ${dur} ${ease}, opacity 0.2s ease 0.45s;
-        will-change: transform, opacity;
-      `;
-      document.body.appendChild(titleClone);
-
-      // 4b. Logo clone — same approach
-      const logoScaleX = fromLogo.width  / (toLogo.width  || 1);
-      const logoScaleY = fromLogo.height / (toLogo.height || 1);
-
-      const logoClone = document.createElement('img');
-      logoClone.src = '/favicon.png';
-      logoClone.style.cssText = `
-        position: fixed;
-        top: ${toLogo.top}px;
-        left: ${toLogo.left}px;
-        width: ${toLogo.width}px;
-        height: ${toLogo.height}px;
-        border-radius: 6px; object-fit: cover;
-        transform-origin: top left;
-        transform: translate(${fromLogo.left - toLogo.left}px, ${fromLogo.top - toLogo.top}px) scale(${logoScaleX}, ${logoScaleY});
-        z-index: 10000; pointer-events: none; opacity: 1;
-        transition: transform ${dur} ${ease}, opacity 0.2s ease 0.45s;
-        will-change: transform, opacity;
-      `;
-      document.body.appendChild(logoClone);
-
-      // 5. Fade out splash background
+    // After splash intro animations finish (~1.4s), fade it out and reveal page
+    setTimeout(function() {
+      // Reveal page
+      container.style.transition = 'opacity 0.4s ease';
+      container.style.opacity    = '1';
+      container.style.transform  = 'none';
+      // Fade out splash
       splash.style.transition = 'opacity 0.4s ease';
-      splash.style.opacity = '0';
-      setTimeout(() => splash.remove(), 400);
-
-      // 6. Trigger animations on next two frames to ensure styles committed
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        titleClone.style.transform = 'translate(0, 0) scale(1, 1)';
-        titleClone.style.opacity   = '0';
-
-        logoClone.style.transform  = 'translate(0, 0) scale(1, 1)';
-        logoClone.style.opacity    = '0';
-
-        // 7. Reveal real elements as clones finish
-        setTimeout(() => {
-          h1.style.transition         = 'opacity 0.15s ease';
-          h1.style.opacity            = '1';
-          headerLogo.style.transition = 'opacity 0.15s ease';
-          headerLogo.style.opacity    = '1';
-          setTimeout(() => { titleClone.remove(); logoClone.remove(); }, 200);
-        }, 580);
-      }));
-      } catch(e) {
-        if (container) { container.style.opacity = '1'; container.style.transform = 'none'; }
-        if (splash) splash.remove();
-      }
+      splash.style.opacity    = '0';
+      setTimeout(function() { splash.remove(); }, 420);
     }, 1400);
-    }); // fonts.ready
   })();
 
   // ── Haptic feedback (Android only, no-op on unsupported devices) ──
