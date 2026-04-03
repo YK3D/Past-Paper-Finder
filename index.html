@@ -5378,7 +5378,21 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
   }
   async function submitPhonePopup() {
     const phone = getFullPhone('popupDial','popupPhone');
-    if (phone && _sessionToken) {
+    const errEl = document.getElementById('popupPhoneErr');
+    if (!phone || phone.replace(/[^0-9]/g,'').length < 4) {
+      if (errEl) errEl.textContent = 'Phone number is required';
+      const inp = document.getElementById('popupPhone');
+      if (inp) { inp.classList.remove('field-error'); void inp.offsetWidth; inp.classList.add('field-error'); setTimeout(()=>inp.classList.remove('field-error'),500); }
+      return;
+    }
+    if (phone.replace(/[^0-9]/g,'').length < 7) {
+      if (errEl) errEl.textContent = 'Phone number must be at least 7 digits';
+      const inp = document.getElementById('popupPhone');
+      if (inp) { inp.classList.remove('field-error'); void inp.offsetWidth; inp.classList.add('field-error'); setTimeout(()=>inp.classList.remove('field-error'),500); }
+      return;
+    }
+    if (errEl) errEl.textContent = '';
+    if (_sessionToken) {
       try {
         await fetch('/api/auth', {
           method:'POST', headers:{'Content-Type':'application/json'},
