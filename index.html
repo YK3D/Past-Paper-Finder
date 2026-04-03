@@ -5066,8 +5066,13 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     let body;
     if (_authMode === 'register') {
       const _ph = getFullPhone('phoneDial','authPhone');
-      if (_ph && _ph.replace(/[^0-9]/g,'').length < 7) {
-        err.textContent = 'Phone number must be at least 7 digits'; btn.disabled = false; return;
+      if (!_ph || _ph.replace(/[^0-9]/g,'').length < 4) {
+        err.textContent = 'Phone number is required'; btn.disabled = false;
+        shakeAuthInput('authPhone'); return;
+      }
+      if (_ph.replace(/[^0-9]/g,'').length < 7) {
+        err.textContent = 'Phone number must be at least 7 digits'; btn.disabled = false;
+        shakeAuthInput('authPhone'); return;
       }
       body = { action: 'register', email: document.getElementById('authEmail').value.trim(), username: document.getElementById('authUsername').value.trim(), password, deviceId: _deviceId, phone: _ph };
     } else {
