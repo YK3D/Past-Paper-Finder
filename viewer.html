@@ -3971,6 +3971,31 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   }
 
   function examTitle(url, typeLabel) {
+    // Edexcel pattern: .../mathpastpapers/Paper%201/June%202024%201H.pdf
+    // or  .../Paper%201%20MS/June%202024%201H%20MS.pdf
+    // or  .../GB/grade-boundaries-june-2024-int-gcse.pdf
+    if (url.indexOf('ig-wizard.vercel.app') !== -1 || url.indexOf('mathpastpapers') !== -1) {
+      const decoded = decodeURIComponent(url);
+      // Try to match: <Session> <Year> <Variant>[ MS]
+      const m1 = decoded.match(/(January|June|November)\s+(\d{4})\s+(\dHR?|\dHR?)/);
+      if (m1) {
+        const [, sess, year, variant] = m1;
+        const sessShort = sess === 'June' ? 'm/j' : sess === 'November' ? 'o/n' : 'jan';
+        const yr2 = year.slice(2);
+        const isMs = /\bMS\b/i.test(decoded);
+        return sessShort + '/' + yr2 + ' ' + variant + (isMs ? ' MS' : ' QP');
+      }
+      // Grade boundaries
+      const gbM = decoded.match(/(january|june|november)[-_]?(\d{2,4})/i);
+      if (gbM) {
+        const sess = gbM[1].toLowerCase();
+        let yr2 = gbM[2];
+        if (yr2.length === 4) yr2 = yr2.slice(2);
+        const sessShort = sess === 'june' ? 'm/j' : sess === 'november' ? 'o/n' : 'jan';
+        return sessShort + '/' + yr2 + ' GT';
+      }
+      return 'Edexcel Math';
+    }
     const f = url.split('/').pop().replace(/\.(pdf|mp3)$/i, '');
     // Pattern: XXXX_s25_qp_11  or  XXXX_s25_gt  etc.
     const m = f.match(/^(\d{4})_([smw])(\d{2})_([a-z]+)(?:_(\d{1,2}))?$/i);
@@ -3992,12 +4017,67 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     }).join('');
   }
 
+  function buildEdexcelFileChips(url) {
+    const decoded = decodeURIComponent(url);
+    // Try to match: <Session> <Year> <Variant>
+    const m = decoded.match(/(January|June|November)\s+(\d{4})\s+(\dHR?)/);
+    if (!m) return;
+    const [, session, year, variant] = m;
+    const paperNum = variant.startsWith('2') ? '2' : '1';
+    const enc = encodeURIComponent;
+    const base = 'https://ig-wizard.vercel.app/past%20papers/mathpastpapers/';
+    const qpUrl = base + enc('Paper ' + paperNum) + '/' + enc(session + ' ' + year + ' ' + variant + '.pdf');
+    const msUrl = base + enc('Paper ' + paperNum) + '/' + enc('Paper ' + paperNum + ' MS') + '/' + enc(session + ' ' + year + ' ' + variant + ' MS.pdf');
+    // GB filename per session+year
+    const EDEXCEL_GB = {
+      'November2024':'grade-boundaries-november-2024-int-gcse.pdf',
+      'June2024':'grade-boundaries-june-2024-int-gcse.pdf',
+      'November2023':'2311-intgcse-9-1-subject-grade-boundaries.pdf',
+      'June2023':'2306-intgcse-9-1-subject-grade-boundaries.pdf',
+      'January2023':'2301-intgcse-9-1-subject-grade-boundaries-v1.pdf',
+      'June2022':'2206-intgcse-9-1-subject-grade-boundaries.pdf',
+      'January2022':'2201_intGCSE_(9-1)_Subject_Grade_Boundaries_V1.pdf',
+      'November2021':'2111_intGCSE_(9-1)_Subject_Grade_Boundaries_V2.pdf',
+      'June2021':'2111_intGCSE_(9-1)_Subject_Grade_Boundaries_V2.pdf'
+    };
+    const gbFile = EDEXCEL_GB[session + year];
+    const gtUrl = gbFile ? base + 'GB/' + enc(gbFile) : null;
+    _files = [
+      { label: 'QP', url: qpUrl, audio: false },
+      { label: 'MS', url: msUrl, audio: false }
+    ];
+    if (gtUrl) _files.push({ label: 'GT', url: gtUrl, audio: false });
+    renderFileChips(_files, url);
+  }
+
   async function loadRelatedFiles(url) {
+    // Edexcel: build QP/MS/GT chips from ig-wizard URL pattern
+    if (url.indexOf('mathpastpapers') !== -1) {
+      // If URL is a GT/grade-boundary file (no variant info), keep existing chips
+      if (/grade.boundaries|GB\//i.test(url) && _files.length > 0) {
+        renderFileChips(_files, url);
+        return;
+      }
+      buildEdexcelFileChips(url);
+      return;
+    }
     const m = url.match(/upload\/([^/]+)\.(pdf|mp3)$/i);
     if (!m) return;
     const base = m[1];
     const p = base.match(/^(\d{4}_[smw]\d{2})_([a-z]+)(?:_(\d{1,2}))?$/i);
     if (!p) return;
+    // Cache trick: if loading a no-variant type (GT/GB/ER/SP/SM/SG) and we already have chips
+    // from a variant-based file, keep the existing chips rather than rebuilding from scratch
+    const _typeNow = p[2] && p[2].toLowerCase();
+    const _noVarTypes = new Set(['gt','gb','er','sp','sm','sg']);
+    if (_noVarTypes.has(_typeNow) && _files.length > 0) {
+      // Make sure this URL is in _files; add it if not
+      if (!_files.find(f => f.url === url)) {
+        _files.unshift({ label: examTitle(url), url, audio: isAudio(url) });
+      }
+      renderFileChips(_files, url);
+      return;
+    }
     const [, prefix, , variant] = p;
     const baseUrl = url.substring(0, url.lastIndexOf('/') + 1);
     const noVariant = new Set(['gt','gb','er','sp','sm','sg']);
@@ -4369,6 +4449,41 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       console.log('[AI] context chars:', context.length);
 
       const selectedModel = (document.getElementById('aiModelSelect') || {}).value || 'groq-llama';
+
+      // Vision: call Groq directly from browser (bypasses Vercel body size limit)
+      if (selectedModel === 'groq-llama-vision' && _pendingImage) {
+        const vkMeta = document.querySelector('meta[name="gvk"]');
+        const visionKey = vkMeta ? vkMeta.content : '';
+        if (!visionKey) throw new Error('Vision key not set. Add <meta name="gvk" content="YOUR_GROQ_KEY"> to viewer.html');
+        const visionResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + visionKey },
+          body: JSON.stringify({
+            model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+            messages: [{
+              role: 'user',
+              content: [
+                { type: 'image_url', image_url: { url: 'data:' + _pendingImage.mimeType + ';base64,' + _pendingImage.base64 } },
+                { type: 'text', text: 'You are an expert CAIE exam tutor. Correct the student answer shown in this image. Identify mistakes, explain what is wrong, and provide the correct answer with full working.' }
+              ]
+            }],
+            max_completion_tokens: 1024,
+            temperature: 0.4
+          })
+        });
+        if (!visionResp.ok) {
+          const errText = await visionResp.text();
+          throw new Error('Vision error ' + visionResp.status + ': ' + errText.slice(0, 200));
+        }
+        const vd = await visionResp.json();
+        const vText = vd.choices && vd.choices[0] && vd.choices[0].message && vd.choices[0].message.content || 'No response.';
+        aiDiv.innerHTML = formatAiText(vText);
+        aiDiv.classList.remove('streaming');
+        _aiHistory.push({ role: 'assistant', content: vText });
+        btn.disabled = false;
+        return;
+      }
+
       const resp = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -4463,7 +4578,8 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   function goBack() { sessionStorage.setItem('fromCodes','1'); window.location.href = '/'; }
   function openOnline() { if (pdfUrl) window.open(pdfUrl, '_blank'); }
   function sharePaper() {
-    const shareUrl = window.location.href;
+    // Share/copy the PDF URL itself, not the viewer page URL
+    const shareUrl = pdfUrl || window.location.href;
     if (navigator.share) { navigator.share({ title: document.title, url: shareUrl }); }
     else { navigator.clipboard.writeText(shareUrl).then(() => { const b = document.querySelector('.topbar-action[onclick="sharePaper()"]'); if (b) { const o=b.innerHTML; b.innerHTML='&#10003; Copied'; setTimeout(()=>b.innerHTML=o,1500); } }); }
   }
