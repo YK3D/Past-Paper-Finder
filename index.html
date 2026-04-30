@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.01, maximum-scale=5.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>Past Paper Finder</title>
 
 <!-- SEO Meta -->
@@ -1101,9 +1101,12 @@
     z-index: 9999;
     pointer-events: none;
     gap: 1rem;
+    animation: splashFadeOut 0.4s ease 1.4s forwards;
   }
-  #splash.done { }
-  @keyframes splashFadeOut { }
+  @keyframes splashFadeOut {
+    from { opacity: 1; }
+    to   { opacity: 0; pointer-events: none; }
+  }
   .splash-logo {
     width: 56px; height: 56px;
     border-radius: 14px;
@@ -1154,8 +1157,8 @@
     to   { opacity: 1; }
   }
 
-  /* page content hidden until splash done */
-  .container { opacity: 0; }
+  /* page content hidden until splash done — splash covers it via z-index:9999 */
+  .container { opacity: 0; transition: opacity 0.4s ease; }
 
   .header-title-row .header-logo { display: none; }
 
@@ -1906,30 +1909,38 @@
 .qs-result-card:hover{border-color:var(--accent)}
 .qs-result-meta{font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--muted);margin-bottom:0.5rem;display:flex;flex-wrap:wrap;gap:0.5rem}
 .qs-result-meta span{background:rgba(62,228,254,0.07);border:1px solid rgba(62,228,254,0.15);border-radius:4px;padding:0.1rem 0.4rem;color:var(--accent)}
-.qs-raw-block{font-family:Arial,sans-serif;font-size:0.72rem;color:var(--text);white-space:pre-wrap;word-break:break-word;line-height:1.7;margin:0 0 0.7rem 0;overflow-x:auto;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:0.7rem 0.9rem}
+.qs-raw-block{font-family:Arial,sans-serif;font-size:0.72rem;color:var(--text);white-space:pre-wrap;word-break:break-all;overflow-wrap:break-word;line-height:1.7;margin:0 0 0.7rem 0;overflow-x:hidden;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:0.7rem 0.9rem}
 .qs-result-links{display:flex;gap:0.5rem;flex-wrap:wrap}
 .qs-result-link{font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--accent);text-decoration:none;border:1px solid rgba(62,228,254,0.3);border-radius:5px;padding:0.15rem 0.5rem;transition:all 0.15s}
 .qs-result-link:hover{background:rgba(62,228,254,0.08)}
 .qs-result-link.ms{color:#a78bfa;border-color:rgba(167,139,250,0.3)}
+.qs-result-link.qs-ai-link{color:#f472b6;border-color:rgba(244,114,182,0.3)}
+.qs-result-link.qs-ai-link:hover{background:rgba(244,114,182,0.08)}
 .qs-no-results{font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);text-align:center;padding:1.5rem 0}
-#qsLoader { display:none; justify-content:center; align-items:center; padding:2rem 0; }
-#qsLoader .qs-wifi { --front-color:var(--accent); --back-color:var(--border); width:64px; height:64px; border-radius:50px; position:relative; display:flex; justify-content:center; align-items:center; }
-#qsLoader .qs-wifi svg { position:absolute; display:flex; justify-content:center; align-items:center; }
-#qsLoader .qs-wifi svg circle { position:absolute; fill:none; stroke-width:6px; stroke-linecap:round; stroke-linejoin:round; transform:rotate(-100deg); transform-origin:center; }
-#qsLoader .qs-wifi svg circle.back  { stroke:var(--back-color); }
-#qsLoader .qs-wifi svg circle.front { stroke:var(--front-color); }
-#qsLoader .qs-wifi svg.circle-outer  { height:86px; width:86px; }
-#qsLoader .qs-wifi svg.circle-outer  circle { stroke-dasharray:62.75 188.25; }
-#qsLoader .qs-wifi svg.circle-outer  circle.back  { animation:circle-outer135 1.8s ease infinite 0.3s; }
-#qsLoader .qs-wifi svg.circle-outer  circle.front { animation:circle-outer135 1.8s ease infinite 0.15s; }
-#qsLoader .qs-wifi svg.circle-middle { height:60px; width:60px; }
-#qsLoader .qs-wifi svg.circle-middle circle { stroke-dasharray:42.5 127.5; }
-#qsLoader .qs-wifi svg.circle-middle circle.back  { animation:circle-middle6123 1.8s ease infinite 0.25s; }
-#qsLoader .qs-wifi svg.circle-middle circle.front { animation:circle-middle6123 1.8s ease infinite 0.1s; }
-#qsLoader .qs-wifi svg.circle-inner  { height:34px; width:34px; }
-#qsLoader .qs-wifi svg.circle-inner  circle { stroke-dasharray:22 66; }
-#qsLoader .qs-wifi svg.circle-inner  circle.back  { animation:circle-inner162 1.8s ease infinite 0.2s; }
-#qsLoader .qs-wifi svg.circle-inner  circle.front { animation:circle-inner162 1.8s ease infinite 0.05s; }
+.qs-fmtblock{font-family:Arial,sans-serif;font-size:0.72rem;line-height:1.8;margin:0 0 0.7rem 0;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:0.7rem 0.9rem;word-break:break-word;overflow-wrap:break-word;}
+.qs-hdr{color:#22c55e;text-align:center;font-weight:600;margin:0.15rem 0;}
+.qs-flink{color:#22c55e;font-weight:700;text-decoration:underline;}
+.qs-qnum{color:#f97316;font-size:0.72rem;font-weight:600;margin-top:0.4rem;}
+.qs-qtxt{color:#f97316;margin:0.2rem 0 0.3rem 0;}
+.qs-ans{color:var(--text);white-space:pre-wrap;}
+mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;}
+.qs-wifi{--front-color:var(--accent);--back-color:var(--border);width:64px;height:64px;border-radius:50px;position:relative;display:flex;justify-content:center;align-items:center;}
+.qs-wifi svg{position:absolute;display:flex;justify-content:center;align-items:center;}
+.qs-wifi svg circle{position:absolute;fill:none;stroke-width:6px;stroke-linecap:round;stroke-linejoin:round;transform:rotate(-100deg);transform-origin:center;}
+.qs-wifi svg circle.back{stroke:var(--back-color);}
+.qs-wifi svg circle.front{stroke:var(--front-color);}
+.qs-wifi svg.circle-outer{height:86px;width:86px;}
+.qs-wifi svg.circle-outer circle{stroke-dasharray:62.75 188.25;}
+.qs-wifi svg.circle-outer circle.back{animation:circle-outer135 1.8s ease infinite 0.3s;}
+.qs-wifi svg.circle-outer circle.front{animation:circle-outer135 1.8s ease infinite 0.15s;}
+.qs-wifi svg.circle-middle{height:60px;width:60px;}
+.qs-wifi svg.circle-middle circle{stroke-dasharray:42.5 127.5;}
+.qs-wifi svg.circle-middle circle.back{animation:circle-middle6123 1.8s ease infinite 0.25s;}
+.qs-wifi svg.circle-middle circle.front{animation:circle-middle6123 1.8s ease infinite 0.1s;}
+.qs-wifi svg.circle-inner{height:34px;width:34px;}
+.qs-wifi svg.circle-inner circle{stroke-dasharray:22 66;}
+.qs-wifi svg.circle-inner circle.back{animation:circle-inner162 1.8s ease infinite 0.2s;}
+.qs-wifi svg.circle-inner circle.front{animation:circle-inner162 1.8s ease infinite 0.05s;}
 
 </style>
   <script defer src="/_vercel/speed-insights/script.js"></script>
@@ -2014,6 +2025,12 @@
               <div class="bbn-border"></div>
               <div class="bbn-glow"></div>
               <button type="button" class="board-btn aqa" id="boardBtn-AQA" onclick="selectBoard('AQA')">AQA</button>
+            </div>
+            <div class="board-btn-wrap" id="boardWrap-Edexcel">
+              <div class="bbn-dark"></div>
+              <div class="bbn-border"></div>
+              <div class="bbn-glow"></div>
+              <button type="button" class="board-btn" id="boardBtn-Edexcel" style="border-color:#4fa8ff;color:#4fa8ff" onclick="selectBoard('Edexcel')">Edexcel</button>
             </div>
           </div>
           <!-- hidden input keeps the rest of the JS working unchanged -->
@@ -2106,35 +2123,78 @@
         </div>
       </div>
     </div>
+<!-- Fake form to absorb browser autofill before real inputs -->
+<form id="qs-fake-form" style="display:none" aria-hidden="true" tabindex="-1">
+  <input type="text" name="username" tabindex="-1">
+  <input type="password" name="password" tabindex="-1">
+</form>
 <div class="question-search-section" id="questionSearchSection">
   <div class="question-search-title">Question <span>Finder</span></div>
   <p class="question-search-sub">Search any CAIE past paper question using 3–9 consecutive words. Powered by caiefinder.com.</p>
   <div class="question-search-row">
     <select class="question-search-select" id="qsSubs">
       <option value="">All Subjects</option>
+      <optgroup label="── Core ──">
       <option value="mathematics">Mathematics</option>
       <option value="chemistry">Chemistry</option>
       <option value="physics">Physics</option>
       <option value="biology">Biology</option>
-      <option value="accounting">Accounting</option>
-      <option value="businessstudies">Business Studies</option>
-      <option value="economics">Economics</option>
       <option value="english">English</option>
       <option value="computerscience">Computer Science</option>
+      <option value="economics">Economics</option>
+      <option value="accounting">Accounting</option>
+      <option value="businessstudies">Business Studies</option>
       <option value="geography">Geography</option>
       <option value="history">History</option>
       <option value="psychology">Psychology</option>
       <option value="sociology">Sociology</option>
       <option value="statistics">Statistics</option>
-      <option value="thinkingskills">Thinking Skills</option>
       <option value="law">Law</option>
+      </optgroup>
+      <optgroup label="── Sciences ──">
+      <option value="agriculture">Agriculture</option>
+      <option value="environmentalmanagement">Environmental Management</option>
+      <option value="marinescience">Marine Science</option>
+      <option value="physicalscience">Physical Science</option>
+      <option value="sciencecombined">Science (Combined)</option>
+      <option value="sciencescoordinated">Sciences (Co-ordinated)</option>
+      </optgroup>
+      <optgroup label="── Arts & Design ──">
       <option value="artdesign">Art &amp; Design</option>
       <option value="designtechnology">Design &amp; Technology</option>
-      <option value="traveltourism">Travel &amp; Tourism</option>
+      <option value="designtextiles">Design &amp; Textiles</option>
+      <option value="designcommunication">Design and Communication</option>
+      <option value="digitalmediadesign">Digital Media &amp; Design</option>
+      <option value="drama">Drama</option>
+      <option value="fashiontextiles">Fashion &amp; Textiles</option>
+      <option value="mediastudies">Media Studies</option>
+      <option value="music">Music</option>
+      </optgroup>
+      <optgroup label="── Humanities ──">
+      <option value="biblicalstudies">Biblical Studies</option>
+      <option value="classicalstudies">Classical Studies</option>
+      <option value="developmentstudies">Development Studies</option>
+      <option value="divinity">Divinity</option>
+      <option value="enterprise">Enterprise</option>
       <option value="foodnutrition">Food &amp; Nutrition</option>
-      <option value="globalperspectivesresearch">Global Perspectives</option>
-      <option value="informationcommunicationtechnology">ICT</option>
-      <option value="sciencecombined">Science (Combined)</option>
+      <option value="globalperspectivesresearch">Global Perspectives &amp; Research</option>
+      <option value="hinduism">Hinduism</option>
+      <option value="informationcommunicationtechnology">Information &amp; Communication Technology</option>
+      <option value="informationtechnology">Information Technology</option>
+      <option value="islamicstudies">Islamic Studies</option>
+      <option value="islamiyat">Islamiyat</option>
+      <option value="physicaleducation">Physical Education</option>
+      <option value="religiousstudies">Religious Studies</option>
+      <option value="sportandphysicaleducation">Sport and Physical Education</option>
+      <option value="thinkingskills">Thinking Skills</option>
+      <option value="traveltourism">Travel &amp; Tourism</option>
+      <option value="worldliterature">World Literature</option>
+      </optgroup>
+      <optgroup label="── Regional ──">
+      <option value="bangladeshstudies">Bangladesh Studies</option>
+      <option value="commerce">Commerce</option>
+      <option value="pakistanstudies">Pakistan Studies</option>
+      </optgroup>
     </select>
     <select class="question-search-select" id="qsZone">
       <option value="">GCE &amp; IGCSE</option>
@@ -2145,10 +2205,10 @@
     </select>
   </div>
   <div class="question-search-row">
-    <input class="question-search-input" id="qsInput" type="text" placeholder="e.g. six statements are given about storage devices" onkeydown="if(event.key==='Enter')runQuestionSearch()">
+    <input class="question-search-input" id="qsInput" name="qs" type="text" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" placeholder="e.g. six statements are given about storage devices" readonly onfocus="this.removeAttribute('readonly')" onkeydown="if(event.key==='Enter')runQuestionSearch()">
     <button class="question-search-btn" id="qsBtn" onclick="runQuestionSearch()">Search</button>
   </div>
-  <div id="qsLoader">
+  <div id="qsLoader" style="display:none;justify-content:center;padding:1.5rem 0">
     <div class="qs-wifi">
       <svg class="circle-outer"><circle class="back" cx="43" cy="43" r="40"></circle><circle class="front" cx="43" cy="43" r="40"></circle></svg>
       <svg class="circle-middle"><circle class="back" cx="30" cy="30" r="27"></circle><circle class="front" cx="30" cy="30" r="27"></circle></svg>
@@ -2179,7 +2239,7 @@
           <input type="radio" name="rating" id="s1" value="1">
           <label for="s1"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></label>
         </div>
-        <textarea id="ratingFeedback" maxlength="150" placeholder="Feedback, suggestions or issues (optional)&#8230;" style="width:100%;margin-top:0.7rem;padding:0.5rem 0.7rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:Space Mono,monospace;font-size:0.7rem;resize:none;height:70px;outline:none;box-sizing:border-box;transition:border-color 0.2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+        <textarea id="ratingFeedback" name="feedback" maxlength="150" autocomplete="off" placeholder="Feedback, suggestions or issues (optional)&#8230;" style="width:100%;margin-top:0.7rem;padding:0.5rem 0.7rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:Space Mono,monospace;font-size:0.7rem;resize:none;height:70px;outline:none;box-sizing:border-box;transition:border-color 0.2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
         <p style="text-align:right;font-family:Space Mono,monospace;font-size:0.6rem;color:var(--muted);margin-top:0.2rem" id="feedbackCount">0 / 150</p>
         <button class="rating-submit-btn" id="ratingSubmitBtn" onclick="submitRating()">Submit</button>
         <p class="rating-thanks" id="ratingThanks">Thanks for your feedback!</p>
@@ -2502,110 +2562,103 @@
 
   // ── Startup splash ──
   (function() {
-    // Skip splash when returning from codes page
-    if (sessionStorage.getItem('fromCodes')) {
-      const splash = document.getElementById('splash');
-      if (splash) splash.remove();
-      const container = document.querySelector('.container');
-      if (container) { container.style.opacity = '1'; container.style.transform = 'none'; }
-      return;
+    var splash    = document.getElementById('splash');
+    var container = document.querySelector('.container');
+
+    function revealPage() {
+      if (container) container.style.opacity = '1';
+      if (splash && splash.parentNode) splash.remove();
     }
-    const splash      = document.getElementById('splash');
-    const splashTitle = splash.querySelector('.splash-title');
-    const splashLogo  = splash.querySelector('.splash-logo');
-    const container   = document.querySelector('.container');
-    const h1          = document.querySelector('h1');
-    const headerLogo  = document.querySelector('.header-logo');
 
-    // Ensure fonts are loaded before measuring, then start animation
-    const _fontReady = document.fonts ? Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 600))]) : Promise.resolve();
-    _fontReady.then(() => {
-    setTimeout(() => {
-      // 1. Measure splash elements BEFORE container reveal
-      const fromTitle = splashTitle.getBoundingClientRect();
-      const fromLogo  = splashLogo.getBoundingClientRect();
+    if (!splash) { revealPage(); return; }
+    if (sessionStorage.getItem('fromCodes')) {
+      if (container) { container.style.transition = 'none'; }
+      revealPage(); return;
+    }
 
-      // 2. Reveal container instantly so h1 is at its true final position
-      container.style.opacity   = '1';
-      container.style.transform = 'none';
-      void container.offsetHeight; // force layout commit
+    // Failsafe: always reveal page after 3s no matter what
+    var failsafe = setTimeout(revealPage, 3000);
 
-      // 3. Measure destinations — now at true final positions
-      const toTitle = h1.getBoundingClientRect();
-      const toLogo  = headerLogo.getBoundingClientRect();
+    // When splash fade-out ends, reveal page
+    splash.addEventListener('animationend', function(e) {
+      if (e.animationName !== 'splashFadeOut') return;
+      clearTimeout(failsafe);
+      revealPage();
+    });
 
-      const ease = 'cubic-bezier(0.65, 0, 0.35, 1)';
-      const dur  = '0.6s';
+    // Text + logo morph animation — wrapped in try/catch so errors can't freeze the page
+    var _fontReady = (document.fonts && document.fonts.ready)
+      ? Promise.race([document.fonts.ready, new Promise(function(r){ setTimeout(r, 600); })])
+      : Promise.resolve();
 
-      // 4a. Title clone — fixed at FROM position, uses transform to fly to TO
-      const scaleX = fromTitle.width  / (toTitle.width  || 1);
-      const scaleY = fromTitle.height / (toTitle.height || 1);
+    _fontReady.then(function() {
+      // Wait until just before splashFadeOut fires (splash last child anim ends at 1.3s)
+      setTimeout(function() {
+        try {
+          var splashTitle = splash.querySelector('.splash-title');
+          var splashLogo  = splash.querySelector('.splash-logo');
+          var h1          = document.querySelector('h1');
+          var headerLogo  = document.querySelector('.header-logo');
 
-      const titleClone = splashTitle.cloneNode(true);
-      titleClone.style.cssText = `
-        position: fixed;
-        top: ${toTitle.top}px;
-        left: ${toTitle.left}px;
-        width: ${toTitle.width}px;
-        height: ${toTitle.height}px;
-        margin: 0; padding: 0;
-        font-family: 'Syne', sans-serif;
-        font-size: ${parseFloat(getComputedStyle(h1).fontSize)}px;
-        font-weight: 800; letter-spacing: -0.02em;
-        color: var(--text);
-        transform-origin: top left;
-        transform: translate(${fromTitle.left - toTitle.left}px, ${fromTitle.top - toTitle.top}px) scale(${scaleX}, ${scaleY});
-        z-index: 10000; pointer-events: none; opacity: 1;
-        transition: transform ${dur} ${ease}, opacity 0.2s ease 0.45s;
-        will-change: transform, opacity;
-      `;
-      document.body.appendChild(titleClone);
+          if (!splashTitle || !splashLogo || !h1 || !headerLogo) return;
 
-      // 4b. Logo clone — same approach
-      const logoScaleX = fromLogo.width  / (toLogo.width  || 1);
-      const logoScaleY = fromLogo.height / (toLogo.height || 1);
+          var fromTitle = splashTitle.getBoundingClientRect();
+          var fromLogo  = splashLogo.getBoundingClientRect();
 
-      const logoClone = document.createElement('img');
-      logoClone.src = '/favicon.png';
-      logoClone.style.cssText = `
-        position: fixed;
-        top: ${toLogo.top}px;
-        left: ${toLogo.left}px;
-        width: ${toLogo.width}px;
-        height: ${toLogo.height}px;
-        border-radius: 6px; object-fit: cover;
-        transform-origin: top left;
-        transform: translate(${fromLogo.left - toLogo.left}px, ${fromLogo.top - toLogo.top}px) scale(${logoScaleX}, ${logoScaleY});
-        z-index: 10000; pointer-events: none; opacity: 1;
-        transition: transform ${dur} ${ease}, opacity 0.2s ease 0.45s;
-        will-change: transform, opacity;
-      `;
-      document.body.appendChild(logoClone);
+          container.style.opacity = '1';
+          void container.offsetHeight;
 
-      // 5. Fade out splash background
-      splash.style.transition = 'opacity 0.4s ease';
-      splash.style.opacity = '0';
-      setTimeout(() => splash.remove(), 400);
+          var toTitle = h1.getBoundingClientRect();
+          var toLogo  = headerLogo.getBoundingClientRect();
 
-      // 6. Trigger animations on next two frames to ensure styles committed
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        titleClone.style.transform = 'translate(0, 0) scale(1, 1)';
-        titleClone.style.opacity   = '0';
+          if (!toTitle.width || !toLogo.width) return;
 
-        logoClone.style.transform  = 'translate(0, 0) scale(1, 1)';
-        logoClone.style.opacity    = '0';
+          var ease = 'cubic-bezier(0.65, 0, 0.35, 1)';
+          var dur  = '0.55s';
 
-        // 7. Reveal real elements as clones finish
-        setTimeout(() => {
-          h1.style.transition         = 'opacity 0.15s ease';
-          h1.style.opacity            = '1';
-          headerLogo.style.transition = 'opacity 0.15s ease';
-          headerLogo.style.opacity    = '1';
-          setTimeout(() => { titleClone.remove(); logoClone.remove(); }, 200);
-        }, 580);
-      }));
-    }, 1400);
-    }); // fonts.ready
+          // Title clone
+          var scaleX = fromTitle.width / toTitle.width;
+          var scaleY = fromTitle.height / (toTitle.height || 1);
+          var titleClone = splashTitle.cloneNode(true);
+          titleClone.style.cssText = 'position:fixed;top:'+toTitle.top+'px;left:'+toTitle.left+'px;'
+            +'width:'+toTitle.width+'px;height:'+toTitle.height+'px;margin:0;padding:0;'
+            +'font-family:Syne,sans-serif;font-size:'+parseFloat(getComputedStyle(h1).fontSize)+'px;'
+            +'font-weight:800;letter-spacing:-0.02em;color:var(--text);transform-origin:top left;'
+            +'transform:translate('+(fromTitle.left-toTitle.left)+'px,'+(fromTitle.top-toTitle.top)+'px)'
+            +' scale('+scaleX+','+scaleY+');z-index:10001;pointer-events:none;opacity:1;'
+            +'transition:transform '+dur+' '+ease+',opacity 0.2s ease 0.4s;will-change:transform,opacity;';
+          document.body.appendChild(titleClone);
+
+          // Logo clone
+          var lsX = fromLogo.width / (toLogo.width || 1);
+          var lsY = fromLogo.height / (toLogo.height || 1);
+          var logoClone = document.createElement('img');
+          logoClone.src = '/favicon.png';
+          logoClone.style.cssText = 'position:fixed;top:'+toLogo.top+'px;left:'+toLogo.left+'px;'
+            +'width:'+toLogo.width+'px;height:'+toLogo.height+'px;border-radius:6px;object-fit:cover;'
+            +'transform-origin:top left;'
+            +'transform:translate('+(fromLogo.left-toLogo.left)+'px,'+(fromLogo.top-toLogo.top)+'px)'
+            +' scale('+lsX+','+lsY+');z-index:10001;pointer-events:none;opacity:1;'
+            +'transition:transform '+dur+' '+ease+',opacity 0.2s ease 0.4s;will-change:transform,opacity;';
+          document.body.appendChild(logoClone);
+
+          requestAnimationFrame(function(){ requestAnimationFrame(function(){
+            titleClone.style.transform = 'translate(0,0) scale(1,1)';
+            titleClone.style.opacity   = '0';
+            logoClone.style.transform  = 'translate(0,0) scale(1,1)';
+            logoClone.style.opacity    = '0';
+            setTimeout(function(){
+              h1.style.opacity = '1';
+              headerLogo.style.opacity = '1';
+              setTimeout(function(){ titleClone.remove(); logoClone.remove(); }, 200);
+            }, 560);
+          });});
+        } catch(e) {
+          // Morph failed — page is already visible, just clean up
+          if (container) container.style.opacity = '1';
+        }
+      },1250);
+    });
   })();
 
   // ── Haptic feedback (Android only, no-op on unsupported devices) ──
@@ -2857,8 +2910,58 @@
     '9844':'Spanish Language & Literature',
     '9868':'Chinese Language & Literature',
     '9980':'Cambridge International Project Qualification',
-    '9990':'Psychology'
-  };
+    '9990':'Psychology',
+      // O Level additions
+    '7707':'Accounting','5038':'Agriculture','3180':'Arabic','6010':'Art','6090':'Art & Design',
+    '7094':'Bangladesh Studies','3204':'Bengali','2035':'Biblical Studies','5090':'Biology',
+    '7115':'Business Studies','7048':'CDT Design & Communication','5070':'Chemistry',
+    '7100':'Commerce','7101':'Commercial Studies','2210':'Computer Science',
+    '7010':'Computer Studies','6043':'Design & Technology','2281':'Economics',
+    '1123':'English Language','5014':'Environmental Management','6050':'Fashion & Fabrics',
+    '6130':'Fashion & Textiles','6065':'Food & Nutrition','3015':'French','2217':'Geography',
+    '3025':'German','2069':'Global Perspectives','3195':'Hindi','2055':'Hinduism',
+    '2147':'History','2134':'History (Modern World Affairs)','2158':'History World Affairs',
+    '5096':'Human & Social Biology','2056':'Islamic Religion & Culture','2068':'Islamic Studies',
+    '2058':'Islamiyat','2010':'Literature in English','5180':'Marine Science',
+    '4037':'Mathematics Additional','4024':'Mathematics D','3202':'Nepali',
+    '2059':'Pakistan Studies','5054':'Physics','7110':'Principles of Accounts',
+    '2048':'Religious Studies','5129':'Science Combined','3158':'Setswana',
+    '3205':'Sinhala','2251':'Sociology','3035':'Spanish','4040':'Statistics',
+    '3162':'Swahili','3206':'Tamil','3226':'Tamil','7096':'Travel & Tourism',
+    '3247':'Urdu','3248':'Urdu',
+    // AS/AL additions
+    '9706':'Accounting','8679':'Afrikaans','8779':'Afrikaans','9679':'Afrikaans',
+    '9713':'Applied ICT','8680':'Arabic','9680':'Arabic','9704':'Art & Design',
+    '9479':'Art & Design','9484':'Biblical Studies','9184':'Biology','9700':'Biology',
+    '9707':'Business Studies','9609':'Business','9980':'Cambridge IPQ',
+    '9185':'Chemistry','9701':'Chemistry','8238':'Chinese','8669':'Chinese',
+    '8681':'Chinese','9715':'Chinese','9868':'Chinese','9274':'Classical Studies',
+    '9608':'Computer Science','9618':'Computer Science','9691':'Computing',
+    '9481':'Design & Technology','9705':'Design & Technology','9631':'Design & Textiles',
+    '9011':'Divinity','8041':'Divinity','9482':'Drama','9708':'Economics',
+    '8274':'English','8287':'English','8693':'English','8695':'English',
+    '9093':'English','9276':'English Literature','9695':'English Literature',
+    '8021':'English General Paper','8291':'Environmental Management','9336':'Food Studies',
+    '8277':'French','8682':'French','9281':'French','9716':'French','8028':'French',
+    '8670':'French Literature','9898':'French Language & Literature',
+    '8001':'General Paper','8004':'General Paper','9278':'Geography','9696':'Geography',
+    '8027':'German','8683':'German','9717':'German','9897':'German Language & Literature',
+    '8275':'Global Perspectives','8987':'Global Perspectives','9239':'Global Perspectives & Research',
+    '8687':'Hindi','9687':'Hindi','8675':'Hindi Literature','9014':'Hinduism',
+    '9487':'Hinduism','8058':'Hinduism','9279':'History','9389':'History',
+    '9489':'History','9697':'History','9626':'Information Technology',
+    '9013':'Islamic Studies','8053':'Islamic Studies','9488':'Islamic Studies',
+    '8281':'Japanese','9084':'Law','8688':'Marathi','9688':'Marathi',
+    '9693':'Marine Science','9231':'Mathematics','9280':'Mathematics','9709':'Mathematics',
+    '9607':'Media Studies','9385':'Music','9483':'Music','9703':'Music','8663':'Music',
+    '8024':'Nepal Studies','9396':'Physical Education','8780':'Physical Science',
+    '9702':'Physics','8672':'Portuguese','8684':'Portuguese','9718':'Portuguese',
+    '9698':'Psychology','9990':'Psychology','9699':'Sociology','8022':'Spanish',
+    '8278':'Spanish','8279':'Spanish','8673':'Spanish','8685':'Spanish','9282':'Spanish',
+    '9719':'Spanish','8665':'Spanish','9844':'Spanish','8386':'Sport & Physical Education',
+    '9689':'Tamil','8689':'Tamil','8690':'Telugu','9690':'Telugu',
+    '9694':'Thinking Skills','9395':'Travel & Tourism','8686':'Urdu','9676':'Urdu','9686':'Urdu',
+};
 
   const caieCodesAll = new Set([
     '0262', '0400', '0408', '0409', '0410', '0411', '0413', '0415',
@@ -2889,7 +2992,7 @@
     '9990'
   ]);
   const alCodesAll = new Set(['8021','8028','8238','8274','8287','8291','8669','8679','8680','8681','8682','8693','8695','8779','9011','9084','9093','9184','9185','9231','9239','9274','9276','9279','9280','9281','9282','9336','9395','9396','9479','9481','9482','9483','9484','9487','9488','9489','9607','9608','9609','9618','9626','9631','9679','9680','9686','9687','9689','9691','9693','9694','9695','9696','9697','9698','9699','9700','9701','9702','9703','9704','9705','9706','9707','9708','9709','9713','9715','9716','9717','9718','9719','9844','9868','9980','9990']);
-  const olCodesAll = new Set(['1123','2035','2055','2056','2058','2068','2069','2134','2147','2158','2210','2217','2251','2281','3015','3025','3180','3195','3204','4024','4037','5014','5038','5054','5070','5090','5096','6010','6043','6050','6065','6090','6130','7010','7048','7094','7100','7101','7115','7707']);
+  const olCodesAll = new Set(['1123','2010','2035','2047','2048','2055','2056','2058','2059','2068','2069','2134','2147','2158','2210','2217','2251','2281','3015','3025','3035','3158','3162','3180','3195','3202','3204','3205','3206','3226','3247','3248','4024','4037','4040','5014','5038','5054','5070','5090','5096','5129','5180','6010','6043','6050','6065','6090','6130','7010','7048','7094','7096','7100','7101','7110','7115','7707']);
   const aqaCodesAll  = new Set(['2450','2760','2765','7041','7042','7101','7131','7136','7141','7151','7152','7162','7180','7181','7182','7183','7191','7192','7201','7261','7262','7356','7357','7366','7367','7381','7382','7401','7402','7403','7404','7405','7407','7408','7581','7582','7661','7662','7681','7682','7691','7692','7701','7702','7706','7707','7711','7712','8035','8061','8062','8063','8100','8132','8136','8145','8182','8192','8201','8236','8261','8271','8300','8382','8461','8462','8463','8464','8465','8520','8552','8572','8582','8585','8633','8638','8648','8658','8668','8673','8678','8683','8688','8698','8700','8702','8852','9201','9202','9203','9204','9210','9214','9215','9218','9221','9222','9223','9225','9230','9236','9237','9252','9257','9260','9264','9265','9269','9270','9275','9280','9285','9610','9615','9620','9625','9630','9635','9640','9645','9660','9665','9670','9675','9685','9697']);
 
 
@@ -3176,6 +3279,7 @@
     try {
       localStorage.setItem('pp_rating', value);
       localStorage.setItem('pp_rating_ts', Date.now().toString());
+      localStorage.setItem('pp_rating_feedback', feedback);
     } catch {}
   }
 
@@ -3191,6 +3295,16 @@
           if (t) { t.textContent = 'Please wait ' + mins + ' more minute' + (mins > 1 ? 's' : '') + '.'; t.classList.add('show'); }
           const btn = document.getElementById('ratingSubmitBtn');
           if (btn) btn.disabled = true;
+          // Restore saved star and feedback
+          const savedStar = localStorage.getItem('pp_rating');
+          if (savedStar) {
+            const starEl = document.querySelector('.radio input[name="rating"][value="'+savedStar+'"]');
+            if (starEl) { starEl.checked = true; starEl.disabled = true; }
+            document.querySelectorAll('.radio input[name="rating"]').forEach(el => el.disabled = true);
+          }
+          const savedFeedback = localStorage.getItem('pp_rating_feedback');
+          const fbEl = document.getElementById('ratingFeedback');
+          if (fbEl && savedFeedback) { fbEl.value = savedFeedback; fbEl.disabled = true; }
         });
       }
     } catch {}
@@ -3400,12 +3514,7 @@
       const fullYear = '20' + yr;
       selectBoard('CAIE');
       document.getElementById('code').value = code;
-      // Activate manual mode so dropdowns are fully editable immediately
-      _manualMode = true;
-      const mt = document.getElementById('manualToggle');
-      if (mt) { mt.classList.add('active'); mt.textContent = '✎ Using dropdowns'; }
-      const mh = document.getElementById('manualHint');
-      if (mh) mh.style.display = 'inline';
+
       populateYearRange(1990);
       repopulateFullSessions('CAIE');
       resetPapertypeStatic();
@@ -3436,11 +3545,7 @@
       const sess = sessMap[sessStr] || 's';
       selectBoard('AQA');
       document.getElementById('code').value = code;
-      _manualMode = true;
-      const mt2 = document.getElementById('manualToggle');
-      if (mt2) { mt2.classList.add('active'); mt2.textContent = '✎ Using dropdowns'; }
-      const mh2 = document.getElementById('manualHint');
-      if (mh2) mh2.style.display = 'inline';
+
       populateYearRange(1990);
       repopulateFullSessions('AQA');
       resetPapertypeStatic();
@@ -3956,6 +4061,9 @@
 
   // ── Step 2: session selected → populate years ──
   function onSessionChange() {
+    if (document.getElementById('board').value === 'Edexcel') {
+      setEdexcelVariants(document.getElementById('papertype').value);
+    }
     if (_manualMode) { clearFieldErrors(); return; }
     const sess = document.getElementById('session').value;
     const yearSelect = document.getElementById('yearSelect');
@@ -4136,6 +4244,13 @@
         if (val === curr) o.selected = true;
         s.appendChild(o);
       });
+    } else if (board === 'Edexcel') {
+      [['January','January'],['May/June','June'],['Oct/Nov','November']].forEach(([label,val]) => {
+        const o = document.createElement('option');
+        o.value = val; o.textContent = label;
+        if (val === curr) o.selected = true;
+        s.appendChild(o);
+      });
     }
   }
 
@@ -4178,12 +4293,32 @@
     if (activeBtn) activeBtn.classList.add('active');
     const activeWrap = document.getElementById('boardWrap-' + val);
     if (activeWrap) activeWrap.classList.add('active');
-    // Enable code input
+    // Handle code field visibility
     const codeEl = document.getElementById('code');
-    codeEl.disabled = false;
-    codeEl.placeholder = 'e.g. 0417';
-    codeEl.focus();
-    // Run existing board change logic
+    if (val === 'Edexcel') {
+      codeEl.style.display = 'none';
+      let edxSel = document.getElementById('edxCodeSel');
+      if (!edxSel) {
+        edxSel = document.createElement('select');
+        edxSel.id = 'edxCodeSel';
+        edxSel.className = codeEl.className;
+        edxSel.title = 'Subject code (fixed for Edexcel Math)';
+        ['4MA1','4WM01'].forEach(function(v){
+          const o = document.createElement('option'); o.value = v; o.textContent = v; edxSel.appendChild(o);
+        });
+        edxSel.onchange = function(){ codeEl.value = this.value; };
+        codeEl.parentNode.insertBefore(edxSel, codeEl);
+      }
+      edxSel.style.display = '';
+      codeEl.value = edxSel.value;
+    } else {
+      codeEl.style.display = '';
+      const edxSel = document.getElementById('edxCodeSel');
+      if (edxSel) edxSel.style.display = 'none';
+      codeEl.disabled = false;
+      codeEl.placeholder = 'e.g. 0417';
+      codeEl.focus();
+    }
     onBoardChange();
   }
 
@@ -4207,10 +4342,20 @@
     hideResult();
     clearFieldErrors();
 
+    if (board === 'Edexcel') {
+      const pt = document.getElementById('papertype');
+      pt.innerHTML = '';
+      [['QP — Question Paper','qp'],['MS — Mark Scheme','ms'],['GB — Grade Boundaries','gb']].forEach(([label,val]) => {
+        const o = document.createElement('option'); o.value = val; o.textContent = label; pt.appendChild(o);
+      });
+      populateYearRange(2021);
+      setEdexcelVariants('qp');
+      document.getElementById('variantField').classList.remove('variant-hidden');
+      return;
+    }
     // If a code is already entered, re-run detection for the new board
     const code = document.getElementById('code').value.trim();
     if (code.length === 4) {
-      // Both CAIE and AQA use live scan now
       applyIgcseDropdowns(code);
     }
   }
@@ -4218,6 +4363,8 @@
   // ── Paper type change ──
   function onPapertypeChange() {
     const pt = document.getElementById('papertype').value;
+    const board = document.getElementById('board').value;
+    if (board === 'Edexcel') { setEdexcelVariants(pt); return; }
     if (!_manualMode && _currentPapersData) {
       updateVariantForType(pt, _currentPapersData);
     } else {
@@ -4372,7 +4519,8 @@
     if (!board)   { markFieldError('board');     showError('Missing Exam Board! Please select an exam board.'); return; }
     if (!code)    { markFieldError('code');      showError('Missing Subject Code! Please enter a subject code.'); return; }
     if (!/^\d{4}$/.test(code)) { markFieldError('code'); showError('Invalid Subject Code! Code must be exactly 4 digits.'); return; }
-    if ((board==='CAIE' && !caieCodesAll.has(code)) || (board==='AQA' && !aqaCodesAll.has(code))) {
+    const allCaie = new Set([...caieCodesAll, ...alCodesAll, ...olCodesAll]);
+    if ((board==='CAIE' && !allCaie.has(code)) || (board==='AQA' && !aqaCodesAll.has(code))) {
       const s = didYouMean(code, board);
       markFieldError('code');
       // build a best-guess URL for bypass
@@ -4394,7 +4542,7 @@
         }
       }
       const otherBoard = board === 'CAIE' ? 'AQA' : 'CAIE';
-      const otherSet   = board === 'CAIE' ? aqaCodesAll : caieCodesAll;
+      const otherSet   = board === 'CAIE' ? aqaCodesAll : allCaie;
       if (otherSet.has(code)) {
         showError(`Invalid Subject Code! This code belongs to ${otherBoard}, not ${board}.`, guessUrl || null);
       } else {
@@ -4430,7 +4578,20 @@
     // sf (Sound File) uses .mp3; everything else uses .pdf
     const ext = papertype === 'sf' ? 'mp3' : 'pdf';
     let url = '';
-    if (board === 'CAIE') {
+    if (board === 'Edexcel') {
+      url = buildEdexcelUrl();
+      if (!url) return;
+      // Skip papacambridge check — use ig-wizard directly
+      generatedUrl = url;
+      document.getElementById('resultUrl').textContent = url;
+      const rb = document.getElementById('resultBox');
+      rb.classList.remove('show','animating'); void rb.offsetWidth; rb.classList.add('show','animating');
+      saveRecent(url); lbIncrement();
+      setTimeout(() => smoothScrollToBottom(), 50);
+      if (wifiLoader) { wifiLoader.classList.remove('active'); btn.style.display = ''; }
+      else { btnText.textContent = 'Generate'; btn.disabled = false; }
+      return;
+    } else if (board === 'CAIE') {
       if (noVariantTypes.includes(papertype)) {
         url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${yearVal}_${papertype}.${ext}`;
       } else {
@@ -4966,8 +5127,13 @@
     let body;
     if (_authMode === 'register') {
       const _ph = getFullPhone('phoneDial','authPhone');
-      if (_ph && _ph.replace(/[^0-9]/g,'').length < 7) {
-        err.textContent = 'Phone number must be at least 7 digits'; btn.disabled = false; return;
+      if (!_ph || _ph.replace(/[^0-9]/g,'').length < 4) {
+        err.textContent = 'Phone number is required'; btn.disabled = false;
+        shakeAuthInput('authPhone'); return;
+      }
+      if (_ph.replace(/[^0-9]/g,'').length < 7) {
+        err.textContent = 'Phone number must be at least 7 digits'; btn.disabled = false;
+        shakeAuthInput('authPhone'); return;
       }
       body = { action: 'register', email: document.getElementById('authEmail').value.trim(), username: document.getElementById('authUsername').value.trim(), password, deviceId: _deviceId, phone: _ph };
     } else {
@@ -5273,7 +5439,21 @@
   }
   async function submitPhonePopup() {
     const phone = getFullPhone('popupDial','popupPhone');
-    if (phone && _sessionToken) {
+    const errEl = document.getElementById('popupPhoneErr');
+    if (!phone || phone.replace(/[^0-9]/g,'').length < 4) {
+      if (errEl) errEl.textContent = 'Phone number is required';
+      const inp = document.getElementById('popupPhone');
+      if (inp) { inp.classList.remove('field-error'); void inp.offsetWidth; inp.classList.add('field-error'); setTimeout(()=>inp.classList.remove('field-error'),500); }
+      return;
+    }
+    if (phone.replace(/[^0-9]/g,'').length < 7) {
+      if (errEl) errEl.textContent = 'Phone number must be at least 7 digits';
+      const inp = document.getElementById('popupPhone');
+      if (inp) { inp.classList.remove('field-error'); void inp.offsetWidth; inp.classList.add('field-error'); setTimeout(()=>inp.classList.remove('field-error'),500); }
+      return;
+    }
+    if (errEl) errEl.textContent = '';
+    if (_sessionToken) {
       try {
         await fetch('/api/auth', {
           method:'POST', headers:{'Content-Type':'application/json'},
@@ -5352,29 +5532,149 @@
     } catch {}
   })();
   // ── Question Search (AI-parsed via Groq) ──
+  // ══ Edexcel Math data ══
+  const EDEXCEL_BASE = 'https://ig-wizard.vercel.app/past%20papers/mathpastpapers/';
+  const EDEXCEL_GB = {
+    'November2024': 'grade-boundaries-november-2024-int-gcse.pdf',
+    'June2024':     'grade-boundaries-june-2024-int-gcse.pdf',
+    'November2023': '2311-intgcse-9-1-subject-grade-boundaries.pdf',
+    'June2023':     '2306-intgcse-9-1-subject-grade-boundaries.pdf',
+    'January2023':  '2301-intgcse-9-1-subject-grade-boundaries-v1.pdf',
+    'June2022':     '2206-intgcse-9-1-subject-grade-boundaries.pdf',
+    'January2022':  '2201_intGCSE_(9-1)_Subject_Grade_Boundaries_V1.pdf',
+    'November2021': '2111_intGCSE_(9-1)_Subject_Grade_Boundaries_V2.pdf',
+    'June2021':     '2111_intGCSE_(9-1)_Subject_Grade_Boundaries_V2.pdf',
+  };
+  // Variants available per session (R variants only in Jan/Jun, not Nov/Oct)
+  function edexcelVariantsForSession(session) {
+    if (session === 'November') return ['1H','2H'];
+    return ['1H','1HR','2H','2HR'];
+  }
+  function setEdexcelVariants(ptVal) {
+    const session = document.getElementById('session').value;
+    const vf = document.getElementById('variantField');
+    const vs = document.getElementById('variantSelect');
+    if (!vs) return;
+    if (ptVal === 'gb') {
+      vf.classList.add('variant-hidden'); return;
+    }
+    vf.classList.remove('variant-hidden');
+    const variants = edexcelVariantsForSession(session);
+    vs.innerHTML = '';
+    variants.forEach(function(v){
+      const o = document.createElement('option'); o.value = v; o.textContent = v; vs.appendChild(o);
+    });
+  }
+  function buildEdexcelUrl() {
+    const session  = document.getElementById('session').value;
+    const year     = document.getElementById('yearSelect').value;
+    const pt       = document.getElementById('papertype').value;
+    const variant  = (document.getElementById('variantSelect') || {}).value || '';
+    if (!session || !year) { showError('Please select a session and year.'); return null; }
+    const paperNum = (variant.startsWith('2')) ? '2' : '1';
+    const enc = encodeURIComponent;
+    if (pt === 'gb') {
+      const gbFile = EDEXCEL_GB[session + year];
+      if (!gbFile) { showError('No grade boundaries found for that session/year.'); return null; }
+      return EDEXCEL_BASE + 'GB/' + enc(gbFile);
+    }
+    if (!variant) { showError('Please select a variant.'); return null; }
+    const variantEnc = enc(variant);
+    const sessionEnc = enc(session);
+    const paperEnc   = enc('Paper ' + paperNum);
+    if (pt === 'qp') {
+      return EDEXCEL_BASE + paperEnc + '/' + enc(session + ' ' + year + ' ' + variant + '.pdf');
+    } else { // ms
+      return EDEXCEL_BASE + paperEnc + '/' + enc('Paper ' + paperNum + ' MS') + '/' + enc(session + ' ' + year + ' ' + variant + ' MS.pdf');
+    }
+  }
+
   function buildCaieUrl(q, subs, zone) {
     const p = new URLSearchParams();
     p.set('subs', subs||''); p.set('zone', zone||''); p.set('search', q);
     return 'https://caiefinder.com/search/?'+p.toString();
   }
 
-  function renderQsResults(parsed) {
+  function renderQsResults(parsed, query) {
     const base = 'https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/';
-    return parsed.map(function(item) {
-      const qpUrl = item.qpFile ? base + item.qpFile + '.pdf' : '';
-      const msUrl = item.msFile ? base + item.msFile + '.pdf' : '';
-      const tags = [item.subject, item.code, item.exam, item.year, item.session,
-        item.variant ? 'Variant '+item.variant+(item.paper?', Paper '+item.paper:'') : (item.paper?'Paper '+item.paper:'')]
-        .filter(Boolean).map(function(t){ return '<span>'+t.replace(/</g,'&lt;')+'</span>'; }).join('');
-      const qpLink = qpUrl ? '<a class="qs-result-link" href="'+qpUrl+'" target="_blank">Question Paper ↗</a>' : '';
-      const msLink = msUrl ? '<a class="qs-result-link ms" href="'+msUrl+'" target="_blank">Mark Scheme ↗</a>' : '';
+    function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    var STOPWORDS = new Set('a an the and but or so for nor yet if than then when whenever where wherever while although though because since before after once until unless as whereas whether however therefore thus hence also even ever never always sometimes often already almost quite rather again here there now not no only just very really yes ok okay etc such own same i me my myself we us our ours ourselves you your yours yourself yourselves he him his himself she her hers herself it its itself they them their theirs themselves this that these those someone somebody something anyone anybody anything everyone everybody everything each either neither both few many much several some any all most none one be am is are was were being been do does did doing have has had having will would shall should can could may might must in on at by of off out up down over under into onto about above below between among through during without within across against toward towards around along behind beyond despite except from inside near outside past since till upon within who whom whose which what whichever whatever whoever whomever moreover furthermore meanwhile otherwise nonetheless nevertheless maybe perhaps indeed instead still anywhere everywhere nowhere twice finally firstly secondly thirdly somewhere nowhere'.split(' '));
+    function hlq(s){
+      if (!query) return esc(s);
+      var words = query.trim().split(/\s+/).filter(function(w){
+        return w.length > 2 && !STOPWORDS.has(w.toLowerCase());
+      });
+      if (!words.length) return esc(s);
+      var result = s;
+      words.forEach(function(w){
+        var re = new RegExp('('+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+        result = result.replace(re, '\x00$1\x01');
+      });
+      return esc(result).replace(/\x00/g,'<mark class="qs-highlight">').replace(/\x01/g,'</mark>');
+    }
+    function formatBlock(rawBlock, qpUrl, msUrl){
+      var lines = rawBlock.split('\n');
+      // Remove last 2 non-empty lines
+      var removed=0;
+      while(removed<2 && lines.length){
+        if(lines[lines.length-1].trim()){lines.pop();removed++;}else{lines.pop();}
+      }
+      while(lines.length && !lines[lines.length-1].trim()) lines.pop();
+      var html='', inAnswer=false;
+      for(var i=0;i<lines.length;i++){
+        // Decode &bull; and HTML bullet entities before any processing
+        var line=lines[i].replace(/&bull;/gi,'•').replace(/&#8226;/g,'•').replace(/&middot;/gi,'·');
+        var t=line.trim();
+        if(!t){html+='<br>';continue;}
+        // Skip PUBLISHED and the Q/A/Marks table header
+        if(t==='PUBLISHED'||/^Question\s+Answer\s+Marks/i.test(t)||/^Question\s{10,}Answer/i.test(t)){continue;}
+        // Header line (has 4-digit code in parens)
+        if(i===0 || (/\(\d{4}\)/.test(t) && /Varient/.test(t))){
+          html+='<div class="qs-hdr">'+esc(t)+'</div>';continue;
+        }
+        // ↓ FOUND ↓
+        if(t.includes('\u2193 FOUND \u2193')){
+          var fm=t.match(/in\s+(\w+)\s*\u2190/);
+          html+='<div class="qs-hdr">'+(fm&&qpUrl?'\u2193 FOUND \u2193 in <a href="'+qpUrl+'" target="_blank" class="qs-flink">'+fm[1]+'</a> \u2190 Open question paper\'s PDF':esc(t))+'</div>';
+          continue;
+        }
+        // Question No
+        if(/^Question No:/i.test(t)){html+='<div class="qs-qnum">'+hlq(t)+'</div>';continue;}
+        // Question text (em dash)
+        if(/^[\u2014\u2013\-]/.test(t)&&!inAnswer){html+='<div class="qs-qtxt">'+hlq(t)+'</div>';continue;}
+        // ↓ Below is the answer
+        if(t.includes('\u2193 Below is the answer')){
+          inAnswer=true;
+          var fm2=t.match(/in\s+(\w+)\s*\u2190/);
+          html+='<div class="qs-hdr">'+(fm2&&msUrl?'\u2193 Below is the answer to this question \u2193 in <a href="'+msUrl+'" target="_blank" class="qs-flink">'+fm2[1]+'</a> \u2190 Open original marks scheme\'s PDF':esc(t))+'</div>';
+          continue;
+        }
+        // Answer
+        if(inAnswer){var lineClean=line.replace(/•/g,'•');
+        html+='<div class="qs-ans">'+hlq(lineClean).replace(/&amp;bull;/g,'•').replace(/&amp;#8226;/g,'•')+'</div>';continue;}
+        html+='<div>'+esc(line)+'</div>';
+      }
+      return html;
+    }
+    return parsed.map(function(item){
+      var qpUrl=item.qpFile?base+item.qpFile+'.pdf':'';
+      var msUrl=item.msFile?base+item.msFile+'.pdf':'';
+      var examClean = (item.exam||'').replace(/\d+/g,'').replace(/\s{2,}/g,' ').trim().replace(/[\s\-]+$/,'');
+      var tags=[item.subject,item.code,examClean,item.year,item.session,
+        item.variant?'Variant '+item.variant+(item.paper?', Paper '+item.paper:''):(item.paper?'Paper '+item.paper:'')]
+        .filter(Boolean).map(function(t){return '<span>'+esc(t)+'</span>';}).join('');
+      var qpLink=qpUrl?'<a class="qs-result-link" href="'+qpUrl+'" target="_blank">Question Paper \u2197</a>':'';
+      var msLink=msUrl?'<a class="qs-result-link ms" href="'+msUrl+'" target="_blank">Mark Scheme \u2197</a>':'';
+      var aiLink='';
+      if(qpUrl){var vp=new URLSearchParams();vp.set('url',qpUrl);if(msUrl)vp.set('files',qpUrl+','+msUrl);aiLink='<a class="qs-result-link qs-ai-link" href="/viewer.html?'+vp.toString()+'" target="_blank">Open in PastPaperAI 🤖</a>';}
       return '<div class="qs-result-card">'
         +'<div class="qs-result-meta">'+tags+'</div>'
-        +'<pre class="qs-raw-block" style="white-space:pre">'+item.rawBlock.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</pre>'
-        +'<div class="qs-result-links">'+qpLink+msLink+'</div>'
+        +'<div class="qs-fmtblock">'+formatBlock(item.rawBlock,qpUrl,msUrl)+'</div>'
+        +'<div class="qs-result-links">'+qpLink+msLink+aiLink+'</div>'
         +'</div>';
     }).join('');
   }
+
 
   async function runQuestionSearch() {
     const input = document.getElementById('qsInput');
@@ -5402,28 +5702,21 @@
       const parseData = await parseResp.json();
 
       if (parseData.error && (!parseData.results || !parseData.results.length)) {
-        // Surface the actual error so we can diagnose it
-        res.style.display = 'flex';
-        res.innerHTML = '<p class="qs-no-results" style="color:#f87171">⚠ ' + parseData.error + '<br><a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">Search on caiefinder.com ↗</a></p>';
+        res.innerHTML = '<p class="qs-no-results">' + parseData.error + ' — <a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">search on caiefinder.com ↗</a></p>';
         return;
       }
 
       if (!parseData.results || !parseData.results.length) {
-        const dbg = parseData.debug ? JSON.stringify(parseData.debug) : '';
-        const err = parseData.error || 'No results found';
         res.style.display = 'flex';
-        res.innerHTML = '<p class="qs-no-results" style="color:#f87171">⚠ '+err+'</p>'
-          + (dbg ? '<pre style="font-size:0.6rem;color:var(--muted);white-space:pre-wrap;padding:0.5rem">'+dbg+'</pre>' : '')
-          + '<p class="qs-no-results"><a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">search on caiefinder.com ↗</a></p>';
+        res.innerHTML = '<p class="qs-no-results">No questions found for <strong style="color:var(--text)">'+query.replace(/</g,'&lt;')+'</strong><br><a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">Search on caiefinder.com ↗</a></p>';
         return;
       }
 
       res.style.display = 'flex';
-      res.innerHTML = renderQsResults(parseData.results);
+      res.innerHTML = renderQsResults(parseData.results, query);
 
     } catch(e) {
-      res.style.display = 'flex';
-      res.innerHTML = '<p class="qs-no-results" style="color:#f87171">⚠ Error: '+e.message+' — <a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">try caiefinder.com ↗</a></p>';
+      res.innerHTML = '<p class="qs-no-results">Error: '+e.message+' — <a href="'+buildCaieUrl(query,subs,zone)+'" target="_blank" style="color:var(--accent)">try caiefinder.com ↗</a></p>';
     } finally {
       btn.disabled = false; btn.textContent = 'Search';
       const _ql = document.getElementById('qsLoader');
