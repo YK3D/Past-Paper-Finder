@@ -3262,21 +3262,14 @@
     <button class="lb-tab" id="tabTime" onclick="switchTab('time')">&#8987; Time on Site</button>
     <button onclick="refreshLeaderboard()" id="refreshBtn" title="Refresh" style="background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:0.85rem;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;flex-shrink:0" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">&#8635;</button>
   </div>
-  <!-- Period tabs -->
-  <div style="display:flex;gap:0.4rem;margin-bottom:1.2rem">
-    <button class="lb-period-btn active" id="periodWeek" onclick="switchPeriod('week')">This Week</button>
-    <button class="lb-period-btn" id="periodMonth" onclick="switchPeriod('month')">This Month</button>
-    <button class="lb-period-btn" id="periodAll" onclick="switchPeriod('all')">All Time</button>
-  </div>
-
-  <div id="lbList"><div class="lb-loading">Loading&#8230;</div></div>
+  <div id="lbList" style="margin-top:1.2rem"><div class="lb-loading">Loading&#8230;</div></div>
 </div>
 
 <script>
   try { if (localStorage.getItem('pp_theme') === 'light') document.body.classList.add('light'); } catch {}
 
   let _tab = 'papers';
-  let _period = 'all'; // 'week', 'month', 'all'
+  let _period = 'all'; // always all-time
   let _myId = null, _myName = null;
 
   // Get period date bounds (week starts Monday)
@@ -3296,13 +3289,7 @@
     return null;
   }
 
-  function switchPeriod(p) {
-    _period = p;
-    document.querySelectorAll('.lb-period-btn').forEach(b => b.classList.remove('active'));
-    const map = { week: 'periodWeek', month: 'periodMonth', all: 'periodAll' };
-    document.getElementById(map[p]).classList.add('active');
-    renderLeaderboard();
-  }
+  function switchPeriod(){} // removed
 
   // Get current user from localStorage
   try {
@@ -3343,7 +3330,7 @@
       list.innerHTML = top100.map((e, i) => {
         const rank = i + 1;
         const isYou = e.username === _myId;
-        const medal = rank === 1 ? '&#127945;' : rank === 2 ? '&#129352;' : rank === 3 ? '&#129353;' : rank;
+        const medal = rank === 1 ? '&#127942;' : rank === 2 ? '&#129352;' : rank === 3 ? '&#129353;' : rank;
         const val = _tab === 'papers'
           ? '<span>' + (e.count || 0).toLocaleString() + '</span> viewed'
           : '<span>' + fmtTime(e.seconds || 0) + '</span>';
@@ -3360,7 +3347,7 @@
         const me = entries[myIdx];
         if (me) {
           const r2 = myIdx + 1;
-          document.getElementById('youRank').textContent = r2 === 1 ? '🥇' : r2 === 2 ? '🥈' : r2 === 3 ? '🥉' : '#' + r2;
+          document.getElementById('youRank').textContent = r2 === 1 ? '🏆' : r2 === 2 ? '🥈' : r2 === 3 ? '🥉' : '#' + r2;
           document.getElementById('youName').textContent = me.username;
           document.getElementById('youVal').textContent = _tab === 'papers'
             ? (me.count || 0).toLocaleString() + ' papers viewed'
@@ -3384,9 +3371,11 @@
   }
 
   function fmtTime(secs) {
-    if (secs < 60) return secs + 's';
-    if (secs < 3600) return Math.floor(secs/60) + 'm ' + (secs%60) + 's';
-    return Math.floor(secs/3600) + 'h ' + Math.floor((secs%3600)/60) + 'm';
+    // Round all time to nearest minute
+    const totalMins = Math.round(secs / 60);
+    if (totalMins < 1) return '<1m';
+    if (totalMins < 60) return totalMins + 'm';
+    return Math.floor(totalMins/60) + 'h ' + (totalMins%60) + 'm';
   }
 
   function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
