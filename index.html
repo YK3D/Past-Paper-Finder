@@ -4527,9 +4527,8 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     if (!board)   { markFieldError('board');     showError('Missing Exam Board! Please select an exam board.'); return; }
     // Edexcel: skip subject code/year/session validation — handled by buildEdexcelUrl
     const _isEdexcel = board === 'Edexcel';
-    if (!_isEdexcel) {
-    if (!code)    { markFieldError('code');      showError('Missing Subject Code! Please enter a subject code.'); return; }
-    if (!/^\d{4}$/.test(code)) { markFieldError('code'); showError('Invalid Subject Code! Code must be exactly 4 digits.'); return; }
+    if (!_isEdexcel && !code)    { markFieldError('code');      showError('Missing Subject Code! Please enter a subject code.'); return; }
+    if (!_isEdexcel && !/^\d{4}$/.test(code)) { markFieldError('code'); showError('Invalid Subject Code! Code must be exactly 4 digits.'); return; }
     const allCaie = new Set([...caieCodesAll, ...alCodesAll, ...olCodesAll]);
     if ((board==='CAIE' && !allCaie.has(code)) || (board==='AQA' && !aqaCodesAll.has(code))) {
       const s = didYouMean(code, board);
@@ -4562,23 +4561,24 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       }
       return;
     }
-    if (!session) { markFieldError('session');   showError('Missing Session! Please select a session.'); return; }
-    if (!year)    { markFieldError('year');      showError('Missing Year! Please enter the year.'); return; }
+    if (!_isEdexcel && !session) { markFieldError('session');   showError('Missing Session! Please select a session.'); return; }
+    if (!_isEdexcel && !year)    { markFieldError('year');      showError('Missing Year! Please enter the year.'); return; }
     // Accept 2-digit (23) or 4-digit (2023) year
     let yearVal = year;
-    if (/^\d{4}$/.test(year)) {
-      yearVal = year.slice(2);
-    } else if (!/^\d{2}$/.test(year)) {
-      markFieldError('year'); showError('Invalid Year! Enter a 2 or 4-digit year (e.g. 23 or 2023).'); return;
+    if (!_isEdexcel) {
+      if (/^\d{4}$/.test(year)) {
+        yearVal = year.slice(2);
+      } else if (!/^\d{2}$/.test(year)) {
+        markFieldError('year'); showError('Invalid Year! Enter a 2 or 4-digit year (e.g. 23 or 2023).'); return;
+      }
     }
-    if (parseInt(yearVal,10) > CURRENT_YEAR) { markFieldError('year'); showError('Invalid Year! Year cannot be in the future.'); return; }
-    if (!papertype){ markFieldError('papertype'); showError('Missing Paper Type! Please select QP, MS or GT.'); return; }
-    if (papertype !== 'gt') {
+    if (!_isEdexcel && parseInt(yearVal,10) > CURRENT_YEAR) { markFieldError('year'); showError('Invalid Year! Year cannot be in the future.'); return; }
+    if (!_isEdexcel && !papertype){ markFieldError('papertype'); showError('Missing Paper Type! Please select QP, MS or GT.'); return; }
+    if (!_isEdexcel && papertype !== 'gt') {
       const _noVarTypes = new Set(['gt','gb','er','sp','sm','sg']);
       if (!variant && !_noVarTypes.has(papertype)) { markFieldError('variant'); showError('Missing Variant! Please enter a variant.'); return; }
       if (variant && !/^\d{1,2}$/.test(variant)) { markFieldError('variant'); showError('Invalid Variant! Must be a 1–2 digit number.'); return; }
     }
-    } // end !_isEdexcel validation block
 
     // Strip leading zero from variant (e.g. "01" → "1", "11" stays "11")
     // Single digit variants need leading zero in URL: "1" → "01", "11" stays "11"
@@ -5268,38 +5268,50 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
   }
 
   // ── Time on site tracking ──
-  // Tracks active time only (page visible AND user not idle)
+  // Counts active time (page visible AND user not idle for >1 minute)
+  // Visible counter updates every second; data sent to DB every minute
   let _timeStart = Date.now();
-  let _timeAccum = 0;
+  let _timeSession = 0;        // Total active seconds this session (for display)
+  let _timePending = 0;        // Active seconds queued to send to DB
   let _pageVisible = !document.hidden;
   let _lastActivity = Date.now();
-  const IDLE_THRESHOLD_MS = 60000; // 1 minute of no activity = idle
+  const IDLE_THRESHOLD_MS = 60000;
 
-  // Track user activity
   ['mousemove','keydown','touchstart','click','scroll'].forEach(evt => {
     document.addEventListener(evt, () => { _lastActivity = Date.now(); }, { passive: true });
   });
 
-  function flushActiveTime() {
-    if (_pageVisible) {
-      const now = Date.now();
-      const elapsed = now - _timeStart;
-      const sinceActivity = now - _lastActivity;
-      // Only count time if user was active in the last IDLE_THRESHOLD_MS
-      if (sinceActivity < IDLE_THRESHOLD_MS) {
-        _timeAccum += Math.round(elapsed / 1000);
-      } else {
-        // Was idle — count up to last activity only
-        const activeElapsed = Math.max(0, _lastActivity - _timeStart);
-        _timeAccum += Math.round(activeElapsed / 1000);
+  function tickActiveTime() {
+    if (!_pageVisible) return;
+    const now = Date.now();
+    const sinceActivity = now - _lastActivity;
+    if (sinceActivity < IDLE_THRESHOLD_MS) {
+      const elapsed = Math.round((now - _timeStart) / 1000);
+      if (elapsed >= 1) {
+        _timeSession += elapsed;
+        _timePending += elapsed;
+        _timeStart = now;
+        updateTimeDisplay();
       }
+    } else {
+      // Idle — don't accumulate, but advance _timeStart to prevent backlog when active again
       _timeStart = now;
     }
   }
 
+  function updateTimeDisplay() {
+    const el = document.getElementById('timeOnSiteDisplay');
+    if (!el) return;
+    const mins = Math.round(_timeSession / 60);
+    el.textContent = mins < 1 ? 'Just started' : (mins === 1 ? '1 min on site' : mins + ' mins on site');
+  }
+
+  // Tick every second for live visible counter
+  setInterval(tickActiveTime, 1000);
+
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-      flushActiveTime();
+      tickActiveTime();
       _pageVisible = false;
     } else {
       _timeStart = Date.now();
@@ -5319,24 +5331,24 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     } catch {}
   }
 
+  // Flush pending time to DB every 60s
   setInterval(async () => {
     if (!_sessionToken) return;
-    flushActiveTime();
-    const secs = _timeAccum;
-    _timeAccum = 0;
+    tickActiveTime();
+    const secs = _timePending;
+    _timePending = 0;
     if (secs >= 1) await sendTimeToServer(secs);
-  }, 30000); // flush every 30s instead of 60s for better accuracy
+  }, 60000);
 
-  // Flush on page unload using sendBeacon (survives close)
   window.addEventListener('beforeunload', () => {
     if (!_sessionToken) return;
-    flushActiveTime();
-    if (_timeAccum >= 1 && navigator.sendBeacon) {
+    tickActiveTime();
+    if (_timePending >= 1 && navigator.sendBeacon) {
       const blob = new Blob([JSON.stringify({
-        action: 'track_time', token: _sessionToken, seconds: _timeAccum
+        action: 'track_time', token: _sessionToken, seconds: _timePending
       })], { type: 'application/json' });
       navigator.sendBeacon('/api/user-data', blob);
-      _timeAccum = 0;
+      _timePending = 0;
     }
   });
 
