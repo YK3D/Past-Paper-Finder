@@ -4066,6 +4066,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     if (document.getElementById('board').value === 'Edexcel') {
       loadEdexcelYears();
       setEdexcelVariants(document.getElementById('papertype').value);
+      return; // don't run CAIE/AQA logic
     }
     if (_manualMode) { clearFieldErrors(); return; }
     const sess = document.getElementById('session').value;
@@ -4104,6 +4105,10 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
 
   // ── Step 3: year selected → scan for paper types ──
   function onYearSelectChange() {
+    if (document.getElementById('board').value === 'Edexcel') {
+      // Edexcel: papertype, variant already set — don't reset
+      return;
+    }
     if (_manualMode) { clearFieldErrors(); return; }
     clearFieldErrors();
     _currentPapersData = null;
@@ -4553,7 +4558,6 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     }
     if (!session) { markFieldError('session');   showError('Missing Session! Please select a session.'); return; }
     if (!year)    { markFieldError('year');      showError('Missing Year! Please enter the year.'); return; }
-    } // end !_isEdexcel validation block
     // Accept 2-digit (23) or 4-digit (2023) year
     let yearVal = year;
     if (/^\d{4}$/.test(year)) {
@@ -4568,6 +4572,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       if (!variant && !_noVarTypes.has(papertype)) { markFieldError('variant'); showError('Missing Variant! Please enter a variant.'); return; }
       if (variant && !/^\d{1,2}$/.test(variant)) { markFieldError('variant'); showError('Invalid Variant! Must be a 1–2 digit number.'); return; }
     }
+    } // end !_isEdexcel validation block
 
     // Strip leading zero from variant (e.g. "01" → "1", "11" stays "11")
     // Single digit variants need leading zero in URL: "1" → "01", "11" stays "11"
@@ -5541,14 +5546,27 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     'June':     ['2024','2023','2022','2021'],
     'January':  ['2023','2022'],
   };
-  async function loadEdexcelYears() {
+  function loadEdexcelYears() {
     const yrSel = document.getElementById('yearSelect');
-    const sess  = document.getElementById('session').value || 'June';
-    const years = EDEXCEL_YEARS[sess] || EDEXCEL_YEARS['June'];
+    const sess  = document.getElementById('session').value;
     yrSel.innerHTML = '<option value="">— Select year —</option>';
+    if (!sess) {
+      // Show all unique years if no session selected yet
+      const allYears = new Set();
+      Object.values(EDEXCEL_YEARS).forEach(function(arr){ arr.forEach(function(y){ allYears.add(y); }); });
+      Array.from(allYears).sort().reverse().forEach(function(y){
+        const o = document.createElement('option'); o.value = y; o.textContent = y; yrSel.appendChild(o);
+      });
+      return;
+    }
+    const years = EDEXCEL_YEARS[sess] || [];
     years.forEach(function(y){
       const o = document.createElement('option'); o.value = y; o.textContent = y; yrSel.appendChild(o);
     });
+    // Make sure the year select is visible (not in input mode)
+    const yi = document.getElementById('year');
+    if (yi) yi.style.display = 'none';
+    yrSel.style.display = 'block';
   }
   const EDEXCEL_GB = {
     'November2024': 'grade-boundaries-november-2024-int-gcse.pdf',
@@ -5564,18 +5582,15 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
   // Variants available per session (R variants only in Jan/Jun, not Nov/Oct)
   function setEdexcelVariants(ptVal) {
     const vf = document.getElementById('variantField');
-    const vs = document.getElementById('variantSelect');
-    if (!vs) return;
+    if (!vf) return;
     // Variant only for QP and MS, hidden for GT
     if (ptVal === 'gt') {
-      vf.classList.add('variant-hidden'); return;
+      vf.classList.add('variant-hidden');
+      return;
     }
     vf.classList.remove('variant-hidden');
-    // Always show all 4 variants (1H, 2H, 1HR, 2HR)
-    vs.innerHTML = '';
-    ['1H','2H','1HR','2HR'].forEach(function(v){
-      const o = document.createElement('option'); o.value = v; o.textContent = v; vs.appendChild(o);
-    });
+    // Use the standard variant dropdown helper to actually display it
+    setVariantMode('select', ['1H','2H','1HR','2HR']);
   }
   function buildEdexcelUrl() {
     const session  = document.getElementById('session').value;
