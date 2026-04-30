@@ -1,8 +1,25 @@
 {
   "outputDirectory": ".",
   "rewrites": [
-    { "source": "/codes",       "destination": "/codes.html" },
-    { "source": "/leaderboard", "destination": "/leaderboard.html" },
-    { "source": "/viewer",      "destination": "/viewer.html" }
-  ]
+    {
+      "source": "/codes",
+      "destination": "/codes.html"
+    },
+    {
+      "source": "/leaderboard",
+      "destination": "/leaderboard.html"
+    },
+    {
+      "source": "/viewer",
+      "destination": "/viewer.html"
+    }
+  ],
+  "functions": {
+    "api/chat.js": {
+      "maxDuration": 30
+    },
+    "api/parse-qs.js": {
+      "maxDuration": 20
+    }
+  }
 }

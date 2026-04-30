@@ -64,8 +64,10 @@ async function trackDevice(username, deviceId) {
 
 const SWEAR_WORDS = ['fuck','shit','bitch','ass','cunt','dick','cock','pussy','bastard',
   'whore','slut','nigger','faggot','twat','wanker','piss','arse','bollocks','crap',
-  'fag','retard','dipshit','douchebag','asshole','arsehole','jackass','motherfucker',
-  'bellend','tosser','wank','knob','prick'];
+  'fag','retard','dipshit','douchebag','asshole','arsehole','jackass','motherfucker','nigga','ballsack', 'balls',
+  'bellend','tosser','wank','knob','prick',,'gay','queer','dumbass', 'bendover', 'yourmom', 'fucker', 'bullshit', 
+  'cocksucker','dickhead','dick-head','ass-hole','hoe','horseshit','jackass','jack-ass','negro', 'nigra', 'coke',
+  'meth', 'cocaine', 'methamphetamine','penis', 'marjuna'];
 
 function containsSwear(t) {
   const l = (t || '').toLowerCase();

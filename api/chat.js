@@ -1,7 +1,8 @@
 const GROQ_KEYS   = [process.env.GROQ_API_KEY, process.env.GROQ_API_KEY_2, process.env.GROQ_API_KEY_3].filter(Boolean);
-const GEMINI_KEYS = [process.env.GEMINI_API_KEY, process.env.GEMINI_API_KEY_2, process.env.GEMINI_API_KEY_3].filter(Boolean);
+const VISION_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct'; // vision-capable, free on Groq
+const GEMINI_KEYS = [process.env.GEMINI_API_KEY, process.env.GEMINI_API_KEY_2, process.env.GEMINI_API_KEY_3, process.env.GEMINI_API_KEY_4, process.env.GEMINI_API_KEY_5, process.env.GEMINI_API_KEY_6].filter(Boolean);
 
-const RATE_LIMIT_MSG = 'Rate limit reached on all available keys — please switch to a different model using the selector above.';
+const RATE_LIMIT_MSG = 'Gemini free tier quota exhausted for today. Please switch to Llama (Groq) using the model selector above, or try again tomorrow.';
 
 function buildSystemPrompt(context, url) {
   return [
@@ -66,6 +67,36 @@ async function tryGemini(key, geminiModel, systemPrompt, messages) {
   );
 }
 
+async function tryGroqVision(key, systemPrompt, messages, image) {
+  // Groq vision: image-only, no system message, no extra text (causes 400)
+  const content = [
+    {
+      type: 'image_url',
+      image_url: { url: 'data:' + (image.mimeType || 'image/jpeg') + ';base64,' + image.base64 }
+    },
+    { type: "text", text: "You are an expert CAIE exam tutor. Correct the student answer shown in this image. Identify mistakes, explain what is wrong, and provide the correct answer with full working." }
+  ];
+
+  const groqMessages = [{ role: 'user', content: content }];
+
+  const reqBody = {
+    model: VISION_MODEL,
+    messages: groqMessages,
+    max_completion_tokens: 1024,
+    temperature: 0.4,
+    stream: false
+  };
+  console.log('[Vision] request body (truncated):', JSON.stringify(reqBody).substring(0, 500));
+  return fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + key
+    },
+    body: JSON.stringify(reqBody)
+  });
+}
+
 function pipeGroqStream(resp, res) {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -126,7 +157,7 @@ function pipeGeminiStream(resp, res) {
 module.exports.config = {
   api: {
     bodyParser: {
-      sizeLimit: '10mb'
+      sizeLimit: '20mb'
     }
   }
 };
@@ -161,28 +192,60 @@ module.exports = async function handler(req, res) {
   const model    = body.model    || 'groq-llama';
 
   const systemPrompt = buildSystemPrompt(context, url);
-  const isGroq = model.indexOf('groq') === 0;
+  const isGroq   = model.indexOf('groq') === 0;
+  const isVision  = model === 'groq-llama-vision';
+  const image     = body.image || null;
 
   try {
-    if (isGroq) {
+    if (isVision) {
+      if (!GROQ_KEYS.length) return res.status(500).json({ error: 'GROQ_API_KEY not configured.' });
+      if (!image || !image.base64) return res.status(400).json({ error: 'No image provided.' });
+      for (let i = 0; i < GROQ_KEYS.length; i++) {
+        const r = await tryGroqVision(GROQ_KEYS[i], systemPrompt, messages, image);
+        if (r.ok) {
+          // Vision returns non-streaming JSON — convert to SSE format
+          const data = await r.json();
+          const text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || '';
+          res.setHeader('Content-Type', 'text/event-stream');
+          res.setHeader('Cache-Control', 'no-cache');
+          res.write('data: ' + JSON.stringify({ delta: { text } }) + '\n\n');
+          res.write('data: [DONE]\n\n');
+          res.end();
+          return;
+        }
+        const errText = await r.text();
+        console.error('[Vision key ' + (i+1) + '] status=' + r.status + ' body=' + errText.slice(0, 300));
+        if (r.status === 429 || r.status === 503) continue;
+        return res.status(r.status).json({ error: 'Vision error ' + r.status + ': ' + errText.slice(0, 300) });
+      }
+      return res.status(429).json({ error: 'Vision model rate limited. Try again in a moment.' });
+    } else if (isGroq) {
       if (!GROQ_KEYS.length) return res.status(500).json({ error: 'GROQ_API_KEY not configured in Vercel environment variables.' });
       for (let i = 0; i < GROQ_KEYS.length; i++) {
         const r = await tryGroq(GROQ_KEYS[i], systemPrompt, messages);
         if (r.ok) return pipeGroqStream(r, res);
-        if (r.status !== 429 && r.status !== 413) {
-          return res.status(r.status).json({ error: await r.text() });
-        }
+        if (r.status === 429 || r.status === 413 || r.status === 503) continue;
+        return res.status(r.status).json({ error: await r.text() });
       }
     } else {
       if (!GEMINI_KEYS.length) return res.status(500).json({ error: 'GEMINI_API_KEY not configured in Vercel environment variables.' });
       const geminiModel = model === 'gemini-2.0-flash' ? 'gemini-2.0-flash' : 'gemini-2.0-flash-lite';
+      let lastGeminiError = '';
       for (let i = 0; i < GEMINI_KEYS.length; i++) {
         const r = await tryGemini(GEMINI_KEYS[i], geminiModel, systemPrompt, messages);
         if (r.ok) return pipeGeminiStream(r, res);
-        if (r.status !== 429 && r.status !== 413) {
-          return res.status(r.status).json({ error: await r.text() });
+        const errText = await r.text();
+        console.error('[Gemini key ' + (i+1) + '] status=' + r.status + ' body=' + errText.slice(0, 500));
+        // Only retry on rate limit (429) or overloaded (503) — treat other errors as fatal
+        if (r.status === 429 || r.status === 503) {
+          lastGeminiError = 'Key ' + (i+1) + ' rate limited (' + r.status + ')';
+          continue; // try next key
         }
+        // Fatal error — return it directly with the actual error message
+        return res.status(r.status).json({ error: 'Gemini error ' + r.status + ': ' + errText.slice(0, 500) });
       }
+      // All keys rate-limited
+      lastGeminiError = lastGeminiError || 'All Gemini keys exhausted';
     }
     return res.status(429).json({ error: RATE_LIMIT_MSG });
   } catch (e) {

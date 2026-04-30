@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subject Stats — PaperFinder</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0a0f;--surface:#13131a;--border:#2a2a3a;--accent:#3EE4FE;--text:#e8e8f0;--muted:#6b6b85;}
+  body.light{--bg:#f0f2f8;--surface:#fff;--border:#d0d4e8;--accent:#2ab5cc;--text:#1a1a2e;--muted:#6b7280;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;min-height:100vh;padding:2rem 1rem;}
+  .page-header{max-width:700px;margin:0 auto 2rem;display:flex;align-items:center;gap:1rem;}
+  .back-btn{background:none;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:0.4rem 0.9rem;font-family:'Space Mono',monospace;font-size:0.75rem;cursor:pointer;text-decoration:none;display:inline-block;}
+  .back-btn:hover{border-color:var(--accent);}
+  h1{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;}
+  h1 span{color:var(--accent);}
+  .container{max-width:700px;margin:0 auto;}
+  .stats-table{width:100%;border-collapse:collapse;font-size:0.78rem;}
+  .stats-table th{font-family:'Syne',sans-serif;font-weight:700;font-size:0.7rem;text-align:left;padding:0.5rem 0.8rem;border-bottom:1px solid var(--border);color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;}
+  .stats-table td{padding:0.55rem 0.8rem;border-bottom:1px solid rgba(255,255,255,0.04);}
+  .stats-table tr:hover td{background:rgba(62,228,254,0.04);}
+  .rank{color:var(--muted);font-size:0.65rem;width:2rem;}
+  .code{color:var(--accent);font-weight:700;width:4rem;}
+  .subject-name{color:var(--text);}
+  .count-cell{text-align:right;font-weight:700;color:var(--text);width:5rem;}
+  .bar-cell{width:120px;padding-right:1rem;}
+  .bar-bg{background:rgba(62,228,254,0.08);border-radius:4px;height:6px;overflow:hidden;}
+  .bar-fill{background:var(--accent);height:100%;border-radius:4px;transition:width 0.4s ease;}
+  .loading{text-align:center;color:var(--muted);padding:3rem;font-size:0.8rem;}
+  .total-info{font-size:0.7rem;color:var(--muted);margin-bottom:1rem;text-align:right;}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="page-header">
+    <a href="/" class="back-btn">← Back</a>
+    <h1>Subject <span>Stats</span></h1>
+  </div>
+  <p class="total-info" id="totalInfo"></p>
+  <div id="tableContainer"><p class="loading">Loading…</p></div>
+</div>
+<script>
+const subjectNames = {
+  '0260':'Swahili','0400':'Art & Design','0410':'Music','0411':'Drama','0413':'Physical Education',
+  '0416':'History','0417':'ICT','0444':'Mathematics','0445':'Design & Technology','0448':'Pakistan Studies',
+  '0450':'Business Studies','0452':'Accounting','0455':'Economics','0460':'Geography','0470':'History',
+  '0478':'Computer Science','0500':'English','0510':'English','0520':'English Literature',
+  '0544':'Urdu','0546':'Arabic','0547':'Hindi','0580':'Mathematics','0606':'Additional Mathematics',
+  '0610':'Biology','0620':'Chemistry','0625':'Physics','0648':'Music','0653':'History',
+  '0654':'Environmental Management','0680':'Environmental Management','0984':'Computer Science (9-1)',
+  '1123':'English Language','2010':'Literature in English','2035':'Biblical Studies',
+  '2048':'Religious Studies','2055':'Hinduism','2056':'Islamic Religion & Culture',
+  '2058':'Islamiyat','2059':'Pakistan Studies','2068':'Islamic Studies','2069':'Global Perspectives',
+  '2134':'History (Modern World Affairs)','2147':'History','2158':'History World Affairs',
+  '2210':'Computer Science','2217':'Geography','2251':'Sociology','2281':'Economics',
+  '3015':'French','3025':'German','3035':'Spanish','3158':'Setswana','3162':'Swahili',
+  '3180':'Arabic','3195':'Hindi','3202':'Nepali','3204':'Bengali','3205':'Sinhala',
+  '3206':'Tamil','3226':'Tamil','3247':'Urdu','3248':'Urdu',
+  '4024':'Mathematics D','4037':'Additional Mathematics','4040':'Statistics',
+  '5014':'Environmental Management','5038':'Agriculture','5054':'Physics','5070':'Chemistry',
+  '5090':'Biology','5096':'Human & Social Biology','5129':'Science Combined','5180':'Marine Science',
+  '6010':'Art','6043':'Design & Technology','6050':'Fashion & Fabrics','6065':'Food & Nutrition',
+  '6090':'Art & Design','6130':'Fashion & Textiles',
+  '7010':'Computer Studies','7048':'CDT Design & Communication','7094':'Bangladesh Studies',
+  '7096':'Travel & Tourism','7100':'Commerce','7101':'Commercial Studies','7110':'Principles of Accounts',
+  '7115':'Business Studies','7707':'Accounting',
+  '8291':'Environmental Management','8386':'Sport & Physical Education','8679':'Afrikaans',
+  '8680':'Arabic','8687':'Hindi','8688':'Marathi','8689':'Tamil','8690':'Telugu',
+  '9084':'Law','9093':'English','9184':'Biology','9185':'Chemistry','9231':'Mathematics',
+  '9239':'Global Perspectives & Research','9274':'Classical Studies','9278':'Geography',
+  '9279':'History','9281':'French','9282':'Spanish','9396':'Physical Education',
+  '9395':'Travel & Tourism','9481':'Design & Technology','9482':'Drama','9483':'Music',
+  '9484':'Biblical Studies','9487':'Hinduism','9488':'Islamic Studies','9489':'History',
+  '9608':'Computer Science','9609':'Business','9618':'Computer Science','9626':'Information Technology',
+  '9631':'Design & Textiles','9693':'Marine Science','9694':'Thinking Skills','9695':'English Literature',
+  '9696':'Geography','9697':'History','9698':'Psychology','9699':'Sociology','9700':'Biology',
+  '9701':'Chemistry','9702':'Physics','9703':'Music','9704':'Art & Design','9705':'Design & Technology',
+  '9706':'Accounting','9707':'Business Studies','9708':'Economics','9709':'Mathematics',
+  '9990':'Psychology',
+};
+
+async function load() {
+  try {
+    const r = await fetch('/api/user-data', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'subject_counts' })
+    });
+    const data = await r.json();
+    const rows = data.rows || [];
+    if (!rows.length) {
+      document.getElementById('tableContainer').innerHTML = '<p class="loading">No data yet.</p>';
+      return;
+    }
+    const total = rows.reduce(function(s,r){ return s + (r.count||0); }, 0);
+    const maxCount = rows[0].count || 1;
+    document.getElementById('totalInfo').textContent = 'Total papers generated: ' + total.toLocaleString();
+    const html = '<table class="stats-table"><thead><tr>'
+      + '<th class="rank">#</th><th class="code">Code</th><th>Subject</th>'
+      + '<th></th><th class="count-cell">Papers</th>'
+      + '</tr></thead><tbody>'
+      + rows.map(function(row, i) {
+          const name = subjectNames[row.code] || '—';
+          const pct = Math.round((row.count / maxCount) * 100);
+          return '<tr>'
+            + '<td class="rank">' + (i+1) + '</td>'
+            + '<td class="code">' + row.code + '</td>'
+            + '<td class="subject-name">' + name + '</td>'
+            + '<td class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:' + pct + '%"></div></div></td>'
+            + '<td class="count-cell">' + (row.count||0).toLocaleString() + '</td>'
+            + '</tr>';
+        }).join('')
+      + '</tbody></table>';
+    document.getElementById('tableContainer').innerHTML = html;
+  } catch(e) {
+    document.getElementById('tableContainer').innerHTML = '<p class="loading">Error loading data.</p>';
+  }
+}
+load();
+</script>
+</body>
+</html>

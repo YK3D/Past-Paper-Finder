@@ -4525,10 +4525,12 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     const papertype = document.getElementById('papertype').value;
 
     if (!board)   { markFieldError('board');     showError('Missing Exam Board! Please select an exam board.'); return; }
+
     // Edexcel: skip subject code/year/session validation — handled by buildEdexcelUrl
     const _isEdexcel = board === 'Edexcel';
     if (!_isEdexcel && !code)    { markFieldError('code');      showError('Missing Subject Code! Please enter a subject code.'); return; }
     if (!_isEdexcel && !/^\d{4}$/.test(code)) { markFieldError('code'); showError('Invalid Subject Code! Code must be exactly 4 digits.'); return; }
+
     const allCaie = new Set([...caieCodesAll, ...alCodesAll, ...olCodesAll]);
     if ((board==='CAIE' && !allCaie.has(code)) || (board==='AQA' && !aqaCodesAll.has(code))) {
       const s = didYouMean(code, board);
