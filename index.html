@@ -2026,11 +2026,13 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
               <div class="bbn-glow"></div>
               <button type="button" class="board-btn aqa" id="boardBtn-AQA" onclick="selectBoard('AQA')">AQA</button>
             </div>
+          </div>
+          <div class="board-btn-row" style="margin-top:0.6rem">
             <div class="board-btn-wrap" id="boardWrap-Edexcel">
               <div class="bbn-dark"></div>
               <div class="bbn-border"></div>
               <div class="bbn-glow"></div>
-              <button type="button" class="board-btn" id="boardBtn-Edexcel" style="border-color:#4fa8ff;color:#4fa8ff" onclick="selectBoard('Edexcel')">Edexcel</button>
+              <button type="button" class="board-btn" id="boardBtn-Edexcel" onclick="selectBoard('Edexcel')">Edexcel (Math OL)</button>
             </div>
           </div>
           <!-- hidden input keeps the rest of the JS working unchanged -->
@@ -2038,7 +2040,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
         </div>
         <p id="aqaDownNotice" style="display:none;font-family:Space Mono,monospace;font-size:0.65rem;color:#ff9e0b;margin-top:0.4rem;text-align:center">⚠ AQA codes currently down</p>
 
-        <div class="field" style="position:relative">
+        <div class="field" id="codeField" style="position:relative">
           <label>Subject Code</label>
           <div class="fav-wrap">
             <input type="text" id="code" placeholder="Select exam board first" maxlength="4" inputmode="numeric" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="closeResultBox();onCodeInput()" onkeydown="onCodeKeydown(event)" onblur="hideSuggestions(event)" onfocus="openFavDropdown()" disabled style="padding-right:2.2rem" />
@@ -2065,7 +2067,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
         </div>
 
         <div class="row-2">
-          <div class="field">
+          <div class="field" id="papertypeField">
             <label>Paper Type</label>
             <select id="papertype" onchange="closeResultBox();onPapertypeChange()">
               <option value="">— Select —</option>
@@ -4062,6 +4064,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
   // ── Step 2: session selected → populate years ──
   function onSessionChange() {
     if (document.getElementById('board').value === 'Edexcel') {
+      loadEdexcelYears();
       setEdexcelVariants(document.getElementById('papertype').value);
     }
     if (_manualMode) { clearFieldErrors(); return; }
@@ -4293,31 +4296,17 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     if (activeBtn) activeBtn.classList.add('active');
     const activeWrap = document.getElementById('boardWrap-' + val);
     if (activeWrap) activeWrap.classList.add('active');
-    // Handle code field visibility
-    const codeEl = document.getElementById('code');
+    // Show/hide subject code field
+    const codeField = document.getElementById('codeField');
+    const codeEl    = document.getElementById('code');
     if (val === 'Edexcel') {
-      codeEl.style.display = 'none';
-      let edxSel = document.getElementById('edxCodeSel');
-      if (!edxSel) {
-        edxSel = document.createElement('select');
-        edxSel.id = 'edxCodeSel';
-        edxSel.className = codeEl.className;
-        edxSel.title = 'Subject code (fixed for Edexcel Math)';
-        ['4MA1','4WM01'].forEach(function(v){
-          const o = document.createElement('option'); o.value = v; o.textContent = v; edxSel.appendChild(o);
-        });
-        edxSel.onchange = function(){ codeEl.value = this.value; };
-        codeEl.parentNode.insertBefore(edxSel, codeEl);
-      }
-      edxSel.style.display = '';
-      codeEl.value = edxSel.value;
+      if (codeField) codeField.style.display = 'none';
+      codeEl.value = '4MA1'; // fixed internal value for tracking
     } else {
-      codeEl.style.display = '';
-      const edxSel = document.getElementById('edxCodeSel');
-      if (edxSel) edxSel.style.display = 'none';
+      if (codeField) codeField.style.display = '';
       codeEl.disabled = false;
       codeEl.placeholder = 'e.g. 0417';
-      codeEl.focus();
+      if (val) codeEl.focus();
     }
     onBoardChange();
   }
@@ -4348,7 +4337,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       [['QP — Question Paper','qp'],['MS — Mark Scheme','ms'],['GB — Grade Boundaries','gb']].forEach(([label,val]) => {
         const o = document.createElement('option'); o.value = val; o.textContent = label; pt.appendChild(o);
       });
-      populateYearRange(2021);
+      loadEdexcelYears();
       setEdexcelVariants('qp');
       document.getElementById('variantField').classList.remove('variant-hidden');
       return;
@@ -5534,6 +5523,21 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
   // ── Question Search (AI-parsed via Groq) ──
   // ══ Edexcel Math data ══
   const EDEXCEL_BASE = 'https://ig-wizard.vercel.app/past%20papers/mathpastpapers/';
+  // Available years per session — extracted from ig-wizard.vercel.app/mathedexcel.html
+  const EDEXCEL_YEARS = {
+    'November': ['2024','2023','2021'],
+    'June':     ['2024','2023','2022','2021'],
+    'January':  ['2023','2022'],
+  };
+  async function loadEdexcelYears() {
+    const yrSel = document.getElementById('yearSelect');
+    const sess  = document.getElementById('session').value || 'June';
+    const years = EDEXCEL_YEARS[sess] || EDEXCEL_YEARS['June'];
+    yrSel.innerHTML = '<option value="">— Select year —</option>';
+    years.forEach(function(y){
+      const o = document.createElement('option'); o.value = y; o.textContent = y; yrSel.appendChild(o);
+    });
+  }
   const EDEXCEL_GB = {
     'November2024': 'grade-boundaries-november-2024-int-gcse.pdf',
     'June2024':     'grade-boundaries-june-2024-int-gcse.pdf',
