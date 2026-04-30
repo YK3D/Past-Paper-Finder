@@ -4066,6 +4066,18 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     const base = m[1];
     const p = base.match(/^(\d{4}_[smw]\d{2})_([a-z]+)(?:_(\d{1,2}))?$/i);
     if (!p) return;
+    // Cache trick: if loading a no-variant type (GT/GB/ER/SP/SM/SG) and we already have chips
+    // from a variant-based file, keep the existing chips rather than rebuilding from scratch
+    const _typeNow = p[2] && p[2].toLowerCase();
+    const _noVarTypes = new Set(['gt','gb','er','sp','sm','sg']);
+    if (_noVarTypes.has(_typeNow) && _files.length > 0) {
+      // Make sure this URL is in _files; add it if not
+      if (!_files.find(f => f.url === url)) {
+        _files.unshift({ label: examTitle(url), url, audio: isAudio(url) });
+      }
+      renderFileChips(_files, url);
+      return;
+    }
     const [, prefix, , variant] = p;
     const baseUrl = url.substring(0, url.lastIndexOf('/') + 1);
     const noVariant = new Set(['gt','gb','er','sp','sm','sg']);
