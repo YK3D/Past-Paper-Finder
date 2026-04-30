@@ -36,7 +36,7 @@
     --bg: #0a0a0f;
     --surface: #13131a;
     --border: #2a2a3a;
-    --accent: #00e5ff;
+    --accent: #3EE4FE;
     --accent2: #ff4d6d;
     --text: #e8e8f0;
     --muted: #6b6b85;
@@ -46,7 +46,7 @@
     --bg: #f0f2f8;
     --surface: #ffffff;
     --border: #d0d4e8;
-    --accent: #0099bb;
+    --accent: #2ab5cc;
     --accent2: #e03050;
     --text: #1a1a2e;
     --muted: #7070a0;
@@ -1622,7 +1622,7 @@
     --bg: #0a0a0f;
     --surface: #13131a;
     --border: #2a2a3a;
-    --accent: #00e5ff;
+    --accent: #3EE4FE;
     --accent2: #ff4d6d;
     --text: #e8e8f0;
     --muted: #6b6b85;
@@ -1632,7 +1632,7 @@
     --bg: #f0f2f8;
     --surface: #ffffff;
     --border: #d0d4e8;
-    --accent: #0099bb;
+    --accent: #2ab5cc;
     --accent2: #e03050;
     --text: #1a1a2e;
     --muted: #7070a0;
@@ -3325,12 +3325,79 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   .topbar-dl-mobile:hover { background: #22c55e !important; color: #000 !important; }
 }
 .topbar-action {
-  background: #1e1e1e; border: 1px solid #555; border-radius: 6px;
-  color: #ccc; font-size: 0.68rem; padding: 0.3rem 0.65rem;
+  background: transparent; border: 1px solid #444; border-radius: 6px;
+  color: #aaa; font-size: 0.65rem; padding: 0.25rem 0.5rem;
   cursor: pointer; white-space: nowrap; font-family: 'Space Mono', monospace;
-  transition: all 0.2s; font-weight: 600;
+  transition: border-color 0.15s, color 0.15s;
 }
-.topbar-action:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.06); }
+.topbar-action:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Timer & Clock ── */
+.timer-clock-bar {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.25rem 0.8rem; background: #1a1a1a;
+  border-bottom: 1px solid #2a2a2a; flex-shrink: 0;
+  font-family: 'Space Mono', monospace; font-size: 0.65rem;
+  flex-wrap: nowrap; overflow: hidden; white-space: nowrap;
+  transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
+  max-height: 60px; min-height: 30px;
+}
+#timerBarContent {
+  display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;
+  transition: opacity 0.2s, transform 0.25s;
+  overflow: hidden;
+}
+.timer-clock-bar.collapsed #timerBarContent,
+.timer-clock-bar.collapsed .clock-display {
+  opacity: 0; pointer-events: none; max-height: 0; overflow: hidden; padding: 0; margin: 0;
+}
+.timer-clock-bar.collapsed { padding: 0.15rem 0.5rem; min-height: 0; }
+.timer-collapse-btn {
+  background: transparent; border: 1px solid #555; border-radius: 5px;
+  color: #888; font-size: 0.6rem; padding: 0.1rem 0.35rem;
+  cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+}
+.timer-collapse-btn:hover { border-color: var(--accent); color: var(--accent); }
+.clock-display {
+  color: #ccc; letter-spacing: 0.05em; white-space: nowrap; flex-shrink: 0;
+  font-family: 'Space Mono', monospace;
+}
+.timer-display {
+  color: var(--accent); font-weight: 700; letter-spacing: 0.08em;
+  min-width: 4rem; transition: color 0.3s; font-family: 'Space Mono', monospace;
+}
+.timer-display.warning { color: #f59e0b; }
+.timer-display.danger  { color: #ef4444; animation: timerPulse 1s ease-in-out infinite; }
+@keyframes timerPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.timer-btn {
+  background: transparent; border: 1px solid #444; border-radius: 5px;
+  color: #888; font-size: 0.6rem; padding: 0.15rem 0.45rem;
+  cursor: pointer; font-family: 'Space Mono', monospace;
+  transition: all 0.15s; white-space: nowrap;
+}
+.timer-btn:hover { border-color: var(--accent); color: var(--accent); }
+.timer-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(62,228,254,0.08); }
+.timer-sep { color: #444; user-select: none; flex-shrink: 0; }
+.timer-preset-wrap { display: flex; gap: 0.3rem; align-items: center; }
+.timer-custom-input {
+  background: #111; border: 1px solid #333; border-radius: 5px;
+  color: #ccc; font-family: 'Space Mono', monospace; font-size: 0.6rem;
+  width: 3rem; padding: 0.12rem 0.3rem; outline: none; text-align: center;
+}
+.timer-custom-input:focus { border-color: var(--accent); }
+/* Split mode toggle button */
+.timer-mode-toggle {
+  display: flex; border: 1px solid #444; border-radius: 5px; overflow: hidden; flex-shrink: 0;
+}
+.timer-mode-toggle button {
+  background: transparent; border: none; border-radius: 0;
+  color: #666; font-size: 0.6rem; padding: 0.12rem 0.45rem;
+  cursor: pointer; font-family: 'Space Mono', monospace;
+  transition: all 0.15s; white-space: nowrap;
+}
+.timer-mode-toggle button:first-child { border-right: 1px solid #444; }
+.timer-mode-toggle button:hover { color: var(--accent); background: rgba(62,228,254,0.06); }
+.timer-mode-toggle button.active { background: var(--accent); color: #000; font-weight: 700; }
 
 /* ── File chip bar (inline in topbar) ── */
 .file-chip-bar-inline {
@@ -3338,13 +3405,13 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   align-items: center; flex-shrink: 0;
 }
 .file-chip {
-  padding: 0.3rem 0.75rem; border-radius: 20px; border: 1px solid #555;
-  font-family: 'Space Mono', monospace; font-size: 0.68rem;
-  cursor: pointer; background: #1e1e1e; color: #aaa;
-  transition: all 0.2s; white-space: nowrap; font-weight: 600;
+  padding: 0.2rem 0.6rem; border-radius: 20px; border: 1px solid var(--accent);
+  font-family: 'Space Mono', monospace; font-size: 0.68rem; font-weight: 600;
+  cursor: pointer; background: transparent; color: var(--accent);
+  transition: all 0.15s; white-space: nowrap;
 }
-.file-chip:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.06); transform: translateY(-1px); }
-.file-chip.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; box-shadow: 0 2px 10px rgba(0,229,255,0.35); }
+.file-chip:hover { background: rgba(0,229,255,0.12); }
+.file-chip.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
 .file-chip.audio { border-color: var(--accent2); color: var(--accent2); }
 .file-chip.audio.active { background: var(--accent); color: #000; border-color: var(--accent); }
 
@@ -3427,22 +3494,23 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .ai-panel {
   width: 360px; flex-shrink: 0; display: flex; flex-direction: column;
   background: #1c1c1c; border-left: 1px solid #333;
-  transition: width 0.25s ease; overflow: hidden;
+  transition: width 0.25s ease; overflow: hidden; min-height: 0;
 }
 .ai-panel.collapsed { width: 44px; min-width: 44px; }
 .ai-panel.collapsed .ai-messages,
 .ai-panel.collapsed .ai-hint,
 .ai-panel.collapsed .ai-input-row,
 .ai-panel.collapsed .ai-title-text,
-.ai-panel.collapsed .ai-clear-btn { display: none !important; }
+.ai-panel.collapsed .ai-clear-btn,
+.ai-panel.collapsed .ai-model-select { display: none !important; }
+.ai-panel.collapsed .ai-topbar { justify-content: center; padding: 0; }
+.ai-panel.collapsed .ai-toggle-btn { margin: auto; }
 .ai-model-select {
-  background: #1e1e1e; border: 1px solid #555; border-radius: 6px;
-  color: #ccc; font-family: 'Space Mono', monospace; font-size: 0.65rem;
-  padding: 0.25rem 0.5rem; cursor: pointer; outline: none; flex-shrink: 0;
-  max-width: 130px; font-weight: 600;
-  transition: border-color 0.2s, color 0.2s;
+  background: #1a1a1a; border: 1px solid #333; border-radius: 6px;
+  color: #fff; font-family: 'Space Mono', monospace; font-size: 0.58rem;
+  padding: 0.2rem 0.4rem; cursor: pointer; outline: none; flex-shrink: 0;
+  max-width: 120px;
 }
-.ai-model-select:hover { border-color: var(--accent); color: var(--accent); }
 .ai-model-select:focus { border-color: var(--accent); }
 .ai-model-select option { background: #1a1a1a; }
 .ai-topbar {
@@ -3459,11 +3527,11 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .ai-clear-btn:hover { border-color: var(--accent); color: var(--accent); }
 .ai-toggle-btn {
   background: rgba(0,229,255,0.1); border: 1px solid var(--accent); border-radius: 8px;
-  color: var(--accent); font-size: 1rem; width: 32px; height: 32px;
+  color: var(--accent); font-size: 1.1rem; width: 32px; height: 32px;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; flex-shrink: 0; transition: all 0.2s; font-weight: 700;
 }
-.ai-toggle-btn:hover { background: var(--accent); color: #000; box-shadow: 0 2px 10px rgba(0,229,255,0.3); }
+.ai-toggle-btn:hover { background: var(--accent); color: #000; }
 .ai-messages { flex: 1; overflow-y: auto; padding: 0.8rem; display: flex; flex-direction: column; gap: 0.7rem; }
 .ai-messages::-webkit-scrollbar { width: 4px; }
 .ai-messages::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
@@ -3503,9 +3571,17 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 @keyframes cgs { 100% { transform: translate(-50%,-50%) rotate(360deg); } }
 .ai-textarea {
   position: relative; z-index: 2; width: 100%; background: transparent; border: none;
-  border-radius: 8px; color: var(--text); font-family: 'Anthropic Sans','Helvetica Neue',Arial,sans-serif;
+  border-radius: 8px; color: #fff; font-family: 'Anthropic Sans','Helvetica Neue',Arial,sans-serif;
   font-size: 0.7rem; padding: 0.5rem 0.65rem; outline: none; resize: none; height: 56px; display: block;
 }
+.ai-upload-btn {
+  background: transparent; border: 1px solid rgba(62,228,254,0.3); border-radius: 8px;
+  color: var(--accent); cursor: pointer; font-size: 1rem; padding: 0.35rem 0.5rem;
+  transition: all 0.15s; flex-shrink: 0; line-height: 1;
+}
+.ai-upload-btn:hover { background: rgba(62,228,254,0.1); border-color: var(--accent); }
+.ai-img-preview { max-width: 180px; max-height: 120px; border-radius: 8px; margin: 0.4rem 0; border: 1px solid rgba(62,228,254,0.3); display: block; }
+.ai-img-bubble { background: rgba(62,228,254,0.06); border-radius: 10px; padding: 0.5rem; }
 .ai-send-btn {
   background: var(--accent); border: none; border-radius: 8px; color: #000;
   font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.75rem;
@@ -3523,6 +3599,21 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   .android .pdf-canvas-area { overflow-y: auto !important; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
   .android .pdf-canvas-area::-webkit-scrollbar { width: 4px; }
   .android .pdf-canvas-area::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
+  .ai-panel {
+    position: fixed !important;
+    bottom: 0; left: 0; right: 0;
+    width: 100% !important;
+    height: 52px;
+    border-left: none;
+    border-top: 2px solid var(--accent);
+    border-radius: 14px 14px 0 0;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.4);
+    transition: height 0.3s cubic-bezier(0.4,0,0.2,1);
+    z-index: 200;
+    overflow: hidden;
+  }
+  .ai-panel.mobile-open { height: 60vh; }
+  .ai-panel.collapsed { height: 52px !important; width: 100% !important; }
   .ai-panel {
     position: fixed !important;
     bottom: 0; left: 0; right: 0;
@@ -3555,6 +3646,31 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         <button class="topbar-action topbar-dl-mobile" onclick="downloadPaper()">&#8659; Download</button>
       </div>
     </div>
+    <!-- Timer & Clock Bar -->
+    <div class="timer-clock-bar" id="timerClockBar">
+      <button class="timer-collapse-btn" id="timerCollapseBtn" onclick="timerBarToggle()" title="Hide/show timer">&#9650;</button>
+      <span id="clockDisplay" class="clock-display">12:00:00 AM</span>
+      <div id="timerBarContent">
+        <span class="timer-sep">|</span>
+        <span id="timerDisplay" class="timer-display">00:00</span>
+        <button class="timer-btn active" id="timerStartBtn" onclick="timerToggle()">&#9654; Start</button>
+        <button class="timer-btn" onclick="timerReset()">&#8635; Reset</button>
+        <span class="timer-sep">|</span>
+        <div class="timer-mode-toggle">
+          <button id="swBtn" onclick="timerModeSwitch('stopwatch')" class="active">Stopwatch</button>
+          <button id="cdBtn" onclick="timerModeSwitch('countdown')">Timer</button>
+        </div>
+        <div id="countdownPresets" style="display:none;align-items:center;gap:0.3rem;flex-wrap:wrap" class="timer-preset-wrap">
+          <button class="timer-btn" onclick="timerSetPreset(30)">30m</button>
+          <button class="timer-btn" onclick="timerSetPreset(45)">45m</button>
+          <button class="timer-btn" onclick="timerSetPreset(60)">1h</button>
+          <button class="timer-btn" onclick="timerSetPreset(90)">1.5h</button>
+          <button class="timer-btn" onclick="timerSetPreset(120)">2h</button>
+          <input class="timer-custom-input" id="timerCustomInput" type="text" placeholder="min" title="Custom minutes" onkeydown="if(event.key==='Enter')timerSetCustom()">
+        </div>
+      </div>
+    </div>
+
     <div id="landscapeHint" style="display:none;font-family:Space Mono,monospace;font-size:0.6rem;color:#666;padding:0.3rem 0.8rem;flex-shrink:0">
       &#128261; Switch to landscape for best view
     </div>
@@ -3576,12 +3692,13 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         <option value="gemini-2.0-flash-lite">Flash Lite</option>
         <option value="gemini-2.0-flash">Flash 2.0</option>
         <option value="groq-llama" selected>Llama (Groq)</option>
+        <option value="groq-llama-vision">Llama Vision &#128247;</option>
       </select>
       <button class="ai-clear-btn" onclick="clearAiChat()">Clear</button>
       <button class="ai-toggle-btn" id="aiToggleBtn" onclick="toggleAiPanel()">&#8250;</button>
     </div>
     <div class="ai-messages" id="aiMessages">
-      <div class="ai-msg ai">Hi! I&rsquo;m PastPaperAI &#127891;<br><br>Ask me anything about this exam &mdash; I can explain questions, summarise topics &amp; answer questions.<br><br><span style="font-size:0.62rem;color:#666">PastPaperAI may make mistakes. For reference only.</span></div>
+      <div class="ai-msg ai">Hi! I'm PastPaperAI &#127891;<br><br>Ask me anything about this exam &mdash; I can explain questions, summarise topics &amp; answer questions.<br><br><span style="font-size:0.62rem;color:#666">PastPaperAI may make mistakes. For reference only.</span></div>
     </div>
     <div class="ai-hint" id="aiHint"></div>
     <div class="ai-input-row">
@@ -3591,6 +3708,8 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         <div class="cin-glow"></div>
         <textarea class="ai-textarea" id="aiInput" placeholder="Ask about this paper&hellip;" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiMsg()}"></textarea>
       </div>
+      <input type="file" id="aiImageInput" accept="image/*" style="display:none" onchange="onAiImageSelected(this)">
+      <button class="ai-upload-btn" title="Upload exam photo" onclick="document.getElementById('aiImageInput').click()">&#128247;</button>
       <button class="ai-send-btn" id="aiSendBtn" onclick="sendAiMsg()">Send</button>
     </div>
   </div>
@@ -3852,6 +3971,31 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   }
 
   function examTitle(url, typeLabel) {
+    // Edexcel pattern: .../mathpastpapers/Paper%201/June%202024%201H.pdf
+    // or  .../Paper%201%20MS/June%202024%201H%20MS.pdf
+    // or  .../GB/grade-boundaries-june-2024-int-gcse.pdf
+    if (url.indexOf('ig-wizard.vercel.app') !== -1 || url.indexOf('mathpastpapers') !== -1) {
+      const decoded = decodeURIComponent(url);
+      // Try to match: <Session> <Year> <Variant>[ MS]
+      const m1 = decoded.match(/(January|June|November)\s+(\d{4})\s+(\dHR?|\dHR?)/);
+      if (m1) {
+        const [, sess, year, variant] = m1;
+        const sessShort = sess === 'June' ? 'm/j' : sess === 'November' ? 'o/n' : 'jan';
+        const yr2 = year.slice(2);
+        const isMs = /\bMS\b/i.test(decoded);
+        return sessShort + '/' + yr2 + ' ' + variant + (isMs ? ' MS' : ' QP');
+      }
+      // Grade boundaries
+      const gbM = decoded.match(/(january|june|november)[-_]?(\d{2,4})/i);
+      if (gbM) {
+        const sess = gbM[1].toLowerCase();
+        let yr2 = gbM[2];
+        if (yr2.length === 4) yr2 = yr2.slice(2);
+        const sessShort = sess === 'june' ? 'm/j' : sess === 'november' ? 'o/n' : 'jan';
+        return sessShort + '/' + yr2 + ' GT';
+      }
+      return 'Edexcel Math';
+    }
     const f = url.split('/').pop().replace(/\.(pdf|mp3)$/i, '');
     // Pattern: XXXX_s25_qp_11  or  XXXX_s25_gt  etc.
     const m = f.match(/^(\d{4})_([smw])(\d{2})_([a-z]+)(?:_(\d{1,2}))?$/i);
@@ -3873,7 +4017,50 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     }).join('');
   }
 
+  function buildEdexcelFileChips(url) {
+    const decoded = decodeURIComponent(url);
+    // Try to match: <Session> <Year> <Variant>
+    const m = decoded.match(/(January|June|November)\s+(\d{4})\s+(\dHR?)/);
+    if (!m) return;
+    const [, session, year, variant] = m;
+    const paperNum = variant.startsWith('2') ? '2' : '1';
+    const enc = encodeURIComponent;
+    const base = 'https://ig-wizard.vercel.app/past%20papers/mathpastpapers/';
+    const qpUrl = base + enc('Paper ' + paperNum) + '/' + enc(session + ' ' + year + ' ' + variant + '.pdf');
+    const msUrl = base + enc('Paper ' + paperNum) + '/' + enc('Paper ' + paperNum + ' MS') + '/' + enc(session + ' ' + year + ' ' + variant + ' MS.pdf');
+    // GB filename per session+year
+    const EDEXCEL_GB = {
+      'November2024':'grade-boundaries-november-2024-int-gcse.pdf',
+      'June2024':'grade-boundaries-june-2024-int-gcse.pdf',
+      'November2023':'2311-intgcse-9-1-subject-grade-boundaries.pdf',
+      'June2023':'2306-intgcse-9-1-subject-grade-boundaries.pdf',
+      'January2023':'2301-intgcse-9-1-subject-grade-boundaries-v1.pdf',
+      'June2022':'2206-intgcse-9-1-subject-grade-boundaries.pdf',
+      'January2022':'2201_intGCSE_(9-1)_Subject_Grade_Boundaries_V1.pdf',
+      'November2021':'2111_intGCSE_(9-1)_Subject_Grade_Boundaries_V2.pdf',
+      'June2021':'2111_intGCSE_(9-1)_Subject_Grade_Boundaries_V2.pdf'
+    };
+    const gbFile = EDEXCEL_GB[session + year];
+    const gtUrl = gbFile ? base + 'GB/' + enc(gbFile) : null;
+    _files = [
+      { label: 'QP', url: qpUrl, audio: false },
+      { label: 'MS', url: msUrl, audio: false }
+    ];
+    if (gtUrl) _files.push({ label: 'GT', url: gtUrl, audio: false });
+    renderFileChips(_files, url);
+  }
+
   async function loadRelatedFiles(url) {
+    // Edexcel: build QP/MS/GT chips from ig-wizard URL pattern
+    if (url.indexOf('mathpastpapers') !== -1) {
+      // If URL is a GT/grade-boundary file (no variant info), keep existing chips
+      if (/grade.boundaries|GB\//i.test(url) && _files.length > 0) {
+        renderFileChips(_files, url);
+        return;
+      }
+      buildEdexcelFileChips(url);
+      return;
+    }
     const m = url.match(/upload\/([^/]+)\.(pdf|mp3)$/i);
     if (!m) return;
     const base = m[1];
@@ -3935,8 +4122,9 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 
   // Clean extracted page text — strip boilerplate, barcodes, legal text
   function cleanPageText(raw) {
-    // Skip pages containing BLANK PAGE
+    // Skip pages containing BLANK PAGE or Generic Marking
     if (/BLANK\s*PAGE/i.test(raw)) return null;
+    if (/Generic\s*Marking/i.test(raw)) return null;
 
     // Strip known boilerplate strings
     const boilerplate = [
@@ -3985,7 +4173,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   async function extractText() {
     if (!pdfDoc) return;
     _pdfText = [];
-    for (let i = 2; i <= pdfDoc.numPages; i++) {  // skip page 1
+    for (let i = 1; i <= pdfDoc.numPages; i++) {
       const pg = await pdfDoc.getPage(i);
       const tc = await pg.getTextContent();
       const rawQp = tc.items.map(s => s.str).join(' ');
@@ -4005,6 +4193,45 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 
 
   // ── AI panel toggle ──
+  function onAiImageSelected(input) {
+    var file = input.files && input.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var originalDataUrl = e.target.result;
+      // Compress via canvas to max 800px wide, JPEG quality 0.7 (~100-300KB)
+      var img = new Image();
+      img.onload = function() {
+        var maxW = 1024, maxH = 1024;
+        var w = img.width, h = img.height;
+        if (w > maxW || h > maxH) {
+          var scale = Math.min(maxW / w, maxH / h);
+          w = Math.round(w * scale);
+          h = Math.round(h * scale);
+        }
+        var canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+        var sizeKB = Math.round(dataUrl.length * 0.75 / 1024);
+        _pendingImage = { base64: dataUrl.split(',')[1], mimeType: 'image/jpeg', name: file.name };
+        var msgs = document.getElementById('aiMessages');
+        var prev = document.createElement('div');
+        prev.className = 'ai-msg user ai-img-bubble';
+        prev.innerHTML = '<img class="ai-img-preview" src="' + dataUrl + '" alt="Exam photo"><br><span style="font-size:0.7rem;opacity:0.7">&#128247; ' + file.name + ' (' + sizeKB + 'KB) — ready to send</span>';
+        msgs.appendChild(prev);
+        msgs.scrollTop = msgs.scrollHeight;
+        var sel = document.getElementById('aiModelSelect');
+        if (sel) sel.value = 'groq-llama-vision';
+        var inp = document.getElementById('aiInput');
+        if (inp) { inp.value = ''; inp.disabled = true; inp.placeholder = 'Image ready — click Send'; }
+      };
+      img.src = originalDataUrl;
+    };
+    reader.readAsDataURL(file);
+    input.value = '';
+  }
+
   function toggleAiPanel() {
     const panel = document.getElementById('aiPanel');
     const btn   = document.getElementById('aiToggleBtn');
@@ -4045,15 +4272,149 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     return div;
   }
 
-  function aiAsk(q) { document.getElementById('aiInput').value = q; sendAiMsg(); }
+  // ── Clock & Timer System ──
+  let _clockInterval = null;
+  let _timerInterval = null;
+  let _timerRunning  = false;
+  let _timerSeconds  = 0;
+  let _timerTarget   = 0;
+  let _timerMode     = 'stopwatch';
+  let _timerBarOpen  = true;
+
+  function pad2(n) { return String(Math.floor(n)).padStart(2, '0'); }
+
+  function formatTimer(s) {
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    return h > 0 ? pad2(h) + ':' + pad2(m) + ':' + pad2(sec) : pad2(m) + ':' + pad2(sec);
+  }
+
+  function clockTick() {
+    const now = new Date();
+    const el = document.getElementById('clockDisplay');
+    if (!el) return;
+    let h = now.getHours();
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    el.textContent = pad2(h) + ':' + pad2(now.getMinutes()) + ':' + pad2(now.getSeconds()) + ' ' + ampm;
+  }
+
+  function timerTick() {
+    const disp = document.getElementById('timerDisplay');
+    if (!disp) return;
+    if (_timerMode === 'countdown') {
+      _timerSeconds = Math.max(0, _timerSeconds - 1);
+      disp.textContent = formatTimer(_timerSeconds);
+      const pct = _timerTarget > 0 ? _timerSeconds / _timerTarget : 1;
+      disp.className = 'timer-display' + (_timerSeconds === 0 ? ' danger' : pct <= 0.1 ? ' danger' : pct <= 0.25 ? ' warning' : '');
+      if (_timerSeconds === 0) {
+        timerStop();
+        disp.textContent = "TIME'S UP";
+        disp.className = 'timer-display danger';
+        let f = 0; const orig = document.title;
+        const fl = setInterval(function() {
+          document.title = f++ % 2 === 0 ? "TIME'S UP — " + orig : orig;
+          if (f > 10) { clearInterval(fl); document.title = orig; }
+        }, 600);
+      }
+    } else {
+      _timerSeconds++;
+      disp.textContent = formatTimer(_timerSeconds);
+      disp.className = 'timer-display';
+    }
+  }
+
+  function timerToggle() {
+    const btn = document.getElementById('timerStartBtn');
+    if (_timerRunning) {
+      timerStop();
+    } else {
+      _timerRunning = true;
+      _timerInterval = setInterval(timerTick, 1000);
+      if (btn) { btn.innerHTML = '&#9646;&#9646; Pause'; btn.classList.add('active'); }
+    }
+  }
+
+  function timerStop() {
+    _timerRunning = false;
+    clearInterval(_timerInterval); _timerInterval = null;
+    const btn = document.getElementById('timerStartBtn');
+    if (btn) { btn.innerHTML = '&#9654; Start'; btn.classList.remove('active'); }
+  }
+
+  function timerReset() {
+    timerStop();
+    _timerSeconds = _timerMode === 'countdown' && _timerTarget > 0 ? _timerTarget : 0;
+    const disp = document.getElementById('timerDisplay');
+    if (disp) { disp.textContent = formatTimer(_timerSeconds); disp.className = 'timer-display'; }
+  }
+
+  function timerModeSwitch(mode) {
+    timerStop();
+    _timerMode = mode;
+    _timerSeconds = 0;
+    _timerTarget  = 0;
+    const disp = document.getElementById('timerDisplay');
+    if (disp) { disp.textContent = '00:00'; disp.className = 'timer-display'; }
+    const presets = document.getElementById('countdownPresets');
+    if (presets) presets.style.display = mode === 'countdown' ? 'flex' : 'none';
+    const swBtn = document.getElementById('swBtn');
+    const cdBtn = document.getElementById('cdBtn');
+    if (swBtn) swBtn.classList.toggle('active', mode === 'stopwatch');
+    if (cdBtn) cdBtn.classList.toggle('active', mode === 'countdown');
+  }
+
+  function timerSetPreset(minutes) {
+    timerStop();
+    _timerTarget  = minutes * 60;
+    _timerSeconds = _timerTarget;
+    const disp = document.getElementById('timerDisplay');
+    if (disp) { disp.textContent = formatTimer(_timerSeconds); disp.className = 'timer-display'; }
+    document.querySelectorAll('#countdownPresets .timer-btn').forEach(function(b) {
+      const label = minutes >= 60 ? (minutes/60) + 'h' : minutes + 'm';
+      b.classList.toggle('active', b.textContent.trim() === label);
+    });
+  }
+
+  function timerSetCustom() {
+    const inp = document.getElementById('timerCustomInput');
+    if (!inp) return;
+    const mins = parseFloat(inp.value);
+    if (!mins || mins <= 0) return;
+    inp.value = '';
+    timerSetPreset(mins);
+  }
+
+  function timerBarToggle() {
+    _timerBarOpen = !_timerBarOpen;
+    const bar = document.getElementById('timerClockBar');
+    const btn = document.getElementById('timerCollapseBtn');
+    if (bar) bar.classList.toggle('collapsed', !_timerBarOpen);
+    if (btn) btn.innerHTML = _timerBarOpen ? '&#9650;' : '&#9660;';
+  }
+
+  clockTick();
+  _clockInterval = setInterval(clockTick, 1000);
+  (function() {
+    const disp = document.getElementById('timerDisplay');
+    if (disp) disp.textContent = '00:00';
+  })();
+
+    function aiAsk(q) { document.getElementById('aiInput').value = q; sendAiMsg(); }
 
   async function sendAiMsg() {
     const input = document.getElementById('aiInput');
     const msg = input.value.trim();
-    if (!msg) return;
+    if (!msg && !_pendingImage) return;
     input.value = '';
-    addAiMsg('user', msg);
-    _aiHistory.push({ role: 'user', content: msg });
+    if (msg) {
+      addAiMsg('user', msg);
+      _aiHistory.push({ role: 'user', content: msg });
+    }
+    _pendingImage = null;
+    var inp2 = document.getElementById('aiInput');
+    if (inp2) { inp2.disabled = false; inp2.placeholder = 'Ask about this paper…'; }
     const btn = document.getElementById('aiSendBtn');
     btn.disabled = true;
     const aiDiv = addAiMsg('ai', '');
@@ -4061,26 +4422,56 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 
     try {
       // Build context — cap at 30,000 chars total to avoid 413 errors
-      const MAX_CTX = 80000;
       const fileCtx = _aiFileList ? 'Available files for this paper: ' + _aiFileList + '\n\n' : '';
       const qpRaw   = _pdfText.length ? _pdfText.join('\n\n---\n\n') : '';
       const msRaw   = _msText || '';
 
-      // Split budget: 55% QP, 45% MS (MS is more useful for marking)
-      const qpBudget = Math.floor(MAX_CTX * 0.55);
-      const msBudget = MAX_CTX - qpBudget;
-
       const qpCtx = qpRaw.length
-        ? 'QUESTION PAPER TEXT:\n\n' + qpRaw.slice(0, qpBudget)
+        ? 'QUESTION PAPER TEXT:\n\n' + qpRaw
         : 'No question paper text could be extracted.';
       const msCtx = msRaw.length
-        ? '\n\n--- MARK SCHEME ---\n(Only state marks that appear here.)\n\n' + msRaw.slice(0, msBudget)
+        ? '\n\n--- MARK SCHEME ---\n(Only state marks that appear here.)\n\n' + msRaw
         : '\n\n--- MARK SCHEME ---\nNot available for this paper.';
 
       const context = fileCtx + qpCtx + msCtx;
       console.log('[AI] context chars:', context.length);
 
       const selectedModel = (document.getElementById('aiModelSelect') || {}).value || 'groq-llama';
+
+      // Vision: call Groq directly from browser (bypasses Vercel body size limit)
+      if (selectedModel === 'groq-llama-vision' && _pendingImage) {
+        const vkMeta = document.querySelector('meta[name="gvk"]');
+        const visionKey = vkMeta ? vkMeta.content : '';
+        if (!visionKey) throw new Error('Vision key not set. Add <meta name="gvk" content="YOUR_GROQ_KEY"> to viewer.html');
+        const visionResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + visionKey },
+          body: JSON.stringify({
+            model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+            messages: [{
+              role: 'user',
+              content: [
+                { type: 'image_url', image_url: { url: 'data:' + _pendingImage.mimeType + ';base64,' + _pendingImage.base64 } },
+                { type: 'text', text: 'You are an expert CAIE exam tutor. Correct the student answer shown in this image. Identify mistakes, explain what is wrong, and provide the correct answer with full working.' }
+              ]
+            }],
+            max_completion_tokens: 1024,
+            temperature: 0.4
+          })
+        });
+        if (!visionResp.ok) {
+          const errText = await visionResp.text();
+          throw new Error('Vision error ' + visionResp.status + ': ' + errText.slice(0, 200));
+        }
+        const vd = await visionResp.json();
+        const vText = vd.choices && vd.choices[0] && vd.choices[0].message && vd.choices[0].message.content || 'No response.';
+        aiDiv.innerHTML = formatAiText(vText);
+        aiDiv.classList.remove('streaming');
+        _aiHistory.push({ role: 'assistant', content: vText });
+        btn.disabled = false;
+        return;
+      }
+
       const resp = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -4175,7 +4566,8 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   function goBack() { sessionStorage.setItem('fromCodes','1'); window.location.href = '/'; }
   function openOnline() { if (pdfUrl) window.open(pdfUrl, '_blank'); }
   function sharePaper() {
-    const shareUrl = window.location.href;
+    // Share/copy the PDF URL itself, not the viewer page URL
+    const shareUrl = pdfUrl || window.location.href;
     if (navigator.share) { navigator.share({ title: document.title, url: shareUrl }); }
     else { navigator.clipboard.writeText(shareUrl).then(() => { const b = document.querySelector('.topbar-action[onclick="sharePaper()"]'); if (b) { const o=b.innerHTML; b.innerHTML='&#10003; Copied'; setTimeout(()=>b.innerHTML=o,1500); } }); }
   }
