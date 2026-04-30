@@ -4305,8 +4305,16 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     } else {
       if (codeField) codeField.style.display = '';
       codeEl.disabled = false;
+      codeEl.value = '';  // reset code on board switch
       codeEl.placeholder = 'e.g. 0417';
+      // Clear subject name tag and any inline messages
+      const snt = document.getElementById('subjectNameTag'); if (snt) snt.textContent = '';
+      const dym = document.getElementById('didYouMeanTag'); if (dym) dym.style.display = 'none';
       if (val) codeEl.focus();
+    }
+    // Also clear when switching TO Edexcel from another board
+    if (val === 'Edexcel') {
+      const snt2 = document.getElementById('subjectNameTag'); if (snt2) snt2.textContent = '';
     }
     onBoardChange();
   }
@@ -4334,7 +4342,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     if (board === 'Edexcel') {
       const pt = document.getElementById('papertype');
       pt.innerHTML = '';
-      [['QP — Question Paper','qp'],['MS — Mark Scheme','ms'],['GB — Grade Boundaries','gb']].forEach(([label,val]) => {
+      [['QP — Question Paper','qp'],['MS — Mark Scheme','ms'],['GT — Grade Thresholds','gt']].forEach(([label,val]) => {
         const o = document.createElement('option'); o.value = val; o.textContent = label; pt.appendChild(o);
       });
       loadEdexcelYears();
@@ -4506,6 +4514,9 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     const papertype = document.getElementById('papertype').value;
 
     if (!board)   { markFieldError('board');     showError('Missing Exam Board! Please select an exam board.'); return; }
+    // Edexcel: skip subject code/year/session validation — handled by buildEdexcelUrl
+    const _isEdexcel = board === 'Edexcel';
+    if (!_isEdexcel) {
     if (!code)    { markFieldError('code');      showError('Missing Subject Code! Please enter a subject code.'); return; }
     if (!/^\d{4}$/.test(code)) { markFieldError('code'); showError('Invalid Subject Code! Code must be exactly 4 digits.'); return; }
     const allCaie = new Set([...caieCodesAll, ...alCodesAll, ...olCodesAll]);
@@ -4542,6 +4553,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     }
     if (!session) { markFieldError('session');   showError('Missing Session! Please select a session.'); return; }
     if (!year)    { markFieldError('year');      showError('Missing Year! Please enter the year.'); return; }
+    } // end !_isEdexcel validation block
     // Accept 2-digit (23) or 4-digit (2023) year
     let yearVal = year;
     if (/^\d{4}$/.test(year)) {
@@ -5550,22 +5562,18 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     'June2021':     '2111_intGCSE_(9-1)_Subject_Grade_Boundaries_V2.pdf',
   };
   // Variants available per session (R variants only in Jan/Jun, not Nov/Oct)
-  function edexcelVariantsForSession(session) {
-    if (session === 'November') return ['1H','2H'];
-    return ['1H','1HR','2H','2HR'];
-  }
   function setEdexcelVariants(ptVal) {
-    const session = document.getElementById('session').value;
     const vf = document.getElementById('variantField');
     const vs = document.getElementById('variantSelect');
     if (!vs) return;
-    if (ptVal === 'gb') {
+    // Variant only for QP and MS, hidden for GT
+    if (ptVal === 'gt') {
       vf.classList.add('variant-hidden'); return;
     }
     vf.classList.remove('variant-hidden');
-    const variants = edexcelVariantsForSession(session);
+    // Always show all 4 variants (1H, 2H, 1HR, 2HR)
     vs.innerHTML = '';
-    variants.forEach(function(v){
+    ['1H','2H','1HR','2HR'].forEach(function(v){
       const o = document.createElement('option'); o.value = v; o.textContent = v; vs.appendChild(o);
     });
   }
@@ -5577,9 +5585,9 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     if (!session || !year) { showError('Please select a session and year.'); return null; }
     const paperNum = (variant.startsWith('2')) ? '2' : '1';
     const enc = encodeURIComponent;
-    if (pt === 'gb') {
+    if (pt === 'gt') {
       const gbFile = EDEXCEL_GB[session + year];
-      if (!gbFile) { showError('No grade boundaries found for that session/year.'); return null; }
+      if (!gbFile) { showError('No grade thresholds found for that session/year.'); return null; }
       return EDEXCEL_BASE + 'GB/' + enc(gbFile);
     }
     if (!variant) { showError('Please select a variant.'); return null; }
