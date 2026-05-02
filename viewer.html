@@ -3728,6 +3728,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   var pdfDoc = null, curPage = 1, totalPages = 0;
   var _scale = null;
   var _files = [];
+  var _activeUrl = pdfUrl || '';
   var _aiFileList = '';
   var _msText = '';  // Background MS text for AI
   var _allFilesText = {};  // All fetched file texts keyed by label
@@ -3947,6 +3948,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   function isAudio(url) { return url.endsWith('.mp3') || url.endsWith('.wav') || url.includes('_sf_') || url.includes('_sf.'); }
 
   function openFile(url) {
+    _activeUrl = url;
     document.getElementById('pdfTitle').textContent = examTitle(url);
     // Update chip active states
     renderFileChips(_files, url);
@@ -4579,7 +4581,9 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   function openOnline() { if (pdfUrl) window.open(pdfUrl, '_blank'); }
   function sharePaper() {
     // Share/copy the PDF URL itself, not the viewer page URL
-    const shareUrl = pdfUrl || window.location.href;
+
+    const shareUrl = _activeUrl || pdfUrl || window.location.href;
+
     if (navigator.share) { navigator.share({ title: document.title, url: shareUrl }); }
     else { navigator.clipboard.writeText(shareUrl).then(() => { const b = document.querySelector('.topbar-action[onclick="sharePaper()"]'); if (b) { const o=b.innerHTML; b.innerHTML='&#10003; Copied'; setTimeout(()=>b.innerHTML=o,1500); } }); }
   }
@@ -4809,6 +4813,55 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       }
     } catch {}
   })();
+</script>
+
+<script>
+/* Time on site tracking */
+(function(){
+  function tok(){ try{ return localStorage.getItem('pp_token'); }catch(e){ return null; } }
+  var _tok=tok(), _start=Date.now(), _sess=0, _pend=0, _vis=!document.hidden, _act=Date.now();
+  ['mousemove','keydown','touchstart','click','scroll'].forEach(function(e){
+    document.addEventListener(e,function(){ _act=Date.now(); },{passive:true});
+  });
+  function tick(){
+    if(!_vis) return;
+    var now=Date.now();
+    var elapsed=Math.round((now-_start)/1000);
+    if(elapsed<1) return;
+    if(now-_act<60000){ _sess+=elapsed; _pend+=elapsed; }
+    _start=now;
+  }
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden){ tick(); _vis=false; }
+    else{ _start=Date.now(); _act=Date.now(); _vis=true; }
+  });
+  function send(secs){
+    var t=_tok||tok();
+    if(!t||secs<1) return;
+    try{
+      fetch('/api/user-data',{method:'POST',
+        headers:{'Content-Type':'application/json','x-session-token':t},
+        body:JSON.stringify({action:'track_time',token:t,seconds:secs})
+      });
+    }catch(e){}
+  }
+  setInterval(tick,1000);
+  setInterval(function(){
+    if(!_tok) _tok=tok();
+    tick();
+    var s=_pend; _pend=0;
+    if(s>=1) send(s);
+  },60000);
+  window.addEventListener('beforeunload',function(){
+    tick();
+    var t=_tok||tok();
+    if(_pend>=1&&t&&navigator.sendBeacon){
+      navigator.sendBeacon('/api/user-data',new Blob([JSON.stringify({
+        action:'track_time',token:t,seconds:_pend
+      })],{type:'application/json'}));
+    }
+  });
+})();
 </script>
 </body>
 </html>

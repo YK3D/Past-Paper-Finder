@@ -1,5 +1,7 @@
 const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
+// Use service role key server-side so RLS write policies allow access
+// NEVER expose SUPABASE_SERVICE_ROLE_KEY to the browser — only use in Vercel serverless functions
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
 
 const H = {
   'apikey': SUPABASE_KEY,
