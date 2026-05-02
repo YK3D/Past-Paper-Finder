@@ -4581,7 +4581,9 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   function openOnline() { if (pdfUrl) window.open(pdfUrl, '_blank'); }
   function sharePaper() {
     // Share/copy the PDF URL itself, not the viewer page URL
+
     const shareUrl = _activeUrl || pdfUrl || window.location.href;
+
     if (navigator.share) { navigator.share({ title: document.title, url: shareUrl }); }
     else { navigator.clipboard.writeText(shareUrl).then(() => { const b = document.querySelector('.topbar-action[onclick="sharePaper()"]'); if (b) { const o=b.innerHTML; b.innerHTML='&#10003; Copied'; setTimeout(()=>b.innerHTML=o,1500); } }); }
   }
