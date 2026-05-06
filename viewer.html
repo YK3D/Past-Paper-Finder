@@ -4581,9 +4581,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   function openOnline() { if (pdfUrl) window.open(pdfUrl, '_blank'); }
   function sharePaper() {
     // Share/copy the PDF URL itself, not the viewer page URL
-
     const shareUrl = _activeUrl || pdfUrl || window.location.href;
-
     if (navigator.share) { navigator.share({ title: document.title, url: shareUrl }); }
     else { navigator.clipboard.writeText(shareUrl).then(() => { const b = document.querySelector('.topbar-action[onclick="sharePaper()"]'); if (b) { const o=b.innerHTML; b.innerHTML='&#10003; Copied'; setTimeout(()=>b.innerHTML=o,1500); } }); }
   }
@@ -4819,21 +4817,18 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 /* Time on site tracking */
 (function(){
   function tok(){ try{ return localStorage.getItem('pp_token'); }catch(e){ return null; } }
-  var _tok=tok(), _start=Date.now(), _sess=0, _pend=0, _vis=!document.hidden, _act=Date.now();
-  ['mousemove','keydown','touchstart','click','scroll'].forEach(function(e){
-    document.addEventListener(e,function(){ _act=Date.now(); },{passive:true});
-  });
+  var _tok=tok(), _start=Date.now(), _sess=0, _pend=0, _vis=!document.hidden;
   function tick(){
+    // Count all foreground time — pauses only when tab is hidden
     if(!_vis) return;
     var now=Date.now();
     var elapsed=Math.round((now-_start)/1000);
     if(elapsed<1) return;
-    if(now-_act<60000){ _sess+=elapsed; _pend+=elapsed; }
-    _start=now;
+    _sess+=elapsed; _pend+=elapsed; _start=now;
   }
   document.addEventListener('visibilitychange',function(){
     if(document.hidden){ tick(); _vis=false; }
-    else{ _start=Date.now(); _act=Date.now(); _vis=true; }
+    else{ _start=Date.now(); _vis=true; }
   });
   function send(secs){
     var t=_tok||tok();
