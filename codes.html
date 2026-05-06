@@ -1212,7 +1212,27 @@
         <tr onclick="useCode('0696')"><td class="c-code">0696</td><td class="c-name">Malay - First Language</td></tr>
         <tr onclick="useCode('0697')"><td class="c-code">0697</td><td class="c-name">Marine Science</td></tr>
         <tr onclick="useCode('0698')"><td class="c-code">0698</td><td class="c-name">Setswana - First Language</td></tr>
+        <tr onclick="useCode('0970')"><td class="c-code">0970</td><td class="c-name">Biology (9-1)</td></tr>
+        <tr onclick="useCode('0971')"><td class="c-code">0971</td><td class="c-name">Chemistry (9-1 UK)</td></tr>
+        <tr onclick="useCode('0972')"><td class="c-code">0972</td><td class="c-name">Physics (9-1)</td></tr>
+        <tr onclick="useCode('0973')"><td class="c-code">0973</td><td class="c-name">Co-ordinated Sciences (9-1)</td></tr>
+        <tr onclick="useCode('0976')"><td class="c-code">0976</td><td class="c-name">Geography (9-1)</td></tr>
+        <tr onclick="useCode('0977')"><td class="c-code">0977</td><td class="c-name">History (9-1)</td></tr>
+        <tr onclick="useCode('0978')"><td class="c-code">0978</td><td class="c-name">Music (9-1 UK)</td></tr>
+        <tr onclick="useCode('0979')"><td class="c-code">0979</td><td class="c-name">Design and Technology (9-1)</td></tr>
+        <tr onclick="useCode('0980')"><td class="c-code">0980</td><td class="c-name">Mathematics (9-1)</td></tr>
+        <tr onclick="useCode('0983')"><td class="c-code">0983</td><td class="c-name">ICT (9-1)</td></tr>
+        <tr onclick="useCode('0984')"><td class="c-code">0984</td><td class="c-name">Computer Science (9-1)</td></tr>
         <tr onclick="useCode('0985')"><td class="c-code">0985</td><td class="c-name">Accounting</td></tr>
+        <tr onclick="useCode('0986')"><td class="c-code">0986</td><td class="c-name">Business Studies (9-1 UK)</td></tr>
+        <tr onclick="useCode('0987')"><td class="c-code">0987</td><td class="c-name">Economics (9-1)</td></tr>
+        <tr onclick="useCode('0989')"><td class="c-code">0989</td><td class="c-name">Art and Design (9-1)</td></tr>
+        <tr onclick="useCode('0990')"><td class="c-code">0990</td><td class="c-name">English Language (9-1)</td></tr>
+        <tr onclick="useCode('0991')"><td class="c-code">0991</td><td class="c-name">English Literature (9-1)</td></tr>
+        <tr onclick="useCode('0992')"><td class="c-code">0992</td><td class="c-name">English (9-1)</td></tr>
+        <tr onclick="useCode('0993')"><td class="c-code">0993</td><td class="c-name">English as a Second Language (9-1)</td></tr>
+        <tr onclick="useCode('0994')"><td class="c-code">0994</td><td class="c-name">Drama (9-1)</td></tr>
+        <tr onclick="useCode('0995')"><td class="c-code">0995</td><td class="c-name">Physical Education (9-1)</td></tr>
       </table>
       </div>
 
@@ -1697,7 +1717,27 @@ const subjectNames = {
     '0696':'Malay - First Language',
     '0697':'Marine Science',
     '0698':'Setswana - First Language',
-    '0985':'Accounting',
+    '0970':'Biology (9-1)',
+    '0971':'Chemistry (9-1 UK)',
+    '0972':'Physics (9-1)',
+    '0973':'Co-ordinated Sciences (9-1)',
+    '0976':'Geography (9-1)',
+    '0977':'History (9-1)',
+    '0978':'Music (9-1 UK)',
+    '0979':'Design and Technology (9-1)',
+    '0980':'Mathematics (9-1)',
+    '0983':'ICT (9-1)',
+    '0984':'Computer Science (9-1)',
+    '0986':'Business Studies (9-1 UK)',
+    '0987':'Economics (9-1)',
+    '0989':'Art and Design (9-1)',
+    '0990':'English Language (9-1)',
+    '0991':'English Literature (9-1)',
+    '0992':'English (9-1)',
+    '0993':'English as a Second Language (9-1)',
+    '0994':'Drama (9-1)',
+    '0995':'Physical Education (9-1)',
+        '0985':'Accounting',
     '2010':'Literature in English',
     '2058':'Islamiyat',
     '2069':'Global Perspectives',
@@ -1833,7 +1873,9 @@ const caieCodesAll = new Set([
     '0580', '0581', '0600', '0606', '0607', '0608', '0610', '0620',
     '0625', '0626', '0627', '0637', '0648', '0652', '0653', '0654',
     '0677', '0678', '0680', '0685', '0695', '0696', '0697', '0698',
-    '0985', '2010', '2058', '2069', '2251', '2281', '4024', '4037',
+    '0970', '0971', '0972', '0973', '0976', '0977', '0978', '0979', '0980',
+    '0983', '0984', '0985', '0986', '0987', '0989', '0990', '0991', '0992',
+    '0993', '0994', '0995', '2010', '2058', '2069', '2251', '2281', '4024', '4037',
     '5014', '5054', '5070', '5090', '6065', '7100', '7115', '8291',
     '8695', '9084', '9093', '9184', '9185', '9231', '9239', '9274',
     '9276', '9279', '9280', '9336', '9389', '9395', '9396', '9479',
@@ -1929,5 +1971,51 @@ function filterCodes() {
   });
 </script>
 
+
+<script>
+/* Time on site tracking */
+(function(){
+  function tok(){ try{ return localStorage.getItem('pp_token'); }catch(e){ return null; } }
+  var _tok=tok(), _start=Date.now(), _sess=0, _pend=0, _vis=!document.hidden;
+  function tick(){
+    // Count all foreground time — pauses only when tab is hidden
+    if(!_vis) return;
+    var now=Date.now();
+    var elapsed=Math.round((now-_start)/1000);
+    if(elapsed<1) return;
+    _sess+=elapsed; _pend+=elapsed; _start=now;
+  }
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden){ tick(); _vis=false; }
+    else{ _start=Date.now(); _vis=true; }
+  });
+  function send(secs){
+    var t=_tok||tok();
+    if(!t||secs<1) return;
+    try{
+      fetch('/api/user-data',{method:'POST',
+        headers:{'Content-Type':'application/json','x-session-token':t},
+        body:JSON.stringify({action:'track_time',token:t,seconds:secs})
+      });
+    }catch(e){}
+  }
+  setInterval(tick,1000);
+  setInterval(function(){
+    if(!_tok) _tok=tok();
+    tick();
+    var s=_pend; _pend=0;
+    if(s>=1) send(s);
+  },60000);
+  window.addEventListener('beforeunload',function(){
+    tick();
+    var t=_tok||tok();
+    if(_pend>=1&&t&&navigator.sendBeacon){
+      navigator.sendBeacon('/api/user-data',new Blob([JSON.stringify({
+        action:'track_time',token:t,seconds:_pend
+      })],{type:'application/json'}));
+    }
+  });
+})();
+</script>
 </body>
 </html>
