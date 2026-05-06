@@ -3,7 +3,7 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.01, maximum-scale=5.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>Past Paper Finder</title>
 
 <!-- SEO Meta -->
@@ -3251,10 +3251,13 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .search-highlight.current { background: rgba(255,140,0,0.6); }
 /* ── Topbar ── */
 .pdf-topbar {
-  display: flex; align-items: center; gap: 0.5rem;
-  padding: 0.45rem 0.8rem;
+  display: flex; flex-direction: column; gap: 0;
+  padding: 0;
   background: #242424; border-bottom: 1px solid #333; flex-shrink: 0;
-  min-height: 44px;
+}
+.topbar-row1 {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.45rem 0.8rem; min-height: 44px; flex-wrap: wrap;
 }
 .back-btn-v {
   background: transparent; border: 1px solid #444; border-radius: 6px;
@@ -3306,24 +3309,15 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 /* ── Markup canvas overlay on each page ── */
 .markup-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; z-index: 10; touch-action: none; pointer-events: none; }
 @media (max-width: 600px) {
-  .pdf-topbar { flex-wrap: wrap; min-height: unset; padding: 0.4rem; gap: 0.3rem; }
+  .pdf-topbar { flex-direction: column; }
+  .topbar-row1 { flex-wrap: wrap; min-height: unset; padding: 0.4rem; gap: 0.3rem; }
   .pdf-title-bar { display: none; }
   .topbar-right { flex-wrap: wrap; gap: 0.2rem; }
   .topbar-action { font-size: 0.58rem; padding: 0.2rem 0.35rem; }
   .back-btn-v { font-size: 0.6rem; padding: 0.2rem 0.4rem; }
   .pdf-page-nav .page-info { min-width: 3rem; font-size: 0.58rem; }
 }
-/* Mobile-only download button */
-.topbar-dl-mobile { display: none; }
-@media (max-width: 700px) {
-  .topbar-dl-mobile {
-    display: inline-flex !important;
-    background: rgba(34,197,94,0.15) !important;
-    border-color: #22c55e !important;
-    color: #22c55e !important;
-  }
-  .topbar-dl-mobile:hover { background: #22c55e !important; color: #000 !important; }
-}
+
 .topbar-action {
   background: transparent; border: 1px solid #444; border-radius: 6px;
   color: #aaa; font-size: 0.65rem; padding: 0.25rem 0.5rem;
@@ -3638,13 +3632,18 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   <!-- Centre: topbar + canvas -->
   <div class="viewer-centre">
     <div class="pdf-topbar">
-      <button class="back-btn-v" onclick="goBack()">&#8592; Back</button>
-      <span class="pdf-title-bar" id="pdfTitle">Loading&hellip;</span>
-      <div class="file-chip-bar-inline" id="fileChipBar"></div>
-      <div class="topbar-right">
-        <button class="topbar-action" onclick="sharePaper()">&#8679; Share</button>
-        <button class="topbar-action topbar-dl-mobile" onclick="downloadPaper()">&#8659; Download</button>
+      <div class="topbar-row1">
+        <button class="back-btn-v" onclick="goBack()">&#8592; Back</button>
+        <span class="pdf-title-bar" id="pdfTitle">Loading&hellip;</span>
+        <div class="topbar-right">
+          <button class="topbar-action" onclick="printPaper()" title="Print">&#128438; Print</button>
+          <button class="topbar-action" id="copyBtn" onclick="copyLink()" title="Copy PDF link">&#128203; Copy</button>
+          <button class="topbar-action" onclick="downloadPaper()" title="Download PDF">&#8659; Download</button>
+          <button class="topbar-action" onclick="sharePaper()" title="Share PDF link">&#8679; Share</button>
+          <button class="topbar-action" onclick="openOnline()" title="Open PDF in new tab">&#127760; Online</button>
+        </div>
       </div>
+      <div class="file-chip-bar-inline" id="fileChipBar"></div>
     </div>
     <!-- Timer & Clock Bar -->
     <div class="timer-clock-bar" id="timerClockBar">
@@ -4578,18 +4577,31 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   }
 
   function goBack() { sessionStorage.setItem('fromCodes','1'); window.location.href = '/'; }
-  function openOnline() { if (pdfUrl) window.open(pdfUrl, '_blank'); }
+  function openOnline() { const url = _activeUrl || pdfUrl; if (url) window.open(url, '_blank'); }
+  function copyLink() {
+    const url = _activeUrl || pdfUrl || '';
+    if (!url) return;
+    navigator.clipboard.writeText(url).then(() => {
+      const b = document.getElementById('copyBtn');
+      if (b) { const o=b.innerHTML; b.innerHTML='&#10003; Copied!'; setTimeout(()=>b.innerHTML=o, 1500); }
+    });
+  }
   function sharePaper() {
-    // Share/copy the PDF URL itself, not the viewer page URL
     const shareUrl = _activeUrl || pdfUrl || window.location.href;
     if (navigator.share) { navigator.share({ title: document.title, url: shareUrl }); }
-    else { navigator.clipboard.writeText(shareUrl).then(() => { const b = document.querySelector('.topbar-action[onclick="sharePaper()"]'); if (b) { const o=b.innerHTML; b.innerHTML='&#10003; Copied'; setTimeout(()=>b.innerHTML=o,1500); } }); }
+    else {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        const b = document.querySelector('.topbar-action[onclick="sharePaper()"]');
+        if (b) { const o=b.innerHTML; b.innerHTML='&#10003; Shared!'; setTimeout(()=>b.innerHTML=o, 1500); }
+      });
+    }
   }
   function downloadPaper() {
-    if (!pdfUrl) return;
+    const url = _activeUrl || pdfUrl;
+    if (!url) return;
     const a = document.createElement('a');
-    a.href = '/api/download-pdf?url=' + encodeURIComponent(pdfUrl);
-    a.download = pdfUrl.split('/').pop();
+    a.href = '/api/download-pdf?url=' + encodeURIComponent(url);
+    a.download = url.split('/').pop();
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
   }
   function printPaper() { window.print(); }
