@@ -3385,5 +3385,51 @@
     window.location.href = '/';
   }
 </script>
+
+<script>
+/* Time on site tracking */
+(function(){
+  function tok(){ try{ return localStorage.getItem('pp_token'); }catch(e){ return null; } }
+  var _tok=tok(), _start=Date.now(), _sess=0, _pend=0, _vis=!document.hidden;
+  function tick(){
+    // Count all foreground time — pauses only when tab is hidden
+    if(!_vis) return;
+    var now=Date.now();
+    var elapsed=Math.round((now-_start)/1000);
+    if(elapsed<1) return;
+    _sess+=elapsed; _pend+=elapsed; _start=now;
+  }
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden){ tick(); _vis=false; }
+    else{ _start=Date.now(); _vis=true; }
+  });
+  function send(secs){
+    var t=_tok||tok();
+    if(!t||secs<1) return;
+    try{
+      fetch('/api/user-data',{method:'POST',
+        headers:{'Content-Type':'application/json','x-session-token':t},
+        body:JSON.stringify({action:'track_time',token:t,seconds:secs})
+      });
+    }catch(e){}
+  }
+  setInterval(tick,1000);
+  setInterval(function(){
+    if(!_tok) _tok=tok();
+    tick();
+    var s=_pend; _pend=0;
+    if(s>=1) send(s);
+  },60000);
+  window.addEventListener('beforeunload',function(){
+    tick();
+    var t=_tok||tok();
+    if(_pend>=1&&t&&navigator.sendBeacon){
+      navigator.sendBeacon('/api/user-data',new Blob([JSON.stringify({
+        action:'track_time',token:t,seconds:_pend
+      })],{type:'application/json'}));
+    }
+  });
+})();
+</script>
 </body>
 </html>
