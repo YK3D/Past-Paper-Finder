@@ -4840,16 +4840,14 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     if (!generatedUrl) return;
     haptic('light');
     const label = urlToLabel(generatedUrl);
-    const params = new URLSearchParams(); params.set('url', generatedUrl);
-    const viewerLink = window.location.origin + '/viewer.html?' + params.toString();
     if (navigator.share) {
       navigator.share({
         title: 'Past Paper — ' + label,
         text: label,
-        url: viewerLink
+        url: generatedUrl
       }).catch(() => {});
     } else {
-      navigator.clipboard.writeText(viewerLink).then(() => {
+      navigator.clipboard.writeText(generatedUrl).then(() => {
         const btn = document.getElementById('shareBtn');
         btn.textContent = 'Copied!';
         setTimeout(() => btn.innerHTML = '&#8679; Share', 1800);
@@ -4919,9 +4917,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     if (!generatedUrl) return;
     haptic('light');
     const btn = document.querySelector('.btn-copy');
-    // Copy the PastPaperAI viewer link
-    const params = new URLSearchParams(); params.set('url', generatedUrl);
-    const viewerLink = window.location.origin + '/viewer.html?' + params.toString();
+    // Copy the raw PDF link
     function onSuccess() {
       btn.textContent = 'Copied!';
       setTimeout(() => btn.textContent = 'Copy URL', 1800);
@@ -4929,7 +4925,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     function fallback() {
       try {
         const ta = document.createElement('textarea');
-        ta.value = viewerLink;
+        ta.value = generatedUrl;
         ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
         document.body.appendChild(ta);
         ta.focus();
@@ -4943,7 +4939,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       }
     }
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(viewerLink).then(onSuccess).catch(fallback);
+      navigator.clipboard.writeText(generatedUrl).then(onSuccess).catch(fallback);
     } else {
       fallback();
     }
