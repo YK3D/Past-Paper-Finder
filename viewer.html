@@ -4134,6 +4134,15 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     renderFileChips(_files, url);
     _aiFileList = _files.map(f => f.label).join(', ');
 
+    // Auto-split if QP and MS both found (desktop only)
+    const _hasQP = _files.some(f => f.label === 'QP');
+    const _hasMS = _files.some(f => f.label === 'MS');
+    if (_hasQP && _hasMS && window.innerWidth > 900 && !_splitMode) {
+      _splitMode = true;
+      renderSplitView();
+      renderFileChips(_files, _activeUrl);
+    }
+
     // Fetch MS for AI — always use the MS file URL regardless of what's currently open
     _allFilesText = {};
     _msText = '';
