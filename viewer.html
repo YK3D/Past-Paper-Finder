@@ -3396,9 +3396,10 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 /* ── File chip bar (inline in topbar) ── */
 .file-chip-bar-inline {
   display: flex; flex-wrap: wrap; gap: 0.3rem;
-  align-items: center; flex-shrink: 0;
+  align-items: center;
   justify-content: flex-end;
-  margin-left: auto;
+  padding: 0.3rem 0.8rem;  /* same horizontal padding as topbar-row1 */
+  border-top: 1px solid #2a2a2a;
 }
 .file-chip {
   padding: 0.2rem 0.6rem; border-radius: 20px; border: 1px solid var(--accent);
@@ -3793,9 +3794,9 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         newArea.className = area.className;
         newArea.innerHTML =
           '<div class="pdf-loading-msg" id="pdfLoadMsg" style="display:none"></div>' +
-          '<object data="' + url + '" type="application/pdf" width="100%" height="100%" style="display:block;border:none;width:100%;height:100%">' +
-            '<embed src="' + url + '" type="application/pdf" width="100%" height="100%" />' +
-            '<iframe src="' + url + '" width="100%" height="100%" style="border:none">' +
+          '<object data="' + url + '" type="application/pdf" width="100%" height="99%" style="display:block;border:none;width:100%;height:99%">' +
+            '<embed src="' + url + '" type="application/pdf" width="100%" height="99%" />' +
+            '<iframe src="' + url + '" width="100%" height="99%" style="border:none">' +
               'Your browser does not support PDFs. <a href="' + url + '">Download the PDF</a>.' +
             '</iframe>' +
           '</object>';
@@ -3949,6 +3950,13 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   function isAudio(url) { return url.endsWith('.mp3') || url.endsWith('.wav') || url.includes('_sf_') || url.includes('_sf.'); }
 
   function openFile(url) {
+    if (_splitMode) {
+      _splitMode = false;
+      const sc = document.getElementById('splitContainer');
+      if (sc) sc.remove();
+      const oa = document.getElementById('pdfCanvasArea');
+      if (oa) oa.style.display = '';
+    }
     _activeUrl = url;
     document.getElementById('pdfTitle').textContent = examTitle(url);
     // Update chip active states
@@ -4014,10 +4022,16 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   function renderFileChips(files, activeUrl) {
     const bar = document.getElementById('fileChipBar');
     if (!files || files.length <= 1) { bar.innerHTML = ''; return; }
-    bar.innerHTML = files.map(f => {
+    const hasQP = files.some(f => f.label === 'QP');
+    const hasMS = files.some(f => f.label === 'MS');
+    const chipHtml = files.map(f => {
       const cls = 'file-chip' + (isAudio(f.url) ? ' audio' : '') + (f.url === activeUrl ? ' active' : '');
       return '<button class="' + cls + '" data-url="' + f.url + '" onclick="openFile(this.dataset.url)">' + f.label + '</button>';
     }).join('');
+    const splitHtml = (hasQP && hasMS)
+      ? '<button class="file-chip split-chip' + (_splitMode ? ' active' : '') + '" onclick="toggleSplit()" title="Side by side">&#8921; Split</button>'
+      : '';
+    bar.innerHTML = chipHtml + splitHtml;
   }
 
   function buildEdexcelFileChips(url) {
@@ -4579,6 +4593,55 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   }
 
   function goBack() { sessionStorage.setItem('fromCodes','1'); window.location.href = '/'; }
+  function toggleSplit() {
+    if (window.innerWidth <= 900) return;
+    _splitMode = !_splitMode;
+    if (_splitMode) renderSplitView();
+    else exitSplitView();
+    renderFileChips(_files, _activeUrl);
+  }
+
+  function renderSplitView() {
+    const qpFile = _files.find(f => f.label === 'QP');
+    const msFile = _files.find(f => f.label === 'MS');
+    if (!qpFile || !msFile) { _splitMode = false; return; }
+    const centre = document.querySelector('.viewer-centre');
+    const origArea = document.getElementById('pdfCanvasArea');
+    if (origArea) origArea.style.display = 'none';
+    const audioArea = document.getElementById('audioArea');
+    if (audioArea) audioArea.style.display = 'none';
+    const existing = document.getElementById('splitContainer');
+    if (existing) existing.remove();
+    const container = document.createElement('div');
+    container.id = 'splitContainer';
+    container.className = 'split-view-container';
+    function makePdfPanel(url, label) {
+      const panel = document.createElement('div');
+      panel.className = 'pdf-canvas-area';
+      panel.innerHTML =
+        '<div style="padding:0.3rem 0.5rem;font-size:0.65rem;font-family:Space Mono,monospace;' +
+        'color:var(--accent);border-bottom:1px solid #333;flex-shrink:0">' + label + '</div>' +
+        '<object data="' + url + '" type="application/pdf" width="100%" height="99%" ' +
+        'style="display:block;border:none;width:100%;flex:1;min-height:0">' +
+          '<embed src="' + url + '" type="application/pdf" width="100%" height="99%" />' +
+          '<iframe src="' + url + '" width="100%" height="99%" style="border:none"></iframe>' +
+        '</object>';
+      return panel;
+    }
+    container.appendChild(makePdfPanel(qpFile.url, 'QP'));
+    container.appendChild(makePdfPanel(msFile.url, 'MS'));
+    centre.appendChild(container);
+    _activeUrl = qpFile.url;
+  }
+
+  function exitSplitView() {
+    const container = document.getElementById('splitContainer');
+    if (container) container.remove();
+    const origArea = document.getElementById('pdfCanvasArea');
+    if (origArea) origArea.style.display = '';
+    loadPdf(_activeUrl || pdfUrl);
+  }
+
   function openOnline() { const url = _activeUrl || pdfUrl; if (url) window.open(url, '_blank'); }
   function copyLink() {
     const url = _activeUrl || pdfUrl || '';
