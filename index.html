@@ -4511,7 +4511,17 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
   setTimeout(setupArrow, 1600);
 
   // ── Generate ──
+  let _lastGenerateTime = 0;
+  const GENERATE_COOLDOWN_MS = 5000;
+
   function generate() {
+    const now = Date.now();
+    if (now - _lastGenerateTime < GENERATE_COOLDOWN_MS) {
+      const remaining = Math.ceil((GENERATE_COOLDOWN_MS - (now - _lastGenerateTime)) / 1000);
+      showError('Please wait ' + remaining + ' second' + (remaining !== 1 ? 's' : '') + ' before generating again.');
+      return;
+    }
+    _lastGenerateTime = now;
     clearFieldErrors();
     const board     = document.getElementById('board').value;
     const code      = document.getElementById('code').value.trim();
@@ -5256,8 +5266,14 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     } catch {}
   }
 
+  let _lastPaperViewTime = 0;
+  const PAPER_VIEW_COOLDOWN_MS = 60000; // 1 minute between paper view increments
+
   async function trackPaperView(url) {
     if (!_sessionToken) return;
+    const now = Date.now();
+    if (now - _lastPaperViewTime < PAPER_VIEW_COOLDOWN_MS) return; // cooldown active
+    _lastPaperViewTime = now;
     try {
       await fetch('/api/user-data', {
         method: 'POST',
