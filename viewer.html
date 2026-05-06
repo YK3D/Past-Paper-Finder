@@ -3802,9 +3802,9 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         newArea.className = area.className;
         newArea.innerHTML =
           '<div class="pdf-loading-msg" id="pdfLoadMsg" style="display:none"></div>' +
-          '<object data="' + url + '" type="application/pdf" width="100%" height="100%" style="display:block;border:none;width:100%;height:100%">' +
-            '<embed src="' + url + '" type="application/pdf" width="100%" height="100%" />' +
-            '<iframe src="' + url + '" width="100%" height="100%" style="border:none">' +
+          '<object data="' + url + '" type="application/pdf" width="100%" style="display:block;border:none;width:100%">' +
+            '<embed src="' + url + '" type="application/pdf" width="100%" />' +
+            '<iframe src="' + url + '" width="100%" style="border:none">' +
               'Your browser does not support PDFs. <a href="' + url + '">Download the PDF</a>.' +
             '</iframe>' +
           '</object>';
@@ -4631,9 +4631,9 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       pane.style.cssText = 'flex:1;min-width:0;display:flex;flex-direction:column;border-right:2px solid #333;overflow:hidden;';
       pane.innerHTML =
         '<div style="padding:0.25rem 0.6rem;font-size:0.6rem;font-family:Space Mono,monospace;color:var(--accent);background:#1e1e1e;border-bottom:1px solid #333;flex-shrink:0">' + label + '</div>' +
-        '<object data="' + url + '" type="application/pdf" width="100%" height="100%" style="display:block;border:none;width:100%;height:100%;flex:1">' +
-          '<embed src="' + url + '" type="application/pdf" width="100%" height="100%" style="display:block;width:100%;height:100%" />' +
-          '<iframe src="' + url + '" width="100%" height="100%" style="border:none;width:100%;height:100%"></iframe>' +
+        '<object data="' + url + '" type="application/pdf" width="100%" style="display:block;border:none;width:100%">' +
+          '<embed src="' + url + '" type="application/pdf" width="100%" />' +
+          '<iframe src="' + url + '" width="100%" style="border:none"></iframe>' +
         '</object>';
       return pane;
     }
