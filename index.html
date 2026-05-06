@@ -2987,7 +2987,10 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     '0580', '0581', '0600', '0606', '0607', '0608', '0610', '0620',
     '0625', '0626', '0627', '0637', '0648', '0652', '0653', '0654',
     '0677', '0678', '0680', '0685', '0695', '0696', '0697', '0698',
-    '0985', '2010', '2058', '2069', '2251', '2281', '4024', '4037',
+    '0970', '0971', '0972', '0973', '0976', '0977', '0978', '0979',
+    '0980', '0983', '0984', '0985', '0986', '0987', '0989', '0990',
+    '0991', '0992', '0993', '0994', '0995', '2010', '2058', '2069',
+    '2251', '2281', '4024', '4037',
     '5014', '5054', '5070', '5090', '6065', '7100', '7115', '8291',
     '8695', '9084', '9093', '9184', '9185', '9231', '9239', '9274',
     '9276', '9279', '9280', '9336', '9389', '9395', '9396', '9479',
@@ -4949,6 +4952,12 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     haptic('error');
     const el = document.getElementById('errorMsg');
     el.innerHTML = '';
+    // X close button
+    const xBtn = document.createElement('button');
+    xBtn.textContent = '×';
+    xBtn.style.cssText = 'background:none;border:none;color:inherit;font-size:1.1rem;font-weight:700;cursor:pointer;float:right;margin-left:0.5rem;line-height:1;padding:0;opacity:0.8;';
+    xBtn.onclick = () => el.classList.remove('show');
+    el.appendChild(xBtn);
     const msgNode = document.createTextNode(msg);
     el.appendChild(msgNode);
     if (bypassUrl) {
