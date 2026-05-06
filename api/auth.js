@@ -19,46 +19,55 @@ function hashPass(p) {
   return Buffer.from(p + ':ppf_salt_2025').toString('base64');
 }
 
-// Add device_id to device_sessions (username-keyed, 10 slots, no repeats)
-async function trackDevice(username, deviceId) {
+// Add device to device_sessions with device info (brand, model, OS, type, browser)
+async function trackDevice(username, deviceId, deviceInfo) {
   if (!username || !deviceId) return;
   try {
     const rows = await db(
       `device_sessions?username=eq.${encodeURIComponent(username)}&select=*&limit=1`
     );
     const row = Array.isArray(rows) && rows[0] ? rows[0] : null;
+    const di = deviceInfo || {};
+    const deviceLabel = [di.brand, di.model, di.os, di.type, di.browser]
+      .filter(Boolean).join(' | ').slice(0, 200) || deviceId;
 
     if (!row) {
-      // New row — put device in slot 1
       await db('device_sessions', 'POST', {
         username,
         device_1: deviceId,
+        device_1_info: deviceLabel,
         first_seen: new Date().toISOString(),
         last_seen: new Date().toISOString()
       });
       return;
     }
 
-    // Check if device already in a slot — if so just update last_seen
     const slots = ['device_1','device_2','device_3','device_4','device_5',
                    'device_6','device_7','device_8','device_9','device_10'];
-    if (slots.some(s => row[s] === deviceId)) {
+    const existingSlot = slots.find(s => row[s] === deviceId);
+    if (existingSlot) {
+      // Update info + last_seen in case device info changed
       await db(
         `device_sessions?username=eq.${encodeURIComponent(username)}`,
-        'PATCH', { last_seen: new Date().toISOString() }
+        'PATCH', {
+          [`${existingSlot}_info`]: deviceLabel,
+          last_seen: new Date().toISOString()
+        }
       );
       return;
     }
 
-    // Find first empty slot and fill it
     const emptySlot = slots.find(s => !row[s]);
     if (emptySlot) {
       await db(
         `device_sessions?username=eq.${encodeURIComponent(username)}`,
-        'PATCH', { [emptySlot]: deviceId, last_seen: new Date().toISOString() }
+        'PATCH', {
+          [emptySlot]: deviceId,
+          [`${emptySlot}_info`]: deviceLabel,
+          last_seen: new Date().toISOString()
+        }
       );
     }
-    // If all 10 slots full, do nothing (device limit reached)
   } catch {}
 }
 
@@ -80,7 +89,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const { action, email, username, password, identifier,
-          newPassword, token, deviceId } = req.body || {};
+          newPassword, token, deviceId, deviceInfo } = req.body || {};
 
   // ── Register ──
   if (action === 'register') {
@@ -125,7 +134,7 @@ export default async function handler(req, res) {
     const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
     await db('sessions', 'POST',
       { username: user.username, token: tokenVal, ip, expires_at: expires });
-    if (deviceId) trackDevice(user.username, deviceId);
+    if (deviceId) trackDevice(user.username, deviceId, req.body.deviceInfo);
     return res.status(200).json({
       token: tokenVal,
       user: { id: user.id, username: user.username, email: user.email }
@@ -170,7 +179,7 @@ export default async function handler(req, res) {
       db('sessions', 'POST', { username: user.username, token: tokenVal, ip, expires_at: expires }),
       db(`users?id=eq.${user.id}`, 'PATCH', { last_seen: new Date().toISOString(), ip })
     ]);
-    if (deviceId) trackDevice(user.username, deviceId);
+    if (deviceId) trackDevice(user.username, deviceId, req.body.deviceInfo);
     return res.status(200).json({
       token: tokenVal,
       user: { id: user.id, username: user.username, email: user.email }
