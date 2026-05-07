@@ -3,7 +3,7 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.01, maximum-scale=5.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>Past Paper Finder</title>
 
 <!-- SEO Meta -->
@@ -3251,10 +3251,13 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .search-highlight.current { background: rgba(255,140,0,0.6); }
 /* ── Topbar ── */
 .pdf-topbar {
-  display: flex; align-items: center; gap: 0.5rem;
-  padding: 0.45rem 0.8rem;
+  display: flex; flex-direction: column; gap: 0;
+  padding: 0;
   background: #242424; border-bottom: 1px solid #333; flex-shrink: 0;
-  min-height: 44px; flex-wrap: wrap;
+}
+.topbar-row1 {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.45rem 0.8rem; min-height: 44px; flex-wrap: wrap;
 }
 .back-btn-v {
   background: transparent; border: 1px solid #444; border-radius: 6px;
@@ -3306,11 +3309,11 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 /* ── Markup canvas overlay on each page ── */
 .markup-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; z-index: 10; touch-action: none; pointer-events: none; }
 @media (max-width: 600px) {
-  .pdf-topbar { flex-wrap: wrap; min-height: unset; padding: 0.4rem; gap: 0.3rem; }
+  .pdf-topbar { flex-direction: column; }
+  .topbar-row1 { flex-wrap: wrap; min-height: unset; padding: 0.4rem; gap: 0.3rem; }
   .pdf-title-bar { display: none; }
   .topbar-right { flex-wrap: wrap; gap: 0.2rem; }
-  .split-view-container { display: flex; flex: 1; min-height: 0; }
-.topbar-action { font-size: 0.58rem; padding: 0.2rem 0.35rem; }
+  .topbar-action { font-size: 0.58rem; padding: 0.2rem 0.35rem; }
   .back-btn-v { font-size: 0.6rem; padding: 0.2rem 0.4rem; }
   .pdf-page-nav .page-info { min-width: 3rem; font-size: 0.58rem; }
 }
@@ -3393,12 +3396,9 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 /* ── File chip bar (inline in topbar) ── */
 .file-chip-bar-inline {
   display: flex; flex-wrap: wrap; gap: 0.3rem;
-  align-items: center;
+  align-items: center; flex-shrink: 0;
   justify-content: flex-end;
-  padding: 0.3rem 0.8rem;
-  background: #1e1e1e;
-  border-bottom: 1px solid #2a2a2a;
-  flex-shrink: 0;
+  margin-left: auto;
 }
 .file-chip {
   padding: 0.2rem 0.6rem; border-radius: 20px; border: 1px solid var(--accent);
@@ -3410,6 +3410,8 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .file-chip.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
 .file-chip.audio { border-color: var(--accent2); color: var(--accent2); }
 .file-chip.audio.active { background: var(--accent); color: #000; border-color: var(--accent); }
+.split-chip { display: none; }
+@media (min-width: 901px) { .split-chip { display: inline-flex; } }
 
 /* ── PDF canvas area ── */
 .pdf-canvas-area {
@@ -3425,19 +3427,9 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   flex: 1;
   width: 100%;
   min-height: 0;
-  height: 100%;
   border: none;
   display: block;
   background: #fff;
-}
-.pdf-canvas-area > object,
-.pdf-canvas-area > embed,
-.pdf-canvas-area > iframe {
-  flex: 1;
-  min-height: 0;
-  width: 100%;
-  border: none;
-  display: block;
 }
 .pdf-canvas-area::-webkit-scrollbar { width: 6px; }
 .pdf-canvas-area::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
@@ -3644,18 +3636,19 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   <!-- Centre: topbar + canvas -->
   <div class="viewer-centre">
     <div class="pdf-topbar">
-      <button class="back-btn-v" onclick="goBack()">&#8592; Back</button>
-      <span class="pdf-title-bar" id="pdfTitle">Loading&hellip;</span>
-      <div class="topbar-right">
-        <button class="topbar-action" onclick="printPaper()" title="Print">&#128438; Print</button>
-        <button class="topbar-action" id="copyBtn" onclick="copyLink()" title="Copy PDF link">&#128203; Copy</button>
-        <button class="topbar-action" onclick="downloadPaper()" title="Download PDF">&#8659; Download</button>
-        <button class="topbar-action" onclick="sharePaper()" title="Share PDF link">&#8679; Share</button>
-        <button class="topbar-action" onclick="openOnline()" title="Open PDF in new tab">&#127760; Online</button>
+      <div class="topbar-row1">
+        <button class="back-btn-v" onclick="goBack()">&#8592; Back</button>
+        <span class="pdf-title-bar" id="pdfTitle">Loading&hellip;</span>
+        <div class="topbar-right">
+          <button class="topbar-action" onclick="printPaper()" title="Print">&#128438; Print</button>
+          <button class="topbar-action" id="copyBtn" onclick="copyLink()" title="Copy PDF link">&#128203; Copy</button>
+          <button class="topbar-action" onclick="downloadPaper()" title="Download PDF">&#8659; Download</button>
+          <button class="topbar-action" onclick="sharePaper()" title="Share PDF link">&#8679; Share</button>
+          <button class="topbar-action" onclick="openOnline()" title="Open PDF in new tab">&#127760; Online</button>
+        </div>
       </div>
+      <div class="file-chip-bar-inline" id="fileChipBar"></div>
     </div>
-    <!-- File chips bar -->
-    <div class="file-chip-bar-inline" id="fileChipBar"></div>
     <!-- Timer & Clock Bar -->
     <div class="timer-clock-bar" id="timerClockBar">
       <button class="timer-collapse-btn" id="timerCollapseBtn" onclick="timerBarToggle()" title="Hide/show timer">&#9650;</button>
@@ -3958,13 +3951,6 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   function isAudio(url) { return url.endsWith('.mp3') || url.endsWith('.wav') || url.includes('_sf_') || url.includes('_sf.'); }
 
   function openFile(url) {
-    if (_splitMode) {
-      _splitMode = false;
-      const sc = document.getElementById('splitContainer');
-      if (sc) sc.remove();
-      const oa = document.getElementById('pdfCanvasArea');
-      if (oa) oa.style.display = '';
-    }
     _activeUrl = url;
     document.getElementById('pdfTitle').textContent = examTitle(url);
     // Update chip active states
@@ -4029,18 +4015,11 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 
   function renderFileChips(files, activeUrl) {
     const bar = document.getElementById('fileChipBar');
-    if (!bar) return;
-    if (!files || files.length === 0) { bar.innerHTML = ''; return; }
-    const hasQP = files.some(f => f.label === 'QP');
-    const hasMS = files.some(f => f.label === 'MS');
-    const chipHtml = files.length > 1 ? files.map(f => {
+    if (!files || files.length <= 1) { bar.innerHTML = ''; return; }
+    bar.innerHTML = files.map(f => {
       const cls = 'file-chip' + (isAudio(f.url) ? ' audio' : '') + (f.url === activeUrl ? ' active' : '');
       return '<button class="' + cls + '" data-url="' + f.url + '" onclick="openFile(this.dataset.url)">' + f.label + '</button>';
-    }).join('') : '';
-    const splitHtml = (hasQP && hasMS && window.innerWidth > 900)
-      ? '<button class="file-chip split-chip' + (_splitMode ? ' active' : '') + '" onclick="toggleSplit()" title="Side by side">&#8921; Split</button>'
-      : '';
-    bar.innerHTML = chipHtml + splitHtml;
+    }).join('');
   }
 
   function buildEdexcelFileChips(url) {
@@ -4134,13 +4113,11 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     renderFileChips(_files, url);
     _aiFileList = _files.map(f => f.label).join(', ');
 
-    // Auto-split if QP and MS both found (desktop only)
-    const _hasQP = _files.some(f => f.label === 'QP');
-    const _hasMS = _files.some(f => f.label === 'MS');
-    if (_hasQP && _hasMS && window.innerWidth > 900 && !_splitMode) {
+    // Auto-split on desktop if QP+MS found
+    if (!_splitMode && _files.some(f=>f.label==='QP') && _files.some(f=>f.label==='MS') && window.innerWidth>900) {
       _splitMode = true;
       renderSplitView();
-      renderFileChips(_files, _activeUrl);
+      renderFileChips(_files, pdfUrl);
     }
 
     // Fetch MS for AI — always use the MS file URL regardless of what's currently open
@@ -4610,71 +4587,49 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     } catch {}
   }
 
-  function goBack() { sessionStorage.setItem('fromCodes','1'); window.location.href = '/'; }
   function toggleSplit() {
     if (window.innerWidth <= 900) return;
     _splitMode = !_splitMode;
-    if (_splitMode) renderSplitView();
-    else exitSplitView();
-    renderFileChips(_files, _activeUrl);
+    if (_splitMode) { renderSplitView(); } else { exitSplitView(); }
+    renderFileChips(_files, pdfUrl);
   }
-
   function renderSplitView() {
-    const qpFile = _files.find(f => f.label === 'QP');
-    const msFile = _files.find(f => f.label === 'MS');
-    if (!qpFile || !msFile) { _splitMode = false; return; }
-    // Hide single view
-    const origArea = document.getElementById('pdfCanvasArea');
-    if (origArea) origArea.style.display = 'none';
-    const audioArea = document.getElementById('audioArea');
-    if (audioArea) audioArea.style.display = 'none';
-    // Remove old split container if exists
-    const old = document.getElementById('splitContainer');
+    var qp = _files.find(function(f){return f.label==='QP';});
+    var ms = _files.find(function(f){return f.label==='MS';});
+    if (!qp||!ms) { _splitMode=false; return; }
+    document.getElementById('pdfCanvasArea').style.display='none';
+    var old = document.getElementById('splitContainer');
     if (old) old.remove();
-    // Build container
-    const container = document.createElement('div');
-    container.id = 'splitContainer';
-    container.style.cssText = 'display:flex;flex:1;min-height:0;';
+    var con = document.createElement('div');
+    con.id = 'splitContainer';
+    con.style.cssText = 'display:flex;flex:1;min-height:0;';
     function makePane(url, label) {
-      const pane = document.createElement('div');
-      pane.style.cssText = 'flex:1;min-width:0;display:flex;flex-direction:column;border-right:2px solid #333;overflow:hidden;';
-      pane.innerHTML =
-        '<div style="padding:0.25rem 0.6rem;font-size:0.6rem;font-family:Space Mono,monospace;color:var(--accent);background:#1e1e1e;border-bottom:1px solid #333;flex-shrink:0">' + label + '</div>' +
-        '<object data="' + url + '" type="application/pdf" width="100%" style="display:block;border:none;width:100%">' +
-          '<embed src="' + url + '" type="application/pdf" width="100%" />' +
-          '<iframe src="' + url + '" width="100%" style="border:none"></iframe>' +
+      var p = document.createElement('div');
+      p.style.cssText = 'flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;';
+      p.innerHTML = '<div style="padding:0.25rem 0.6rem;font-size:0.6rem;font-family:Space Mono,monospace;color:var(--accent);background:#1e1e1e;border-bottom:1px solid #333;flex-shrink:0">'+label+'</div>'+
+        '<object data="'+url+'" type="application/pdf" width="100%" height="100%" style="display:block;border:none;width:100%;height:100%">'+
+        '<embed src="'+url+'" type="application/pdf" width="100%" height="100%" />'+
+        '<iframe src="'+url+'" width="100%" height="100%" style="border:none"></iframe>'+
         '</object>';
-      return pane;
+      return p;
     }
-    const qpPane = makePane(qpFile.url, 'QP — Question Paper');
-    const msPane = makePane(msFile.url, 'MS — Mark Scheme');
-    msPane.style.borderRight = 'none';
-    container.appendChild(qpPane);
-    container.appendChild(msPane);
-    // Insert into viewer-centre before audioArea
-    const centre = document.querySelector('.viewer-centre');
-    const audioEl = document.getElementById('audioArea');
-    centre.insertBefore(container, audioEl);
+    var qpP = makePane(qp.url, 'QP — Question Paper');
+    var msP = makePane(ms.url, 'MS — Mark Scheme');
+    qpP.style.borderRight = '2px solid #333';
+    con.appendChild(qpP);
+    con.appendChild(msP);
+    var centre = document.querySelector('.viewer-centre');
+    var audio = document.getElementById('audioArea');
+    centre.insertBefore(con, audio);
   }
 
-  function exitSplitView() {
-    const sc = document.getElementById('splitContainer');
+    function exitSplitView() {
+    var sc = document.getElementById('splitContainer');
     if (sc) sc.remove();
-    const origArea = document.getElementById('pdfCanvasArea');
-    if (origArea) origArea.style.display = '';
+    document.getElementById('pdfCanvasArea').style.display = '';
   }
 
-  
-  function exitSplitView() {
-    const container = document.getElementById('splitContainer');
-    if (container) container.remove();
-    const origArea = document.getElementById('pdfCanvasArea');
-    if (origArea) origArea.style.display = '';
-    // pdfCanvasArea already has the PDF from before split — no need to reload
-    // Just re-render chips to update split button state
-    renderFileChips(_files, _activeUrl);
-  }
-
+    function goBack() { sessionStorage.setItem('fromCodes','1'); window.location.href = '/'; }
   function openOnline() { const url = _activeUrl || pdfUrl; if (url) window.open(url, '_blank'); }
   function copyLink() {
     const url = _activeUrl || pdfUrl || '';
