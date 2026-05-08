@@ -255,7 +255,7 @@
     border-radius: 8px;
     color: var(--text);
     font-family: 'Space Mono', monospace;
-    font-size: 0.88rem;
+    font-size: 16px;
     padding: 0.65rem 0.9rem;
     width: 100%;
     outline: none;
@@ -3201,10 +3201,19 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     if (code.length === 0) {
       // Show favourites when field is empty
       const favCodes = getFavourites();
+      const sugBox = document.getElementById('codeSuggestions');
       if (favCodes.length > 0) {
-        const items = favCodes.slice(0, 8);
-        renderSuggestions(items, '', true);
+        renderSuggestions(favCodes.slice(0, 8), '');
+      } else {
+        if (sugBox) sugBox.classList.remove('open');
       }
+      tag.textContent = ''; tag.classList.remove('visible');
+      return;
+    }
+    if (code.length === 4) {
+      // Hide favourites dropdown when 4 digits entered
+      const sugBox2 = document.getElementById('codeSuggestions');
+      if (sugBox2) sugBox2.classList.remove('open');
     }
     if (code.length === 4 && subjectNames[code]) {
       tag.textContent = '\u2713 ' + subjectNames[code];
@@ -6059,4 +6068,4 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
 </div>
 
 </body>
-
+</html>
