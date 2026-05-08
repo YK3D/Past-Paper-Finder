@@ -4017,14 +4017,13 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   function renderFileChips(files, activeUrl) {
     const bar = document.getElementById('fileChipBar');
     if (!files || files.length <= 1) { bar.innerHTML = ''; return; }
-    var html = files.map(f => {
+    bar.innerHTML = files.map(f => {
       const cls = 'file-chip' + (isAudio(f.url) ? ' audio' : '') + (f.url === activeUrl ? ' active' : '');
       return '<button class="' + cls + '" data-url="' + f.url + '" onclick="openFile(this.dataset.url)">' + f.label + '</button>';
-    }).join('');
-    if (files.some(f=>f.label.startsWith('QP')) && files.some(f=>f.label.startsWith('MS'))) {
-      html += '<button class="file-chip split-chip' + (_splitMode ? ' active' : '') + '" onclick="toggleSplit()">&#8921; Split</button>';
-    }
-    bar.innerHTML = html;
+    }).join('') +
+    (files.some(f=>f.label.startsWith('QP')) && files.some(f=>f.label.startsWith('MS'))
+      ? '<button class="file-chip split-chip' + (_splitMode ? ' active' : '') + '" onclick="toggleSplit()">&#8921; Split</button>'
+      : '');
   }
 
   function buildEdexcelFileChips(url) {
@@ -4603,33 +4602,63 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     renderFileChips(_files, pdfUrl);
   }
   function renderSplitView() {
-    var qp = _files.find(function(f){return f.label.startsWith('QP');});
-    var ms = _files.find(function(f){return f.label.startsWith('MS');});
-    if (!qp||!ms) { _splitMode=false; return; }
-    document.getElementById('pdfCanvasArea').style.display='none';
-    var old = document.getElementById('splitContainer');
-    if (old) old.remove();
+    var qp = _files.find(function(f){ return f.label.startsWith('QP'); });
+    var ms = _files.find(function(f){ return f.label.startsWith('MS'); });
+    if (!qp || !ms) { _splitMode = false; return; }
+
+    // Hide the single-file canvas
+    document.getElementById('pdfCanvasArea').style.display = 'none';
+    var audioArea = document.getElementById('audioArea');
+    if (audioArea) audioArea.style.display = 'none';
+
+    // Remove old split container
+    var existing = document.getElementById('splitContainer');
+    if (existing) existing.remove();
+
+    // Build container — two 50% panes side by side
     var con = document.createElement('div');
     con.id = 'splitContainer';
-    con.style.cssText = 'display:flex;flex:1;min-height:0;';
+    con.style.cssText = 'display:flex;flex:1;min-height:0;overflow:hidden;';
+
     function makePane(url, label) {
-      var p = document.createElement('div');
-      p.style.cssText = 'flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;';
-      p.innerHTML = '<div style="padding:0.25rem 0.6rem;font-size:0.6rem;font-family:Space Mono,monospace;color:var(--accent);background:#1e1e1e;border-bottom:1px solid #333;flex-shrink:0">'+label+'</div>'+
-        '<object data="'+url+'" type="application/pdf" width="100%" height="100%" style="display:block;border:none;width:100%;height:100%">'+
-        '<embed src="'+url+'" type="application/pdf" width="100%" height="100%" />'+
-        '<iframe src="'+url+'" width="100%" height="100%" style="border:none"></iframe>'+
-        '</object>';
-      return p;
+      var pane = document.createElement('div');
+      pane.style.cssText = 'width:50%;flex-shrink:0;display:flex;flex-direction:column;overflow:hidden;';
+
+      var header = document.createElement('div');
+      header.style.cssText = 'padding:0.2rem 0.6rem;font-size:0.6rem;font-family:Space Mono,monospace;color:var(--accent);background:#1e1e1e;border-bottom:1px solid #333;flex-shrink:0;';
+      header.textContent = label;
+      pane.appendChild(header);
+
+      var obj = document.createElement('object');
+      obj.data = url;
+      obj.type = 'application/pdf';
+      obj.style.cssText = 'width:100%;flex:1;min-height:0;border:none;display:block;';
+
+      var embed = document.createElement('embed');
+      embed.src = url;
+      embed.type = 'application/pdf';
+      embed.style.cssText = 'width:100%;height:100%;border:none;';
+
+      var iframe = document.createElement('iframe');
+      iframe.src = url;
+      iframe.style.cssText = 'width:100%;height:100%;border:none;';
+
+      obj.appendChild(embed);
+      obj.appendChild(iframe);
+      pane.appendChild(obj);
+      return pane;
     }
-    var qpP = makePane(qp.url, 'QP — Question Paper');
-    var msP = makePane(ms.url, 'MS — Mark Scheme');
-    qpP.style.borderRight = '2px solid #333';
-    con.appendChild(qpP);
-    con.appendChild(msP);
+
+    var qpPane = makePane(qp.url, 'QP — Question Paper');
+    qpPane.style.borderRight = '2px solid #333';
+    var msPane = makePane(ms.url, 'MS — Mark Scheme');
+
+    con.appendChild(qpPane);
+    con.appendChild(msPane);
+
+    // Insert before audioArea in viewer-centre
     var centre = document.querySelector('.viewer-centre');
-    var audio = document.getElementById('audioArea');
-    centre.insertBefore(con, audio);
+    centre.insertBefore(con, audioArea);
   }
 
     function exitSplitView() {
