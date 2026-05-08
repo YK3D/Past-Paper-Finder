@@ -4101,6 +4101,10 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         const vPad = String(variantInt).padStart(2,'0');
         const audio = t === 'sf';
         candidates.push({ t, url: baseUrl + prefix + '_' + t + '_' + vPad + (audio ? '.mp3' : '.pdf'), audio });
+      } else {
+        // No variant — try without variant suffix (some papers have no variant)
+        const audio = t === 'sf';
+        candidates.push({ t, url: baseUrl + prefix + '_' + t + (audio ? '.mp3' : '.pdf'), audio });
       }
     }
     const results = await Promise.allSettled(
