@@ -3,7 +3,7 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>Past Paper Finder</title>
 
 <!-- SEO Meta -->
@@ -4021,7 +4021,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       const cls = 'file-chip' + (isAudio(f.url) ? ' audio' : '') + (f.url === activeUrl ? ' active' : '');
       return '<button class="' + cls + '" data-url="' + f.url + '" onclick="openFile(this.dataset.url)">' + f.label + '</button>';
     }).join('');
-    if (files.some(f=>f.label==='QP') && files.some(f=>f.label==='MS')) {
+    if (files.some(f=>f.label.startsWith('QP')) && files.some(f=>f.label.startsWith('MS'))) {
       html += '<button class="file-chip split-chip' + (_splitMode ? ' active' : '') + '" onclick="toggleSplit()">&#8921; Split</button>';
     }
     bar.innerHTML = html;
@@ -4119,7 +4119,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     _aiFileList = _files.map(f => f.label).join(', ');
 
     // Auto-split on desktop if QP+MS found
-    if (!_splitMode && _files.some(f=>f.label==='QP') && _files.some(f=>f.label==='MS') && window.innerWidth>900) {
+    if (!_splitMode && _files.some(f=>f.label.startsWith('QP')) && _files.some(f=>f.label.startsWith('MS')) && window.innerWidth>900) {
       _splitMode = true;
       renderSplitView();
       renderFileChips(_files, pdfUrl);
@@ -4599,8 +4599,8 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     renderFileChips(_files, pdfUrl);
   }
   function renderSplitView() {
-    var qp = _files.find(function(f){return f.label==='QP';});
-    var ms = _files.find(function(f){return f.label==='MS';});
+    var qp = _files.find(function(f){return f.label.startsWith('QP');});
+    var ms = _files.find(function(f){return f.label.startsWith('MS');});
     if (!qp||!ms) { _splitMode=false; return; }
     document.getElementById('pdfCanvasArea').style.display='none';
     var old = document.getElementById('splitContainer');
