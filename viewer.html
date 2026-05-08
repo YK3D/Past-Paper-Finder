@@ -3397,8 +3397,8 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .file-chip-bar-inline {
   display: flex; flex-wrap: wrap; gap: 0.3rem;
   align-items: center; flex-shrink: 0;
-  justify-content: flex-end;
-  margin-left: auto;
+  justify-content: center;
+  padding: 0.3rem 0.8rem 0.5rem;
 }
 .file-chip {
   padding: 0.2rem 0.6rem; border-radius: 20px; border: 1px solid var(--accent);
@@ -4024,7 +4024,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     var qpExists = files.some(function(f){ return f.label && f.label.toUpperCase().indexOf('QP') === 0; });
     var msExists = files.some(function(f){ return f.label && f.label.toUpperCase().indexOf('MS') === 0; });
     if (qpExists && msExists && window.innerWidth > 900) {
-      bar.innerHTML += '<button class="file-chip' + (_splitMode ? ' active' : '') + '" onclick="toggleSplit()" style="margin-left:0.3rem">&#8921; Split</button>';
+      bar.innerHTML = '<button class="file-chip' + (_splitMode ? ' active' : '') + '" onclick="toggleSplit()">&#8921; Split</button>' + bar.innerHTML;
     }
   }
 
@@ -4119,14 +4119,35 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     renderFileChips(_files, url);
     _aiFileList = _files.map(f => f.label).join(', ');
 
-    // Auto-split on desktop
-    if (!_splitMode && window.innerWidth > 900) {
+    // Auto-split on desktop by default
+    if (window.innerWidth > 900) {
       var _qp = null, _ms = null;
       for (var j = 0; j < _files.length; j++) {
         if (!_qp && _files[j].label && _files[j].label.toUpperCase().indexOf('QP') === 0) _qp = _files[j];
         if (!_ms && _files[j].label && _files[j].label.toUpperCase().indexOf('MS') === 0) _ms = _files[j];
       }
-      if (_qp && _ms) { _splitMode = true; toggleSplit(); }
+      if (_qp && _ms && !_splitMode) {
+        _splitMode = true;
+        // Directly render split without toggle logic
+        document.getElementById('pdfCanvasArea').style.display = 'none';
+        var _old = document.getElementById('splitContainer');
+        if (_old) _old.remove();
+        var _con = document.createElement('div');
+        _con.id = 'splitContainer';
+        _con.style.cssText = 'display:flex;flex:1;min-height:0;overflow:hidden';
+        var _left = document.createElement('div');
+        _left.style.cssText = 'width:50%;display:flex;flex-direction:column;overflow:hidden;border-right:2px solid #333';
+        _left.innerHTML = '<object data="'+_qp.url+'" type="application/pdf" width="100%" height="100%" style="display:block;border:none;width:100%;height:100%"><embed src="'+_qp.url+'" type="application/pdf" width="100%" height="100%"><iframe src="'+_qp.url+'" width="100%" height="100%" style="border:none"></iframe></object>';
+        var _right = document.createElement('div');
+        _right.style.cssText = 'width:50%;display:flex;flex-direction:column;overflow:hidden';
+        _right.innerHTML = '<object data="'+_ms.url+'" type="application/pdf" width="100%" height="100%" style="display:block;border:none;width:100%;height:100%"><embed src="'+_ms.url+'" type="application/pdf" width="100%" height="100%"><iframe src="'+_ms.url+'" width="100%" height="100%" style="border:none"></iframe></object>';
+        _con.appendChild(_left);
+        _con.appendChild(_right);
+        var _centre = document.querySelector('.viewer-centre');
+        var _audioEl = document.getElementById('audioArea');
+        _centre.insertBefore(_con, _audioEl);
+        renderFileChips(_files, pdfUrl);
+      }
     }
 
     // Fetch MS for AI — always use the MS file URL regardless of what's currently open
@@ -4614,10 +4635,10 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       c.style.cssText = 'display:flex;flex:1;min-height:0;overflow:hidden';
       var left = document.createElement('div');
       left.style.cssText = 'width:50%;display:flex;flex-direction:column;overflow:hidden;border-right:2px solid #333';
-      left.innerHTML = '<div style="padding:0.2rem 0.6rem;font-size:0.6rem;font-family:Space Mono,monospace;color:var(--accent);background:#1e1e1e;border-bottom:1px solid #333;flex-shrink:0">QP</div><object data="'+qp.url+'" type="application/pdf" width="100%" height="100%" style="display:block;border:none;width:100%;height:100%"><embed src="'+qp.url+'" type="application/pdf" width="100%" height="100%"><iframe src="'+qp.url+'" width="100%" height="100%" style="border:none"></iframe></object>';
+      left.innerHTML = '<object data="'+qp.url+'" type="application/pdf" width="100%" height="100%" style="display:block;border:none;width:100%;height:100%"><embed src="'+qp.url+'" type="application/pdf" width="100%" height="100%"><iframe src="'+qp.url+'" width="100%" height="100%" style="border:none"></iframe></object>';
       var right = document.createElement('div');
       right.style.cssText = 'width:50%;display:flex;flex-direction:column;overflow:hidden';
-      right.innerHTML = '<div style="padding:0.2rem 0.6rem;font-size:0.6rem;font-family:Space Mono,monospace;color:var(--accent);background:#1e1e1e;border-bottom:1px solid #333;flex-shrink:0">MS</div><object data="'+ms.url+'" type="application/pdf" width="100%" height="100%" style="display:block;border:none;width:100%;height:100%"><embed src="'+ms.url+'" type="application/pdf" width="100%" height="100%"><iframe src="'+ms.url+'" width="100%" height="100%" style="border:none"></iframe></object>';
+      right.innerHTML = '<object data="'+ms.url+'" type="application/pdf" width="100%" height="100%" style="display:block;border:none;width:100%;height:100%"><embed src="'+ms.url+'" type="application/pdf" width="100%" height="100%"><iframe src="'+ms.url+'" width="100%" height="100%" style="border:none"></iframe></object>';
       c.appendChild(left);
       c.appendChild(right);
       var centre = document.querySelector('.viewer-centre');
