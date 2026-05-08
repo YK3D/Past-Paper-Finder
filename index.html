@@ -3098,7 +3098,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
   function getSuggestions(query, board) {
     if (!query) return [];
     const pool = board === 'AQA' ? [...aqaCodesAll] : board === 'CAIE' ? [...caieCodesAll, ...alCodesAll, ...olCodesAll] : [...caieCodesAll, ...alCodesAll, ...olCodesAll, ...aqaCodesAll];
-    const favs = new Set(getFavourites());
+    const favObjs2 = getFavourites(); const favs = new Set(favObjs2.map(f => f.code || f).filter(Boolean));
     const q = query.toLowerCase();
     return pool
       .filter(c => {
@@ -3198,22 +3198,20 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     const dym = document.getElementById('didYouMeanTag');
     dym.style.display = 'none';
     dym.innerHTML = '';
+    // Favourites show when field empty; dropdown hides at 4 digits
     if (code.length === 0) {
-      // Show favourites when field is empty
-      const favCodes = getFavourites();
-      const sugBox = document.getElementById('codeSuggestions');
-      if (favCodes.length > 0) {
-        renderSuggestions(favCodes.slice(0, 8), '');
-      } else {
-        if (sugBox) sugBox.classList.remove('open');
-      }
       tag.textContent = ''; tag.classList.remove('visible');
+      const favObjs0 = getFavourites();
+      const favCodes0 = favObjs0.map(f => f.code || f).filter(Boolean);
+      const sugBox = document.getElementById('codeSuggestions');
+      if (favCodes0.length > 0) { renderSuggestions(favCodes0.slice(0, 8), ''); }
+      else { if (sugBox) sugBox.classList.remove('open'); }
       return;
     }
     if (code.length === 4) {
-      // Hide favourites dropdown when 4 digits entered
-      const sugBox2 = document.getElementById('codeSuggestions');
-      if (sugBox2) sugBox2.classList.remove('open');
+      document.getElementById('codeSuggestions').classList.remove('open');
+      var favDd = document.getElementById('favDropdown');
+      if (favDd) favDd.classList.remove('open');
     }
     if (code.length === 4 && subjectNames[code]) {
       tag.textContent = '\u2713 ' + subjectNames[code];
