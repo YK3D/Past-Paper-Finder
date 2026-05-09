@@ -3730,6 +3730,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   var _scale = null;
   var _files = [];
   var _splitMode = false;
+  var _hasAutoSplit = false;
   var _activeUrl = pdfUrl || '';
   var _aiFileList = '';
   var _msText = '';  // Background MS text for AI
@@ -3950,6 +3951,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   function isAudio(url) { return url.endsWith('.mp3') || url.endsWith('.wav') || url.includes('_sf_') || url.includes('_sf.'); }
 
   function openFile(url) {
+    _hasAutoSplit = true; // prevent auto-split re-triggering after user interaction
     if (_splitMode) { _splitMode = false; var sc = document.getElementById('splitContainer'); if (sc) sc.remove(); document.getElementById('pdfCanvasArea').style.display = ''; }
     _activeUrl = url;
     document.getElementById('pdfTitle').textContent = examTitle(url);
@@ -4116,7 +4118,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       }
     }
     if (!_files.find(f => f.url === url)) _files.unshift({ label: examTitle(url), url, audio: isAudio(url) });
-    renderFileChips(_files, url);
+    renderFileChips(_files, _splitMode ? null : url);
     _aiFileList = _files.map(f => f.label).join(', ');
 
     // Auto-split on desktop by default
@@ -4649,7 +4651,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       if (sc) sc.remove();
       document.getElementById('pdfCanvasArea').style.display = '';
     }
-    renderFileChips(_files, pdfUrl);
+    renderFileChips(_files, _splitMode ? null : pdfUrl);
   }
 
     function goBack() { sessionStorage.setItem('fromCodes','1'); window.location.href = '/'; }
