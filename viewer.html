@@ -3815,7 +3815,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       }
 
       extractText();
-      loadRelatedFiles(url);
+      // loadRelatedFiles called only on initial load, not on chip clicks
 
     } catch (e) {
       msg.style.display = 'flex';
