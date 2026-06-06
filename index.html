@@ -255,7 +255,7 @@
     border-radius: 8px;
     color: var(--text);
     font-family: 'Space Mono', monospace;
-    font-size: 0.88rem;
+    font-size: 16px;
     padding: 0.65rem 0.9rem;
     width: 100%;
     outline: none;
@@ -2038,12 +2038,19 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
           <!-- hidden input keeps the rest of the JS working unchanged -->
           <input type="hidden" id="board" value="">
         </div>
-        <p id="aqaDownNotice" style="display:none;font-family:Space Mono,monospace;font-size:0.65rem;color:#ff9e0b;margin-top:0.4rem;text-align:center">⚠ AQA codes currently down</p>
+        <p id="boardDownNotice" style="display:none;font-family:Space Mono,monospace;font-size:0.65rem;color:#ff9e0b;margin-top:0.4rem;text-align:center"></p>
+
+        <div class="field" id="levelField" style="display:none">
+          <label>Level</label>
+          <select id="level" onchange="onLevelChange()">
+            <option value="">— Select Level —</option>
+          </select>
+        </div>
 
         <div class="field" id="codeField" style="position:relative">
-          <label>Subject Code</label>
+          <label>Subject</label>
           <div class="fav-wrap">
-            <input type="text" id="code" placeholder="Select exam board first" maxlength="4" inputmode="numeric" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="closeResultBox();onCodeInput()" onkeydown="onCodeKeydown(event)" onblur="hideSuggestions(event)" onfocus="openFavDropdown()" disabled style="padding-right:2.2rem" />
+            <input type="text" id="code" placeholder="Select board and level first" maxlength="64" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="closeResultBox();onCodeInput()" onkeydown="onCodeKeydown(event)" onblur="hideSuggestions(event)" onfocus="openFavDropdown()" disabled style="padding-right:2.2rem" />
             <button class="fav-btn" id="favStarBtn" onclick="toggleFavourite()" title="Add to favourites">&#9733;</button>
             <div class="fav-dropdown" id="favDropdown"></div>
           </div>
@@ -2969,7 +2976,84 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     '9719':'Spanish','8665':'Spanish','9844':'Spanish','8386':'Sport & Physical Education',
     '9689':'Tamil','8689':'Tamil','8690':'Telugu','9690':'Telugu',
     '9694':'Thinking Skills','9395':'Travel & Tourism','8686':'Urdu','9676':'Urdu','9686':'Urdu',
+    '0970':'Biology (9-1)',
+    '0971':'Chemistry (9-1)',
+    '0972':'Physics (9-1)',
+    '0973':'Co-ordinated Sciences (9-1)',
+    '0976':'Geography (9-1)',
+    '0977':'History (9-1)',
+    '0978':'Music (9-1)',
+    '0979':'Design and Technology (9-1)',
+    '0980':'Mathematics (9-1)',
+    '0983':'Information and Communication Technology (9-1)',
+    '0984':'Computer Science (9-1)',
+    '0985':'Accounting',
+    '0986':'Business Studies (9-1)',
+    '0987':'Economics (9-1)',
+    '0989':'Art and Design (9-1)',
+    '0990':'English Language (9-1)',
+    '0991':'English Literature (9-1)',
+    '0992':'English (9-1)',
+    '0993':'English as a Second Language (9-1)',
+    '0994':'Drama (9-1)',
+    '0995':'Physical Education (9-1)',
 };
+
+  // ── PAPAFY DATA (CAIE only — AQA/Edexcel marked down) ──
+  const PAPAFY_CAIE = {"igcse":{"0452":{"name":"Accounting","slug":"accounting"},"0985":{"name":"Accounting","slug":"accounting"},"0512":{"name":"Afrikaans","slug":"afrikaans"},"0548":{"name":"Afrikaans","slug":"afrikaans"},"0600":{"name":"Agriculture","slug":"agriculture"},"0508":{"name":"Arabic First Language","slug":"arabic-first-language"},"7184":{"name":"Arabic First Language","slug":"arabic-first-language"},"0544":{"name":"Arabic Foreign Language","slug":"arabic-foreign-language"},"0527":{"name":"Arabic Foreign Language BES","slug":"arabic-foreign-language-bes"},"7180":{"name":"Arabic UK","slug":"arabic-uk"},"0400":{"name":"Art and Design","slug":"art-and-design"},"0415":{"name":"Art and Design BES","slug":"art-and-design-bes"},"0989":{"name":"Art and DesignUK","slug":"art-and-designuk"},"0538":{"name":"Bahasa Indonesia","slug":"bahasa-indonesia"},"0449":{"name":"Bangladesh Studies","slug":"bangladesh-studies"},"0610":{"name":"Biology","slug":"biology"},"0438":{"name":"Biology BES","slug":"biology-bes"},"0970":{"name":"BiologyUK","slug":"biologyuk"},"0450":{"name":"Business Studies","slug":"business-studies"},"0986":{"name":"Business StudiesUK","slug":"business-studiesuk"},"0620":{"name":"Chemistry","slug":"chemistry"},"0439":{"name":"Chemistry BES","slug":"chemistry-bes"},"0971":{"name":"ChemistryUK","slug":"chemistryuk"},"0637":{"name":"Child Development","slug":"child-development"},"0509":{"name":"Chinese First Language","slug":"chinese-first-language"},"0547":{"name":"Chinese Mandarin Foreign Language","slug":"chinese-mandarin-foreign-language"},"0534":{"name":"Chinese Mandarin Foreign Language BES","slug":"chinese-mandarin-foreign-language-bes"},"0523":{"name":"Chinese Second Language","slug":"chinese-second-language"},"0478":{"name":"Computer Science","slug":"computer-science"},"0984":{"name":"Computer ScienceUK","slug":"computer-scienceuk"},"0420":{"name":"Computer Studies","slug":"computer-studies"},"0441":{"name":"Computer Studies BES","slug":"computer-studies-bes"},"0514":{"name":"Czech First Language","slug":"czech-first-language"},"0445":{"name":"Design and Technology","slug":"design-and-technology"},"0979":{"name":"Design and TechnologyUK","slug":"design-and-technologyuk"},"0453":{"name":"Development Studies","slug":"development-studies"},"0411":{"name":"Drama","slug":"drama"},"0428":{"name":"Drama BES","slug":"drama-bes"},"0994":{"name":"DramaUK","slug":"dramauk"},"0503":{"name":"Dutch First Language","slug":"dutch-first-language"},"0515":{"name":"Dutch Foreign Language","slug":"dutch-foreign-language"},"0455":{"name":"Economics","slug":"economics"},"0987":{"name":"Economics","slug":"economics"},"0437":{"name":"Economics BES","slug":"economics-bes"},"0427":{"name":"English","slug":"english"},"0465":{"name":"English (as a Second Language)","slug":"english-as-a-second-language"},"0472":{"name":"English (as an additional language)","slug":"english-as-an-additional-language"},"0772":{"name":"English (as an additional language)(9 1)","slug":"english-as-an-additional-language-9-1"},"0993":{"name":"English as a Second Language (Speaking endorsement)","slug":"english-as-a-second-language-speaking-endorsement"},"0500":{"name":"English First Language","slug":"english-first-language"},"0524":{"name":"English First Language BES","slug":"english-first-language-bes"},"0522":{"name":"English First Language UK","slug":"english-first-language-uk"},"0627":{"name":"English First LanguageUK","slug":"english-first-languageuk"},"0990":{"name":"English First LanguageUK","slug":"english-first-languageuk"},"0475":{"name":"English Literature","slug":"english-literature"},"0486":{"name":"English Literature","slug":"english-literature"},"0476":{"name":"English Literature UK","slug":"english-literature-uk"},"0477":{"name":"English LiteratureUK","slug":"english-literatureuk"},"0992":{"name":"English LiteratureUK","slug":"english-literatureuk"},"0526":{"name":"English Second Language BES","slug":"english-second-language-bes"},"0511":{"name":"English Second Language count in oral","slug":"english-second-language-count-in-oral"},"0510":{"name":"English Second Language oral endorsement","slug":"english-second-language-oral-endorsement"},"0991":{"name":"English Second LanguageUK","slug":"english-second-languageuk"},"0454":{"name":"Enterprise","slug":"enterprise"},"0680":{"name":"Environmental Management","slug":"environmental-management"},"0648":{"name":"Food and Nutrition","slug":"food-and-nutrition"},"0501":{"name":"French First Language","slug":"french-first-language"},"0520":{"name":"French Foreign Language","slug":"french-foreign-language"},"0528":{"name":"French Foreign Language BES","slug":"french-foreign-language-bes"},"0685":{"name":"French Foreign Language UK","slug":"french-foreign-language-uk"},"7156":{"name":"FrenchUK","slug":"frenchuk"},"0460":{"name":"Geography","slug":"geography"},"0976":{"name":"GeographyUK","slug":"geographyuk"},"0505":{"name":"German First Language","slug":"german-first-language"},"0525":{"name":"German Foreign Language","slug":"german-foreign-language"},"0529":{"name":"German Foreign Language BES","slug":"german-foreign-language-bes"},"0677":{"name":"German Foreign Language UK","slug":"german-foreign-language-uk"},"7159":{"name":"GermanUK","slug":"germanuk"},"0457":{"name":"Global Perspectives","slug":"global-perspectives"},"0426":{"name":"Global Perspectives BES","slug":"global-perspectives-bes"},"0543":{"name":"Greek Foreign Language","slug":"greek-foreign-language"},"0536":{"name":"Greek Foreign Language BES","slug":"greek-foreign-language-bes"},"0549":{"name":"Hindi Second Language","slug":"hindi-second-language"},"0470":{"name":"History","slug":"history"},"0409":{"name":"History American BES","slug":"history-american-bes"},"0416":{"name":"History BES","slug":"history-bes"},"0977":{"name":"HistoryUK","slug":"historyuk"},"8984":{"name":"ICT starters","slug":"ict-starters"},"0447":{"name":"India Studies","slug":"india-studies"},"0545":{"name":"Indonesian Foreign Language","slug":"indonesian-foreign-language"},"0983":{"name":"Information and Communication Technology","slug":"information-and-communication-technology"},"0417":{"name":"Information and Communication Technology","slug":"information-and-communication-technology"},"0531":{"name":"IsiZulu Second Language","slug":"isizulu-second-language"},"0493":{"name":"Islamiyat","slug":"islamiyat"},"0535":{"name":"Italian Foreign Language","slug":"italian-foreign-language"},"7164":{"name":"ItalianUK","slug":"italianuk"},"0507":{"name":"Japanese First Language","slug":"japanese-first-language"},"0519":{"name":"Japanese Foreign Language","slug":"japanese-foreign-language"},"0532":{"name":"Kazakh Second Language","slug":"kazakh-second-language"},"0521":{"name":"Korean First Language","slug":"korean-first-language"},"0480":{"name":"Latin","slug":"latin"},"0696":{"name":"Malay - First Language","slug":"malay-first-language"},"0546":{"name":"Malay Foreign Language","slug":"malay-foreign-language"},"0697":{"name":"Marine Science","slug":"marine-science"},"0580":{"name":"Mathematics","slug":"mathematics"},"0606":{"name":"Mathematics Additional","slug":"mathematics-additional"},"0459":{"name":"Mathematics Additional BES","slug":"mathematics-additional-bes"},"0444":{"name":"Mathematics BES","slug":"mathematics-bes"},"0581":{"name":"Mathematics Coursework","slug":"mathematics-coursework"},"0607":{"name":"Mathematics International","slug":"mathematics-international"},"0626":{"name":"MathematicsUK","slug":"mathematicsuk"},"0980":{"name":"MathematicsUK","slug":"mathematicsuk"},"0410":{"name":"Music","slug":"music"},"0429":{"name":"Music BES","slug":"music-bes"},"0978":{"name":"MusicUK","slug":"musicuk"},"0448":{"name":"Pakistan Studies","slug":"pakistan-studies"},"0413":{"name":"Physical Education","slug":"physical-education"},"0995":{"name":"Physical EducationUK","slug":"physical-educationuk"},"0652":{"name":"Physical Science","slug":"physical-science"},"0625":{"name":"Physics","slug":"physics"},"0443":{"name":"Physics BES","slug":"physics-bes"},"0972":{"name":"PhysicsUK","slug":"physicsuk"},"0504":{"name":"Portuguese First Language","slug":"portuguese-first-language"},"0540":{"name":"Portuguese Foreign Language","slug":"portuguese-foreign-language"},"0490":{"name":"Religious Studies","slug":"religious-studies"},"0516":{"name":"Russian First Language","slug":"russian-first-language"},"0499":{"name":"Sanskrit","slug":"sanskrit"},"0653":{"name":"Science Combined","slug":"science-combined"},"0654":{"name":"Sciences Co ordinated Double","slug":"sciences-co-ordinated-double"},"0442":{"name":"Sciences Co ordinated Double BES","slug":"sciences-co-ordinated-double-bes"},"0973":{"name":"Sciences Co ordinatedUK","slug":"sciences-co-ordinateduk"},"0495":{"name":"Sociology","slug":"sociology"},"0474":{"name":"Spanish","slug":"spanish"},"0502":{"name":"Spanish First Language","slug":"spanish-first-language"},"0537":{"name":"Spanish First Language BES","slug":"spanish-first-language-bes"},"0530":{"name":"Spanish Foreign Language","slug":"spanish-foreign-language"},"0533":{"name":"Spanish Foreign Language BES","slug":"spanish-foreign-language-bes"},"0678":{"name":"Spanish Foreign Language UK","slug":"spanish-foreign-language-uk"},"0488":{"name":"Spanish Literature","slug":"spanish-literature"},"7160":{"name":"SpanishUK","slug":"spanishuk"},"0262":{"name":"Swahili","slug":"swahili"},"0518":{"name":"Thai First Language","slug":"thai-first-language"},"0471":{"name":"Travel and Tourism","slug":"travel-and-tourism"},"0513":{"name":"Turkish First Language","slug":"turkish-first-language"},"0608":{"name":"Twenty First Century Science","slug":"twenty-first-century-science"},"0539":{"name":"Urdu Second Language","slug":"urdu-second-language"},"0695":{"name":"Vietnamese First Language","slug":"vietnamese-first-language"},"0408":{"name":"World Literature","slug":"world-literature"}},"a-level":{"9706":{"name":"Accounting","slug":"accounting"},"8679":{"name":"Afrikaans","slug":"afrikaans"},"8779":{"name":"Afrikaans","slug":"afrikaans"},"9679":{"name":"Afrikaans","slug":"afrikaans"},"9713":{"name":"AICT","slug":"aict"},"8680":{"name":"Arabic","slug":"arabic"},"9680":{"name":"Arabic","slug":"arabic"},"9479":{"name":"Art and Design","slug":"art-and-design"},"9704":{"name":"Art and Design","slug":"art-and-design"},"9484":{"name":"Biblical studies","slug":"biblical-studies"},"9184":{"name":"Biology","slug":"biology"},"9700":{"name":"Biology","slug":"biology"},"9609":{"name":"Business","slug":"business"},"9707":{"name":"Business Studies","slug":"business-studies"},"9980":{"name":"Project Qualification","slug":"project-qualification"},"9185":{"name":"Chemistry","slug":"chemistry"},"9701":{"name":"Chemistry","slug":"chemistry"},"8238":{"name":"Chineese","slug":"chineese"},"8669":{"name":"Chinese","slug":"chinese"},"8681":{"name":"Chinese","slug":"chinese"},"9715":{"name":"Chinese","slug":"chinese"},"9868":{"name":"Chinese","slug":"chinese"},"9274":{"name":"Classical Studies","slug":"classical-studies"},"9618":{"name":"Computer Science","slug":"computer-science"},"9608":{"name":"Computer Science","slug":"computer-science"},"9691":{"name":"Computing","slug":"computing"},"9705":{"name":"Design and Technology","slug":"design-and-technology"},"9631":{"name":"Design and Textiles","slug":"design-and-textiles"},"9481":{"name":"Digital Media & Design","slug":"digital-media-design"},"9011":{"name":"Divinity","slug":"divinity"},"8041":{"name":"Divinity","slug":"divinity"},"9482":{"name":"Drama","slug":"drama"},"9275":{"name":"Economics","slug":"economics"},"9708":{"name":"Economics","slug":"economics"},"8274":{"name":"English","slug":"english"},"8287":{"name":"English","slug":"english"},"8695":{"name":"English","slug":"english"},"9093":{"name":"English","slug":"english"},"9276":{"name":"English","slug":"english"},"9695":{"name":"English","slug":"english"},"8021":{"name":"English General Paper","slug":"english-general-paper"},"8693":{"name":"English Language","slug":"english-language"},"8291":{"name":"Environmental Management","slug":"environmental-management"},"9336":{"name":"Food Studies","slug":"food-studies"},"8276":{"name":"French","slug":"french"},"8670":{"name":"French","slug":"french"},"9281":{"name":"French","slug":"french"},"9716":{"name":"French","slug":"french"},"8277":{"name":"French","slug":"french"},"8682":{"name":"French Language","slug":"french-language"},"9898":{"name":"French Language & Literature","slug":"french-language-literature"},"8001":{"name":"General Paper","slug":"general-paper"},"8004":{"name":"General Paper","slug":"general-paper"},"9278":{"name":"Geography","slug":"geography"},"9696":{"name":"Geography","slug":"geography"},"8027":{"name":"German","slug":"german"},"8683":{"name":"German","slug":"german"},"9717":{"name":"German","slug":"german"},"9897":{"name":"German Language & Literature","slug":"german-language-literature"},"8275":{"name":"Global Perspectives","slug":"global-perspectives"},"8987":{"name":"Global Perspectives","slug":"global-perspectives"},"9239":{"name":"Global Perspectives and Research","slug":"global-perspectives-and-research"},"8675":{"name":"Hindi","slug":"hindi"},"9687":{"name":"Hindi","slug":"hindi"},"8687":{"name":"Hindi Language","slug":"hindi-language"},"8058":{"name":"Hinduism","slug":"hinduism"},"9014":{"name":"Hinduism","slug":"hinduism"},"9487":{"name":"Hinduism","slug":"hinduism"},"9279":{"name":"History","slug":"history"},"9389":{"name":"History","slug":"history"},"9489":{"name":"History","slug":"history"},"9697":{"name":"History","slug":"history"},"9626":{"name":"Information Technology","slug":"information-technology"},"9488":{"name":"Islamic studies","slug":"islamic-studies"},"9013":{"name":"Islamic Studies 9013 & 8053","slug":"islamic-studies-9013-8053"},"8053":{"name":"Islamic Studies 9013 & 8053","slug":"islamic-studies-9013-8053"},"8281":{"name":"Japanese Language","slug":"japanese-language"},"9084":{"name":"Law","slug":"law"},"9688":{"name":"Marathi","slug":"marathi"},"8688":{"name":"Marathi Language","slug":"marathi-language"},"9693":{"name":"Marine Science","slug":"marine-science"},"9280":{"name":"Mathematics","slug":"mathematics"},"9709":{"name":"Mathematics","slug":"mathematics"},"9231":{"name":"Mathematics Further","slug":"mathematics-further"},"9607":{"name":"Media Studies","slug":"media-studies"},"9385":{"name":"Music","slug":"music"},"9483":{"name":"Music","slug":"music"},"9703":{"name":"Music 9703 & 8663","slug":"music-9703-8663"},"8663":{"name":"Music 9703 & 8663","slug":"music-9703-8663"},"8024":{"name":"Nepal Studies","slug":"nepal-studies"},"9396":{"name":"Physical Education","slug":"physical-education"},"8780":{"name":"Physical Science","slug":"physical-science"},"9277":{"name":"Physics","slug":"physics"},"9702":{"name":"Physics","slug":"physics"},"8684":{"name":"Portuguese","slug":"portuguese"},"9718":{"name":"Portuguese","slug":"portuguese"},"8672":{"name":"Portuguese Literature","slug":"portuguese-literature"},"9698":{"name":"Psychology","slug":"psychology"},"9990":{"name":"Psychology","slug":"psychology"},"9699":{"name":"Sociology","slug":"sociology"},"8022":{"name":"Spanish","slug":"spanish"},"8278":{"name":"Spanish","slug":"spanish"},"8279":{"name":"Spanish","slug":"spanish"},"8665":{"name":"Spanish","slug":"spanish"},"8673":{"name":"Spanish","slug":"spanish"},"8685":{"name":"Spanish","slug":"spanish"},"9282":{"name":"Spanish","slug":"spanish"},"9719":{"name":"Spanish","slug":"spanish"},"9844":{"name":"Spanish","slug":"spanish"},"8386":{"name":"Sports & physical education","slug":"sports-physical-education"},"8689":{"name":"Tamil","slug":"tamil"},"9689":{"name":"Tamil","slug":"tamil"},"9690":{"name":"Telugu","slug":"telugu"},"8690":{"name":"Telugu Language","slug":"telugu-language"},"9694":{"name":"Thinking Skills","slug":"thinking-skills"},"9395":{"name":"Travel & Tourism","slug":"travel-tourism"},"8686":{"name":"Urdu","slug":"urdu"},"9676":{"name":"Urdu","slug":"urdu"},"9686":{"name":"Urdu","slug":"urdu"}},"o-level":{"7707":{"name":"Accounting","slug":"accounting"},"5038":{"name":"Agriculture","slug":"agriculture"},"3180":{"name":"Arabic","slug":"arabic"},"6010":{"name":"Art","slug":"art"},"6090":{"name":"Art and Design","slug":"art-and-design"},"7094":{"name":"Bangladesh Studies","slug":"bangladesh-studies"},"3204":{"name":"Bengali","slug":"bengali"},"2035":{"name":"Biblical studies","slug":"biblical-studies"},"5090":{"name":"Biology","slug":"biology"},"7115":{"name":"Business Studies","slug":"business-studies"},"7048":{"name":"CDT Design and Communication","slug":"cdt-design-and-communication"},"5070":{"name":"Chemistry","slug":"chemistry"},"7100":{"name":"Commerce","slug":"commerce"},"7101":{"name":"Commercial Studies","slug":"commercial-studies"},"2210":{"name":"Computer Science","slug":"computer-science"},"7010":{"name":"Computer Studies","slug":"computer-studies"},"6043":{"name":"Design and Technology","slug":"design-and-technology"},"2281":{"name":"Economics","slug":"economics"},"1123":{"name":"English Language","slug":"english-language"},"5014":{"name":"Environmental Management","slug":"environmental-management"},"6050":{"name":"Fashion and Fabrics","slug":"fashion-and-fabrics"},"6130":{"name":"Fashion and Textiles","slug":"fashion-and-textiles"},"6065":{"name":"Food and Nutrition","slug":"food-and-nutrition"},"3015":{"name":"French","slug":"french"},"2217":{"name":"Geography","slug":"geography"},"3025":{"name":"German","slug":"german"},"2069":{"name":"Global PerspectivesZone 4","slug":"global-perspectiveszone-4"},"3195":{"name":"Hindi","slug":"hindi"},"2055":{"name":"Hinduism","slug":"hinduism"},"2147":{"name":"History","slug":"history"},"2134":{"name":"History Modern World Affairs","slug":"history-modern-world-affairs"},"2158":{"name":"History World Affairs","slug":"history-world-affairs"},"5096":{"name":"Human and Social Biology","slug":"human-and-social-biology"},"2056":{"name":"Islamic Religion and Culture","slug":"islamic-religion-and-culture"},"2068":{"name":"Islamic Studies","slug":"islamic-studies"},"2058":{"name":"Islamiyat","slug":"islamiyat"},"2010":{"name":"Literature in English","slug":"literature-in-english"},"5180":{"name":"Marine Science","slug":"marine-science"},"4037":{"name":"Mathematics Additional","slug":"mathematics-additional"},"4024":{"name":"Mathematics D","slug":"mathematics-d"},"3202":{"name":"Nepali","slug":"nepali"},"2059":{"name":"Pakistan Studies","slug":"pakistan-studies"},"5054":{"name":"Physics","slug":"physics"},"7110":{"name":"Principles of Accounts","slug":"principles-of-accounts"},"2048":{"name":"Religious Studies","slug":"religious-studies"},"5129":{"name":"Science Combined","slug":"science-combined"},"3158":{"name":"Setswana","slug":"setswana"},"3205":{"name":"Sinhala","slug":"sinhala"},"2251":{"name":"Sociology","slug":"sociology"},"3035":{"name":"Spanish","slug":"spanish"},"4040":{"name":"Statistics","slug":"statistics"},"3162":{"name":"Swahili","slug":"swahili"},"3206":{"name":"Tamil","slug":"tamil"},"3226":{"name":"Tamil","slug":"tamil"},"7096":{"name":"Travel and Tourism","slug":"travel-and-tourism"},"3247":{"name":"Urdu First Language","slug":"urdu-first-language"},"3248":{"name":"Urdu Second Language","slug":"urdu-second-language"}}};
+
+  // Find level for a given code — searches all 3 levels
+  function findLevelForCode(code) {
+    if (PAPAFY_CAIE.igcse[code])    return 'igcse';
+    if (PAPAFY_CAIE['a-level'][code]) return 'a-level';
+    if (PAPAFY_CAIE['o-level'][code]) return 'o-level';
+    return null;
+  }
+
+  // Level labels for UI dropdown
+  const LEVEL_LABELS = {
+    'igcse':   'IGCSE',
+    'a-level': 'AS & A Level',
+    'o-level': 'O Level'
+  };
+
+  function onLevelChange() {
+    const level = document.getElementById('level').value;
+    const codeInp = document.getElementById('code');
+    if (level) {
+      codeInp.placeholder = 'Type subject name or code…';
+      codeInp.disabled = false;
+    } else {
+      codeInp.placeholder = 'Select level first';
+      codeInp.value = '';
+    }
+    // Clear suggestions
+    const sb = document.getElementById('codeSuggestions');
+    if (sb) sb.classList.remove('open');
+    const tag = document.getElementById('subjectNameTag');
+    if (tag) { tag.textContent = ''; tag.classList.remove('visible'); }
+  }
+
+  // Build session URL for papafy
+  function buildPapafySubjectUrl(level, code) {
+    const subj = PAPAFY_CAIE[level] && PAPAFY_CAIE[level][code];
+    if (!subj) return null;
+    return 'https://papafy.com/caie/past-papers/' + level + '/' + subj.slug + '-' + code;
+  }
+
+  // Build PDF URL for papafy
+  // {year}-{session: Oct-Nov / May-June / March} / {code}_{w/s/m}{yy}_{type}_{variant}.pdf
+  function buildPapafyPdfUrl(level, code, year, session, type, variant) {
+    const subj = PAPAFY_CAIE[level] && PAPAFY_CAIE[level][code];
+    if (!subj) return null;
+    const yr2 = String(year).slice(-2);
+    const sessLetter = session === 'w' ? 'w' : session === 'm' ? 'm' : 's';
+    const sessFolder = session === 'w' ? 'Oct-Nov' : session === 'm' ? 'March' : 'May-June';
+    const fname = code + '_' + sessLetter + yr2 + '_' + type + (variant ? '_' + variant : '') + '.pdf';
+    const inner = 'https://pastpapers.co/cie/' + level.toUpperCase() + '/' + subj.slug.replace(/-/g,'-') + '-' + code + '/' + year + '-' + sessFolder + '/' + fname;
+    return 'https://papafy.com/api/view-file?url=' + encodeURIComponent(inner);
+  }
+
 
   const caieCodesAll = new Set([
     '0262', '0400', '0408', '0409', '0410', '0411', '0413', '0415',
@@ -2987,7 +3071,10 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     '0580', '0581', '0600', '0606', '0607', '0608', '0610', '0620',
     '0625', '0626', '0627', '0637', '0648', '0652', '0653', '0654',
     '0677', '0678', '0680', '0685', '0695', '0696', '0697', '0698',
-    '0985', '2010', '2058', '2069', '2251', '2281', '4024', '4037',
+    '0970', '0971', '0972', '0973', '0976', '0977', '0978', '0979',
+    '0980', '0983', '0984', '0985', '0986', '0987', '0989', '0990',
+    '0991', '0992', '0993', '0994', '0995', '2010', '2058', '2069',
+    '2251', '2281', '4024', '4037',
     '5014', '5054', '5070', '5090', '6065', '7100', '7115', '8291',
     '8695', '9084', '9093', '9184', '9185', '9231', '9239', '9274',
     '9276', '9279', '9280', '9336', '9389', '9395', '9396', '9479',
@@ -3074,6 +3161,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
   function getSuggestions(query, board) {
     if (!query) return [];
     const pool = board === 'AQA' ? [...aqaCodesAll] : board === 'CAIE' ? [...caieCodesAll, ...alCodesAll, ...olCodesAll] : [...caieCodesAll, ...alCodesAll, ...olCodesAll, ...aqaCodesAll];
+    const favObjs2 = getFavourites(); const favs = new Set(favObjs2.map(f => f.code || f).filter(Boolean));
     const q = query.toLowerCase();
     return pool
       .filter(c => {
@@ -3081,6 +3169,10 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
         return c.startsWith(q) || name.includes(q);
       })
       .sort((a, b) => {
+        // Favourites first, then code match, then alphabetical
+        const aFav = favs.has(a) ? 0 : 1;
+        const bFav = favs.has(b) ? 0 : 1;
+        if (aFav !== bFav) return aFav - bFav;
         const aCode = a.startsWith(q) ? 0 : 1;
         const bCode = b.startsWith(q) ? 0 : 1;
         return aCode - bCode || a.localeCompare(b);
@@ -3095,7 +3187,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     return text.slice(0, idx) + '<span class="suggestion-highlight">' + text.slice(idx, idx + query.length) + '</span>' + text.slice(idx + query.length);
   }
 
-  function renderSuggestions(items, query) {
+  function renderSuggestions(items, query, showFavLabel) {
     const box = document.getElementById('codeSuggestions');
     if (!items.length) { box.classList.remove('open'); return; }
     box.innerHTML = items.map((code, i) => {
@@ -3156,19 +3248,75 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
 
   function onCodeInput() {
     const input = document.getElementById('code');
-    const before = input.value;
-    input.value = input.value.replace(/\D/g, '');
-    if (input.value !== before) {
-      input.classList.remove('field-error');
-      void input.offsetWidth;
-      input.classList.add('field-error');
-      setTimeout(() => input.classList.remove('field-error'), 500);
+    const board = document.getElementById('board').value;
+    const level = (document.getElementById('level') || {}).value || '';
+    let raw = input.value.trim();
+
+    // For non-CAIE or pre-level, fall back to old digits-only behavior
+    if (board !== 'CAIE' || !level) {
+      raw = input.value.replace(/\D/g, '');
+      if (raw !== input.value) input.value = raw;
     }
-    const code = input.value.trim();
+
+    const code = raw;
     const tag = document.getElementById('subjectNameTag');
     const dym = document.getElementById('didYouMeanTag');
     dym.style.display = 'none';
     dym.innerHTML = '';
+    // ── CAIE: subject name OR code search ──
+    if (board === 'CAIE' && level && PAPAFY_CAIE[level]) {
+      const sugBox = document.getElementById('codeSuggestions');
+      const subs = PAPAFY_CAIE[level];
+      if (code.length === 0) {
+        tag.textContent = ''; tag.classList.remove('visible');
+        // Show favourites if any match this level
+        const favObjs0 = getFavourites();
+        const favCodes0 = favObjs0.map(f => f.code || f).filter(c => subs[c]);
+        if (favCodes0.length > 0) { renderSuggestions(favCodes0.slice(0, 8), ''); }
+        else { if (sugBox) sugBox.classList.remove('open'); }
+        return;
+      }
+      const q = code.toLowerCase();
+      const isAllDigits = /^\d+$/.test(code);
+      const matches = [];
+      for (const c2 in subs) {
+        const s = subs[c2];
+        if (c2.startsWith(q) || s.name.toLowerCase().includes(q)) {
+          matches.push(c2);
+          if (matches.length >= 8) break;
+        }
+      }
+      // Hide dropdown when 4-digit code is exact match
+      if (isAllDigits && code.length === 4 && subs[code]) {
+        tag.textContent = '\u2713 ' + subs[code].name;
+        tag.classList.add('visible');
+        if (sugBox) sugBox.classList.remove('open');
+        return;
+      }
+      if (matches.length > 0) {
+        renderSuggestions(matches, code);
+        tag.textContent = ''; tag.classList.remove('visible');
+      } else {
+        if (sugBox) sugBox.classList.remove('open');
+      }
+      return;
+    }
+
+    // ── Non-CAIE legacy path: favourites + 4-digit hide ──
+    if (code.length === 0) {
+      tag.textContent = ''; tag.classList.remove('visible');
+      const favObjs0 = getFavourites();
+      const favCodes0 = favObjs0.map(f => f.code || f).filter(Boolean);
+      const sugBox = document.getElementById('codeSuggestions');
+      if (favCodes0.length > 0) { renderSuggestions(favCodes0.slice(0, 8), ''); }
+      else { if (sugBox) sugBox.classList.remove('open'); }
+      return;
+    }
+    if (code.length === 4) {
+      document.getElementById('codeSuggestions').classList.remove('open');
+      var favDd = document.getElementById('favDropdown');
+      if (favDd) favDd.classList.remove('open');
+    }
     if (code.length === 4 && subjectNames[code]) {
       tag.textContent = '\u2713 ' + subjectNames[code];
       tag.classList.add('visible');
@@ -3675,6 +3823,28 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     '0511':'igcse-english-0511',      // long name → english
     '0512':'igcse-afrikaans0512',     // no hyphen before code
     '0678':'igcse-spanish0678',       // no hyphen before code
+    // 9-1 UK IGCSE codes
+    '0970':'igcse-biology-0970',
+    '0971':'igcse-chemistry-0971-uk',
+    '0972':'igcse-physics-0972',
+    '0973':'igcse-sciences-0973',
+    '0976':'igcse-geography-0976',
+    '0977':'igcse-history-0977',
+    '0978':'igcse-music-0978-uk',
+    '0979':'igcse-design-and-technology-0979',
+    '0980':'igcse-mathematics-0980',
+    '0983':'igcse-information-and-communication-technology-9-1-0983',
+    '0984':'igcse-computer-science-0984',
+    '0985':'igcse-accounting-0985',
+    '0986':'igcse-business-studies-0986-uk',
+    '0987':'igcse-economics-0987',
+    '0989':'igcse-art-and-design-0989',
+    '0990':'igcse-english-0990',
+    '0991':'igcse-english-0991',
+    '0992':'igcse-english-0992',
+    '0993':'igcse-english-0993',
+    '0994':'igcse-drama-0994',
+    '0995':'igcse-physical-education-0995',
   };
 
   const AL_SLUG_MAP = {
@@ -4295,8 +4465,32 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
 
 
   function selectBoard(val) {
-    const aqaNotice = document.getElementById('aqaDownNotice');
-    if (aqaNotice) aqaNotice.style.display = val === 'AQA' ? 'block' : 'none';
+    const notice = document.getElementById('boardDownNotice');
+    const isDown = (val === 'AQA' || val === 'Edexcel');
+    if (notice) {
+      if (isDown) {
+        notice.textContent = '⚠ ' + val + ' currently down — please use CAIE for now';
+        notice.style.display = 'block';
+      } else {
+        notice.style.display = 'none';
+      }
+    }
+    // Show level dropdown for CAIE only
+    const levelField = document.getElementById('levelField');
+    const levelSel   = document.getElementById('level');
+    if (val === 'CAIE') {
+      if (levelField) levelField.style.display = '';
+      if (levelSel && levelSel.options.length <= 1) {
+        // Populate levels once
+        levelSel.innerHTML = '<option value="">— Select Level —</option>' +
+          '<option value="igcse">IGCSE</option>' +
+          '<option value="a-level">AS &amp; A Level</option>' +
+          '<option value="o-level">O Level</option>';
+      }
+    } else {
+      if (levelField) levelField.style.display = 'none';
+      if (levelSel) levelSel.value = '';
+    }
     // Update hidden input
     document.getElementById('board').value = val;
     // Toggle active state on buttons and wrappers
@@ -4315,9 +4509,17 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       codeEl.value = '4MA1'; // fixed internal value for tracking
     } else {
       if (codeField) codeField.style.display = '';
-      codeEl.disabled = false;
       codeEl.value = '';  // reset code on board switch
-      codeEl.placeholder = 'e.g. 0417';
+      if (val === 'AQA' || val === 'Edexcel') {
+        codeEl.disabled = true;
+        codeEl.placeholder = val + ' is currently unavailable';
+      } else if (val === 'CAIE') {
+        codeEl.disabled = true; // wait for level selection
+        codeEl.placeholder = 'Select level first';
+      } else {
+        codeEl.disabled = false;
+        codeEl.placeholder = 'e.g. 0417';
+      }
       // Clear subject name tag and any inline messages
       const snt = document.getElementById('subjectNameTag'); if (snt) snt.textContent = '';
       const dym = document.getElementById('didYouMeanTag'); if (dym) dym.style.display = 'none';
@@ -4511,7 +4713,17 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
   setTimeout(setupArrow, 1600);
 
   // ── Generate ──
+  let _lastGenerateTime = 0;
+  let GENERATE_COOLDOWN_MS = 5000; // overridden by site config
+
   function generate() {
+    const now = Date.now();
+    if (now - _lastGenerateTime < GENERATE_COOLDOWN_MS) {
+      const remaining = Math.ceil((GENERATE_COOLDOWN_MS - (now - _lastGenerateTime)) / 1000);
+      showError('Please wait ' + remaining + ' second' + (remaining !== 1 ? 's' : '') + ' before generating again.');
+      return;
+    }
+    _lastGenerateTime = now;
     clearFieldErrors();
     const board     = document.getElementById('board').value;
     const code      = document.getElementById('code').value.trim();
@@ -4604,11 +4816,26 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       else { btnText.textContent = 'Generate'; btn.disabled = false; }
       return;
     } else if (board === 'CAIE') {
-      if (noVariantTypes.includes(papertype)) {
-        url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${yearVal}_${papertype}.${ext}`;
-      } else {
-        url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${yearVal}_${papertype}_${variantForUrl}.${ext}`;
+      // Find level from dropdown OR auto-detect from code
+      let level = (document.getElementById('level') || {}).value || '';
+      if (!level) level = findLevelForCode(code);
+      const subj = level && PAPAFY_CAIE[level] && PAPAFY_CAIE[level][code];
+      if (!subj) {
+        showError('Subject ' + code + ' not found in PAPAFY archive.');
+        if (wifiLoader) { wifiLoader.classList.remove('active'); btn.style.display = ''; }
+        else { btnText.textContent = 'Generate'; btn.disabled = false; }
+        return;
       }
+      // Build full pastpapers.co inner URL, then wrap in papafy view-file
+      const sessFolder = session === 'w' ? 'Oct-Nov' : session === 'm' ? 'March' : 'May-June';
+      const fullYear = '20' + yearVal;
+      const fname = noVariantTypes.includes(papertype)
+        ? `${code}_${session}${yearVal}_${papertype}.${ext}`
+        : `${code}_${session}${yearVal}_${papertype}_${variantForUrl}.${ext}`;
+      // Build subject folder with capitalised first letter convention used by pastpapers.co
+      const folderName = subj.name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-') + '-' + code;
+      const inner = `https://pastpapers.co/cie/${level.toUpperCase()}/${folderName}/${fullYear}-${sessFolder}/${fname}`;
+      url = 'https://papafy.com/api/view-file?url=' + encodeURIComponent(inner);
     } else {
       // AQA URL format: aqa-{code}{variant}-{type}-{session}{year}.pdf
       // session: jun/nov (2-letter for URL, not full slug)
@@ -4830,16 +5057,14 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     if (!generatedUrl) return;
     haptic('light');
     const label = urlToLabel(generatedUrl);
-    const params = new URLSearchParams(); params.set('url', generatedUrl);
-    const viewerLink = window.location.origin + '/viewer.html?' + params.toString();
     if (navigator.share) {
       navigator.share({
         title: 'Past Paper — ' + label,
         text: label,
-        url: viewerLink
+        url: generatedUrl
       }).catch(() => {});
     } else {
-      navigator.clipboard.writeText(viewerLink).then(() => {
+      navigator.clipboard.writeText(generatedUrl).then(() => {
         const btn = document.getElementById('shareBtn');
         btn.textContent = 'Copied!';
         setTimeout(() => btn.innerHTML = '&#8679; Share', 1800);
@@ -4909,9 +5134,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     if (!generatedUrl) return;
     haptic('light');
     const btn = document.querySelector('.btn-copy');
-    // Copy the PastPaperAI viewer link
-    const params = new URLSearchParams(); params.set('url', generatedUrl);
-    const viewerLink = window.location.origin + '/viewer.html?' + params.toString();
+    // Copy the raw PDF link
     function onSuccess() {
       btn.textContent = 'Copied!';
       setTimeout(() => btn.textContent = 'Copy URL', 1800);
@@ -4919,7 +5142,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     function fallback() {
       try {
         const ta = document.createElement('textarea');
-        ta.value = viewerLink;
+        ta.value = generatedUrl;
         ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
         document.body.appendChild(ta);
         ta.focus();
@@ -4933,7 +5156,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       }
     }
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(viewerLink).then(onSuccess).catch(fallback);
+      navigator.clipboard.writeText(generatedUrl).then(onSuccess).catch(fallback);
     } else {
       fallback();
     }
@@ -4943,6 +5166,12 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     haptic('error');
     const el = document.getElementById('errorMsg');
     el.innerHTML = '';
+    // X close button
+    const xBtn = document.createElement('button');
+    xBtn.textContent = '×';
+    xBtn.style.cssText = 'background:none;border:none;color:inherit;font-size:1.1rem;font-weight:700;cursor:pointer;float:right;margin-left:0.5rem;line-height:1;padding:0;opacity:0.8;';
+    xBtn.onclick = () => el.classList.remove('show');
+    el.appendChild(xBtn);
     const msgNode = document.createTextNode(msg);
     el.appendChild(msgNode);
     if (bypassUrl) {
@@ -5147,9 +5376,9 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
         err.textContent = 'Phone number must be at least 7 digits'; btn.disabled = false;
         shakeAuthInput('authPhone'); return;
       }
-      body = { action: 'register', email: document.getElementById('authEmail').value.trim(), username: document.getElementById('authUsername').value.trim(), password, deviceId: _deviceId, phone: _ph };
+      body = { action: 'register', email: document.getElementById('authEmail').value.trim(), username: document.getElementById('authUsername').value.trim(), password, deviceId: _deviceId, deviceInfo: _deviceInfo, phone: _ph };
     } else {
-      body = { action: 'login', identifier: document.getElementById('authIdentifier').value.trim(), password, deviceId: _deviceId };
+      body = { action: 'login', identifier: document.getElementById('authIdentifier').value.trim(), password, deviceId: _deviceId, deviceInfo: _deviceInfo };
     }
     try {
       const r = await fetch('/api/auth', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
@@ -5179,7 +5408,61 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
 
   // ── FingerprintJS device ID ──
   let _deviceId = null;
+  let _deviceInfo = {};
+
+  function collectDeviceInfo() {
+    const ua = navigator.userAgent || '';
+    // Detect OS/Platform
+    let os = 'Unknown';
+    if (/Windows NT 10/.test(ua)) os = 'Windows 10';
+    else if (/Windows NT 11/.test(ua)) os = 'Windows 11';
+    else if (/Windows/.test(ua)) os = 'Windows';
+    else if (/iPhone/.test(ua)) os = 'iOS (iPhone)';
+    else if (/iPad/.test(ua)) os = 'iOS (iPad)';
+    else if (/Android/.test(ua)) {
+      const m = ua.match(/Android ([0-9.]+)/);
+      os = 'Android' + (m ? ' ' + m[1] : '');
+    }
+    else if (/Mac OS X/.test(ua)) os = 'macOS';
+    else if (/Linux/.test(ua)) os = 'Linux';
+    else if (/CrOS/.test(ua)) os = 'ChromeOS';
+    // Detect Device Brand/Model
+    let brand = 'Unknown', model = 'Unknown';
+    if (/iPhone/.test(ua)) { brand = 'Apple'; model = 'iPhone'; }
+    else if (/iPad/.test(ua)) { brand = 'Apple'; model = 'iPad'; }
+    else if (/Mac/.test(ua)) { brand = 'Apple'; model = 'Mac'; }
+    else if (/Samsung|SM-/.test(ua)) {
+      brand = 'Samsung';
+      const m = ua.match(/SM-([A-Z0-9]+)/);
+      model = m ? 'Samsung ' + m[1] : 'Samsung';
+    }
+    else if (/Huawei|HUAWEI/.test(ua)) { brand = 'Huawei'; model = 'Huawei'; }
+    else if (/Xiaomi|Redmi|MIUI/.test(ua)) { brand = 'Xiaomi'; model = 'Xiaomi'; }
+    else if (/OnePlus/.test(ua)) { brand = 'OnePlus'; model = 'OnePlus'; }
+    else if (/Google Pixel/.test(ua)) { brand = 'Google'; model = 'Pixel'; }
+    else if (/Windows/.test(ua)) { brand = 'PC'; model = 'Windows PC'; }
+    else if (/Linux/.test(ua)) { brand = 'PC'; model = 'Linux PC'; }
+    // Detect device type
+    const isMobile = /Mobi|Android|iPhone|iPad|iPod/.test(ua);
+    const isTablet = /iPad|Tablet/.test(ua) || (isMobile && window.screen.width >= 768);
+    const type = isTablet ? 'Tablet' : isMobile ? 'Mobile' : 'Desktop';
+    // Detect browser
+    let browser = 'Unknown';
+    if (/Chrome\//.test(ua) && !/Chromium|Edg\//.test(ua)) browser = 'Chrome';
+    else if (/Firefox\//.test(ua)) browser = 'Firefox';
+    else if (/Safari\//.test(ua) && !/Chrome/.test(ua)) browser = 'Safari';
+    else if (/Edg\//.test(ua)) browser = 'Edge';
+    else if (/OPR\/|Opera/.test(ua)) browser = 'Opera';
+    return {
+      os, brand, model, type, browser,
+      screen: window.screen.width + 'x' + window.screen.height,
+      language: navigator.language || '',
+      ua: ua.slice(0, 200)
+    };
+  }
+
   (async function initFingerprint() {
+    _deviceInfo = collectDeviceInfo();
     try {
       const fp = await FingerprintJS.load();
       const result = await fp.get();
@@ -5256,8 +5539,14 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     } catch {}
   }
 
+  let _lastPaperViewTime = 0;
+  let PAPER_VIEW_COOLDOWN_MS = 60000; // overridden by site config
+
   async function trackPaperView(url) {
     if (!_sessionToken) return;
+    const now = Date.now();
+    if (now - _lastPaperViewTime < PAPER_VIEW_COOLDOWN_MS) return; // cooldown active
+    _lastPaperViewTime = now;
     try {
       await fetch('/api/user-data', {
         method: 'POST',
@@ -5274,28 +5563,16 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
   let _timeSession = 0;        // Total active seconds this session (for display)
   let _timePending = 0;        // Active seconds queued to send to DB
   let _pageVisible = !document.hidden;
-  let _lastActivity = Date.now();
-  const IDLE_THRESHOLD_MS = 60000;
-
-  ['mousemove','keydown','touchstart','click','scroll'].forEach(evt => {
-    document.addEventListener(evt, () => { _lastActivity = Date.now(); }, { passive: true });
-  });
-
   function tickActiveTime() {
+    // Count all time tab is open and in foreground — no idle check
     if (!_pageVisible) return;
     const now = Date.now();
-    const sinceActivity = now - _lastActivity;
-    if (sinceActivity < IDLE_THRESHOLD_MS) {
-      const elapsed = Math.round((now - _timeStart) / 1000);
-      if (elapsed >= 1) {
-        _timeSession += elapsed;
-        _timePending += elapsed;
-        _timeStart = now;
-        updateTimeDisplay();
-      }
-    } else {
-      // Idle — don't accumulate, but advance _timeStart to prevent backlog when active again
+    const elapsed = Math.round((now - _timeStart) / 1000);
+    if (elapsed >= 1) {
+      _timeSession += elapsed;
+      _timePending += elapsed;
       _timeStart = now;
+      updateTimeDisplay();
     }
   }
 
@@ -5315,7 +5592,6 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       _pageVisible = false;
     } else {
       _timeStart = Date.now();
-      _lastActivity = Date.now();
       _pageVisible = true;
     }
   });
@@ -5575,6 +5851,29 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       const r = await fetch('/api/site-config');
       if (!r.ok) return;
       const cfg = await r.json();
+      // Apply cooldowns from config
+      if (cfg.generate_cooldown_ms)   GENERATE_COOLDOWN_MS   = parseInt(cfg.generate_cooldown_ms);
+      if (cfg.paper_view_cooldown_ms) PAPER_VIEW_COOLDOWN_MS = parseInt(cfg.paper_view_cooldown_ms);
+      // Feature flags
+      if (cfg.ai_enabled === 'false') {
+        const aiBtn = document.querySelector('.btn-view-chat');
+        if (aiBtn) aiBtn.style.display = 'none';
+      }
+      if (cfg.registration_enabled === 'false') {
+        const regLink = document.querySelector('[data-action="register"]');
+        if (regLink) regLink.style.display = 'none';
+      }
+      if (cfg.leaderboard_enabled === 'false') {
+        const lbBtn = document.querySelector('.lb-link-btn');
+        if (lbBtn) lbBtn.style.display = 'none';
+      }
+      if (cfg.question_search_enabled === 'false') {
+        const qsSection = document.getElementById('questionSearchSection');
+        if (qsSection) qsSection.style.display = 'none';
+      }
+      if (cfg.edexcel_enabled === 'false') {
+        document.querySelectorAll('[data-board="Edexcel"]').forEach(el => el.style.display = 'none');
+      }
       if (cfg.maintenance_message) {
         const banner = document.getElementById('maintenanceBanner');
         const txt    = document.getElementById('maintenanceBannerText');
