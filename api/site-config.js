@@ -8,20 +8,26 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     if (!SUPABASE_URL) return res.status(200).json({});
     try {
-      const r = await fetch(SUPABASE_URL + '/rest/v1/site_config?select=key,value', {
+      const r = await fetch(SUPABASE_URL + '/rest/v1/site_config?select=key,value,enabled', {
         headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
       });
       const rows = await r.json();
       const cfg = {};
-      if (Array.isArray(rows)) rows.forEach(row => { cfg[row.key] = row.value; });
+      // Only include rows where enabled = true
+      if (Array.isArray(rows)) rows.forEach(row => {
+        if (row.enabled !== false) cfg[row.key] = row.value;
+      });
       return res.status(200).json(cfg);
     } catch { return res.status(200).json({}); }
   }
 
-  // POST — update a config value (admin only — no auth for now, protect by keeping URL secret)
+  // POST — update a config value or toggle enabled
   if (req.method === 'POST') {
-    const { key, value } = req.body || {};
-    if (!key || value === undefined) return res.status(400).json({ error: 'Missing key or value' });
+    const { key, value, enabled } = req.body || {};
+    if (!key) return res.status(400).json({ error: 'Missing key' });
+    const patch = { updated_at: new Date().toISOString() };
+    if (value !== undefined) patch.value = value;
+    if (enabled !== undefined) patch.enabled = enabled;
     try {
       await fetch(SUPABASE_URL + '/rest/v1/site_config?key=eq.' + key, {
         method: 'PATCH',
@@ -31,7 +37,7 @@ export default async function handler(req, res) {
           'Content-Type': 'application/json',
           'Prefer': 'return=minimal'
         },
-        body: JSON.stringify({ value, updated_at: new Date().toISOString() })
+        body: JSON.stringify(patch)
       });
       return res.status(200).json({ ok: true });
     } catch (e) { return res.status(500).json({ error: e.message }); }
