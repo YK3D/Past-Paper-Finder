@@ -3,7 +3,7 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.01, maximum-scale=5.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>Past Paper Finder</title>
 
 <!-- SEO Meta -->
@@ -3251,10 +3251,13 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .search-highlight.current { background: rgba(255,140,0,0.6); }
 /* ── Topbar ── */
 .pdf-topbar {
-  display: flex; align-items: center; gap: 0.5rem;
-  padding: 0.45rem 0.8rem;
+  display: flex; flex-direction: column; gap: 0;
+  padding: 0;
   background: #242424; border-bottom: 1px solid #333; flex-shrink: 0;
-  min-height: 44px;
+}
+.topbar-row1 {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.45rem 0.8rem; min-height: 44px; flex-wrap: wrap;
 }
 .back-btn-v {
   background: transparent; border: 1px solid #444; border-radius: 6px;
@@ -3306,24 +3309,15 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 /* ── Markup canvas overlay on each page ── */
 .markup-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; z-index: 10; touch-action: none; pointer-events: none; }
 @media (max-width: 600px) {
-  .pdf-topbar { flex-wrap: wrap; min-height: unset; padding: 0.4rem; gap: 0.3rem; }
+  .pdf-topbar { flex-direction: column; }
+  .topbar-row1 { flex-wrap: wrap; min-height: unset; padding: 0.4rem; gap: 0.3rem; }
   .pdf-title-bar { display: none; }
   .topbar-right { flex-wrap: wrap; gap: 0.2rem; }
   .topbar-action { font-size: 0.58rem; padding: 0.2rem 0.35rem; }
   .back-btn-v { font-size: 0.6rem; padding: 0.2rem 0.4rem; }
   .pdf-page-nav .page-info { min-width: 3rem; font-size: 0.58rem; }
 }
-/* Mobile-only download button */
-.topbar-dl-mobile { display: none; }
-@media (max-width: 700px) {
-  .topbar-dl-mobile {
-    display: inline-flex !important;
-    background: rgba(34,197,94,0.15) !important;
-    border-color: #22c55e !important;
-    color: #22c55e !important;
-  }
-  .topbar-dl-mobile:hover { background: #22c55e !important; color: #000 !important; }
-}
+
 .topbar-action {
   background: transparent; border: 1px solid #444; border-radius: 6px;
   color: #aaa; font-size: 0.65rem; padding: 0.25rem 0.5rem;
@@ -3403,6 +3397,8 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .file-chip-bar-inline {
   display: flex; flex-wrap: wrap; gap: 0.3rem;
   align-items: center; flex-shrink: 0;
+  justify-content: center;
+  padding: 0.3rem 0.8rem 0.5rem;
 }
 .file-chip {
   padding: 0.2rem 0.6rem; border-radius: 20px; border: 1px solid var(--accent);
@@ -3639,13 +3635,18 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   <!-- Centre: topbar + canvas -->
   <div class="viewer-centre">
     <div class="pdf-topbar">
-      <button class="back-btn-v" onclick="goBack()">&#8592; Back</button>
-      <span class="pdf-title-bar" id="pdfTitle">Loading&hellip;</span>
-      <div class="file-chip-bar-inline" id="fileChipBar"></div>
-      <div class="topbar-right">
-        <button class="topbar-action" onclick="sharePaper()">&#8679; Share</button>
-        <button class="topbar-action topbar-dl-mobile" onclick="downloadPaper()">&#8659; Download</button>
+      <div class="topbar-row1">
+        <button class="back-btn-v" onclick="goBack()">&#8592; Back</button>
+        <span class="pdf-title-bar" id="pdfTitle">Loading&hellip;</span>
+        <div class="topbar-right">
+          <button class="topbar-action" onclick="printPaper()" title="Print">Print</button>
+          <button class="topbar-action" id="copyBtn" onclick="copyLink()" title="Copy PDF link">Copy</button>
+          <button class="topbar-action" onclick="downloadPaper()" title="Download PDF">Download</button>
+          <button class="topbar-action" onclick="sharePaper()" title="Share PDF link">Share</button>
+          <button class="topbar-action" onclick="openOnline()" title="Open PDF in new tab">Online</button>
+        </div>
       </div>
+      <div class="file-chip-bar-inline" id="fileChipBar"></div>
     </div>
     <!-- Timer & Clock Bar -->
     <div class="timer-clock-bar" id="timerClockBar">
@@ -3729,6 +3730,8 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   var pdfDoc = null, curPage = 1, totalPages = 0;
   var _scale = null;
   var _files = [];
+  var _splitMode = false;
+  var _hasAutoSplit = false;
   var _activeUrl = pdfUrl || '';
   var _aiFileList = '';
   var _msText = '';  // Background MS text for AI
@@ -3813,7 +3816,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       }
 
       extractText();
-      loadRelatedFiles(url);
+      // loadRelatedFiles called only on initial load, not on chip clicks
 
     } catch (e) {
       msg.style.display = 'flex';
@@ -3949,6 +3952,8 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   function isAudio(url) { return url.endsWith('.mp3') || url.endsWith('.wav') || url.includes('_sf_') || url.includes('_sf.'); }
 
   function openFile(url) {
+    _hasAutoSplit = true; // prevent auto-split re-triggering after user interaction
+    if (_splitMode) { _splitMode = false; var sc = document.getElementById('splitContainer'); if (sc) sc.remove(); document.getElementById('pdfCanvasArea').style.display = ''; }
     _activeUrl = url;
     document.getElementById('pdfTitle').textContent = examTitle(url);
     // Update chip active states
@@ -4018,6 +4023,12 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       const cls = 'file-chip' + (isAudio(f.url) ? ' audio' : '') + (f.url === activeUrl ? ' active' : '');
       return '<button class="' + cls + '" data-url="' + f.url + '" onclick="openFile(this.dataset.url)">' + f.label + '</button>';
     }).join('');
+    // Split chip (desktop only)
+    var qpExists = files.some(function(f){ return f.label && f.label.toUpperCase().indexOf('QP') === 0; });
+    var msExists = files.some(function(f){ return f.label && f.label.toUpperCase().indexOf('MS') === 0; });
+    if (qpExists && msExists && window.innerWidth > 900) {
+      bar.innerHTML = '<button class="file-chip' + (_splitMode ? ' active' : '') + '" onclick="toggleSplit()">&#8921; Split</button>' + bar.innerHTML;
+    }
   }
 
   function buildEdexcelFileChips(url) {
@@ -4108,8 +4119,39 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       }
     }
     if (!_files.find(f => f.url === url)) _files.unshift({ label: examTitle(url), url, audio: isAudio(url) });
-    renderFileChips(_files, url);
+    renderFileChips(_files, _splitMode ? null : url);
     _aiFileList = _files.map(f => f.label).join(', ');
+
+    // Auto-split on desktop by default
+    if (window.innerWidth > 900) {
+      var _qp = null, _ms = null;
+      for (var j = 0; j < _files.length; j++) {
+        if (!_qp && _files[j].label && _files[j].label.toUpperCase().indexOf('QP') === 0) _qp = _files[j];
+        if (!_ms && _files[j].label && _files[j].label.toUpperCase().indexOf('MS') === 0) _ms = _files[j];
+      }
+      if (_qp && _ms && !_splitMode) {
+        _splitMode = true;
+        // Directly render split without toggle logic
+        document.getElementById('pdfCanvasArea').style.display = 'none';
+        var _old = document.getElementById('splitContainer');
+        if (_old) _old.remove();
+        var _con = document.createElement('div');
+        _con.id = 'splitContainer';
+        _con.style.cssText = 'display:flex;flex:1;min-height:0;overflow:hidden';
+        var _left = document.createElement('div');
+        _left.style.cssText = 'width:50%;display:flex;flex-direction:column;overflow:hidden;border-right:2px solid #333';
+        _left.innerHTML = '<object data="'+_qp.url+'" type="application/pdf" width="100%" height="100%" style="display:block;border:none;width:100%;height:100%"><embed src="'+_qp.url+'" type="application/pdf" width="100%" height="100%"><iframe src="'+_qp.url+'" width="100%" height="100%" style="border:none"></iframe></object>';
+        var _right = document.createElement('div');
+        _right.style.cssText = 'width:50%;display:flex;flex-direction:column;overflow:hidden';
+        _right.innerHTML = '<object data="'+_ms.url+'" type="application/pdf" width="100%" height="100%" style="display:block;border:none;width:100%;height:100%"><embed src="'+_ms.url+'" type="application/pdf" width="100%" height="100%"><iframe src="'+_ms.url+'" width="100%" height="100%" style="border:none"></iframe></object>';
+        _con.appendChild(_left);
+        _con.appendChild(_right);
+        var _centre = document.querySelector('.viewer-centre');
+        var _audioEl = document.getElementById('audioArea');
+        _centre.insertBefore(_con, _audioEl);
+        renderFileChips(_files, pdfUrl);
+      }
+    }
 
     // Fetch MS for AI — always use the MS file URL regardless of what's currently open
     _allFilesText = {};
@@ -4578,21 +4620,67 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     } catch {}
   }
 
-  function goBack() { sessionStorage.setItem('fromCodes','1'); window.location.href = '/'; }
-  function openOnline() { if (pdfUrl) window.open(pdfUrl, '_blank'); }
+  function toggleSplit() {
+    if (window.innerWidth <= 900) return;
+    _splitMode = !_splitMode;
+    if (_splitMode) {
+      var qp = null, ms = null;
+      for (var i = 0; i < _files.length; i++) {
+        if (!qp && _files[i].label && _files[i].label.toUpperCase().indexOf('QP') === 0) qp = _files[i];
+        if (!ms && _files[i].label && _files[i].label.toUpperCase().indexOf('MS') === 0) ms = _files[i];
+      }
+      if (!qp || !ms) { _splitMode = false; return; }
+      document.getElementById('pdfCanvasArea').style.display = 'none';
+      var old = document.getElementById('splitContainer');
+      if (old) old.remove();
+      var c = document.createElement('div');
+      c.id = 'splitContainer';
+      c.style.cssText = 'display:flex;flex:1;min-height:0;overflow:hidden';
+      var left = document.createElement('div');
+      left.style.cssText = 'width:50%;display:flex;flex-direction:column;overflow:hidden;border-right:2px solid #333';
+      left.innerHTML = '<object data="'+qp.url+'" type="application/pdf" width="100%" height="100%" style="display:block;border:none;width:100%;height:100%"><embed src="'+qp.url+'" type="application/pdf" width="100%" height="100%"><iframe src="'+qp.url+'" width="100%" height="100%" style="border:none"></iframe></object>';
+      var right = document.createElement('div');
+      right.style.cssText = 'width:50%;display:flex;flex-direction:column;overflow:hidden';
+      right.innerHTML = '<object data="'+ms.url+'" type="application/pdf" width="100%" height="100%" style="display:block;border:none;width:100%;height:100%"><embed src="'+ms.url+'" type="application/pdf" width="100%" height="100%"><iframe src="'+ms.url+'" width="100%" height="100%" style="border:none"></iframe></object>';
+      c.appendChild(left);
+      c.appendChild(right);
+      var centre = document.querySelector('.viewer-centre');
+      var audioEl = document.getElementById('audioArea');
+      centre.insertBefore(c, audioEl);
+    } else {
+      var sc = document.getElementById('splitContainer');
+      if (sc) sc.remove();
+      document.getElementById('pdfCanvasArea').style.display = '';
+    }
+    renderFileChips(_files, _splitMode ? null : pdfUrl);
+  }
+
+    function goBack() { sessionStorage.setItem('fromCodes','1'); window.location.href = '/'; }
+  function openOnline() { const url = _activeUrl || pdfUrl; if (url) window.open(url, '_blank'); }
+  function copyLink() {
+    const url = _activeUrl || pdfUrl || '';
+    if (!url) return;
+    navigator.clipboard.writeText(url).then(() => {
+      const b = document.getElementById('copyBtn');
+      if (b) { const o=b.innerHTML; b.innerHTML='&#10003; Copied!'; setTimeout(()=>b.innerHTML=o, 1500); }
+    });
+  }
   function sharePaper() {
-    // Share/copy the PDF URL itself, not the viewer page URL
-
     const shareUrl = _activeUrl || pdfUrl || window.location.href;
-
     if (navigator.share) { navigator.share({ title: document.title, url: shareUrl }); }
-    else { navigator.clipboard.writeText(shareUrl).then(() => { const b = document.querySelector('.topbar-action[onclick="sharePaper()"]'); if (b) { const o=b.innerHTML; b.innerHTML='&#10003; Copied'; setTimeout(()=>b.innerHTML=o,1500); } }); }
+    else {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        const b = document.querySelector('.topbar-action[onclick="sharePaper()"]');
+        if (b) { const o=b.innerHTML; b.innerHTML='&#10003; Shared!'; setTimeout(()=>b.innerHTML=o, 1500); }
+      });
+    }
   }
   function downloadPaper() {
-    if (!pdfUrl) return;
+    const url = _activeUrl || pdfUrl;
+    if (!url) return;
     const a = document.createElement('a');
-    a.href = '/api/download-pdf?url=' + encodeURIComponent(pdfUrl);
-    a.download = pdfUrl.split('/').pop();
+    a.href = '/api/download-pdf?url=' + encodeURIComponent(url);
+    a.download = url.split('/').pop();
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
   }
   function printPaper() { window.print(); }
@@ -4820,21 +4908,18 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 /* Time on site tracking */
 (function(){
   function tok(){ try{ return localStorage.getItem('pp_token'); }catch(e){ return null; } }
-  var _tok=tok(), _start=Date.now(), _sess=0, _pend=0, _vis=!document.hidden, _act=Date.now();
-  ['mousemove','keydown','touchstart','click','scroll'].forEach(function(e){
-    document.addEventListener(e,function(){ _act=Date.now(); },{passive:true});
-  });
+  var _tok=tok(), _start=Date.now(), _sess=0, _pend=0, _vis=!document.hidden;
   function tick(){
+    // Count all foreground time — pauses only when tab is hidden
     if(!_vis) return;
     var now=Date.now();
     var elapsed=Math.round((now-_start)/1000);
     if(elapsed<1) return;
-    if(now-_act<60000){ _sess+=elapsed; _pend+=elapsed; }
-    _start=now;
+    _sess+=elapsed; _pend+=elapsed; _start=now;
   }
   document.addEventListener('visibilitychange',function(){
     if(document.hidden){ tick(); _vis=false; }
-    else{ _start=Date.now(); _act=Date.now(); _vis=true; }
+    else{ _start=Date.now(); _vis=true; }
   });
   function send(secs){
     var t=_tok||tok();

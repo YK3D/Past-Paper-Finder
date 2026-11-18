@@ -3297,7 +3297,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       return;
     }
 
-    // ── Non-CAIE legacy path: favourites + 4-digit hide ──
+    // Favourites show when field empty; dropdown hides at 4 digits
     if (code.length === 0) {
       tag.textContent = ''; tag.classList.remove('visible');
       const favObjs0 = getFavourites();
