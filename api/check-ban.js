@@ -1,3 +1,5 @@
+import { timingSafeEqual } from 'crypto';
+
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
 
@@ -53,15 +55,28 @@ async function isActiveBan(type, value) {
   return Array.isArray(rows) && rows[0] ? (rows[0].reason || 'Banned') : null;
 }
 
+
+// Admin actions need the ADMIN_SECRET env var, sent as the x-admin-key header.
+function isAdmin(req) {
+  const secret = process.env.ADMIN_SECRET;
+  const given = req.headers['x-admin-key'];
+  if (!secret || typeof given !== 'string') return false;
+  const a = Buffer.from(secret), b = Buffer.from(given);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-admin-key');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).end();
 
   const body = req.body || {};
   const { action } = body;
+
+  if ((action === 'ban' || action === 'unban') && !isAdmin(req))
+    return res.status(403).json({ error: 'Forbidden' });
 
   // ── Admin: ban by username ──
   if (action === 'ban') {
@@ -72,16 +87,9 @@ export default async function handler(req, res) {
     const userRows = await dbGet(
       `users?username=eq.${encodeURIComponent(username)}&select=id,ip,email&limit=1`
     );
-    console.log('[BAN] userRows for', username, ':', JSON.stringify(userRows));
 
     if (!Array.isArray(userRows) || !userRows[0]) {
-      // Try case-insensitive search to help debug
-      const allUsers = await dbGet(`users?select=username,ip,email&limit=20`);
-      const usernames = Array.isArray(allUsers) ? allUsers.map(u => u.username) : [];
-      return res.status(404).json({
-        error: `User "${username}" not found`,
-        hint: `Existing usernames (first 20): ${usernames.join(', ')}`
-      });
+      return res.status(404).json({ error: `User "${username}" not found` });
     }
 
     const user = userRows[0];
@@ -99,7 +107,7 @@ export default async function handler(req, res) {
       if (Array.isArray(ud)) deviceIds = ud.map(r => r.device_id).filter(Boolean);
     }
 
-    console.log('[BAN] user:', JSON.stringify(user), 'devices:', deviceIds);
+    console.log('[BAN] user id:', user.id, 'devices:', deviceIds.length);
 
     // Step 3: build ban list
     const types = type === 'full' ? ['username', 'email', 'ip', 'device'] : [type];

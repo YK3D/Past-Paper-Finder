@@ -4,6 +4,9 @@ export default async function handler(req, res) {
   if (!code || !slug) {
     return res.status(400).json({ error: 'Missing code or slug' });
   }
+  if (!/^[a-z0-9-]{1,120}$/i.test(slug)) {
+    return res.status(400).json({ error: 'Invalid slug' });
+  }
 
   const isAQA = board === 'AQA';
   const BASE = isAQA

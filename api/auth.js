@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
 
@@ -15,8 +17,44 @@ function db(path, method = 'GET', body, extraHeaders = {}) {
   }).then(r => r.json().catch(() => ({})));
 }
 
-function hashPass(p) {
+// Passwords: scrypt with a per-user random salt, stored as scrypt$<salt>$<hash>.
+// Older rows hold the legacy reversible encoding; they still verify and are
+// upgraded to scrypt the next time that user signs in or changes password.
+const SCRYPT = { N: 16384, r: 8, p: 1, maxmem: 64 * 1024 * 1024 };
+
+function legacyEncode(p) {
   return Buffer.from(p + ':ppf_salt_2025').toString('base64');
+}
+
+function hashPass(p) {
+  const salt = crypto.randomBytes(16);
+  const hash = crypto.scryptSync(String(p), salt, 32, SCRYPT);
+  return `scrypt$${salt.toString('base64')}$${hash.toString('base64')}`;
+}
+
+function safeEqual(a, b) {
+  const x = Buffer.from(String(a));
+  const y = Buffer.from(String(b));
+  return x.length === y.length && crypto.timingSafeEqual(x, y);
+}
+
+// Returns { ok, needsUpgrade }
+function verifyPass(p, stored) {
+  if (!stored || typeof p !== 'string') return { ok: false, needsUpgrade: false };
+  if (stored.startsWith('scrypt$')) {
+    const [, saltB64, hashB64] = stored.split('$');
+    if (!saltB64 || !hashB64) return { ok: false, needsUpgrade: false };
+    const expected = Buffer.from(hashB64, 'base64');
+    const actual = crypto.scryptSync(p, Buffer.from(saltB64, 'base64'), expected.length, SCRYPT);
+    return { ok: actual.length === expected.length && crypto.timingSafeEqual(actual, expected), needsUpgrade: false };
+  }
+  return { ok: safeEqual(legacyEncode(p), stored), needsUpgrade: true };
+}
+
+const USERNAME_RE = /^[A-Za-z0-9_.-]{3,20}$/;
+// PostgREST ilike value: escape the wildcard characters so it matches literally
+function ilikeExact(v) {
+  return encodeURIComponent(String(v).replace(/([\\%_*])/g, '\\$1'));
 }
 
 // Add device to device_sessions with device info (brand, model, OS, type, browser)
@@ -76,9 +114,12 @@ const SWEAR_WORDS = ['fuck','shit','bitch','ass','cunt','dick','cock','pussy','b
   'fag','retard','dipshit','douchebag','asshole','arsehole','jackass','motherfucker',
   'bellend','tosser','wank','knob','prick'];
 
+// Long words match anywhere; short ones only as a whole token so names like
+// "classic", "Cassandra" or "scrapbook" are not rejected.
 function containsSwear(t) {
   const l = (t || '').toLowerCase();
-  return SWEAR_WORDS.some(w => l.includes(w));
+  const tokens = l.split(/[^a-z]+/).filter(Boolean);
+  return SWEAR_WORDS.some(w => w.length >= 5 ? l.includes(w) : tokens.includes(w));
 }
 
 export default async function handler(req, res) {
@@ -88,8 +129,10 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).end();
 
-  const { action, email, username, password, identifier,
+  const { action, username, password,
           newPassword, token, deviceId, deviceInfo } = req.body || {};
+  const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : req.body?.email;
+  const identifier = typeof req.body?.identifier === 'string' ? req.body.identifier.trim() : req.body?.identifier;
 
   // ── Register ──
   if (action === 'register') {
@@ -97,8 +140,12 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'All fields required' });
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       return res.status(400).json({ error: 'Invalid email address' });
-    if (username.length < 3 || username.length > 20)
+    if (typeof username !== 'string' || username.length < 3 || username.length > 20)
       return res.status(400).json({ error: 'Username must be 3–20 characters' });
+    if (!USERNAME_RE.test(username))
+      return res.status(400).json({ error: 'Username can only use letters, numbers, dots, dashes and underscores' });
+    if (typeof password !== 'string')
+      return res.status(400).json({ error: 'Invalid password' });
     if (containsSwear(username))
       return res.status(400).json({ error: 'Username contains inappropriate language' });
     if (password.length < 8)
@@ -114,8 +161,8 @@ export default async function handler(req, res) {
 
     // Check existing
     const [existEmail, existUser] = await Promise.all([
-      db(`users?email=eq.${encodeURIComponent(email)}&select=id&limit=1`),
-      db(`users?username=eq.${encodeURIComponent(username)}&select=id&limit=1`)
+      db(`users?email=ilike.${ilikeExact(email)}&select=id&limit=1`),
+      db(`users?username=ilike.${ilikeExact(username)}&select=id&limit=1`)
     ]);
     if (Array.isArray(existEmail) && existEmail[0])
       return res.status(400).json({ error: 'Email already registered' });
@@ -151,7 +198,7 @@ export default async function handler(req, res) {
     const isEmail = identifier.includes('@');
     const isPhone = /^[+0-9]/.test(identifier) && identifier.replace(/[^0-9]/g,'').length >= 7;
     if (isEmail) {
-      users = await db(`users?email=eq.${encodeURIComponent(identifier)}&select=id,username,email,phone,password_hash,banned&limit=1`);
+      users = await db(`users?email=ilike.${ilikeExact(identifier)}&select=id,username,email,phone,password_hash,banned&limit=1`);
     } else if (isPhone) {
       // Phone stored as +countrycodenumber — match exactly or as suffix
       users = await db(`users?phone=eq.${encodeURIComponent(identifier)}&select=id,username,email,phone,password_hash,banned&limit=1`);
@@ -159,8 +206,11 @@ export default async function handler(req, res) {
       users = await db(`users?username=eq.${encodeURIComponent(identifier)}&select=id,username,email,phone,password_hash,banned&limit=1`);
     }
     const user = Array.isArray(users) && users[0];
-    if (!user || user.password_hash !== hashPass(password))
+    const check = user ? verifyPass(password, user.password_hash) : { ok: false };
+    if (!user || !check.ok)
       return res.status(401).json({ error: 'Invalid credentials' });
+    if (check.needsUpgrade)
+      await db(`users?id=eq.${user.id}`, 'PATCH', { password_hash: hashPass(password) });
     if (user.banned)
       return res.status(403).json({ error: 'This account has been banned' });
 
@@ -220,15 +270,17 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'New password must be at least 8 characters' });
 
     const isEmail = identifier.includes('@');
-    const field   = isEmail ? 'email' : 'username';
-    const users   = await db(
-      `users?${field}=eq.${encodeURIComponent(identifier)}&select=id,password_hash&limit=1`
-    );
+    const filter  = isEmail
+      ? `email=ilike.${ilikeExact(identifier)}`
+      : `username=eq.${encodeURIComponent(identifier)}`;
+    const users   = await db(`users?${filter}&select=id,username,password_hash&limit=1`);
     const user = Array.isArray(users) && users[0];
-    if (!user || user.password_hash !== hashPass(password))
+    if (!user || !verifyPass(password, user.password_hash).ok)
       return res.status(401).json({ error: 'Invalid credentials' });
 
     await db(`users?id=eq.${user.id}`, 'PATCH', { password_hash: hashPass(newPassword) });
+    // a password change signs the account out everywhere else
+    await db(`sessions?username=eq.${encodeURIComponent(user.username)}`, 'DELETE');
     return res.status(200).json({ ok: true });
   }
 
@@ -236,6 +288,8 @@ export default async function handler(req, res) {
   if (action === 'update_phone') {
     const { token, phone } = req.body || {};
     if (!token || !phone) return res.status(400).json({ error: 'token and phone required' });
+    if (typeof phone !== 'string' || !/^\+?[0-9 ()-]{7,20}$/.test(phone))
+      return res.status(400).json({ error: 'Invalid phone number' });
     const s = await db(`sessions?token=eq.${encodeURIComponent(token)}&select=username,expires_at&limit=1`);
     if (!Array.isArray(s) || !s[0] || new Date(s[0].expires_at) < new Date())
       return res.status(401).json({ error: 'Invalid token' });
@@ -243,17 +297,6 @@ export default async function handler(req, res) {
     // Update cached user so popup doesn't show again
     const u = await db(`users?username=eq.${encodeURIComponent(s[0].username)}&select=id,username,email,phone&limit=1`);
     return res.status(200).json({ ok: true, user: Array.isArray(u) && u[0] ? u[0] : null });
-  }
-
-  // ── Update phone ──
-  if (action === 'update_phone') {
-    const { token: tok, phone: newPhone } = req.body;
-    if (!tok || !newPhone) return res.status(400).json({ error: 'Missing fields' });
-    const s = await db(`sessions?token=eq.${encodeURIComponent(tok)}&select=username,expires_at&limit=1`);
-    if (!Array.isArray(s) || !s[0] || new Date(s[0].expires_at) < new Date())
-      return res.status(401).json({ error: 'Invalid token' });
-    await db(`users?username=eq.${encodeURIComponent(s[0].username)}`, 'PATCH', { phone: newPhone });
-    return res.status(200).json({ ok: true });
   }
 
   return res.status(400).json({ error: 'Unknown action' });

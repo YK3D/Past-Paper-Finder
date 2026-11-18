@@ -29,7 +29,10 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
 <link rel="apple-touch-icon" href="/favicon.png">
 <script>if(location.protocol!=="file:"){var s=document.createElement("script");s.defer=true;s.src="/_vercel/insights/script.js";document.head.appendChild(s);}</script>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script>try{if(!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("pf-motion")}catch(e){}</script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400..800&display=swap" rel="stylesheet">
 
 <style>
   :root {
@@ -63,7 +66,7 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     min-height: 100vh;
     background-image:
       radial-gradient(ellipse at 20% 20%, rgba(0,229,255,0.05) 0%, transparent 50%),
@@ -95,7 +98,7 @@
   header { margin-bottom: 2.5rem; }
 
   .label-top {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.65rem;
     letter-spacing: 0.2em;
     color: var(--accent);
@@ -106,7 +109,7 @@
   h1 { font-size: 2.4rem; font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; }
   h1 span { color: var(--accent); }
 
-  .subtitle { margin-top: 0.6rem; color: var(--muted); font-size: 0.9rem; font-family: 'Space Mono', monospace; }
+  .subtitle { margin-top: 0.6rem; color: var(--muted); font-size: 0.9rem; font-family: var(--font-ui); }
 
   /* card styles defined below with poda glow */
 
@@ -115,7 +118,7 @@
   .field { display: flex; flex-direction: column; gap: 0.4rem; }
 
   .field label {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.68rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -126,7 +129,7 @@
   }
 
   .find-code-btn-below {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.65rem;
     color: var(--accent);
     background: none;
@@ -204,7 +207,7 @@
   .btn-share {
     flex: 1; padding: 0.6rem; border-radius: 7px;
     border: 1px solid var(--accent);
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    font-family: var(--font-display); font-weight: 700; font-size: 0.8rem;
     cursor: pointer;
     background: transparent; color: var(--accent);
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -222,7 +225,7 @@
   .btn-view-chat {
     flex: 1; padding: 0.6rem; border-radius: 7px;
     border: 1px solid var(--accent2);
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    font-family: var(--font-display); font-weight: 700; font-size: 0.8rem;
     cursor: pointer;
     background: transparent; color: var(--accent2);
     transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), background 0.2s, color 0.2s;
@@ -255,7 +258,7 @@
     border: 1px solid var(--border);
     border-radius: 8px;
     color: var(--text);
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.88rem;
     padding: 0.65rem 0.9rem;
     width: 100%;
@@ -278,7 +281,7 @@
   .field select option { background: #1a1a25; }
 
   .field > label {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.68rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -351,7 +354,7 @@
     font-size: 0.95rem;
     background-color: transparent;
     border-radius: 10px;
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
     letter-spacing: 0.05em;
     color: var(--accent);
@@ -400,7 +403,7 @@
     color: var(--accent2);
     border: 2px solid var(--accent2);
     border-radius: 10px;
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
     font-size: 0.85rem;
     cursor: pointer;
@@ -456,7 +459,7 @@
 
   /* label pop */
   .result-label {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.6rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -474,7 +477,7 @@
 
   /* URL fade in */
   .result-url {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.72rem;
     color: var(--muted);
     word-break: break-all;
@@ -504,7 +507,7 @@
     padding: 0.6rem;
     border-radius: 7px;
     border: none;
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
     font-size: 0.8rem;
     cursor: pointer;
@@ -542,7 +545,7 @@
     border: 1px solid var(--accent2);
     border-radius: 8px;
     padding: 0.8rem 1rem;
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.75rem;
     color: var(--accent2);
     display: none;
@@ -563,7 +566,7 @@
     border: 1px solid var(--accent2);
     border-radius: 6px;
     color: var(--accent2);
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
     font-size: 0.72rem;
     cursor: pointer;
@@ -589,7 +592,7 @@
   }
 
   .back-btn {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.7rem;
     letter-spacing: 0.1em;
     color: var(--accent);
@@ -708,7 +711,7 @@
     border: none;
     border-radius: 8px;
     color: var(--text);
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.85rem;
     padding: 0.7rem 1rem;
     outline: none;
@@ -743,10 +746,10 @@
   .sec-title { font-size: 0.95rem; font-weight: 800; letter-spacing: 0.04em; }
   .caie-sec .sec-title { color: var(--accent); }
   .aqa-sec  .sec-title { color: var(--accent2); }
-  .sec-sub { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: var(--muted); margin-top: 0.2rem; }
+  .sec-sub { font-family: var(--font-ui); font-size: 0.6rem; color: var(--muted); margin-top: 0.2rem; }
 
   .cat-label {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.58rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -762,7 +765,7 @@
   .code-table td { padding: 0.38rem 1.2rem; font-size: 0.8rem; line-height: 1.4; }
 
   .c-code {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.76rem;
     width: 70px;
     white-space: nowrap;
@@ -805,7 +808,7 @@
   /* ── Subject name tag ── */
   .subject-name-tag {
     display: none;
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.7rem;
     color: var(--accent);
     margin-top: 0.35rem;
@@ -817,7 +820,7 @@
   .subject-name-tag.visible { display: inline-block; }
 
   .did-you-mean {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.7rem;
     margin-top: 0.35rem;
     color: rgba(255,255,255,0.55);
@@ -861,14 +864,14 @@
     background: rgba(0,229,255,0.08);
   }
   .suggestion-code {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.75rem;
     color: var(--accent);
     min-width: 3rem;
     font-weight: 700;
   }
   .suggestion-name {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.7rem;
     color: rgba(255,255,255,0.65);
     white-space: nowrap;
@@ -881,7 +884,7 @@
   .recent-box { margin-bottom: 1.2rem; display: none; }
   .recent-box.visible { display: block; }
   .recent-label {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.6rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -893,7 +896,7 @@
   }
   .recent-clear {
     background: none; border: none; color: var(--muted);
-    font-family: 'Space Mono', monospace; font-size: 0.6rem;
+    font-family: var(--font-ui); font-size: 0.6rem;
     cursor: pointer; letter-spacing: 0.1em;
   }
   .recent-clear:hover { color: var(--accent2); }
@@ -916,7 +919,7 @@
   }
   .recent-item:hover { background: rgba(0,229,255,0.05); border-color: rgba(0,229,255,0.2); }
   .recent-item-url {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.7rem;
     color: var(--text);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -924,7 +927,7 @@
     letter-spacing: 0.02em;
   }
   .recent-item-open {
-    font-family: 'Space Mono', monospace; font-size: 0.6rem;
+    font-family: var(--font-ui); font-size: 0.6rem;
     color: var(--accent); white-space: nowrap; flex-shrink: 0;
   }
 
@@ -932,7 +935,7 @@
   .btn-download {
     flex: 1; padding: 0.6rem; border-radius: 7px;
     border: 1px solid var(--border);
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    font-family: var(--font-display); font-weight: 700; font-size: 0.8rem;
     cursor: pointer;
     background: transparent; color: var(--text);
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -962,7 +965,7 @@
     flex-shrink: 0;
   }
   .header-byline {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.75rem;
     color: #555570;
     font-weight: 400;
@@ -973,7 +976,7 @@
   .made-by {
     margin-top: 1.5rem;
     text-align: center;
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 0.12em;
@@ -988,7 +991,7 @@
     border: 1px solid var(--border);
     border-radius: 8px;
     color: var(--muted);
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.7rem;
     letter-spacing: 0.06em;
     text-decoration: none;
@@ -998,7 +1001,7 @@
   .lb-link-btn:hover { border-color: var(--accent); color: var(--accent); }
   .version-tag {
     text-align: center;
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.65rem;
     letter-spacing: 0.08em;
     color: #2a2a40;
@@ -1042,7 +1045,7 @@
     gap: 0.5rem;
     padding: 0.55rem 0.8rem;
     cursor: pointer;
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.72rem;
     transition: background 0.15s;
     border-bottom: 1px solid var(--border);
@@ -1053,7 +1056,7 @@
   .fav-item-name { color: var(--text); flex: 1; }
   .fav-item-del { color: var(--muted); font-size: 0.65rem; margin-left: auto; }
   .fav-item-del:hover { color: #ff4d6d; }
-  .fav-empty { padding: 0.8rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); text-align: center; }
+  .fav-empty { padding: 0.8rem; font-family: var(--font-ui); font-size: 0.7rem; color: var(--muted); text-align: center; }
 
   .contact-section {
     margin-top: 2rem;
@@ -1064,7 +1067,7 @@
     background: var(--surface);
   }
   .contact-label {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.6rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -1072,14 +1075,14 @@
     margin-bottom: 0.5rem;
   }
   .contact-name {
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-size: 0.95rem;
     font-weight: 700;
     color: var(--text);
     margin-bottom: 0.3rem;
   }
   .contact-email {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.75rem;
     color: var(--accent);
     text-decoration: none;
@@ -1115,7 +1118,7 @@
     to   { opacity: 1; transform: scale(1) rotate(0deg); }
   }
   .splash-title {
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-size: 2rem;
     font-weight: 800;
     letter-spacing: -0.02em;
@@ -1140,7 +1143,7 @@
     to   { width: 120px; opacity: 1; }
   }
   .splash-sub {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.65rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -1248,7 +1251,7 @@
     border: 1.5px solid var(--border);
     border-radius: 8px;
     color: var(--muted);
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-size: 0.9rem;
     font-weight: 700;
     letter-spacing: 0.04em;
@@ -1275,7 +1278,7 @@
     background: none;
     border: 1px solid var(--border);
     color: var(--muted);
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.62rem;
     padding: 0.2rem 0.55rem;
     border-radius: 5px;
@@ -1286,7 +1289,7 @@
   .btn-manual-toggle:hover { border-color: var(--accent); color: var(--accent); }
   .btn-manual-toggle.active { border-color: var(--accent2); color: var(--accent2); }
   .manual-hint {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.6rem;
     color: var(--accent2);
     opacity: 0.8;
@@ -1443,7 +1446,7 @@
     background: var(--surface);
   }
   .rating-label {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.6rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -1502,7 +1505,7 @@
     border: 1.5px solid var(--accent);
     border-radius: 8px;
     color: var(--accent);
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
     font-size: 0.82rem;
     letter-spacing: 0.04em;
@@ -1521,7 +1524,7 @@
   }
   .rating-thanks {
     display: none;
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.7rem;
     color: var(--accent);
     margin-top: 0.6rem;
@@ -1543,39 +1546,39 @@
     box-shadow: 0 20px 60px rgba(0,0,0,0.5);
   }
   .auth-title {
-    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-family: var(--font-display); font-weight: 800;
     font-size: 1.2rem; margin-bottom: 1.2rem; text-align: center;
   }
   .auth-title span { color: var(--accent); }
   .auth-field { margin-bottom: 0.8rem; }
   .auth-field label {
-    display: block; font-family: 'Space Mono', monospace;
+    display: block; font-family: var(--font-ui);
     font-size: 0.62rem; letter-spacing: 0.1em;
     text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem;
   }
   .auth-input {
     width: 100%; background: var(--bg); border: 1px solid var(--border);
-    border-radius: 8px; color: var(--text); font-family: 'Space Mono', monospace;
+    border-radius: 8px; color: var(--text); font-family: var(--font-ui);
     font-size: 0.85rem; padding: 0.55rem 0.8rem; outline: none;
     transition: border-color 0.2s; box-sizing: border-box;
   }
   .auth-input:focus { border-color: var(--accent); }
   .auth-btn {
     width: 100%; padding: 0.65rem; background: var(--accent); color: #000;
-    border: none; border-radius: 8px; font-family: 'Syne', sans-serif;
+    border: none; border-radius: 8px; font-family: var(--font-display);
     font-weight: 700; font-size: 0.9rem; cursor: pointer;
     transition: opacity 0.2s; margin-top: 0.4rem;
   }
   .auth-btn:hover { opacity: 0.85; }
   .auth-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .auth-switch {
-    text-align: center; font-family: 'Space Mono', monospace;
+    text-align: center; font-family: var(--font-ui);
     font-size: 0.68rem; color: var(--muted); margin-top: 0.8rem;
   }
   .auth-switch a { color: var(--accent); cursor: pointer; text-decoration: none; }
   .auth-switch a:hover { text-decoration: underline; }
   .auth-error {
-    color: #ff4d6d; font-family: 'Space Mono', monospace;
+    color: #ff4d6d; font-family: var(--font-ui);
     font-size: 0.68rem; text-align: center; margin-top: 0.4rem;
     min-height: 1rem;
   }
@@ -1591,7 +1594,7 @@
     display: flex; align-items: center; gap: 0.4rem;
     padding: 0.25rem 0.6rem; border: 1px solid var(--border);
     border-radius: 20px; cursor: pointer;
-    font-family: 'Space Mono', monospace; font-size: 0.65rem;
+    font-family: var(--font-ui); font-size: 0.65rem;
     color: var(--text); transition: border-color 0.2s;
     background: transparent; white-space: nowrap;
     max-width: 120px; overflow: hidden; text-overflow: ellipsis;
@@ -1601,7 +1604,7 @@
   .sign-in-btn {
     padding: 0.25rem 0.7rem; border: 1px solid var(--border);
     border-radius: 20px; cursor: pointer;
-    font-family: 'Space Mono', monospace; font-size: 0.65rem;
+    font-family: var(--font-ui); font-size: 0.65rem;
     color: var(--muted); background: transparent;
     transition: border-color 0.2s, color 0.2s;
   }
@@ -1615,7 +1618,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
-<div id="maintenanceBanner" style="display:none;padding:0.35rem 1rem;text-align:center;font-family:Space Mono,monospace;font-size:0.72rem;font-weight:600;width:100%;box-sizing:border-box;position:relative;z-index:9999"></div>
+<div id="maintenanceBanner" style="display:none;padding:0.35rem 1rem;text-align:center;font-family:var(--font-ui);font-size:0.72rem;font-weight:600;width:100%;box-sizing:border-box;position:relative;z-index:9999"></div>
 <style>
 
   :root {
@@ -1649,7 +1652,7 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     min-height: 100vh;
     background-image:
       radial-gradient(ellipse at 20% 20%, rgba(0,229,255,0.05) 0%, transparent 50%),
@@ -1681,7 +1684,7 @@
   header { margin-bottom: 2.5rem; }
 
   .label-top {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.65rem;
     letter-spacing: 0.2em;
     color: var(--accent);
@@ -1692,7 +1695,7 @@
   h1 { font-size: 2.4rem; font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; }
   h1 span { color: var(--accent); }
 
-  .subtitle { margin-top: 0.6rem; color: var(--muted); font-size: 0.9rem; font-family: 'Space Mono', monospace; }
+  .subtitle { margin-top: 0.6rem; color: var(--muted); font-size: 0.9rem; font-family: var(--font-ui); }
 
   /* card styles defined below with poda glow */
 
@@ -1701,7 +1704,7 @@
   .field { display: flex; flex-direction: column; gap: 0.4rem; }
 
   .field label {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.68rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -1712,7 +1715,7 @@
   }
 
   .find-code-btn-below {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.65rem;
     color: var(--accent);
     background: none;
@@ -1790,7 +1793,7 @@
   .btn-share {
     flex: 1; padding: 0.6rem; border-radius: 7px;
     border: 1px solid var(--accent);
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    font-family: var(--font-display); font-weight: 700; font-size: 0.8rem;
     cursor: pointer;
     background: transparent; color: var(--accent);
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -1808,7 +1811,7 @@
   .btn-view-chat {
     flex: 1; padding: 0.6rem; border-radius: 7px;
     border: 1px solid var(--accent2);
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    font-family: var(--font-display); font-weight: 700; font-size: 0.8rem;
     cursor: pointer;
     background: transparent; color: var(--accent2);
     transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), background 0.2s, color 0.2s;
@@ -1841,7 +1844,7 @@
     border: 1px solid var(--border);
     border-radius: 8px;
     color: var(--text);
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.88rem;
     padding: 0.65rem 0.9rem;
     width: 100%;
@@ -1864,7 +1867,7 @@
   .field select option { background: #1a1a25; }
 
   .field > label {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.68rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -1937,7 +1940,7 @@
     font-size: 0.95rem;
     background-color: transparent;
     border-radius: 10px;
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
     letter-spacing: 0.05em;
     color: var(--accent);
@@ -1986,7 +1989,7 @@
     color: var(--accent2);
     border: 2px solid var(--accent2);
     border-radius: 10px;
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
     font-size: 0.85rem;
     cursor: pointer;
@@ -2042,7 +2045,7 @@
 
   /* label pop */
   .result-label {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.6rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -2060,7 +2063,7 @@
 
   /* URL fade in */
   .result-url {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.72rem;
     color: var(--muted);
     word-break: break-all;
@@ -2090,7 +2093,7 @@
     padding: 0.6rem;
     border-radius: 7px;
     border: none;
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
     font-size: 0.8rem;
     cursor: pointer;
@@ -2128,7 +2131,7 @@
     border: 1px solid var(--accent2);
     border-radius: 8px;
     padding: 0.8rem 1rem;
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.75rem;
     color: var(--accent2);
     display: none;
@@ -2149,7 +2152,7 @@
     border: 1px solid var(--accent2);
     border-radius: 6px;
     color: var(--accent2);
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
     font-size: 0.72rem;
     cursor: pointer;
@@ -2175,7 +2178,7 @@
   }
 
   .back-btn {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.7rem;
     letter-spacing: 0.1em;
     color: var(--accent);
@@ -2294,7 +2297,7 @@
     border: none;
     border-radius: 8px;
     color: var(--text);
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.85rem;
     padding: 0.7rem 1rem;
     outline: none;
@@ -2329,10 +2332,10 @@
   .sec-title { font-size: 0.95rem; font-weight: 800; letter-spacing: 0.04em; }
   .caie-sec .sec-title { color: var(--accent); }
   .aqa-sec  .sec-title { color: var(--accent2); }
-  .sec-sub { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: var(--muted); margin-top: 0.2rem; }
+  .sec-sub { font-family: var(--font-ui); font-size: 0.6rem; color: var(--muted); margin-top: 0.2rem; }
 
   .cat-label {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.58rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -2348,7 +2351,7 @@
   .code-table td { padding: 0.38rem 1.2rem; font-size: 0.8rem; line-height: 1.4; }
 
   .c-code {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.76rem;
     width: 70px;
     white-space: nowrap;
@@ -2391,7 +2394,7 @@
   /* ── Subject name tag ── */
   .subject-name-tag {
     display: none;
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.7rem;
     color: var(--accent);
     margin-top: 0.35rem;
@@ -2403,7 +2406,7 @@
   .subject-name-tag.visible { display: inline-block; }
 
   .did-you-mean {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.7rem;
     margin-top: 0.35rem;
     color: rgba(255,255,255,0.55);
@@ -2447,14 +2450,14 @@
     background: rgba(0,229,255,0.08);
   }
   .suggestion-code {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.75rem;
     color: var(--accent);
     min-width: 3rem;
     font-weight: 700;
   }
   .suggestion-name {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.7rem;
     color: rgba(255,255,255,0.65);
     white-space: nowrap;
@@ -2467,7 +2470,7 @@
   .recent-box { margin-bottom: 1.2rem; display: none; }
   .recent-box.visible { display: block; }
   .recent-label {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.6rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -2479,7 +2482,7 @@
   }
   .recent-clear {
     background: none; border: none; color: var(--muted);
-    font-family: 'Space Mono', monospace; font-size: 0.6rem;
+    font-family: var(--font-ui); font-size: 0.6rem;
     cursor: pointer; letter-spacing: 0.1em;
   }
   .recent-clear:hover { color: var(--accent2); }
@@ -2502,7 +2505,7 @@
   }
   .recent-item:hover { background: rgba(0,229,255,0.05); border-color: rgba(0,229,255,0.2); }
   .recent-item-url {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.7rem;
     color: var(--text);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -2510,7 +2513,7 @@
     letter-spacing: 0.02em;
   }
   .recent-item-open {
-    font-family: 'Space Mono', monospace; font-size: 0.6rem;
+    font-family: var(--font-ui); font-size: 0.6rem;
     color: var(--accent); white-space: nowrap; flex-shrink: 0;
   }
 
@@ -2518,7 +2521,7 @@
   .btn-download {
     flex: 1; padding: 0.6rem; border-radius: 7px;
     border: 1px solid var(--border);
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    font-family: var(--font-display); font-weight: 700; font-size: 0.8rem;
     cursor: pointer;
     background: transparent; color: var(--text);
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -2548,7 +2551,7 @@
     flex-shrink: 0;
   }
   .header-byline {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.75rem;
     color: #555570;
     font-weight: 400;
@@ -2559,7 +2562,7 @@
   .made-by {
     margin-top: 1.5rem;
     text-align: center;
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 0.12em;
@@ -2574,7 +2577,7 @@
     border: 1px solid var(--border);
     border-radius: 8px;
     color: var(--muted);
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.7rem;
     letter-spacing: 0.06em;
     text-decoration: none;
@@ -2584,7 +2587,7 @@
   .lb-link-btn:hover { border-color: var(--accent); color: var(--accent); }
   .version-tag {
     text-align: center;
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.65rem;
     letter-spacing: 0.08em;
     color: #2a2a40;
@@ -2628,7 +2631,7 @@
     gap: 0.5rem;
     padding: 0.55rem 0.8rem;
     cursor: pointer;
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.72rem;
     transition: background 0.15s;
     border-bottom: 1px solid var(--border);
@@ -2639,7 +2642,7 @@
   .fav-item-name { color: var(--text); flex: 1; }
   .fav-item-del { color: var(--muted); font-size: 0.65rem; margin-left: auto; }
   .fav-item-del:hover { color: #ff4d6d; }
-  .fav-empty { padding: 0.8rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); text-align: center; }
+  .fav-empty { padding: 0.8rem; font-family: var(--font-ui); font-size: 0.7rem; color: var(--muted); text-align: center; }
 
   .contact-section {
     margin-top: 2rem;
@@ -2650,7 +2653,7 @@
     background: var(--surface);
   }
   .contact-label {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.6rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -2658,14 +2661,14 @@
     margin-bottom: 0.5rem;
   }
   .contact-name {
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-size: 0.95rem;
     font-weight: 700;
     color: var(--text);
     margin-bottom: 0.3rem;
   }
   .contact-email {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.75rem;
     color: var(--accent);
     text-decoration: none;
@@ -2701,7 +2704,7 @@
     to   { opacity: 1; transform: scale(1) rotate(0deg); }
   }
   .splash-title {
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-size: 2rem;
     font-weight: 800;
     letter-spacing: -0.02em;
@@ -2726,7 +2729,7 @@
     to   { width: 120px; opacity: 1; }
   }
   .splash-sub {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.65rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -2834,7 +2837,7 @@
     border: 1.5px solid var(--border);
     border-radius: 8px;
     color: var(--muted);
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-size: 0.9rem;
     font-weight: 700;
     letter-spacing: 0.04em;
@@ -2861,7 +2864,7 @@
     background: none;
     border: 1px solid var(--border);
     color: var(--muted);
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.62rem;
     padding: 0.2rem 0.55rem;
     border-radius: 5px;
@@ -2872,7 +2875,7 @@
   .btn-manual-toggle:hover { border-color: var(--accent); color: var(--accent); }
   .btn-manual-toggle.active { border-color: var(--accent2); color: var(--accent2); }
   .manual-hint {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.6rem;
     color: var(--accent2);
     opacity: 0.8;
@@ -3029,7 +3032,7 @@
     background: var(--surface);
   }
   .rating-label {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.6rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -3088,7 +3091,7 @@
     border: 1.5px solid var(--accent);
     border-radius: 8px;
     color: var(--accent);
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
     font-size: 0.82rem;
     letter-spacing: 0.04em;
@@ -3107,7 +3110,7 @@
   }
   .rating-thanks {
     display: none;
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.7rem;
     color: var(--accent);
     margin-top: 0.6rem;
@@ -3129,39 +3132,39 @@
     box-shadow: 0 20px 60px rgba(0,0,0,0.5);
   }
   .auth-title {
-    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-family: var(--font-display); font-weight: 800;
     font-size: 1.2rem; margin-bottom: 1.2rem; text-align: center;
   }
   .auth-title span { color: var(--accent); }
   .auth-field { margin-bottom: 0.8rem; }
   .auth-field label {
-    display: block; font-family: 'Space Mono', monospace;
+    display: block; font-family: var(--font-ui);
     font-size: 0.62rem; letter-spacing: 0.1em;
     text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem;
   }
   .auth-input {
     width: 100%; background: var(--bg); border: 1px solid var(--border);
-    border-radius: 8px; color: var(--text); font-family: 'Space Mono', monospace;
+    border-radius: 8px; color: var(--text); font-family: var(--font-ui);
     font-size: 0.85rem; padding: 0.55rem 0.8rem; outline: none;
     transition: border-color 0.2s; box-sizing: border-box;
   }
   .auth-input:focus { border-color: var(--accent); }
   .auth-btn {
     width: 100%; padding: 0.65rem; background: var(--accent); color: #000;
-    border: none; border-radius: 8px; font-family: 'Syne', sans-serif;
+    border: none; border-radius: 8px; font-family: var(--font-display);
     font-weight: 700; font-size: 0.9rem; cursor: pointer;
     transition: opacity 0.2s; margin-top: 0.4rem;
   }
   .auth-btn:hover { opacity: 0.85; }
   .auth-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .auth-switch {
-    text-align: center; font-family: 'Space Mono', monospace;
+    text-align: center; font-family: var(--font-ui);
     font-size: 0.68rem; color: var(--muted); margin-top: 0.8rem;
   }
   .auth-switch a { color: var(--accent); cursor: pointer; text-decoration: none; }
   .auth-switch a:hover { text-decoration: underline; }
   .auth-error {
-    color: #ff4d6d; font-family: 'Space Mono', monospace;
+    color: #ff4d6d; font-family: var(--font-ui);
     font-size: 0.68rem; text-align: center; margin-top: 0.4rem;
     min-height: 1rem;
   }
@@ -3177,7 +3180,7 @@
     display: flex; align-items: center; gap: 0.4rem;
     padding: 0.25rem 0.6rem; border: 1px solid var(--border);
     border-radius: 20px; cursor: pointer;
-    font-family: 'Space Mono', monospace; font-size: 0.65rem;
+    font-family: var(--font-ui); font-size: 0.65rem;
     color: var(--text); transition: border-color 0.2s;
     background: transparent; white-space: nowrap;
     max-width: 120px; overflow: hidden; text-overflow: ellipsis;
@@ -3187,7 +3190,7 @@
   .sign-in-btn {
     padding: 0.25rem 0.7rem; border: 1px solid var(--border);
     border-radius: 20px; cursor: pointer;
-    font-family: 'Space Mono', monospace; font-size: 0.65rem;
+    font-family: var(--font-ui); font-size: 0.65rem;
     color: var(--muted); background: transparent;
     transition: border-color 0.2s, color 0.2s;
   }
@@ -3219,7 +3222,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .thumb-item.active { border-color: var(--accent); }
 .thumb-item canvas { width: 72px !important; height: auto !important; display: block; }
 .thumb-item .thumb-num {
-  text-align: center; font-family: 'Space Mono', monospace;
+  text-align: center; font-family: var(--font-ui);
   font-size: 0.55rem; color: #888; padding: 0.15rem 0;
   background: #1a1a1a;
 }
@@ -3236,11 +3239,11 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .pdf-search-bar.show { display: flex; }
 .pdf-search-input {
   flex: 1; background: #2a2a2a; border: 1px solid #444; border-radius: 6px;
-  color: #fff; font-family: 'Space Mono', monospace; font-size: 0.72rem;
+  color: #fff; font-family: var(--font-ui); font-size: 0.72rem;
   padding: 0.3rem 0.6rem; outline: none;
 }
 .pdf-search-input:focus { border-color: var(--accent); }
-.pdf-search-count { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: #888; min-width: 4rem; }
+.pdf-search-count { font-family: var(--font-ui); font-size: 0.62rem; color: #888; min-width: 4rem; }
 .pdf-search-btn {
   background: transparent; border: 1px solid #444; border-radius: 5px;
   color: #aaa; font-size: 0.75rem; padding: 0.25rem 0.45rem; cursor: pointer;
@@ -3261,13 +3264,13 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 }
 .back-btn-v {
   background: transparent; border: 1px solid #444; border-radius: 6px;
-  color: #aaa; font-family: 'Space Mono', monospace; font-size: 0.68rem;
+  color: #aaa; font-family: var(--font-ui); font-size: 0.68rem;
   padding: 0.3rem 0.6rem; cursor: pointer; white-space: nowrap;
   transition: border-color 0.15s, color 0.15s; flex-shrink: 0;
 }
 .back-btn-v:hover { border-color: var(--accent); color: var(--accent); }
 .pdf-title-bar {
-  flex: 1; font-family: 'Space Mono', monospace; font-size: 0.68rem;
+  flex: 1; font-family: var(--font-ui); font-size: 0.68rem;
   color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
 }
 .pdf-page-nav { display: flex; align-items: center; gap: 0.35rem; flex-shrink: 0; }
@@ -3279,7 +3282,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 }
 .pdf-page-nav button:hover { background: #444; border-color: var(--accent); color: var(--accent); }
 .pdf-page-nav .page-info {
-  font-family: 'Space Mono', monospace; font-size: 0.65rem; color: #aaa;
+  font-family: var(--font-ui); font-size: 0.65rem; color: #aaa;
   min-width: 4.5rem; text-align: center;
 }
 .topbar-right { display: flex; align-items: center; gap: 0.35rem; flex-shrink: 0; flex-wrap: wrap; }
@@ -3293,7 +3296,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .mu-btn {
   background: transparent; border: 1px solid #444; border-radius: 5px;
   color: #aaa; font-size: 0.72rem; padding: 0.22rem 0.5rem; cursor: pointer;
-  transition: all 0.15s; font-family: 'Space Mono', monospace; white-space: nowrap;
+  transition: all 0.15s; font-family: var(--font-ui); white-space: nowrap;
   min-width: 28px; text-align: center;
 }
 .mu-btn:hover { border-color: var(--accent); color: var(--accent); }
@@ -3303,8 +3306,8 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .mu-color-swatch { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #555; cursor: pointer; flex-shrink: 0; transition: border-color 0.15s; }
 .mu-color-swatch:hover { border-color: #fff; }
 #muColorInput { width: 0; height: 0; opacity: 0; position: absolute; }
-.mu-size-input { width: 38px; background: #222; border: 1px solid #444; border-radius: 4px; color: #ccc; font-size: 0.62rem; text-align: center; padding: 0.18rem 0; font-family: 'Space Mono', monospace; }
-.mu-label { font-family: 'Space Mono', monospace; font-size: 0.58rem; color: #666; }
+.mu-size-input { width: 38px; background: #222; border: 1px solid #444; border-radius: 4px; color: #ccc; font-size: 0.62rem; text-align: center; padding: 0.18rem 0; font-family: var(--font-ui); }
+.mu-label { font-family: var(--font-ui); font-size: 0.58rem; color: #666; }
 
 /* ── Markup canvas overlay on each page ── */
 .markup-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; z-index: 10; touch-action: none; pointer-events: none; }
@@ -3321,7 +3324,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .topbar-action {
   background: transparent; border: 1px solid #444; border-radius: 6px;
   color: #aaa; font-size: 0.65rem; padding: 0.25rem 0.5rem;
-  cursor: pointer; white-space: nowrap; font-family: 'Space Mono', monospace;
+  cursor: pointer; white-space: nowrap; font-family: var(--font-ui);
   transition: border-color 0.15s, color 0.15s;
 }
 .topbar-action:hover { border-color: var(--accent); color: var(--accent); }
@@ -3331,7 +3334,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   display: flex; align-items: center; gap: 0.5rem;
   padding: 0.25rem 0.8rem; background: #1a1a1a;
   border-bottom: 1px solid #2a2a2a; flex-shrink: 0;
-  font-family: 'Space Mono', monospace; font-size: 0.65rem;
+  font-family: var(--font-ui); font-size: 0.65rem;
   flex-wrap: nowrap; overflow: hidden; white-space: nowrap;
   transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
   max-height: 60px; min-height: 30px;
@@ -3354,11 +3357,11 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .timer-collapse-btn:hover { border-color: var(--accent); color: var(--accent); }
 .clock-display {
   color: #ccc; letter-spacing: 0.05em; white-space: nowrap; flex-shrink: 0;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-ui);
 }
 .timer-display {
   color: var(--accent); font-weight: 700; letter-spacing: 0.08em;
-  min-width: 4rem; transition: color 0.3s; font-family: 'Space Mono', monospace;
+  min-width: 4rem; transition: color 0.3s; font-family: var(--font-ui);
 }
 .timer-display.warning { color: #f59e0b; }
 .timer-display.danger  { color: #ef4444; animation: timerPulse 1s ease-in-out infinite; }
@@ -3366,7 +3369,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .timer-btn {
   background: transparent; border: 1px solid #444; border-radius: 5px;
   color: #888; font-size: 0.6rem; padding: 0.15rem 0.45rem;
-  cursor: pointer; font-family: 'Space Mono', monospace;
+  cursor: pointer; font-family: var(--font-ui);
   transition: all 0.15s; white-space: nowrap;
 }
 .timer-btn:hover { border-color: var(--accent); color: var(--accent); }
@@ -3375,7 +3378,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .timer-preset-wrap { display: flex; gap: 0.3rem; align-items: center; }
 .timer-custom-input {
   background: #111; border: 1px solid #333; border-radius: 5px;
-  color: #ccc; font-family: 'Space Mono', monospace; font-size: 0.6rem;
+  color: #ccc; font-family: var(--font-ui); font-size: 0.6rem;
   width: 3rem; padding: 0.12rem 0.3rem; outline: none; text-align: center;
 }
 .timer-custom-input:focus { border-color: var(--accent); }
@@ -3386,7 +3389,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .timer-mode-toggle button {
   background: transparent; border: none; border-radius: 0;
   color: #666; font-size: 0.6rem; padding: 0.12rem 0.45rem;
-  cursor: pointer; font-family: 'Space Mono', monospace;
+  cursor: pointer; font-family: var(--font-ui);
   transition: all 0.15s; white-space: nowrap;
 }
 .timer-mode-toggle button:first-child { border-right: 1px solid #444; }
@@ -3402,7 +3405,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 }
 .file-chip {
   padding: 0.2rem 0.6rem; border-radius: 20px; border: 1px solid var(--accent);
-  font-family: 'Space Mono', monospace; font-size: 0.68rem; font-weight: 600;
+  font-family: var(--font-ui); font-size: 0.68rem; font-weight: 600;
   cursor: pointer; background: transparent; color: var(--accent);
   transition: all 0.15s; white-space: nowrap;
 }
@@ -3448,7 +3451,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .textLayer ::selection { background: rgba(0,229,255,0.35); }
 .pdf-loading-msg {
   display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-  width: 100%; height: 100%; font-family: 'Space Mono', monospace;
+  width: 100%; height: 100%; font-family: var(--font-ui);
   font-size: 0.8rem; color: #888;
 }
 
@@ -3458,7 +3461,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   gap: 1rem; flex: 1; padding: 2rem;
 }
 .audio-area.show { display: flex; }
-.audio-filename { font-family: 'Space Mono', monospace; font-size: 0.8rem; color: #ccc; }
+.audio-filename { font-family: var(--font-ui); font-size: 0.8rem; color: #ccc; }
 .audio-controls { display: flex; align-items: center; gap: 0.8rem; }
 .a-btn {
   background: #333; border: 1px solid #444; border-radius: 50%;
@@ -3470,7 +3473,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .a-play:hover { opacity: 0.85; }
 .a-speed {
   background: #333; border: 1px solid #444; border-radius: 6px; color: #ccc;
-  font-family: 'Space Mono', monospace; font-size: 0.65rem; padding: 0.25rem 0.4rem;
+  font-family: var(--font-ui); font-size: 0.65rem; padding: 0.25rem 0.4rem;
 }
 .a-progress-wrap { width: 100%; max-width: 380px; display: flex; align-items: center; gap: 0.5rem; }
 .a-progress {
@@ -3481,7 +3484,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   -webkit-appearance: none; width: 14px; height: 14px;
   border-radius: 50%; background: var(--accent); cursor: pointer;
 }
-.a-time { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: #888; min-width: 7rem; text-align: center; }
+.a-time { font-family: var(--font-ui); font-size: 0.6rem; color: #888; min-width: 7rem; text-align: center; }
 
 /* ── Resize handle ── */
 .resize-handle { display: none; }
@@ -3503,7 +3506,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .ai-panel.collapsed .ai-toggle-btn { margin: auto; }
 .ai-model-select {
   background: #1a1a1a; border: 1px solid #333; border-radius: 6px;
-  color: #fff; font-family: 'Space Mono', monospace; font-size: 0.58rem;
+  color: #fff; font-family: var(--font-ui); font-size: 0.58rem;
   padding: 0.2rem 0.4rem; cursor: pointer; outline: none; flex-shrink: 0;
   max-width: 120px;
 }
@@ -3513,12 +3516,12 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   display: flex; align-items: center; gap: 0.5rem; padding: 0.7rem 0.8rem;
   border-bottom: 1px solid #333; flex-shrink: 0; background: #222;
 }
-.ai-title-text { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.85rem; flex: 1; }
+.ai-title-text { font-family: var(--font-display); font-weight: 800; font-size: 0.85rem; flex: 1; }
 .ai-title-text span { color: var(--accent); }
 .ai-clear-btn {
   background: transparent; border: 1px solid #444; border-radius: 6px;
   color: #888; font-size: 0.65rem; padding: 0.2rem 0.5rem; cursor: pointer;
-  font-family: 'Space Mono', monospace; transition: all 0.15s;
+  font-family: var(--font-ui); transition: all 0.15s;
 }
 .ai-clear-btn:hover { border-color: var(--accent); color: var(--accent); }
 .ai-toggle-btn {
@@ -3537,7 +3540,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 }
 .ai-msg.user {
   background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.15);
-  align-self: flex-end; color: #ddd; font-family: 'Space Mono', monospace;
+  align-self: flex-end; color: #ddd; font-family: var(--font-ui);
 }
 .ai-msg.ai {
   background: #222; border: 1px solid #333; align-self: flex-start; color: #ddd;
@@ -3546,7 +3549,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 }
 .ai-msg.ai.streaming::after { content: "▋"; animation: blink 0.7s step-end infinite; color: var(--accent); }
 @keyframes blink { 50% { opacity: 0; } }
-.ai-hint { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: #666; padding: 0 0.8rem 0.4rem; line-height: 1.5; flex-shrink: 0; }
+.ai-hint { font-family: var(--font-ui); font-size: 0.6rem; color: #666; padding: 0 0.8rem 0.4rem; line-height: 1.5; flex-shrink: 0; }
 .ai-hint span { color: var(--accent); cursor: pointer; }
 .ai-hint span:hover { text-decoration: underline; }
 .ai-input-row { display: flex; gap: 0.4rem; padding: 0.7rem; border-top: 1px solid #333; flex-shrink: 0; }
@@ -3580,7 +3583,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 .ai-img-bubble { background: rgba(62,228,254,0.06); border-radius: 10px; padding: 0.5rem; }
 .ai-send-btn {
   background: var(--accent); border: none; border-radius: 8px; color: #000;
-  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.75rem;
+  font-family: var(--font-display); font-weight: 700; font-size: 0.75rem;
   padding: 0 0.7rem; cursor: pointer; flex-shrink: 0; transition: opacity 0.2s;
 }
 .ai-send-btn:hover:not(:disabled) { opacity: 0.85; }
@@ -3627,6 +3630,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   .ai-panel.collapsed { height: 52px !important; width: 100% !important; }
 }
 </style>
+<link rel="stylesheet" href="/assets/ui.css">
 
 <div id="thumbSidebar" style="display:none"></div>
 <div class="viewer-root">
@@ -3638,11 +3642,11 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         <button class="back-btn-v" onclick="goBack()">&#8592; Back</button>
         <span class="pdf-title-bar" id="pdfTitle">Loading&hellip;</span>
         <div class="topbar-right">
-          <button class="topbar-action" onclick="printPaper()" title="Print">&#128438; Print</button>
-          <button class="topbar-action" id="copyBtn" onclick="copyLink()" title="Copy PDF link">&#128203; Copy</button>
-          <button class="topbar-action" onclick="downloadPaper()" title="Download PDF">&#8659; Download</button>
-          <button class="topbar-action" onclick="sharePaper()" title="Share PDF link">&#8679; Share</button>
-          <button class="topbar-action" onclick="openOnline()" title="Open PDF in new tab">&#127760; Online</button>
+          <button class="topbar-action" onclick="printPaper()" title="Print">Print</button>
+          <button class="topbar-action" id="copyBtn" onclick="copyLink()" title="Copy PDF link">Copy</button>
+          <button class="topbar-action" onclick="downloadPaper()" title="Download PDF">Download</button>
+          <button class="topbar-action" onclick="sharePaper()" title="Share PDF link">Share</button>
+          <button class="topbar-action" onclick="openOnline()" title="Open PDF in new tab">Online</button>
         </div>
       </div>
       <div class="file-chip-bar-inline" id="fileChipBar"></div>
@@ -3672,8 +3676,8 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
       </div>
     </div>
 
-    <div id="landscapeHint" style="display:none;font-family:Space Mono,monospace;font-size:0.6rem;color:#666;padding:0.3rem 0.8rem;flex-shrink:0">
-      &#128261; Switch to landscape for best view
+    <div id="landscapeHint" style="display:none;font-family:var(--font-ui);font-size:0.6rem;color:#666;padding:0.3rem 0.8rem;flex-shrink:0">
+      Rotate to landscape for the best view
     </div>
 
     <div class="pdf-canvas-area" id="pdfCanvasArea">
@@ -3681,7 +3685,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
     </div>
 
     <div class="audio-area" id="audioArea">
-      <p class="audio-filename" id="audioFilename" style="font-family:'Space Mono',monospace;font-size:0.8rem;color:#ccc;margin-bottom:0.8rem"></p>
+      <p class="audio-filename" id="audioFilename" style="font-family:var(--font-ui);font-size:0.8rem;color:#ccc;margin-bottom:0.8rem"></p>
     </div>
   </div>
 
@@ -3693,13 +3697,13 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         <option value="gemini-2.0-flash-lite">Flash Lite</option>
         <option value="gemini-2.0-flash">Flash 2.0</option>
         <option value="groq-llama" selected>Llama (Groq)</option>
-        <option value="groq-llama-vision">Llama Vision &#128247;</option>
+        <option value="groq-llama-vision">Llama Vision (images)</option>
       </select>
       <button class="ai-clear-btn" onclick="clearAiChat()">Clear</button>
       <button class="ai-toggle-btn" id="aiToggleBtn" onclick="toggleAiPanel()">&#8250;</button>
     </div>
     <div class="ai-messages" id="aiMessages">
-      <div class="ai-msg ai">Hi! I'm PastPaperAI &#127891;<br><br>Ask me anything about this exam &mdash; I can explain questions, summarise topics &amp; answer questions.<br><br><span style="font-size:0.62rem;color:#666">PastPaperAI may make mistakes. For reference only.</span></div>
+      <div class="ai-msg ai">Hi, I'm PastPaperAI.<br><br>Ask me anything about this exam &mdash; I can explain questions, summarise topics &amp; answer questions.<br><br><span style="font-size:0.62rem;color:#666">PastPaperAI may make mistakes. For reference only.</span></div>
     </div>
     <div class="ai-hint" id="aiHint"></div>
     <div class="ai-input-row">
@@ -3710,7 +3714,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         <textarea class="ai-textarea" id="aiInput" placeholder="Ask about this paper&hellip;" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiMsg()}"></textarea>
       </div>
       <input type="file" id="aiImageInput" accept="image/*" style="display:none" onchange="onAiImageSelected(this)">
-      <button class="ai-upload-btn" title="Upload exam photo" onclick="document.getElementById('aiImageInput').click()">&#128247;</button>
+      <button class="ai-upload-btn" title="Upload exam photo" aria-label="Upload exam photo" onclick="document.getElementById('aiImageInput').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
       <button class="ai-send-btn" id="aiSendBtn" onclick="sendAiMsg()">Send</button>
     </div>
   </div>
@@ -4274,7 +4278,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         var msgs = document.getElementById('aiMessages');
         var prev = document.createElement('div');
         prev.className = 'ai-msg user ai-img-bubble';
-        prev.innerHTML = '<img class="ai-img-preview" src="' + dataUrl + '" alt="Exam photo"><br><span style="font-size:0.7rem;opacity:0.7">&#128247; ' + file.name + ' (' + sizeKB + 'KB) — ready to send</span>';
+        prev.innerHTML = '<img class="ai-img-preview" src="' + dataUrl + '" alt="Exam photo"><br><span style="font-size:0.7rem;opacity:0.7">' + file.name + ' (' + sizeKB + 'KB) — ready to send</span>';
         msgs.appendChild(prev);
         msgs.scrollTop = msgs.scrollHeight;
         var sel = document.getElementById('aiModelSelect');
@@ -4494,33 +4498,34 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 
       const selectedModel = (document.getElementById('aiModelSelect') || {}).value || 'groq-llama';
 
-      // Vision: call Groq directly from browser (bypasses Vercel body size limit)
+      // Vision: goes through /api/chat so the Groq key stays on the server.
+      // Images are compressed to <=1024px JPEG before this point, well under the function body limit.
       if (selectedModel === 'groq-llama-vision' && _pendingImage) {
-        const vkMeta = document.querySelector('meta[name="gvk"]');
-        const visionKey = vkMeta ? vkMeta.content : '';
-        if (!visionKey) throw new Error('Vision key not set. Add <meta name="gvk" content="YOUR_GROQ_KEY"> to viewer.html');
-        const visionResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        const visionResp = await fetch('/api/chat', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + visionKey },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-            messages: [{
-              role: 'user',
-              content: [
-                { type: 'image_url', image_url: { url: 'data:' + _pendingImage.mimeType + ';base64,' + _pendingImage.base64 } },
-                { type: 'text', text: 'You are an expert CAIE exam tutor. Correct the student answer shown in this image. Identify mistakes, explain what is wrong, and provide the correct answer with full working.' }
-              ]
-            }],
-            max_completion_tokens: 1024,
-            temperature: 0.4
+            model: 'groq-llama-vision',
+            image: { base64: _pendingImage.base64, mimeType: _pendingImage.mimeType },
+            messages: _aiHistory.slice(-10),
+            context: '',
+            url: pdfUrl
           })
         });
         if (!visionResp.ok) {
-          const errText = await visionResp.text();
-          throw new Error('Vision error ' + visionResp.status + ': ' + errText.slice(0, 200));
+          let errText = await visionResp.text();
+          try { errText = JSON.parse(errText).error || errText; } catch (e) {}
+          throw new Error('Vision error ' + visionResp.status + ': ' + String(errText).slice(0, 200));
         }
-        const vd = await visionResp.json();
-        const vText = vd.choices && vd.choices[0] && vd.choices[0].message && vd.choices[0].message.content || 'No response.';
+        const raw = await visionResp.text();
+        let vText = '';
+        raw.split('\n').forEach(function (line) {
+          if (!line.startsWith('data: ')) return;
+          const payload = line.slice(6).trim();
+          if (!payload || payload === '[DONE]') return;
+          try { const d = JSON.parse(payload); if (d.delta && d.delta.text) vText += d.delta.text; } catch (e) {}
+        });
+        vText = vText || 'No response.';
         aiDiv.innerHTML = formatAiText(vText);
         aiDiv.classList.remove('streaming');
         _aiHistory.push({ role: 'assistant', content: vText });
@@ -4573,7 +4578,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
   }
 
   function scrollAi() { const m = document.getElementById('aiMessages'); m.scrollTop = m.scrollHeight; }
-  const _welcomeMsg = 'Hi! I\'m PastPaperAI 🎓<br><br>Ask me anything about this paper — I can explain questions, summarise topics &amp; check your answers against the mark scheme.<br><br><span style="font-size:0.62rem;color:var(--muted)">PastPaperAI can make mistakes. Reference only.</span>';
+  const _welcomeMsg = 'Hi, I\'m PastPaperAI.<br><br>Ask me anything about this paper — I can explain questions, summarise topics &amp; check your answers against the mark scheme.<br><br><span style="font-size:0.62rem;color:var(--muted)">PastPaperAI can make mistakes. Reference only.</span>';
 
   function clearAiChat() {
     document.getElementById('aiMessages').innerHTML = '<div class="ai-msg ai">' + _welcomeMsg + '</div>';
@@ -4755,7 +4760,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         _muDrawing = false;
         const inp = document.createElement('input');
         inp.type = 'text';
-        inp.style.cssText = `position:absolute;left:${e.clientX - canvas.getBoundingClientRect().left}px;top:${e.clientY - canvas.getBoundingClientRect().top}px;z-index:20;background:transparent;border:1px dashed ${_muColor};color:${_muColor};font-size:${_muSize * 4}px;font-family:Space Mono,monospace;outline:none;min-width:80px`;
+        inp.style.cssText = `position:absolute;left:${e.clientX - canvas.getBoundingClientRect().left}px;top:${e.clientY - canvas.getBoundingClientRect().top}px;z-index:20;background:transparent;border:1px dashed ${_muColor};color:${_muColor};font-size:${_muSize * 4}px;font-family:var(--font-ui);outline:none;min-width:80px`;
         canvas.parentElement.appendChild(inp);
         inp.focus();
         inp.addEventListener('blur', () => {

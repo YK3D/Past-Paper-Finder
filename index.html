@@ -28,7 +28,10 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
 <link rel="apple-touch-icon" href="/favicon.png">
 <script>if(location.protocol!=="file:"){var s=document.createElement("script");s.defer=true;s.src="/_vercel/insights/script.js";document.head.appendChild(s);}</script>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script>try{if(!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("pf-motion")}catch(e){}</script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400..800&display=swap" rel="stylesheet">
 
 <style>
   :root {
@@ -62,7 +65,7 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     min-height: 100vh;
     background-image:
       radial-gradient(ellipse at 20% 20%, rgba(0,229,255,0.05) 0%, transparent 50%),
@@ -94,7 +97,7 @@
   header { margin-bottom: 2.5rem; }
 
   .label-top {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.65rem;
     letter-spacing: 0.2em;
     color: var(--accent);
@@ -105,7 +108,7 @@
   h1 { font-size: 2.4rem; font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; }
   h1 span { color: var(--accent); }
 
-  .subtitle { margin-top: 0.6rem; color: var(--muted); font-size: 0.9rem; font-family: 'Space Mono', monospace; }
+  .subtitle { margin-top: 0.6rem; color: var(--muted); font-size: 0.9rem; font-family: var(--font-ui); }
 
   /* card styles defined below with poda glow */
 
@@ -114,7 +117,7 @@
   .field { display: flex; flex-direction: column; gap: 0.4rem; }
 
   .field label {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.68rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -125,7 +128,7 @@
   }
 
   .find-code-btn-below {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.65rem;
     color: var(--accent);
     background: none;
@@ -203,7 +206,7 @@
   .btn-share {
     flex: 1; padding: 0.6rem; border-radius: 7px;
     border: 1px solid var(--accent);
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    font-family: var(--font-display); font-weight: 700; font-size: 0.8rem;
     cursor: pointer;
     background: transparent; color: var(--accent);
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -221,7 +224,7 @@
   .btn-view-chat {
     flex: 1; padding: 0.6rem; border-radius: 7px;
     border: 1px solid var(--accent2);
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    font-family: var(--font-display); font-weight: 700; font-size: 0.8rem;
     cursor: pointer;
     background: transparent; color: var(--accent2);
     transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), background 0.2s, color 0.2s;
@@ -254,7 +257,7 @@
     border: 1px solid var(--border);
     border-radius: 8px;
     color: var(--text);
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 16px;
     padding: 0.65rem 0.9rem;
     width: 100%;
@@ -277,7 +280,7 @@
   .field select option { background: #1a1a25; }
 
   .field > label {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.68rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -350,7 +353,7 @@
     font-size: 0.95rem;
     background-color: transparent;
     border-radius: 10px;
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
     letter-spacing: 0.05em;
     color: var(--accent);
@@ -399,7 +402,7 @@
     color: var(--accent2);
     border: 2px solid var(--accent2);
     border-radius: 10px;
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
     font-size: 0.85rem;
     cursor: pointer;
@@ -455,7 +458,7 @@
 
   /* label pop */
   .result-label {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.6rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -473,7 +476,7 @@
 
   /* URL fade in */
   .result-url {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.72rem;
     color: var(--muted);
     word-break: break-all;
@@ -502,7 +505,7 @@
     flex: 1;
     padding: 0.6rem;
     border-radius: 7px;
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
     font-size: 0.8rem;
     cursor: pointer;
@@ -542,7 +545,7 @@
     border: 1px solid var(--accent2);
     border-radius: 8px;
     padding: 0.8rem 1rem;
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.75rem;
     color: var(--accent2);
     display: none;
@@ -563,7 +566,7 @@
     border: 1px solid var(--accent2);
     border-radius: 6px;
     color: var(--accent2);
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
     font-size: 0.72rem;
     cursor: pointer;
@@ -589,7 +592,7 @@
   }
 
   .back-btn {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.7rem;
     letter-spacing: 0.1em;
     color: var(--accent);
@@ -708,7 +711,7 @@
     border: none;
     border-radius: 8px;
     color: var(--text);
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.85rem;
     padding: 0.7rem 1rem;
     outline: none;
@@ -743,10 +746,10 @@
   .sec-title { font-size: 0.95rem; font-weight: 800; letter-spacing: 0.04em; }
   .caie-sec .sec-title { color: var(--accent); }
   .aqa-sec  .sec-title { color: var(--accent2); }
-  .sec-sub { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: var(--muted); margin-top: 0.2rem; }
+  .sec-sub { font-family: var(--font-ui); font-size: 0.6rem; color: var(--muted); margin-top: 0.2rem; }
 
   .cat-label {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.58rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -762,7 +765,7 @@
   .code-table td { padding: 0.38rem 1.2rem; font-size: 0.8rem; line-height: 1.4; }
 
   .c-code {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.76rem;
     width: 70px;
     white-space: nowrap;
@@ -805,7 +808,7 @@
   /* ── Subject name tag ── */
   .subject-name-tag {
     display: none;
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.7rem;
     color: var(--accent);
     margin-top: 0.35rem;
@@ -817,7 +820,7 @@
   .subject-name-tag.visible { display: inline-block; }
 
   .did-you-mean {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.7rem;
     margin-top: 0.35rem;
     color: rgba(255,255,255,0.55);
@@ -861,14 +864,14 @@
     background: rgba(0,229,255,0.08);
   }
   .suggestion-code {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.75rem;
     color: var(--accent);
     min-width: 3rem;
     font-weight: 700;
   }
   .suggestion-name {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.7rem;
     color: rgba(255,255,255,0.65);
     white-space: nowrap;
@@ -881,7 +884,7 @@
   .recent-box { margin-bottom: 1.2rem; display: none; }
   .recent-box.visible { display: block; }
   .recent-label {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.6rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -893,7 +896,7 @@
   }
   .recent-clear {
     background: none; border: none; color: var(--muted);
-    font-family: 'Space Mono', monospace; font-size: 0.6rem;
+    font-family: var(--font-ui); font-size: 0.6rem;
     cursor: pointer; letter-spacing: 0.1em;
   }
   .recent-clear:hover { color: var(--accent2); }
@@ -916,7 +919,7 @@
   }
   .recent-item:hover { background: rgba(0,229,255,0.05); border-color: rgba(0,229,255,0.2); }
   .recent-item-url {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.7rem;
     color: var(--text);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -924,7 +927,7 @@
     letter-spacing: 0.02em;
   }
   .recent-item-open {
-    font-family: 'Space Mono', monospace; font-size: 0.6rem;
+    font-family: var(--font-ui); font-size: 0.6rem;
     color: var(--accent); white-space: nowrap; flex-shrink: 0;
   }
 
@@ -932,7 +935,7 @@
   .btn-download {
     flex: 1; padding: 0.6rem; border-radius: 7px;
     border: 1px solid #22c55e;
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    font-family: var(--font-display); font-weight: 700; font-size: 0.8rem;
     cursor: pointer;
     background: transparent; color: #22c55e;
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -963,7 +966,7 @@
     flex-shrink: 0;
   }
   .header-byline {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.75rem;
     color: #555570;
     font-weight: 400;
@@ -974,7 +977,7 @@
   .made-by {
     margin-top: 1.5rem;
     text-align: center;
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 0.12em;
@@ -989,7 +992,7 @@
     border: 1px solid var(--border);
     border-radius: 8px;
     color: var(--muted);
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.7rem;
     letter-spacing: 0.06em;
     text-decoration: none;
@@ -999,7 +1002,7 @@
   .lb-link-btn:hover { border-color: var(--accent); color: var(--accent); }
   .version-tag {
     text-align: center;
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.65rem;
     letter-spacing: 0.08em;
     color: #2a2a40;
@@ -1043,7 +1046,7 @@
     gap: 0.5rem;
     padding: 0.55rem 0.8rem;
     cursor: pointer;
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.72rem;
     transition: background 0.15s;
     border-bottom: 1px solid var(--border);
@@ -1054,7 +1057,7 @@
   .fav-item-name { color: var(--text); flex: 1; }
   .fav-item-del { color: var(--muted); font-size: 0.65rem; margin-left: auto; }
   .fav-item-del:hover { color: #ff4d6d; }
-  .fav-empty { padding: 0.8rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); text-align: center; }
+  .fav-empty { padding: 0.8rem; font-family: var(--font-ui); font-size: 0.7rem; color: var(--muted); text-align: center; }
 
   .contact-section {
     margin-top: 2rem;
@@ -1065,7 +1068,7 @@
     background: var(--surface);
   }
   .contact-label {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.6rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -1073,14 +1076,14 @@
     margin-bottom: 0.5rem;
   }
   .contact-name {
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-size: 0.95rem;
     font-weight: 700;
     color: var(--text);
     margin-bottom: 0.3rem;
   }
   .contact-email {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.75rem;
     color: var(--accent);
     text-decoration: none;
@@ -1119,7 +1122,7 @@
     to   { opacity: 1; transform: scale(1) rotate(0deg); }
   }
   .splash-title {
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-size: 2rem;
     font-weight: 800;
     letter-spacing: -0.02em;
@@ -1144,7 +1147,7 @@
     to   { width: 120px; opacity: 1; }
   }
   .splash-sub {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.65rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -1252,7 +1255,7 @@
     border: 1.5px solid var(--border);
     border-radius: 8px;
     color: var(--muted);
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-size: 0.9rem;
     font-weight: 700;
     letter-spacing: 0.04em;
@@ -1279,7 +1282,7 @@
     background: none;
     border: 1px solid var(--border);
     color: var(--muted);
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.62rem;
     padding: 0.2rem 0.55rem;
     border-radius: 5px;
@@ -1290,7 +1293,7 @@
   .btn-manual-toggle:hover { border-color: var(--accent); color: var(--accent); }
   .btn-manual-toggle.active { border-color: var(--accent2); color: var(--accent2); }
   .manual-hint {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.6rem;
     color: var(--accent2);
     opacity: 0.8;
@@ -1447,7 +1450,7 @@
     background: var(--surface);
   }
   .rating-label {
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.6rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -1506,7 +1509,7 @@
     border: 1.5px solid var(--accent);
     border-radius: 8px;
     color: var(--accent);
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
     font-size: 0.82rem;
     letter-spacing: 0.04em;
@@ -1525,7 +1528,7 @@
   }
   .rating-thanks {
     display: none;
-    font-family: 'Space Mono', monospace;
+    font-family: var(--font-ui);
     font-size: 0.7rem;
     color: var(--accent);
     margin-top: 0.6rem;
@@ -1547,13 +1550,13 @@
     box-shadow: 0 20px 60px rgba(0,0,0,0.5);
   }
   .auth-title {
-    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-family: var(--font-display); font-weight: 800;
     font-size: 1.2rem; margin-bottom: 1.2rem; text-align: center;
   }
   .auth-title span { color: var(--accent); }
   .auth-field { margin-bottom: 0.8rem; }
   .auth-field label {
-    display: block; font-family: 'Space Mono', monospace;
+    display: block; font-family: var(--font-ui);
     font-size: 0.62rem; letter-spacing: 0.1em;
     text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem;
   }
@@ -1596,7 +1599,7 @@
   .auth-input {
     position: relative; z-index: 2;
     width: 100%; background: transparent; border: 1px solid var(--border);
-    border-radius: 8px; color: var(--text); font-family: 'Space Mono', monospace;
+    border-radius: 8px; color: var(--text); font-family: var(--font-ui);
     font-size: 0.85rem; padding: 0.55rem 0.8rem; outline: none;
     transition: border-color 0.2s; box-sizing: border-box;
   }
@@ -1604,20 +1607,20 @@
   .auth-input.field-error { border-color: #ff4d6d !important; animation: shake 0.45s ease; }
   .auth-btn {
     width: 100%; padding: 0.65rem; background: var(--accent); color: #000;
-    border: none; border-radius: 8px; font-family: 'Syne', sans-serif;
+    border: none; border-radius: 8px; font-family: var(--font-display);
     font-weight: 700; font-size: 0.9rem; cursor: pointer;
     transition: opacity 0.2s; margin-top: 0.4rem;
   }
   .auth-btn:hover { opacity: 0.85; }
   .auth-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .auth-switch {
-    text-align: center; font-family: 'Space Mono', monospace;
+    text-align: center; font-family: var(--font-ui);
     font-size: 0.68rem; color: var(--muted); margin-top: 0.8rem;
   }
   .auth-switch a { color: var(--accent); cursor: pointer; text-decoration: none; }
   .auth-switch a:hover { text-decoration: underline; }
   .auth-error {
-    color: #ff4d6d; font-family: 'Space Mono', monospace;
+    color: #ff4d6d; font-family: var(--font-ui);
     font-size: 0.68rem; text-align: center; margin-top: 0.4rem;
     min-height: 1rem;
   }
@@ -1633,7 +1636,7 @@
     display: flex; align-items: center; gap: 0.4rem;
     padding: 0.25rem 0.6rem; border: 1px solid var(--border);
     border-radius: 20px; cursor: pointer;
-    font-family: 'Space Mono', monospace; font-size: 0.65rem;
+    font-family: var(--font-ui); font-size: 0.65rem;
     color: var(--text); transition: border-color 0.2s;
     background: transparent; white-space: nowrap;
     max-width: 120px; overflow: hidden; text-overflow: ellipsis;
@@ -1643,7 +1646,7 @@
   .sign-in-btn {
     padding: 0.25rem 0.7rem; border: 1px solid var(--border);
     border-radius: 20px; cursor: pointer;
-    font-family: 'Space Mono', monospace; font-size: 0.65rem;
+    font-family: var(--font-ui); font-size: 0.65rem;
     color: var(--muted); background: transparent;
     transition: border-color 0.2s, color 0.2s;
   }
@@ -1657,17 +1660,17 @@
     gap: 1.8rem; padding: 2rem;
   }
   .landing-overlay.show { display: flex; }
-  .landing-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2.4rem; letter-spacing: -0.02em; }
+  .landing-logo { font-family: var(--font-display); font-weight: 800; font-size: 2.4rem; letter-spacing: -0.02em; }
   .landing-logo span { color: var(--accent); }
-  .landing-sub { font-family: 'Space Mono', monospace; font-size: 0.76rem; color: var(--muted); text-align: center; max-width: 380px; line-height: 1.8; }
+  .landing-sub { font-family: var(--font-ui); font-size: 0.76rem; color: var(--muted); text-align: center; max-width: 380px; line-height: 1.8; }
   .landing-btns { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 300px; }
-  .landing-btn { padding: 0.85rem 1.5rem; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; border: none; text-align: center; }
+  .landing-btn { padding: 0.85rem 1.5rem; border-radius: 10px; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; border: none; text-align: center; }
   .landing-btn-primary { background: var(--accent); color: #000; }
   .landing-btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
   .landing-btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
   .landing-btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
   .landing-skip {
-    font-family: 'Space Mono', monospace; font-size: 0.82rem; color: var(--muted);
+    font-family: var(--font-ui); font-size: 0.82rem; color: var(--muted);
     cursor: pointer; background: rgba(255,255,255,0.06); border: 1px solid #444;
     border-radius: 8px; padding: 0.65rem 1.8rem; text-decoration: none;
     transition: background 0.2s, color 0.2s, border-color 0.2s;
@@ -1707,18 +1710,18 @@
   .phone-country {
     display: flex; align-items: center; gap: 0.5rem;
     padding: 0.45rem 0.8rem; cursor: pointer;
-    font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--text);
+    font-family: var(--font-ui); font-size: 0.7rem; color: var(--text);
     transition: background 0.1s;
   }
   .phone-country:hover { background: rgba(0,229,255,0.08); }
   .phone-country.selected { background: rgba(0,229,255,0.12); color: var(--accent); }
   .phone-input-wrap { display: flex; flex-direction: column; justify-content: center; padding: 0 0.6rem; flex: 1; }
-  .phone-input-legend { font-size: 0.55rem; font-family: 'Space Mono', monospace; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+  .phone-input-legend { font-size: 0.55rem; font-family: var(--font-ui); color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
   .phone-input-row { display: flex; align-items: center; }
-  .phone-dialcode { font-family: 'Space Mono', monospace; font-size: 0.8rem; color: var(--muted); margin-right: 0.3rem; white-space: nowrap; }
+  .phone-dialcode { font-family: var(--font-ui); font-size: 0.8rem; color: var(--muted); margin-right: 0.3rem; white-space: nowrap; }
   .phone-input-field {
     width: 100%; background: transparent; border: none; outline: none;
-    font-family: 'Space Mono', monospace; font-size: 0.85rem; color: var(--text);
+    font-family: var(--font-ui); font-size: 0.85rem; color: var(--text);
     padding: 0;
   }
   /* ── Phone popup for existing users ── */
@@ -1733,8 +1736,8 @@
     border-radius: 14px; padding: 1.8rem; width: 340px; max-width: 95vw;
     box-shadow: 0 20px 60px rgba(0,0,0,0.5);
   }
-  .phone-popup-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; margin-bottom: 0.4rem; }
-  .phone-popup-sub { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); margin-bottom: 1.2rem; line-height: 1.6; }
+  .phone-popup-title { font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; margin-bottom: 0.4rem; }
+  .phone-popup-sub { font-family: var(--font-ui); font-size: 0.65rem; color: var(--muted); margin-bottom: 1.2rem; line-height: 1.6; }
 
 
   /* ── Phone number field (styled like board selector, bbn glow) ── */
@@ -1763,10 +1766,10 @@
   }
   .phone-flag-btn:hover { background: rgba(255,255,255,0.1); }
   .phone-caret { font-size: 0.5rem; color: var(--muted); }
-  .phone-dial { font-family: 'Space Mono', monospace; font-size: 0.8rem; color: var(--muted); padding: 0 0.3rem 0 0.5rem; white-space: nowrap; flex-shrink: 0; }
+  .phone-dial { font-family: var(--font-ui); font-size: 0.8rem; color: var(--muted); padding: 0 0.3rem 0 0.5rem; white-space: nowrap; flex-shrink: 0; }
   .phone-num-input {
     flex: 1; background: transparent; border: none; outline: none;
-    color: var(--text); font-family: 'Space Mono', monospace;
+    color: var(--text); font-family: var(--font-ui);
     font-size: 0.85rem; padding: 0.6rem 0.6rem 0.6rem 0;
   }
   .phone-dd {
@@ -1782,7 +1785,7 @@
   .phone-dd-item {
     display: flex; align-items: center; gap: 0.5rem;
     padding: 0.4rem 0.7rem; cursor: pointer;
-    font-family: 'Space Mono', monospace; font-size: 0.68rem; color: var(--text);
+    font-family: var(--font-ui); font-size: 0.68rem; color: var(--text);
   }
   .phone-dd-item:hover { background: rgba(0,229,255,0.08); color: var(--accent); }
   .phone-dd-item .pd-dial { color: var(--muted); margin-left: auto; font-size: 0.62rem; }
@@ -1799,8 +1802,8 @@
     border-radius: 14px; padding: 1.8rem; width: 340px; max-width: 95vw;
     box-shadow: 0 20px 60px rgba(0,0,0,0.5);
   }
-  .phone-popup-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; margin-bottom: 0.4rem; }
-  .phone-popup-sub { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); margin-bottom: 1.2rem; line-height: 1.6; }
+  .phone-popup-title { font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; margin-bottom: 0.4rem; }
+  .phone-popup-sub { font-family: var(--font-ui); font-size: 0.65rem; color: var(--muted); margin-bottom: 1.2rem; line-height: 1.6; }
 
 
 
@@ -1809,32 +1812,32 @@
   width: 100%; max-width: 680px; margin: 2.5rem auto 0; padding: 0 1rem;
 }
 .question-search-title {
-  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem;
+  font-family: var(--font-display); font-weight: 800; font-size: 1.1rem;
   color: var(--text); margin-bottom: 0.3rem;
 }
 .question-search-title span { color: var(--accent); }
 .question-search-sub {
-  font-family: 'Space Mono', monospace; font-size: 0.68rem;
+  font-family: var(--font-ui); font-size: 0.68rem;
   color: var(--muted); margin-bottom: 1rem; line-height: 1.6;
 }
 .question-search-row { display: flex; gap: 0.5rem; align-items: stretch; }
 .question-search-input {
   flex: 1; background: var(--surface); border: 1px solid var(--border);
-  border-radius: 8px; color: var(--text); font-family: 'Space Mono', monospace;
+  border-radius: 8px; color: var(--text); font-family: var(--font-ui);
   font-size: 0.75rem; padding: 0.6rem 0.9rem; outline: none;
   transition: border-color 0.2s;
 }
 .question-search-input:focus { border-color: var(--accent); }
 .question-search-select {
   background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
-  color: var(--text); font-family: 'Space Mono', monospace; font-size: 0.68rem;
+  color: var(--text); font-family: var(--font-ui); font-size: 0.68rem;
   padding: 0.4rem 0.6rem; outline: none; cursor: pointer; transition: border-color 0.2s;
 }
 .question-search-select:focus { border-color: var(--accent); }
 .question-search-select option { background: var(--surface); }
 .question-search-btn {
   background: var(--accent); border: none; border-radius: 8px;
-  color: #000; font-family: 'Syne', sans-serif; font-weight: 700;
+  color: #000; font-family: var(--font-display); font-weight: 700;
   font-size: 0.78rem; padding: 0 1.2rem; cursor: pointer;
   transition: opacity 0.2s; white-space: nowrap; flex-shrink: 0;
 }
@@ -1847,7 +1850,7 @@
 }
 .qs-result-card:hover { border-color: var(--accent); }
 .qs-result-meta {
-  font-family: 'Space Mono', monospace; font-size: 0.6rem;
+  font-family: var(--font-ui); font-size: 0.6rem;
   color: var(--muted); margin-bottom: 0.4rem;
   display: flex; flex-wrap: wrap; gap: 0.5rem;
 }
@@ -1856,16 +1859,16 @@
   border-radius: 4px; padding: 0.1rem 0.4rem; color: var(--accent);
 }
 .qs-result-qnum {
-  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.75rem;
+  font-family: var(--font-display); font-weight: 700; font-size: 0.75rem;
   color: var(--accent); margin-bottom: 0.25rem;
 }
 .qs-result-question {
-  font-family: 'Syne', sans-serif; font-size: 0.78rem; font-weight: 600;
+  font-family: var(--font-display); font-size: 0.78rem; font-weight: 600;
   color: var(--text); line-height: 1.6; margin-bottom: 0.6rem;
 }
 .qs-result-links { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .qs-result-link {
-  font-family: 'Space Mono', monospace; font-size: 0.62rem;
+  font-family: var(--font-ui); font-size: 0.62rem;
   color: var(--accent); text-decoration: none;
   border: 1px solid rgba(62,228,254,0.3);
   border-radius: 5px; padding: 0.15rem 0.5rem; transition: all 0.15s;
@@ -1874,7 +1877,7 @@
 .qs-result-link.ms { color: #a78bfa; border-color: rgba(167,139,250,0.3); }
 .qs-result-link.ms:hover { background: rgba(167,139,250,0.08); }
 .qs-no-results {
-  font-family: 'Space Mono', monospace; font-size: 0.72rem;
+  font-family: var(--font-ui); font-size: 0.72rem;
   color: var(--muted); text-align: center; padding: 1.5rem 0;
 }
 .qs-result-ms {
@@ -1882,41 +1885,41 @@
   border-radius: 6px; padding: 0.6rem 0.8rem; margin-bottom: 0.6rem;
 }
 .qs-ms-label {
-  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.65rem;
+  font-family: var(--font-display); font-weight: 700; font-size: 0.65rem;
   color: #22c55e; letter-spacing: 0.06em; text-transform: uppercase;
   margin-bottom: 0.4rem;
 }
 .qs-ms-pre {
-  font-family: 'Space Mono', monospace; font-size: 0.62rem;
+  font-family: var(--font-ui); font-size: 0.62rem;
   color: #86efac; white-space: pre-wrap; word-break: break-word;
   line-height: 1.7; margin: 0; overflow-x: auto;
 }
 /* ── Question Search ── */
 .question-search-section{width:100%;max-width:680px;margin:2rem auto 0;padding:0 1rem}
-.question-search-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;color:var(--text);margin-bottom:0.3rem}
+.question-search-title{font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:var(--text);margin-bottom:0.3rem}
 .question-search-title span{color:var(--accent)}
-.question-search-sub{font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--muted);margin-bottom:1rem;line-height:1.6}
+.question-search-sub{font-family:var(--font-ui);font-size:0.68rem;color:var(--muted);margin-bottom:1rem;line-height:1.6}
 .question-search-row{display:flex;gap:0.5rem;align-items:stretch;margin-bottom:0.5rem;flex-wrap:wrap}
-.question-search-input{flex:1;min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Space Mono',monospace;font-size:0.75rem;padding:0.6rem 0.9rem;outline:none;transition:border-color 0.2s}
+.question-search-input{flex:1;min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font-ui);font-size:0.75rem;padding:0.6rem 0.9rem;outline:none;transition:border-color 0.2s}
 .question-search-input:focus{border-color:var(--accent)}
-.question-search-select{background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Space Mono',monospace;font-size:0.68rem;padding:0.4rem 0.6rem;outline:none;cursor:pointer}
+.question-search-select{background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font-ui);font-size:0.68rem;padding:0.4rem 0.6rem;outline:none;cursor:pointer}
 .question-search-select option{background:var(--surface)}
-.question-search-btn{background:var(--accent);border:none;border-radius:8px;color:#000;font-family:'Syne',sans-serif;font-weight:700;font-size:0.78rem;padding:0 1.2rem;cursor:pointer;transition:opacity 0.2s;white-space:nowrap}
+.question-search-btn{background:var(--accent);border:none;border-radius:8px;color:#000;font-family:var(--font-display);font-weight:700;font-size:0.78rem;padding:0 1.2rem;cursor:pointer;transition:opacity 0.2s;white-space:nowrap}
 .question-search-btn:hover{opacity:0.85}
 .question-search-btn:disabled{opacity:0.4;cursor:not-allowed}
 .question-search-results{margin-top:1rem;display:flex;flex-direction:column;gap:0.75rem}
 .qs-result-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0.9rem 1rem;transition:border-color 0.2s}
 .qs-result-card:hover{border-color:var(--accent)}
-.qs-result-meta{font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--muted);margin-bottom:0.5rem;display:flex;flex-wrap:wrap;gap:0.5rem}
+.qs-result-meta{font-family:var(--font-ui);font-size:0.6rem;color:var(--muted);margin-bottom:0.5rem;display:flex;flex-wrap:wrap;gap:0.5rem}
 .qs-result-meta span{background:rgba(62,228,254,0.07);border:1px solid rgba(62,228,254,0.15);border-radius:4px;padding:0.1rem 0.4rem;color:var(--accent)}
 .qs-raw-block{font-family:Arial,sans-serif;font-size:0.72rem;color:var(--text);white-space:pre-wrap;word-break:break-all;overflow-wrap:break-word;line-height:1.7;margin:0 0 0.7rem 0;overflow-x:hidden;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:0.7rem 0.9rem}
 .qs-result-links{display:flex;gap:0.5rem;flex-wrap:wrap}
-.qs-result-link{font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--accent);text-decoration:none;border:1px solid rgba(62,228,254,0.3);border-radius:5px;padding:0.15rem 0.5rem;transition:all 0.15s}
+.qs-result-link{font-family:var(--font-ui);font-size:0.62rem;color:var(--accent);text-decoration:none;border:1px solid rgba(62,228,254,0.3);border-radius:5px;padding:0.15rem 0.5rem;transition:all 0.15s}
 .qs-result-link:hover{background:rgba(62,228,254,0.08)}
 .qs-result-link.ms{color:#a78bfa;border-color:rgba(167,139,250,0.3)}
 .qs-result-link.qs-ai-link{color:#f472b6;border-color:rgba(244,114,182,0.3)}
 .qs-result-link.qs-ai-link:hover{background:rgba(244,114,182,0.08)}
-.qs-no-results{font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);text-align:center;padding:1.5rem 0}
+.qs-no-results{font-family:var(--font-ui);font-size:0.72rem;color:var(--muted);text-align:center;padding:1.5rem 0}
 .qs-fmtblock{font-family:Arial,sans-serif;font-size:0.72rem;line-height:1.8;margin:0 0 0.7rem 0;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:0.7rem 0.9rem;word-break:break-word;overflow-wrap:break-word;}
 .qs-hdr{color:#22c55e;text-align:center;font-weight:600;margin:0.15rem 0;}
 .qs-flink{color:#22c55e;font-weight:700;text-decoration:underline;}
@@ -1943,31 +1946,26 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
 .qs-wifi svg.circle-inner circle.front{animation:circle-inner162 1.8s ease infinite 0.05s;}
 
 </style>
+<link rel="stylesheet" href="/assets/ui.css">
   <script defer src="/_vercel/speed-insights/script.js"></script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1496392952885490" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@4/dist/fp.min.js"></script>
 </head>
 <body>
-<div id="banBanner" style="display:none;position:fixed;inset:0;z-index:99999;background:#c0392b;color:#fff;font-family:Space Mono,monospace;font-size:0.9rem;font-weight:700;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;flex-direction:column;gap:0.6rem;padding:2rem">
-  <div style="font-size:2rem">&#128683;</div>
+<div id="banBanner" style="display:none;position:fixed;inset:0;z-index:99999;background:#c0392b;color:#fff;font-family:var(--font-ui);font-size:0.9rem;font-weight:700;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;flex-direction:column;gap:0.6rem;padding:2rem">
+  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>
   <div>Your access to PaperFinder has been restricted.</div>
   <div id="banReason" style="font-weight:400;font-size:0.75rem;max-width:480px;line-height:1.6;opacity:0.9"></div>
   <div style="font-size:0.65rem;opacity:0.7;margin-top:0.4rem">Contact <a id="emailAppeal" href="#" onclick="setEmailBody(this);return false;" style="color:var(--accent);text-decoration:none">contact support</a> to appeal</div>
 </div>
-<div id="maintenanceBanner" style="display:none;padding:0.4rem 1rem 0.4rem 1rem;font-family:Space Mono,monospace;font-size:0.75rem;font-weight:600;z-index:9999;width:100%;box-sizing:border-box;position:relative;align-items:center;justify-content:center;gap:0.5rem"><span id="maintenanceBannerText"></span><button onclick="document.getElementById('maintenanceBanner').style.display='none'" style="position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1rem;line-height:1;opacity:0.7;color:inherit;padding:0.1rem 0.3rem" title="Dismiss">&#10005;</button></div>
+<div id="maintenanceBanner" style="display:none;padding:0.4rem 1rem 0.4rem 1rem;font-family:var(--font-ui);font-size:0.75rem;font-weight:600;z-index:9999;width:100%;box-sizing:border-box;position:relative;align-items:center;justify-content:center;gap:0.5rem"><span id="maintenanceBannerText"></span><button onclick="document.getElementById('maintenanceBanner').style.display='none'" style="position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1rem;line-height:1;opacity:0.7;color:inherit;padding:0.1rem 0.3rem" title="Dismiss">&#10005;</button></div>
 
-<div id="splash">
-  <img src="/favicon.png" class="splash-logo" alt="logo">
-  <div class="splash-title">Paper<span>Finder</span></div>
-  <div class="splash-bar"></div>
-  <div class="splash-sub">Past Paper Retrieval</div>
-</div>
 
 <!-- \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 MAIN VIEW \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 -->
 <div id="view-wrapper">
 <div id="main-view" class="view">
   <div class="container">
-    <header>
+    <header data-pf-intro>
       <div class="header-top-row">
         <img src="/favicon.png" class="header-logo" alt="logo">
         <p class="label-top">Past Paper Retrieval</p>
@@ -1978,7 +1976,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
           <span id="userPillName"></span>
         </div>
         <label class="switch" title="Toggle light/dark mode">
-          <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
+          <input type="checkbox" id="themeToggle" aria-label="Light mode" onchange="toggleTheme()">
           <div class="slider">
             <div class="star star_1"></div>
             <div class="star star_2"></div>
@@ -2007,7 +2005,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       <div class="recent-list" id="recentList" style="display:none;"></div>
     </div>
 
-    <div class="card">
+    <div class="card" data-pf-intro>
       <div class="card-glow"></div>
       <div class="field-group">
 
@@ -2038,12 +2036,19 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
           <!-- hidden input keeps the rest of the JS working unchanged -->
           <input type="hidden" id="board" value="">
         </div>
-        <p id="aqaDownNotice" style="display:none;font-family:Space Mono,monospace;font-size:0.65rem;color:#ff9e0b;margin-top:0.4rem;text-align:center">⚠ AQA codes currently down</p>
+        <p id="boardDownNotice" style="display:none;font-family:var(--font-ui);font-size:0.74rem;color:var(--warning);margin-top:0.4rem;text-align:center"></p>
+
+        <div class="field" id="levelField" style="display:none">
+          <label for="level">Level</label>
+          <select id="level" onchange="onLevelChange()">
+            <option value="">— Select Level —</option>
+          </select>
+        </div>
 
         <div class="field" id="codeField" style="position:relative">
-          <label>Subject Code</label>
+          <label for="code">Subject</label>
           <div class="fav-wrap">
-            <input type="text" id="code" placeholder="Select exam board first" maxlength="4" inputmode="numeric" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="closeResultBox();onCodeInput()" onkeydown="onCodeKeydown(event)" onblur="hideSuggestions(event)" onfocus="openFavDropdown()" disabled style="padding-right:2.2rem" />
+            <input type="text" id="code" placeholder="Select board and level first" maxlength="64" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="closeResultBox();onCodeInput()" onkeydown="onCodeKeydown(event)" onblur="hideSuggestions(event)" onfocus="openFavDropdown()" disabled style="padding-right:2.2rem" />
             <button class="fav-btn" id="favStarBtn" onclick="toggleFavourite()" title="Add to favourites">&#9733;</button>
             <div class="fav-dropdown" id="favDropdown"></div>
           </div>
@@ -2055,20 +2060,20 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
 
         <div class="row-2">
           <div class="field">
-            <label>Session</label>
+            <label for="session">Session</label>
             <select id="session" onchange="closeResultBox();onSessionChange()">
               <option value="">— Select —</option>
             </select>
           </div>
           <div class="field" id="yearField">
-            <label>Year</label>
+            <label for="yearSelect">Year</label>
             <select id="yearSelect" onchange="closeResultBox();onYearSelectChange()"><option value="">— Select Year —</option></select>
           </div>
         </div>
 
         <div class="row-2">
           <div class="field" id="papertypeField">
-            <label>Paper Type</label>
+            <label for="papertype">Paper Type</label>
             <select id="papertype" onchange="closeResultBox();onPapertypeChange()">
               <option value="">— Select —</option>
               <option value="qp">Question Paper (QP)</option>
@@ -2080,7 +2085,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
             </select>
           </div>
           <div class="field" id="variantField">
-            <label>Variant</label>
+            <label for="variant">Variant</label>
             <input type="text" id="variant" placeholder="e.g. 31" maxlength="2" inputmode="numeric" oninput="numericOnly(this)" style="display:none" />
             <select id="variantSelect" onchange="closeResultBox();clearFieldErrors()"><option value="">— Select —</option></select>
           </div>
@@ -2117,11 +2122,11 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
         <p class="result-label">✓ URL Generated</p>
         <p class="result-url" id="resultUrl"></p>
         <div class="result-actions">
-          <button class="btn-view-chat" onclick="openViewer()">Open in PastPaperAI &#129302;</button>
+          <button class="btn-view-chat" onclick="openViewer()">Open in PastPaperAI</button>
           <button class="btn-copy" onclick="copyUrl()">Copy URL</button>
           <button class="btn-download" onclick="downloadUrl()">Download</button>
           <button class="btn-share" onclick="shareUrl()" id="shareBtn">Share</button>
-          <button class="btn-open" onclick="openUrl()">Open in Browser<br><span style="font-size:0.6rem;font-weight:400;opacity:0.7">(not rec.)</span></button>
+          <button class="btn-open" onclick="openUrl()">Open in Browser<br><span style="font-size:0.7rem;font-weight:400;opacity:0.7">(not rec.)</span></button>
         </div>
       </div>
     </div>
@@ -2134,7 +2139,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
   <div class="question-search-title">Question <span>Finder</span></div>
   <p class="question-search-sub">Search any CAIE past paper question using 3–9 consecutive words. Powered by caiefinder.com.</p>
   <div class="question-search-row">
-    <select class="question-search-select" id="qsSubs">
+    <select class="question-search-select" id="qsSubs" aria-label="Subject">
       <option value="">All Subjects</option>
       <optgroup label="── Core ──">
       <option value="mathematics">Mathematics</option>
@@ -2198,7 +2203,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       <option value="pakistanstudies">Pakistan Studies</option>
       </optgroup>
     </select>
-    <select class="question-search-select" id="qsZone">
+    <select class="question-search-select" id="qsZone" aria-label="Qualification">
       <option value="">GCE &amp; IGCSE</option>
       <option value="o">O Level GCE</option>
       <option value="a">A Level GCE</option>
@@ -2219,7 +2224,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
   </div>
   <div class="question-search-results" id="qsResults" style="display:none"></div>
 </div>
-      <a href="/leaderboard.html" class="lb-link-btn">🏆 Leaderboard</a>
+      <a href="/leaderboard.html" class="lb-link-btn">Leaderboard</a>
       <p class="made-by">MADE BY YOUSSEF KARIM</p>
       <div class="contact-section">
         <p class="contact-label">Contact</p>
@@ -2241,13 +2246,13 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
           <input type="radio" name="rating" id="s1" value="1">
           <label for="s1"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></label>
         </div>
-        <textarea id="ratingFeedback" name="feedback" maxlength="150" autocomplete="off" placeholder="Feedback, suggestions or issues (optional)&#8230;" style="width:100%;margin-top:0.7rem;padding:0.5rem 0.7rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:Space Mono,monospace;font-size:0.7rem;resize:none;height:70px;outline:none;box-sizing:border-box;transition:border-color 0.2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
-        <p style="text-align:right;font-family:Space Mono,monospace;font-size:0.6rem;color:var(--muted);margin-top:0.2rem" id="feedbackCount">0 / 150</p>
+        <textarea id="ratingFeedback" name="feedback" maxlength="150" autocomplete="off" placeholder="Feedback, suggestions or issues (optional)&#8230;" style="width:100%;margin-top:0.7rem;padding:0.5rem 0.7rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font-ui);font-size:0.7rem;resize:none;height:70px;outline:none;box-sizing:border-box;transition:border-color 0.2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+        <p style="text-align:right;font-family:var(--font-ui);font-size:0.72rem;color:var(--muted);margin-top:0.3rem" id="feedbackCount">0 / 150</p>
         <button class="rating-submit-btn" id="ratingSubmitBtn" onclick="submitRating()">Submit</button>
         <p class="rating-thanks" id="ratingThanks">Thanks for your feedback!</p>
       </div>
       <p class="version-tag" style="font-size:0.85rem;font-weight:700;color:var(--muted)" id="versionDisplay">Version 47.4</p>
-      <div class="version-tag" style="font-size:0.65rem;color:var(--muted);margin-top:0.2rem;user-select:none;-webkit-user-select:none;pointer-events:none;line-height:1.5">
+      <div class="version-tag" style="font-size:0.72rem;color:var(--muted);margin-top:0.2rem;user-select:none;-webkit-user-select:none;pointer-events:none;line-height:1.5">
         Powered by<br>
         papacambridge.com<br>
         caiefinder.com<br>
@@ -2630,7 +2635,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
           var titleClone = splashTitle.cloneNode(true);
           titleClone.style.cssText = 'position:fixed;top:'+toTitle.top+'px;left:'+toTitle.left+'px;'
             +'width:'+toTitle.width+'px;height:'+toTitle.height+'px;margin:0;padding:0;'
-            +'font-family:Syne,sans-serif;font-size:'+parseFloat(getComputedStyle(h1).fontSize)+'px;'
+            +'font-family:var(--font-display);font-size:'+parseFloat(getComputedStyle(h1).fontSize)+'px;'
             +'font-weight:800;letter-spacing:-0.02em;color:var(--text);transform-origin:top left;'
             +'transform:translate('+(fromTitle.left-toTitle.left)+'px,'+(fromTitle.top-toTitle.top)+'px)'
             +' scale('+scaleX+','+scaleY+');z-index:10001;pointer-events:none;opacity:1;'
@@ -2992,6 +2997,62 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     '0995':'Physical Education (9-1)',
 };
 
+  // ── PAPAFY DATA (CAIE only — AQA/Edexcel marked down) ──
+  const PAPAFY_CAIE = {"igcse":{"0452":{"name":"Accounting","slug":"accounting"},"0985":{"name":"Accounting","slug":"accounting"},"0512":{"name":"Afrikaans","slug":"afrikaans"},"0548":{"name":"Afrikaans","slug":"afrikaans"},"0600":{"name":"Agriculture","slug":"agriculture"},"0508":{"name":"Arabic First Language","slug":"arabic-first-language"},"7184":{"name":"Arabic First Language","slug":"arabic-first-language"},"0544":{"name":"Arabic Foreign Language","slug":"arabic-foreign-language"},"0527":{"name":"Arabic Foreign Language BES","slug":"arabic-foreign-language-bes"},"7180":{"name":"Arabic UK","slug":"arabic-uk"},"0400":{"name":"Art and Design","slug":"art-and-design"},"0415":{"name":"Art and Design BES","slug":"art-and-design-bes"},"0989":{"name":"Art and DesignUK","slug":"art-and-designuk"},"0538":{"name":"Bahasa Indonesia","slug":"bahasa-indonesia"},"0449":{"name":"Bangladesh Studies","slug":"bangladesh-studies"},"0610":{"name":"Biology","slug":"biology"},"0438":{"name":"Biology BES","slug":"biology-bes"},"0970":{"name":"BiologyUK","slug":"biologyuk"},"0450":{"name":"Business Studies","slug":"business-studies"},"0986":{"name":"Business StudiesUK","slug":"business-studiesuk"},"0620":{"name":"Chemistry","slug":"chemistry"},"0439":{"name":"Chemistry BES","slug":"chemistry-bes"},"0971":{"name":"ChemistryUK","slug":"chemistryuk"},"0637":{"name":"Child Development","slug":"child-development"},"0509":{"name":"Chinese First Language","slug":"chinese-first-language"},"0547":{"name":"Chinese Mandarin Foreign Language","slug":"chinese-mandarin-foreign-language"},"0534":{"name":"Chinese Mandarin Foreign Language BES","slug":"chinese-mandarin-foreign-language-bes"},"0523":{"name":"Chinese Second Language","slug":"chinese-second-language"},"0478":{"name":"Computer Science","slug":"computer-science"},"0984":{"name":"Computer ScienceUK","slug":"computer-scienceuk"},"0420":{"name":"Computer Studies","slug":"computer-studies"},"0441":{"name":"Computer Studies BES","slug":"computer-studies-bes"},"0514":{"name":"Czech First Language","slug":"czech-first-language"},"0445":{"name":"Design and Technology","slug":"design-and-technology"},"0979":{"name":"Design and TechnologyUK","slug":"design-and-technologyuk"},"0453":{"name":"Development Studies","slug":"development-studies"},"0411":{"name":"Drama","slug":"drama"},"0428":{"name":"Drama BES","slug":"drama-bes"},"0994":{"name":"DramaUK","slug":"dramauk"},"0503":{"name":"Dutch First Language","slug":"dutch-first-language"},"0515":{"name":"Dutch Foreign Language","slug":"dutch-foreign-language"},"0455":{"name":"Economics","slug":"economics"},"0987":{"name":"Economics","slug":"economics"},"0437":{"name":"Economics BES","slug":"economics-bes"},"0427":{"name":"English","slug":"english"},"0465":{"name":"English (as a Second Language)","slug":"english-as-a-second-language"},"0472":{"name":"English (as an additional language)","slug":"english-as-an-additional-language"},"0772":{"name":"English (as an additional language)(9 1)","slug":"english-as-an-additional-language-9-1"},"0993":{"name":"English as a Second Language (Speaking endorsement)","slug":"english-as-a-second-language-speaking-endorsement"},"0500":{"name":"English First Language","slug":"english-first-language"},"0524":{"name":"English First Language BES","slug":"english-first-language-bes"},"0522":{"name":"English First Language UK","slug":"english-first-language-uk"},"0627":{"name":"English First LanguageUK","slug":"english-first-languageuk"},"0990":{"name":"English First LanguageUK","slug":"english-first-languageuk"},"0475":{"name":"English Literature","slug":"english-literature"},"0486":{"name":"English Literature","slug":"english-literature"},"0476":{"name":"English Literature UK","slug":"english-literature-uk"},"0477":{"name":"English LiteratureUK","slug":"english-literatureuk"},"0992":{"name":"English LiteratureUK","slug":"english-literatureuk"},"0526":{"name":"English Second Language BES","slug":"english-second-language-bes"},"0511":{"name":"English Second Language count in oral","slug":"english-second-language-count-in-oral"},"0510":{"name":"English Second Language oral endorsement","slug":"english-second-language-oral-endorsement"},"0991":{"name":"English Second LanguageUK","slug":"english-second-languageuk"},"0454":{"name":"Enterprise","slug":"enterprise"},"0680":{"name":"Environmental Management","slug":"environmental-management"},"0648":{"name":"Food and Nutrition","slug":"food-and-nutrition"},"0501":{"name":"French First Language","slug":"french-first-language"},"0520":{"name":"French Foreign Language","slug":"french-foreign-language"},"0528":{"name":"French Foreign Language BES","slug":"french-foreign-language-bes"},"0685":{"name":"French Foreign Language UK","slug":"french-foreign-language-uk"},"7156":{"name":"FrenchUK","slug":"frenchuk"},"0460":{"name":"Geography","slug":"geography"},"0976":{"name":"GeographyUK","slug":"geographyuk"},"0505":{"name":"German First Language","slug":"german-first-language"},"0525":{"name":"German Foreign Language","slug":"german-foreign-language"},"0529":{"name":"German Foreign Language BES","slug":"german-foreign-language-bes"},"0677":{"name":"German Foreign Language UK","slug":"german-foreign-language-uk"},"7159":{"name":"GermanUK","slug":"germanuk"},"0457":{"name":"Global Perspectives","slug":"global-perspectives"},"0426":{"name":"Global Perspectives BES","slug":"global-perspectives-bes"},"0543":{"name":"Greek Foreign Language","slug":"greek-foreign-language"},"0536":{"name":"Greek Foreign Language BES","slug":"greek-foreign-language-bes"},"0549":{"name":"Hindi Second Language","slug":"hindi-second-language"},"0470":{"name":"History","slug":"history"},"0409":{"name":"History American BES","slug":"history-american-bes"},"0416":{"name":"History BES","slug":"history-bes"},"0977":{"name":"HistoryUK","slug":"historyuk"},"8984":{"name":"ICT starters","slug":"ict-starters"},"0447":{"name":"India Studies","slug":"india-studies"},"0545":{"name":"Indonesian Foreign Language","slug":"indonesian-foreign-language"},"0983":{"name":"Information and Communication Technology","slug":"information-and-communication-technology"},"0417":{"name":"Information and Communication Technology","slug":"information-and-communication-technology"},"0531":{"name":"IsiZulu Second Language","slug":"isizulu-second-language"},"0493":{"name":"Islamiyat","slug":"islamiyat"},"0535":{"name":"Italian Foreign Language","slug":"italian-foreign-language"},"7164":{"name":"ItalianUK","slug":"italianuk"},"0507":{"name":"Japanese First Language","slug":"japanese-first-language"},"0519":{"name":"Japanese Foreign Language","slug":"japanese-foreign-language"},"0532":{"name":"Kazakh Second Language","slug":"kazakh-second-language"},"0521":{"name":"Korean First Language","slug":"korean-first-language"},"0480":{"name":"Latin","slug":"latin"},"0696":{"name":"Malay - First Language","slug":"malay-first-language"},"0546":{"name":"Malay Foreign Language","slug":"malay-foreign-language"},"0697":{"name":"Marine Science","slug":"marine-science"},"0580":{"name":"Mathematics","slug":"mathematics"},"0606":{"name":"Mathematics Additional","slug":"mathematics-additional"},"0459":{"name":"Mathematics Additional BES","slug":"mathematics-additional-bes"},"0444":{"name":"Mathematics BES","slug":"mathematics-bes"},"0581":{"name":"Mathematics Coursework","slug":"mathematics-coursework"},"0607":{"name":"Mathematics International","slug":"mathematics-international"},"0626":{"name":"MathematicsUK","slug":"mathematicsuk"},"0980":{"name":"MathematicsUK","slug":"mathematicsuk"},"0410":{"name":"Music","slug":"music"},"0429":{"name":"Music BES","slug":"music-bes"},"0978":{"name":"MusicUK","slug":"musicuk"},"0448":{"name":"Pakistan Studies","slug":"pakistan-studies"},"0413":{"name":"Physical Education","slug":"physical-education"},"0995":{"name":"Physical EducationUK","slug":"physical-educationuk"},"0652":{"name":"Physical Science","slug":"physical-science"},"0625":{"name":"Physics","slug":"physics"},"0443":{"name":"Physics BES","slug":"physics-bes"},"0972":{"name":"PhysicsUK","slug":"physicsuk"},"0504":{"name":"Portuguese First Language","slug":"portuguese-first-language"},"0540":{"name":"Portuguese Foreign Language","slug":"portuguese-foreign-language"},"0490":{"name":"Religious Studies","slug":"religious-studies"},"0516":{"name":"Russian First Language","slug":"russian-first-language"},"0499":{"name":"Sanskrit","slug":"sanskrit"},"0653":{"name":"Science Combined","slug":"science-combined"},"0654":{"name":"Sciences Co ordinated Double","slug":"sciences-co-ordinated-double"},"0442":{"name":"Sciences Co ordinated Double BES","slug":"sciences-co-ordinated-double-bes"},"0973":{"name":"Sciences Co ordinatedUK","slug":"sciences-co-ordinateduk"},"0495":{"name":"Sociology","slug":"sociology"},"0474":{"name":"Spanish","slug":"spanish"},"0502":{"name":"Spanish First Language","slug":"spanish-first-language"},"0537":{"name":"Spanish First Language BES","slug":"spanish-first-language-bes"},"0530":{"name":"Spanish Foreign Language","slug":"spanish-foreign-language"},"0533":{"name":"Spanish Foreign Language BES","slug":"spanish-foreign-language-bes"},"0678":{"name":"Spanish Foreign Language UK","slug":"spanish-foreign-language-uk"},"0488":{"name":"Spanish Literature","slug":"spanish-literature"},"7160":{"name":"SpanishUK","slug":"spanishuk"},"0262":{"name":"Swahili","slug":"swahili"},"0518":{"name":"Thai First Language","slug":"thai-first-language"},"0471":{"name":"Travel and Tourism","slug":"travel-and-tourism"},"0513":{"name":"Turkish First Language","slug":"turkish-first-language"},"0608":{"name":"Twenty First Century Science","slug":"twenty-first-century-science"},"0539":{"name":"Urdu Second Language","slug":"urdu-second-language"},"0695":{"name":"Vietnamese First Language","slug":"vietnamese-first-language"},"0408":{"name":"World Literature","slug":"world-literature"}},"a-level":{"9706":{"name":"Accounting","slug":"accounting"},"8679":{"name":"Afrikaans","slug":"afrikaans"},"8779":{"name":"Afrikaans","slug":"afrikaans"},"9679":{"name":"Afrikaans","slug":"afrikaans"},"9713":{"name":"AICT","slug":"aict"},"8680":{"name":"Arabic","slug":"arabic"},"9680":{"name":"Arabic","slug":"arabic"},"9479":{"name":"Art and Design","slug":"art-and-design"},"9704":{"name":"Art and Design","slug":"art-and-design"},"9484":{"name":"Biblical studies","slug":"biblical-studies"},"9184":{"name":"Biology","slug":"biology"},"9700":{"name":"Biology","slug":"biology"},"9609":{"name":"Business","slug":"business"},"9707":{"name":"Business Studies","slug":"business-studies"},"9980":{"name":"Project Qualification","slug":"project-qualification"},"9185":{"name":"Chemistry","slug":"chemistry"},"9701":{"name":"Chemistry","slug":"chemistry"},"8238":{"name":"Chineese","slug":"chineese"},"8669":{"name":"Chinese","slug":"chinese"},"8681":{"name":"Chinese","slug":"chinese"},"9715":{"name":"Chinese","slug":"chinese"},"9868":{"name":"Chinese","slug":"chinese"},"9274":{"name":"Classical Studies","slug":"classical-studies"},"9618":{"name":"Computer Science","slug":"computer-science"},"9608":{"name":"Computer Science","slug":"computer-science"},"9691":{"name":"Computing","slug":"computing"},"9705":{"name":"Design and Technology","slug":"design-and-technology"},"9631":{"name":"Design and Textiles","slug":"design-and-textiles"},"9481":{"name":"Digital Media & Design","slug":"digital-media-design"},"9011":{"name":"Divinity","slug":"divinity"},"8041":{"name":"Divinity","slug":"divinity"},"9482":{"name":"Drama","slug":"drama"},"9275":{"name":"Economics","slug":"economics"},"9708":{"name":"Economics","slug":"economics"},"8274":{"name":"English","slug":"english"},"8287":{"name":"English","slug":"english"},"8695":{"name":"English","slug":"english"},"9093":{"name":"English","slug":"english"},"9276":{"name":"English","slug":"english"},"9695":{"name":"English","slug":"english"},"8021":{"name":"English General Paper","slug":"english-general-paper"},"8693":{"name":"English Language","slug":"english-language"},"8291":{"name":"Environmental Management","slug":"environmental-management"},"9336":{"name":"Food Studies","slug":"food-studies"},"8276":{"name":"French","slug":"french"},"8670":{"name":"French","slug":"french"},"9281":{"name":"French","slug":"french"},"9716":{"name":"French","slug":"french"},"8277":{"name":"French","slug":"french"},"8682":{"name":"French Language","slug":"french-language"},"9898":{"name":"French Language & Literature","slug":"french-language-literature"},"8001":{"name":"General Paper","slug":"general-paper"},"8004":{"name":"General Paper","slug":"general-paper"},"9278":{"name":"Geography","slug":"geography"},"9696":{"name":"Geography","slug":"geography"},"8027":{"name":"German","slug":"german"},"8683":{"name":"German","slug":"german"},"9717":{"name":"German","slug":"german"},"9897":{"name":"German Language & Literature","slug":"german-language-literature"},"8275":{"name":"Global Perspectives","slug":"global-perspectives"},"8987":{"name":"Global Perspectives","slug":"global-perspectives"},"9239":{"name":"Global Perspectives and Research","slug":"global-perspectives-and-research"},"8675":{"name":"Hindi","slug":"hindi"},"9687":{"name":"Hindi","slug":"hindi"},"8687":{"name":"Hindi Language","slug":"hindi-language"},"8058":{"name":"Hinduism","slug":"hinduism"},"9014":{"name":"Hinduism","slug":"hinduism"},"9487":{"name":"Hinduism","slug":"hinduism"},"9279":{"name":"History","slug":"history"},"9389":{"name":"History","slug":"history"},"9489":{"name":"History","slug":"history"},"9697":{"name":"History","slug":"history"},"9626":{"name":"Information Technology","slug":"information-technology"},"9488":{"name":"Islamic studies","slug":"islamic-studies"},"9013":{"name":"Islamic Studies 9013 & 8053","slug":"islamic-studies-9013-8053"},"8053":{"name":"Islamic Studies 9013 & 8053","slug":"islamic-studies-9013-8053"},"8281":{"name":"Japanese Language","slug":"japanese-language"},"9084":{"name":"Law","slug":"law"},"9688":{"name":"Marathi","slug":"marathi"},"8688":{"name":"Marathi Language","slug":"marathi-language"},"9693":{"name":"Marine Science","slug":"marine-science"},"9280":{"name":"Mathematics","slug":"mathematics"},"9709":{"name":"Mathematics","slug":"mathematics"},"9231":{"name":"Mathematics Further","slug":"mathematics-further"},"9607":{"name":"Media Studies","slug":"media-studies"},"9385":{"name":"Music","slug":"music"},"9483":{"name":"Music","slug":"music"},"9703":{"name":"Music 9703 & 8663","slug":"music-9703-8663"},"8663":{"name":"Music 9703 & 8663","slug":"music-9703-8663"},"8024":{"name":"Nepal Studies","slug":"nepal-studies"},"9396":{"name":"Physical Education","slug":"physical-education"},"8780":{"name":"Physical Science","slug":"physical-science"},"9277":{"name":"Physics","slug":"physics"},"9702":{"name":"Physics","slug":"physics"},"8684":{"name":"Portuguese","slug":"portuguese"},"9718":{"name":"Portuguese","slug":"portuguese"},"8672":{"name":"Portuguese Literature","slug":"portuguese-literature"},"9698":{"name":"Psychology","slug":"psychology"},"9990":{"name":"Psychology","slug":"psychology"},"9699":{"name":"Sociology","slug":"sociology"},"8022":{"name":"Spanish","slug":"spanish"},"8278":{"name":"Spanish","slug":"spanish"},"8279":{"name":"Spanish","slug":"spanish"},"8665":{"name":"Spanish","slug":"spanish"},"8673":{"name":"Spanish","slug":"spanish"},"8685":{"name":"Spanish","slug":"spanish"},"9282":{"name":"Spanish","slug":"spanish"},"9719":{"name":"Spanish","slug":"spanish"},"9844":{"name":"Spanish","slug":"spanish"},"8386":{"name":"Sports & physical education","slug":"sports-physical-education"},"8689":{"name":"Tamil","slug":"tamil"},"9689":{"name":"Tamil","slug":"tamil"},"9690":{"name":"Telugu","slug":"telugu"},"8690":{"name":"Telugu Language","slug":"telugu-language"},"9694":{"name":"Thinking Skills","slug":"thinking-skills"},"9395":{"name":"Travel & Tourism","slug":"travel-tourism"},"8686":{"name":"Urdu","slug":"urdu"},"9676":{"name":"Urdu","slug":"urdu"},"9686":{"name":"Urdu","slug":"urdu"}},"o-level":{"7707":{"name":"Accounting","slug":"accounting"},"5038":{"name":"Agriculture","slug":"agriculture"},"3180":{"name":"Arabic","slug":"arabic"},"6010":{"name":"Art","slug":"art"},"6090":{"name":"Art and Design","slug":"art-and-design"},"7094":{"name":"Bangladesh Studies","slug":"bangladesh-studies"},"3204":{"name":"Bengali","slug":"bengali"},"2035":{"name":"Biblical studies","slug":"biblical-studies"},"5090":{"name":"Biology","slug":"biology"},"7115":{"name":"Business Studies","slug":"business-studies"},"7048":{"name":"CDT Design and Communication","slug":"cdt-design-and-communication"},"5070":{"name":"Chemistry","slug":"chemistry"},"7100":{"name":"Commerce","slug":"commerce"},"7101":{"name":"Commercial Studies","slug":"commercial-studies"},"2210":{"name":"Computer Science","slug":"computer-science"},"7010":{"name":"Computer Studies","slug":"computer-studies"},"6043":{"name":"Design and Technology","slug":"design-and-technology"},"2281":{"name":"Economics","slug":"economics"},"1123":{"name":"English Language","slug":"english-language"},"5014":{"name":"Environmental Management","slug":"environmental-management"},"6050":{"name":"Fashion and Fabrics","slug":"fashion-and-fabrics"},"6130":{"name":"Fashion and Textiles","slug":"fashion-and-textiles"},"6065":{"name":"Food and Nutrition","slug":"food-and-nutrition"},"3015":{"name":"French","slug":"french"},"2217":{"name":"Geography","slug":"geography"},"3025":{"name":"German","slug":"german"},"2069":{"name":"Global PerspectivesZone 4","slug":"global-perspectiveszone-4"},"3195":{"name":"Hindi","slug":"hindi"},"2055":{"name":"Hinduism","slug":"hinduism"},"2147":{"name":"History","slug":"history"},"2134":{"name":"History Modern World Affairs","slug":"history-modern-world-affairs"},"2158":{"name":"History World Affairs","slug":"history-world-affairs"},"5096":{"name":"Human and Social Biology","slug":"human-and-social-biology"},"2056":{"name":"Islamic Religion and Culture","slug":"islamic-religion-and-culture"},"2068":{"name":"Islamic Studies","slug":"islamic-studies"},"2058":{"name":"Islamiyat","slug":"islamiyat"},"2010":{"name":"Literature in English","slug":"literature-in-english"},"5180":{"name":"Marine Science","slug":"marine-science"},"4037":{"name":"Mathematics Additional","slug":"mathematics-additional"},"4024":{"name":"Mathematics D","slug":"mathematics-d"},"3202":{"name":"Nepali","slug":"nepali"},"2059":{"name":"Pakistan Studies","slug":"pakistan-studies"},"5054":{"name":"Physics","slug":"physics"},"7110":{"name":"Principles of Accounts","slug":"principles-of-accounts"},"2048":{"name":"Religious Studies","slug":"religious-studies"},"5129":{"name":"Science Combined","slug":"science-combined"},"3158":{"name":"Setswana","slug":"setswana"},"3205":{"name":"Sinhala","slug":"sinhala"},"2251":{"name":"Sociology","slug":"sociology"},"3035":{"name":"Spanish","slug":"spanish"},"4040":{"name":"Statistics","slug":"statistics"},"3162":{"name":"Swahili","slug":"swahili"},"3206":{"name":"Tamil","slug":"tamil"},"3226":{"name":"Tamil","slug":"tamil"},"7096":{"name":"Travel and Tourism","slug":"travel-and-tourism"},"3247":{"name":"Urdu First Language","slug":"urdu-first-language"},"3248":{"name":"Urdu Second Language","slug":"urdu-second-language"}}};
+
+  // Find level for a given code — searches all 3 levels
+  function findLevelForCode(code) {
+    if (PAPAFY_CAIE.igcse[code])    return 'igcse';
+    if (PAPAFY_CAIE['a-level'][code]) return 'a-level';
+    if (PAPAFY_CAIE['o-level'][code]) return 'o-level';
+    return null;
+  }
+
+  // Level labels for UI dropdown
+  const LEVEL_LABELS = {
+    'igcse':   'IGCSE',
+    'a-level': 'AS & A Level',
+    'o-level': 'O Level'
+  };
+
+  function onLevelChange() {
+    const level = document.getElementById('level').value;
+    const codeInp = document.getElementById('code');
+    if (level) {
+      codeInp.placeholder = 'Type subject name or code…';
+      codeInp.disabled = false;
+    } else {
+      codeInp.placeholder = 'Select level first';
+      codeInp.value = '';
+    }
+    // Clear suggestions
+    const sb = document.getElementById('codeSuggestions');
+    if (sb) sb.classList.remove('open');
+    const tag = document.getElementById('subjectNameTag');
+    if (tag) { tag.textContent = ''; tag.classList.remove('visible'); }
+  }
+
+  // Build session URL for papafy
+  function buildPapafySubjectUrl(level, code) {
+    const subj = PAPAFY_CAIE[level] && PAPAFY_CAIE[level][code];
+    if (!subj) return null;
+    return 'https://papafy.com/caie/past-papers/' + level + '/' + subj.slug + '-' + code;
+  }
+
+  // Build PDF URL for papafy
+  // {year}-{session: Oct-Nov / May-June / March} / {code}_{w/s/m}{yy}_{type}_{variant}.pdf
+  function buildPapafyPdfUrl(level, code, year, session, type, variant) {
+    const subj = PAPAFY_CAIE[level] && PAPAFY_CAIE[level][code];
+    if (!subj) return null;
+    const yr2 = String(year).slice(-2);
+    const sessLetter = session === 'w' ? 'w' : session === 'm' ? 'm' : 's';
+    const sessFolder = session === 'w' ? 'Oct-Nov' : session === 'm' ? 'March' : 'May-June';
+    const fname = code + '_' + sessLetter + yr2 + '_' + type + (variant ? '_' + variant : '') + '.pdf';
+    const inner = 'https://pastpapers.co/cie/' + level.toUpperCase() + '/' + subj.slug.replace(/-/g,'-') + '-' + code + '/' + year + '-' + sessFolder + '/' + fname;
+    return 'https://papafy.com/api/view-file?url=' + encodeURIComponent(inner);
+  }
+
+
   const caieCodesAll = new Set([
     '0262', '0400', '0408', '0409', '0410', '0411', '0413', '0415',
     '0416', '0417', '0420', '0426', '0427', '0428', '0429', '0437',
@@ -3185,19 +3246,60 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
 
   function onCodeInput() {
     const input = document.getElementById('code');
-    const before = input.value;
-    input.value = input.value.replace(/\D/g, '');
-    if (input.value !== before) {
-      input.classList.remove('field-error');
-      void input.offsetWidth;
-      input.classList.add('field-error');
-      setTimeout(() => input.classList.remove('field-error'), 500);
+    const board = document.getElementById('board').value;
+    const level = (document.getElementById('level') || {}).value || '';
+    let raw = input.value.trim();
+
+    // For non-CAIE or pre-level, fall back to old digits-only behavior
+    if (board !== 'CAIE' || !level) {
+      raw = input.value.replace(/\D/g, '');
+      if (raw !== input.value) input.value = raw;
     }
-    const code = input.value.trim();
+
+    const code = raw;
     const tag = document.getElementById('subjectNameTag');
     const dym = document.getElementById('didYouMeanTag');
     dym.style.display = 'none';
     dym.innerHTML = '';
+    // ── CAIE: subject name OR code search ──
+    if (board === 'CAIE' && level && PAPAFY_CAIE[level]) {
+      const sugBox = document.getElementById('codeSuggestions');
+      const subs = PAPAFY_CAIE[level];
+      if (code.length === 0) {
+        tag.textContent = ''; tag.classList.remove('visible');
+        // Show favourites if any match this level
+        const favObjs0 = getFavourites();
+        const favCodes0 = favObjs0.map(f => f.code || f).filter(c => subs[c]);
+        if (favCodes0.length > 0) { renderSuggestions(favCodes0.slice(0, 8), ''); }
+        else { if (sugBox) sugBox.classList.remove('open'); }
+        return;
+      }
+      const q = code.toLowerCase();
+      const isAllDigits = /^\d+$/.test(code);
+      const matches = [];
+      for (const c2 in subs) {
+        const s = subs[c2];
+        if (c2.startsWith(q) || s.name.toLowerCase().includes(q)) {
+          matches.push(c2);
+          if (matches.length >= 8) break;
+        }
+      }
+      // Hide dropdown when 4-digit code is exact match
+      if (isAllDigits && code.length === 4 && subs[code]) {
+        tag.textContent = '\u2713 ' + subs[code].name;
+        tag.classList.add('visible');
+        if (sugBox) sugBox.classList.remove('open');
+        return;
+      }
+      if (matches.length > 0) {
+        renderSuggestions(matches, code);
+        tag.textContent = ''; tag.classList.remove('visible');
+      } else {
+        if (sugBox) sugBox.classList.remove('open');
+      }
+      return;
+    }
+
     // Favourites show when field empty; dropdown hides at 4 digits
     if (code.length === 0) {
       tag.textContent = ''; tag.classList.remove('visible');
@@ -4361,8 +4463,32 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
 
 
   function selectBoard(val) {
-    const aqaNotice = document.getElementById('aqaDownNotice');
-    if (aqaNotice) aqaNotice.style.display = val === 'AQA' ? 'block' : 'none';
+    const notice = document.getElementById('boardDownNotice');
+    const isDown = (val === 'AQA' || val === 'Edexcel');
+    if (notice) {
+      if (isDown) {
+        notice.textContent = '⚠ ' + val + ' currently down — please use CAIE for now';
+        notice.style.display = 'block';
+      } else {
+        notice.style.display = 'none';
+      }
+    }
+    // Show level dropdown for CAIE only
+    const levelField = document.getElementById('levelField');
+    const levelSel   = document.getElementById('level');
+    if (val === 'CAIE') {
+      if (levelField) levelField.style.display = '';
+      if (levelSel && levelSel.options.length <= 1) {
+        // Populate levels once
+        levelSel.innerHTML = '<option value="">— Select Level —</option>' +
+          '<option value="igcse">IGCSE</option>' +
+          '<option value="a-level">AS &amp; A Level</option>' +
+          '<option value="o-level">O Level</option>';
+      }
+    } else {
+      if (levelField) levelField.style.display = 'none';
+      if (levelSel) levelSel.value = '';
+    }
     // Update hidden input
     document.getElementById('board').value = val;
     // Toggle active state on buttons and wrappers
@@ -4381,9 +4507,17 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       codeEl.value = '4MA1'; // fixed internal value for tracking
     } else {
       if (codeField) codeField.style.display = '';
-      codeEl.disabled = false;
       codeEl.value = '';  // reset code on board switch
-      codeEl.placeholder = 'e.g. 0417';
+      if (val === 'AQA' || val === 'Edexcel') {
+        codeEl.disabled = true;
+        codeEl.placeholder = val + ' is currently unavailable';
+      } else if (val === 'CAIE') {
+        codeEl.disabled = true; // wait for level selection
+        codeEl.placeholder = 'Select level first';
+      } else {
+        codeEl.disabled = false;
+        codeEl.placeholder = 'e.g. 0417';
+      }
       // Clear subject name tag and any inline messages
       const snt = document.getElementById('subjectNameTag'); if (snt) snt.textContent = '';
       const dym = document.getElementById('didYouMeanTag'); if (dym) dym.style.display = 'none';
@@ -4578,7 +4712,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
 
   // ── Generate ──
   let _lastGenerateTime = 0;
-  const GENERATE_COOLDOWN_MS = 5000;
+  let GENERATE_COOLDOWN_MS = 5000; // overridden by site config
 
   function generate() {
     const now = Date.now();
@@ -4680,11 +4814,26 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       else { btnText.textContent = 'Generate'; btn.disabled = false; }
       return;
     } else if (board === 'CAIE') {
-      if (noVariantTypes.includes(papertype)) {
-        url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${yearVal}_${papertype}.${ext}`;
-      } else {
-        url = `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${code}_${session}${yearVal}_${papertype}_${variantForUrl}.${ext}`;
+      // Find level from dropdown OR auto-detect from code
+      let level = (document.getElementById('level') || {}).value || '';
+      if (!level) level = findLevelForCode(code);
+      const subj = level && PAPAFY_CAIE[level] && PAPAFY_CAIE[level][code];
+      if (!subj) {
+        showError('Subject ' + code + ' not found in PAPAFY archive.');
+        if (wifiLoader) { wifiLoader.classList.remove('active'); btn.style.display = ''; }
+        else { btnText.textContent = 'Generate'; btn.disabled = false; }
+        return;
       }
+      // Build full pastpapers.co inner URL, then wrap in papafy view-file
+      const sessFolder = session === 'w' ? 'Oct-Nov' : session === 'm' ? 'March' : 'May-June';
+      const fullYear = '20' + yearVal;
+      const fname = noVariantTypes.includes(papertype)
+        ? `${code}_${session}${yearVal}_${papertype}.${ext}`
+        : `${code}_${session}${yearVal}_${papertype}_${variantForUrl}.${ext}`;
+      // Build subject folder with capitalised first letter convention used by pastpapers.co
+      const folderName = subj.name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-') + '-' + code;
+      const inner = `https://pastpapers.co/cie/${level.toUpperCase()}/${folderName}/${fullYear}-${sessFolder}/${fname}`;
+      url = 'https://papafy.com/api/view-file?url=' + encodeURIComponent(inner);
     } else {
       // AQA URL format: aqa-{code}{variant}-{type}-{session}{year}.pdf
       // session: jun/nov (2-letter for URL, not full slug)
@@ -5351,8 +5500,8 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
   function togglePassVis(inputId, btn) {
     const inp = document.getElementById(inputId);
     if (!inp) return;
-    if (inp.type === 'password') { inp.type = 'text'; btn.innerHTML = '&#128584;'; }
-    else { inp.type = 'password'; btn.innerHTML = '&#128065;'; }
+    if (inp.type === 'password') { inp.type = 'text'; btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.5 10.5 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-3.1 4.1"/><path d="M6.6 6.6C3.9 8.3 2 12 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>'; }
+    else { inp.type = 'password'; btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>'; }
   }
 
   // ── Auth input glow on typing ──
@@ -5389,7 +5538,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
   }
 
   let _lastPaperViewTime = 0;
-  const PAPER_VIEW_COOLDOWN_MS = 60000; // 1 minute between paper view increments
+  let PAPER_VIEW_COOLDOWN_MS = 60000; // overridden by site config
 
   async function trackPaperView(url) {
     if (!_sessionToken) return;
@@ -5689,7 +5838,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       // Splash takes ~2600ms total (1400 wait + 400 fade + 780 fly animation)
       // Add extra buffer so landing never overlaps splash
       if (!hasToken && !seen) {
-        setTimeout(function() { if (!_currentUser) showLanding(); }, 3000);
+        setTimeout(function() { if (!_currentUser) showLanding(); }, 500);
       }
     } catch {}
   })();
@@ -5700,6 +5849,29 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       const r = await fetch('/api/site-config');
       if (!r.ok) return;
       const cfg = await r.json();
+      // Apply cooldowns from config
+      if (cfg.generate_cooldown_ms)   GENERATE_COOLDOWN_MS   = parseInt(cfg.generate_cooldown_ms);
+      if (cfg.paper_view_cooldown_ms) PAPER_VIEW_COOLDOWN_MS = parseInt(cfg.paper_view_cooldown_ms);
+      // Feature flags
+      if (cfg.ai_enabled === 'false') {
+        const aiBtn = document.querySelector('.btn-view-chat');
+        if (aiBtn) aiBtn.style.display = 'none';
+      }
+      if (cfg.registration_enabled === 'false') {
+        const regLink = document.querySelector('[data-action="register"]');
+        if (regLink) regLink.style.display = 'none';
+      }
+      if (cfg.leaderboard_enabled === 'false') {
+        const lbBtn = document.querySelector('.lb-link-btn');
+        if (lbBtn) lbBtn.style.display = 'none';
+      }
+      if (cfg.question_search_enabled === 'false') {
+        const qsSection = document.getElementById('questionSearchSection');
+        if (qsSection) qsSection.style.display = 'none';
+      }
+      if (cfg.edexcel_enabled === 'false') {
+        document.querySelectorAll('[data-board="Edexcel"]').forEach(el => el.style.display = 'none');
+      }
       if (cfg.maintenance_message) {
         const banner = document.getElementById('maintenanceBanner');
         const txt    = document.getElementById('maintenanceBannerText');
@@ -5708,7 +5880,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
           banner.style.display          = 'flex';
           banner.style.color            = cfg.maintenance_color     || '#fff';
           banner.style.backgroundColor  = cfg.maintenance_bg        || '#e53e3e';
-          banner.style.fontFamily       = cfg.maintenance_font      || 'Space Mono, monospace';
+          banner.style.fontFamily       = cfg.maintenance_font      || 'var(--font-ui)';
           banner.style.textAlign        = cfg.maintenance_align     || 'center';
           banner.style.justifyContent   = cfg.maintenance_align === 'left' ? 'flex-start' : cfg.maintenance_align === 'right' ? 'flex-end' : 'center';
           banner.style.fontSize         = cfg.maintenance_size      ? cfg.maintenance_size + 'rem' : '0.75rem';
@@ -5877,7 +6049,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       var qpLink=qpUrl?'<a class="qs-result-link" href="'+qpUrl+'" target="_blank">Question Paper \u2197</a>':'';
       var msLink=msUrl?'<a class="qs-result-link ms" href="'+msUrl+'" target="_blank">Mark Scheme \u2197</a>':'';
       var aiLink='';
-      if(qpUrl){var vp=new URLSearchParams();vp.set('url',qpUrl);if(msUrl)vp.set('files',qpUrl+','+msUrl);aiLink='<a class="qs-result-link qs-ai-link" href="/viewer.html?'+vp.toString()+'" target="_blank">Open in PastPaperAI 🤖</a>';}
+      if(qpUrl){var vp=new URLSearchParams();vp.set('url',qpUrl);if(msUrl)vp.set('files',qpUrl+','+msUrl);aiLink='<a class="qs-result-link qs-ai-link" href="/viewer.html?'+vp.toString()+'" target="_blank">Open in PastPaperAI</a>';}
       return '<div class="qs-result-card">'
         +'<div class="qs-result-meta">'+tags+'</div>'
         +'<div class="qs-fmtblock">'+formatBlock(item.rawBlock,qpUrl,msUrl)+'</div>'
@@ -5964,7 +6136,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
   <p class="landing-sub">Find and open CAIE &amp; AQA past papers instantly.<br>Sign in to get full access.</p>
   <div class="landing-btns">
     <button class="landing-btn landing-btn-primary" onclick="closeLanding();openAuth('login')">Sign In</button>
-    <button class="landing-btn landing-btn-secondary" onclick="closeLanding();setAuthMode('register');openAuth('register')">Register<br><span style="font-size:0.6rem;font-weight:400;color:#888;letter-spacing:0.05em">100% Free</span></button>
+    <button class="landing-btn landing-btn-secondary" onclick="closeLanding();setAuthMode('register');openAuth('register')">Register<br><span style="font-size:0.72rem;font-weight:400;color:var(--muted);letter-spacing:0.04em">100% free</span></button>
   </div>
   <button class="landing-skip" onclick="closeLandingAsGuest()">Continue as guest &mdash; 1 free paper</button>
 </div>
@@ -5972,7 +6144,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
 <!-- Auth Modal -->
 <div class="auth-modal-bg" id="authModalBg">
   <div class="auth-modal">
-    <button class="auth-close" onclick="closeAuth()">&#10005;</button>
+    <button class="auth-close" onclick="closeAuth()" aria-label="Close">&#10005;</button>
     <div class="auth-title" id="authTitle">Sign <span>In</span></div>
     <div id="authRegisterFields" style="display:none">
       <div class="auth-field">
@@ -6018,21 +6190,21 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       <div class="auth-input-wrap" id="wrapPass" style="display:flex;align-items:center">
         <div class="ain-dark"></div><div class="ain-border"></div><div class="ain-glow"></div>
         <input class="auth-input" id="authPassword" type="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" autocomplete="current-password" style="flex:1;border-radius:8px 0 0 8px;border-right:none" oninput="authInputTyping('wrapPass')" onblur="authInputBlur('wrapPass')" onkeydown="if(event.key==='Enter')submitAuth()">
-        <button type="button" onclick="togglePassVis('authPassword',this)" style="position:relative;z-index:2;background:var(--surface);border:1px solid var(--border);border-left:none;border-radius:0 8px 8px 0;color:var(--muted);padding:0.55rem 0.5rem;cursor:pointer;font-size:0.8rem;line-height:1" title="Show/hide password">&#128065;</button>
+        <button type="button" class="pw-eye" aria-label="Show or hide password" onclick="togglePassVis('authPassword',this)" style="display:flex;align-items:center;position:relative;z-index:2;background:var(--surface);border:1px solid var(--border);border-left:none;border-radius:0 8px 8px 0;color:var(--muted);padding:0.55rem 0.5rem;cursor:pointer;font-size:0.8rem;line-height:1" title="Show/hide password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
     </div>
     <div class="auth-error" id="authError"></div>
     <button class="auth-btn" id="authSubmitBtn" onclick="submitAuth()">Sign In</button>
-    <div id="authTosNote" style="display:none;text-align:center;font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--muted);margin-top:0.6rem;line-height:1.6">By registering, you agree to the <a href="/terms.html" target="_blank" style="color:var(--accent);text-decoration:none">Terms of Service</a> and the <a href="/privacy.html" target="_blank" style="color:var(--accent);text-decoration:none">Privacy Policy</a></div>
+    <div id="authTosNote" style="display:none;text-align:center;font-family:var(--font-ui);font-size:0.72rem;color:var(--muted);margin-top:0.6rem;line-height:1.6">By registering, you agree to the <a href="/terms.html" target="_blank" style="color:var(--accent);text-decoration:none">Terms of Service</a> and the <a href="/privacy.html" target="_blank" style="color:var(--accent);text-decoration:none">Privacy Policy</a></div>
     <div class="auth-switch">
       <span id="authSwitchText">Don't have an account?</span>
-      <a onclick="toggleAuthMode()">
+      <button type="button" class="auth-switch-btn" onclick="toggleAuthMode()">
         <span id="authSwitchLink">Register</span>
-      </a>
+      </button>
     </div>
     <div class="auth-switch" style="margin-top:0.4rem">
       <span id="authChangeText" style="display:none">Remember your password?</span>
-      <a onclick="toggleChangePassword()" id="authChangeLink" style="font-size:0.65rem;color:var(--muted)">Change password</a>
+      <a onclick="toggleChangePassword()" id="authChangeLink" style="font-size:0.75rem;color:var(--muted);display:inline-block;padding:0.4rem 0.2rem;cursor:pointer">Change password</a>
     </div>
     <div id="authChangeForm" style="display:none;margin-top:0.5rem">
       <div class="auth-field">
@@ -6050,7 +6222,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       <div class="auth-error" id="cpError"></div>
       <button class="auth-btn" onclick="submitChangePassword()" style="margin-top:0.4rem">Update Password</button>
     </div>
-    <div style="font-family:Space Mono,monospace;font-size:0.6rem;color:var(--muted);text-align:center;margin-top:0.7rem;line-height:1.5">
+    <div style="font-family:var(--font-ui);font-size:0.72rem;color:var(--muted);text-align:center;margin-top:0.7rem;line-height:1.7">
       Contact <a id="emailAppeal2" href="#" onclick="setEmailBody(this);return false;" style="color:var(--accent);text-decoration:none">contact support</a>
       to appeal
     </div>
@@ -6058,12 +6230,17 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
 </div>
 
 
-<div id="statusBar" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#1a1a1a;border-top:1px solid var(--border);padding:0.4rem 1rem;font-family:Space Mono,monospace;font-size:0.65rem;color:var(--muted);text-align:center;z-index:999"></div>
+<div id="statusBar" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#1a1a1a;border-top:1px solid var(--border);padding:0.4rem 1rem;font-family:var(--font-ui);font-size:0.65rem;color:var(--muted);text-align:center;z-index:999"></div>
 
-<div style="text-align:center;padding:0.8rem 1rem 3rem;font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;border-top:1px solid #1a1a24;margin-top:0.5rem">
+<footer class="site-footer">
   <a href="/terms.html" style="color:var(--muted);text-decoration:none" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">Terms of Service</a>
   <a href="/privacy.html" style="color:var(--muted);text-decoration:none" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">Privacy Policy</a>
-</div>
+</footer>
 
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.27/dist/lenis.min.js" defer></script>
+<script src="/assets/motion.js" defer></script>
 </body>
 </html>

@@ -86,7 +86,7 @@ export default async function handler(req, res) {
   // ── Leaderboard time (public) ──
   if (action === 'subject_counts') {
     const rows = await dbGet('subject_counts?select=code,count&order=count.desc&limit=100');
-    return res.status(200).json({ rows: rows || [] });
+    return res.status(200).json({ rows: Array.isArray(rows) ? rows : [] });
   }
 
   if (action === 'leaderboard_time') {
@@ -169,7 +169,8 @@ export default async function handler(req, res) {
   if (action === 'add_fav') {
     const { code, name } = body;
     if (!code) return res.status(400).json({ error: 'No code' });
-    await dbPost('favourites', { username, code, name });
+    const dupe = await dbGet(`favourites?username=eq.${encodeURIComponent(username)}&code=eq.${encodeURIComponent(code)}&select=code&limit=1`);
+    if (!(Array.isArray(dupe) && dupe[0])) await dbPost('favourites', { username, code, name });
     return res.status(200).json({ ok: true });
   }
   if (action === 'remove_fav') {
@@ -186,12 +187,15 @@ export default async function handler(req, res) {
     const rows = await dbGet(
       `chat_history?username=eq.${encodeURIComponent(username)}&paper_url=eq.${encodeURIComponent(paperUrl)}&select=messages&limit=1`
     );
-    const messages = Array.isArray(rows) && rows[0] ? JSON.parse(rows[0].messages || '[]') : [];
+    let messages = [];
+    try { messages = Array.isArray(rows) && rows[0] ? JSON.parse(rows[0].messages || '[]') : []; } catch { messages = []; }
     return res.status(200).json({ messages });
   }
   if (action === 'save_chat') {
     const { paperUrl, messages } = body;
     if (!paperUrl) return res.status(400).json({ error: 'No paperUrl' });
+    if (!Array.isArray(messages)) return res.status(400).json({ error: 'messages must be an array' });
+    if (JSON.stringify(messages).length > 200000) return res.status(413).json({ error: 'Chat too large' });
     const existing = await dbGet(
       `chat_history?username=eq.${encodeURIComponent(username)}&paper_url=eq.${encodeURIComponent(paperUrl)}&select=id&limit=1`
     );
