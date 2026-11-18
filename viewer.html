@@ -29,7 +29,10 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
 <link rel="apple-touch-icon" href="/favicon.png">
 <script>if(location.protocol!=="file:"){var s=document.createElement("script");s.defer=true;s.src="/_vercel/insights/script.js";document.head.appendChild(s);}</script>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script>try{if(!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("pf-motion")}catch(e){}</script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400..800&display=swap" rel="stylesheet">
 
 <style>
   :root {
@@ -4495,33 +4498,34 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
 
       const selectedModel = (document.getElementById('aiModelSelect') || {}).value || 'groq-llama';
 
-      // Vision: call Groq directly from browser (bypasses Vercel body size limit)
+      // Vision: goes through /api/chat so the Groq key stays on the server.
+      // Images are compressed to <=1024px JPEG before this point, well under the function body limit.
       if (selectedModel === 'groq-llama-vision' && _pendingImage) {
-        const vkMeta = document.querySelector('meta[name="gvk"]');
-        const visionKey = vkMeta ? vkMeta.content : '';
-        if (!visionKey) throw new Error('Vision key not set. Add <meta name="gvk" content="YOUR_GROQ_KEY"> to viewer.html');
-        const visionResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        const visionResp = await fetch('/api/chat', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + visionKey },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-            messages: [{
-              role: 'user',
-              content: [
-                { type: 'image_url', image_url: { url: 'data:' + _pendingImage.mimeType + ';base64,' + _pendingImage.base64 } },
-                { type: 'text', text: 'You are an expert CAIE exam tutor. Correct the student answer shown in this image. Identify mistakes, explain what is wrong, and provide the correct answer with full working.' }
-              ]
-            }],
-            max_completion_tokens: 1024,
-            temperature: 0.4
+            model: 'groq-llama-vision',
+            image: { base64: _pendingImage.base64, mimeType: _pendingImage.mimeType },
+            messages: _aiHistory.slice(-10),
+            context: '',
+            url: pdfUrl
           })
         });
         if (!visionResp.ok) {
-          const errText = await visionResp.text();
-          throw new Error('Vision error ' + visionResp.status + ': ' + errText.slice(0, 200));
+          let errText = await visionResp.text();
+          try { errText = JSON.parse(errText).error || errText; } catch (e) {}
+          throw new Error('Vision error ' + visionResp.status + ': ' + String(errText).slice(0, 200));
         }
-        const vd = await visionResp.json();
-        const vText = vd.choices && vd.choices[0] && vd.choices[0].message && vd.choices[0].message.content || 'No response.';
+        const raw = await visionResp.text();
+        let vText = '';
+        raw.split('\n').forEach(function (line) {
+          if (!line.startsWith('data: ')) return;
+          const payload = line.slice(6).trim();
+          if (!payload || payload === '[DONE]') return;
+          try { const d = JSON.parse(payload); if (d.delta && d.delta.text) vText += d.delta.text; } catch (e) {}
+        });
+        vText = vText || 'No response.';
         aiDiv.innerHTML = formatAiText(vText);
         aiDiv.classList.remove('streaming');
         _aiHistory.push({ role: 'assistant', content: vText });
@@ -4761,7 +4765,7 @@ body { margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
         inp.focus();
         inp.addEventListener('blur', () => {
           if (inp.value) {
-            ctx.font = `${_muSize * 4 * scale}px "Geist Mono", ui-monospace, monospace`;
+            ctx.font = `${_muSize * 4 * scale}px "Space Mono", monospace`;
             ctx.fillStyle = _muColor;
             ctx.fillText(inp.value, _muStartX, _muStartY + (_muSize * 4 * scale));
           }

@@ -28,7 +28,10 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
 <link rel="apple-touch-icon" href="/favicon.png">
 <script>if(location.protocol!=="file:"){var s=document.createElement("script");s.defer=true;s.src="/_vercel/insights/script.js";document.head.appendChild(s);}</script>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script>try{if(!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("pf-motion")}catch(e){}</script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400..800&display=swap" rel="stylesheet">
 
 <style>
   :root {
@@ -1962,7 +1965,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
 <div id="view-wrapper">
 <div id="main-view" class="view">
   <div class="container">
-    <header>
+    <header data-pf-intro>
       <div class="header-top-row">
         <img src="/favicon.png" class="header-logo" alt="logo">
         <p class="label-top">Past Paper Retrieval</p>
@@ -2002,7 +2005,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       <div class="recent-list" id="recentList" style="display:none;"></div>
     </div>
 
-    <div class="card">
+    <div class="card" data-pf-intro>
       <div class="card-glow"></div>
       <div class="field-group">
 
@@ -2033,7 +2036,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
           <!-- hidden input keeps the rest of the JS working unchanged -->
           <input type="hidden" id="board" value="">
         </div>
-        <p id="boardDownNotice" style="display:none;font-family:var(--font-ui);font-size:0.65rem;color:#ff9e0b;margin-top:0.4rem;text-align:center"></p>
+        <p id="boardDownNotice" style="display:none;font-family:var(--font-ui);font-size:0.74rem;color:var(--warning);margin-top:0.4rem;text-align:center"></p>
 
         <div class="field" id="levelField" style="display:none">
           <label>Level</label>
@@ -2123,7 +2126,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
           <button class="btn-copy" onclick="copyUrl()">Copy URL</button>
           <button class="btn-download" onclick="downloadUrl()">Download</button>
           <button class="btn-share" onclick="shareUrl()" id="shareBtn">Share</button>
-          <button class="btn-open" onclick="openUrl()">Open in Browser<br><span style="font-size:0.6rem;font-weight:400;opacity:0.7">(not rec.)</span></button>
+          <button class="btn-open" onclick="openUrl()">Open in Browser<br><span style="font-size:0.7rem;font-weight:400;opacity:0.7">(not rec.)</span></button>
         </div>
       </div>
     </div>
@@ -2244,12 +2247,12 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
           <label for="s1"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></label>
         </div>
         <textarea id="ratingFeedback" name="feedback" maxlength="150" autocomplete="off" placeholder="Feedback, suggestions or issues (optional)&#8230;" style="width:100%;margin-top:0.7rem;padding:0.5rem 0.7rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font-ui);font-size:0.7rem;resize:none;height:70px;outline:none;box-sizing:border-box;transition:border-color 0.2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
-        <p style="text-align:right;font-family:var(--font-ui);font-size:0.6rem;color:var(--muted);margin-top:0.2rem" id="feedbackCount">0 / 150</p>
+        <p style="text-align:right;font-family:var(--font-ui);font-size:0.72rem;color:var(--muted);margin-top:0.3rem" id="feedbackCount">0 / 150</p>
         <button class="rating-submit-btn" id="ratingSubmitBtn" onclick="submitRating()">Submit</button>
         <p class="rating-thanks" id="ratingThanks">Thanks for your feedback!</p>
       </div>
       <p class="version-tag" style="font-size:0.85rem;font-weight:700;color:var(--muted)" id="versionDisplay">Version 47.4</p>
-      <div class="version-tag" style="font-size:0.65rem;color:var(--muted);margin-top:0.2rem;user-select:none;-webkit-user-select:none;pointer-events:none;line-height:1.5">
+      <div class="version-tag" style="font-size:0.72rem;color:var(--muted);margin-top:0.2rem;user-select:none;-webkit-user-select:none;pointer-events:none;line-height:1.5">
         Powered by<br>
         papacambridge.com<br>
         caiefinder.com<br>
@@ -6133,7 +6136,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
   <p class="landing-sub">Find and open CAIE &amp; AQA past papers instantly.<br>Sign in to get full access.</p>
   <div class="landing-btns">
     <button class="landing-btn landing-btn-primary" onclick="closeLanding();openAuth('login')">Sign In</button>
-    <button class="landing-btn landing-btn-secondary" onclick="closeLanding();setAuthMode('register');openAuth('register')">Register<br><span style="font-size:0.6rem;font-weight:400;color:#888;letter-spacing:0.05em">100% Free</span></button>
+    <button class="landing-btn landing-btn-secondary" onclick="closeLanding();setAuthMode('register');openAuth('register')">Register<br><span style="font-size:0.72rem;font-weight:400;color:var(--muted);letter-spacing:0.04em">100% free</span></button>
   </div>
   <button class="landing-skip" onclick="closeLandingAsGuest()">Continue as guest &mdash; 1 free paper</button>
 </div>
@@ -6141,7 +6144,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
 <!-- Auth Modal -->
 <div class="auth-modal-bg" id="authModalBg">
   <div class="auth-modal">
-    <button class="auth-close" onclick="closeAuth()">&#10005;</button>
+    <button class="auth-close" onclick="closeAuth()" aria-label="Close">&#10005;</button>
     <div class="auth-title" id="authTitle">Sign <span>In</span></div>
     <div id="authRegisterFields" style="display:none">
       <div class="auth-field">
@@ -6192,7 +6195,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     </div>
     <div class="auth-error" id="authError"></div>
     <button class="auth-btn" id="authSubmitBtn" onclick="submitAuth()">Sign In</button>
-    <div id="authTosNote" style="display:none;text-align:center;font-family:var(--font-ui);font-size:0.6rem;color:var(--muted);margin-top:0.6rem;line-height:1.6">By registering, you agree to the <a href="/terms.html" target="_blank" style="color:var(--accent);text-decoration:none">Terms of Service</a> and the <a href="/privacy.html" target="_blank" style="color:var(--accent);text-decoration:none">Privacy Policy</a></div>
+    <div id="authTosNote" style="display:none;text-align:center;font-family:var(--font-ui);font-size:0.72rem;color:var(--muted);margin-top:0.6rem;line-height:1.6">By registering, you agree to the <a href="/terms.html" target="_blank" style="color:var(--accent);text-decoration:none">Terms of Service</a> and the <a href="/privacy.html" target="_blank" style="color:var(--accent);text-decoration:none">Privacy Policy</a></div>
     <div class="auth-switch">
       <span id="authSwitchText">Don't have an account?</span>
       <a onclick="toggleAuthMode()">
@@ -6201,7 +6204,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     </div>
     <div class="auth-switch" style="margin-top:0.4rem">
       <span id="authChangeText" style="display:none">Remember your password?</span>
-      <a onclick="toggleChangePassword()" id="authChangeLink" style="font-size:0.65rem;color:var(--muted)">Change password</a>
+      <a onclick="toggleChangePassword()" id="authChangeLink" style="font-size:0.75rem;color:var(--muted);display:inline-block;padding:0.4rem 0.2rem;cursor:pointer">Change password</a>
     </div>
     <div id="authChangeForm" style="display:none;margin-top:0.5rem">
       <div class="auth-field">
@@ -6219,7 +6222,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       <div class="auth-error" id="cpError"></div>
       <button class="auth-btn" onclick="submitChangePassword()" style="margin-top:0.4rem">Update Password</button>
     </div>
-    <div style="font-family:var(--font-ui);font-size:0.6rem;color:var(--muted);text-align:center;margin-top:0.7rem;line-height:1.5">
+    <div style="font-family:var(--font-ui);font-size:0.72rem;color:var(--muted);text-align:center;margin-top:0.7rem;line-height:1.7">
       Contact <a id="emailAppeal2" href="#" onclick="setEmailBody(this);return false;" style="color:var(--accent);text-decoration:none">contact support</a>
       to appeal
     </div>
@@ -6229,12 +6232,15 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
 
 <div id="statusBar" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#1a1a1a;border-top:1px solid var(--border);padding:0.4rem 1rem;font-family:var(--font-ui);font-size:0.65rem;color:var(--muted);text-align:center;z-index:999"></div>
 
-<div style="text-align:center;padding:0.8rem 1rem 3rem;font-family:var(--font-ui);font-size:0.62rem;color:var(--muted);display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;border-top:1px solid #1a1a24;margin-top:0.5rem">
+<footer class="site-footer">
   <a href="/terms.html" style="color:var(--muted);text-decoration:none" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">Terms of Service</a>
   <a href="/privacy.html" style="color:var(--muted);text-decoration:none" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">Privacy Policy</a>
-</div>
+</footer>
 
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.27/dist/lenis.min.js" defer></script>
-<script src="/assets/smooth-scroll.js" defer></script>
+<script src="/assets/motion.js" defer></script>
 </body>
 </html>

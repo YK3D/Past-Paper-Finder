@@ -29,7 +29,10 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
 <link rel="apple-touch-icon" href="/favicon.png">
 <script>if(location.protocol!=="file:"){var s=document.createElement("script");s.defer=true;s.src="/_vercel/insights/script.js";document.head.appendChild(s);}</script>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script>try{if(!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("pf-motion")}catch(e){}</script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400..800&display=swap" rel="stylesheet">
 
 <style>
   :root {
@@ -1071,8 +1074,8 @@
 </head>
 <body>
 
-<div style="min-height:100vh">
-  <div class="top-bar">
+<div class="codes-page" style="min-height:100vh">
+  <div class="top-bar" data-pf-intro>
     <button class="back-btn" onclick="goBack()">← Back</button>
     <h2 class="page-title">Subject <span>Codes</span></h2>
   </div>
@@ -1387,7 +1390,7 @@
     <div class="codes-section aqa-sec">
       <div class="sec-header">
         <div class="sec-title">AQA — Oxford (OxfordAQA)</div>
-        <p style="font-family:var(--font-ui);font-size:0.65rem;color:#ff9e0b;margin:0.3rem 0 0.5rem 0">⚠ AQA codes currently down</p</div>
+        <p style="font-family:var(--font-ui);font-size:0.74rem;color:var(--warning);margin:0.3rem 0 0.5rem 0">⚠ AQA codes currently down</p>
       </div>
 
       <div class="cat-label" onclick="toggleSection('sec-international-gcse')">International GCSE</div>
@@ -2018,7 +2021,10 @@ function filterCodes() {
   });
 })();
 </script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.27/dist/lenis.min.js" defer></script>
-<script src="/assets/smooth-scroll.js" defer></script>
+<script src="/assets/motion.js" defer></script>
 </body>
 </html>

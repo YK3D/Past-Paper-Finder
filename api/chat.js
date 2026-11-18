@@ -154,14 +154,6 @@ function pipeGeminiStream(resp, res) {
   pump().catch(function() { try { res.end(); } catch(e) {} });
 }
 
-module.exports.config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '20mb'
-    }
-  }
-};
-
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -186,8 +178,10 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid request body: ' + e.message });
   }
 
-  const messages = body.messages || [];
-  const context  = body.context  || '';
+  const messages = (Array.isArray(body.messages) ? body.messages : [])
+    .filter(m => m && typeof m.content === 'string' && (m.role === 'user' || m.role === 'assistant'))
+    .map(m => ({ role: m.role, content: m.content.slice(0, 8000) }));
+  const context  = String(body.context || '').slice(0, 120000);
   const url      = body.url      || 'unknown';
   const model    = body.model    || 'groq-llama';
 
@@ -252,3 +246,6 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: e.message });
   }
 };
+
+// set after the handler assignment, otherwise it is overwritten
+module.exports.config = { api: { bodyParser: { sizeLimit: '20mb' } } };

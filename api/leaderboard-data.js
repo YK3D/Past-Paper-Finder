@@ -2,7 +2,18 @@
 // To enable persistence: add Vercel KV to your project at vercel.com/dashboard
 // then run: vercel env pull
 
+import { timingSafeEqual } from 'crypto';
+
 let memStore = {};
+// Admin actions need the ADMIN_SECRET env var, sent as the x-admin-key header.
+function isAdmin(req) {
+  const secret = process.env.ADMIN_SECRET;
+  const given = req.headers['x-admin-key'];
+  if (!secret || typeof given !== 'string') return false;
+  const a = Buffer.from(secret), b = Buffer.from(given);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
 
 async function getKV() {
   try {
@@ -30,6 +41,8 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
+    // legacy endpoint, not used by the site: writes are admin-only
+    if (!isAdmin(req)) return res.status(403).json({ error: 'Forbidden' });
     const { id, name, increment } = req.body || {};
     if (!id || !name) return res.status(400).json({ error: 'Missing id or name' });
 
