@@ -1976,7 +1976,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
           <span id="userPillName"></span>
         </div>
         <label class="switch" title="Toggle light/dark mode">
-          <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
+          <input type="checkbox" id="themeToggle" aria-label="Light mode" onchange="toggleTheme()">
           <div class="slider">
             <div class="star star_1"></div>
             <div class="star star_2"></div>
@@ -2039,14 +2039,14 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
         <p id="boardDownNotice" style="display:none;font-family:var(--font-ui);font-size:0.74rem;color:var(--warning);margin-top:0.4rem;text-align:center"></p>
 
         <div class="field" id="levelField" style="display:none">
-          <label>Level</label>
+          <label for="level">Level</label>
           <select id="level" onchange="onLevelChange()">
             <option value="">— Select Level —</option>
           </select>
         </div>
 
         <div class="field" id="codeField" style="position:relative">
-          <label>Subject</label>
+          <label for="code">Subject</label>
           <div class="fav-wrap">
             <input type="text" id="code" placeholder="Select board and level first" maxlength="64" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="closeResultBox();onCodeInput()" onkeydown="onCodeKeydown(event)" onblur="hideSuggestions(event)" onfocus="openFavDropdown()" disabled style="padding-right:2.2rem" />
             <button class="fav-btn" id="favStarBtn" onclick="toggleFavourite()" title="Add to favourites">&#9733;</button>
@@ -2060,20 +2060,20 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
 
         <div class="row-2">
           <div class="field">
-            <label>Session</label>
+            <label for="session">Session</label>
             <select id="session" onchange="closeResultBox();onSessionChange()">
               <option value="">— Select —</option>
             </select>
           </div>
           <div class="field" id="yearField">
-            <label>Year</label>
+            <label for="yearSelect">Year</label>
             <select id="yearSelect" onchange="closeResultBox();onYearSelectChange()"><option value="">— Select Year —</option></select>
           </div>
         </div>
 
         <div class="row-2">
           <div class="field" id="papertypeField">
-            <label>Paper Type</label>
+            <label for="papertype">Paper Type</label>
             <select id="papertype" onchange="closeResultBox();onPapertypeChange()">
               <option value="">— Select —</option>
               <option value="qp">Question Paper (QP)</option>
@@ -2085,7 +2085,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
             </select>
           </div>
           <div class="field" id="variantField">
-            <label>Variant</label>
+            <label for="variant">Variant</label>
             <input type="text" id="variant" placeholder="e.g. 31" maxlength="2" inputmode="numeric" oninput="numericOnly(this)" style="display:none" />
             <select id="variantSelect" onchange="closeResultBox();clearFieldErrors()"><option value="">— Select —</option></select>
           </div>
@@ -2139,7 +2139,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
   <div class="question-search-title">Question <span>Finder</span></div>
   <p class="question-search-sub">Search any CAIE past paper question using 3–9 consecutive words. Powered by caiefinder.com.</p>
   <div class="question-search-row">
-    <select class="question-search-select" id="qsSubs">
+    <select class="question-search-select" id="qsSubs" aria-label="Subject">
       <option value="">All Subjects</option>
       <optgroup label="── Core ──">
       <option value="mathematics">Mathematics</option>
@@ -2203,7 +2203,7 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
       <option value="pakistanstudies">Pakistan Studies</option>
       </optgroup>
     </select>
-    <select class="question-search-select" id="qsZone">
+    <select class="question-search-select" id="qsZone" aria-label="Qualification">
       <option value="">GCE &amp; IGCSE</option>
       <option value="o">O Level GCE</option>
       <option value="a">A Level GCE</option>
@@ -6198,9 +6198,9 @@ mark.qs-highlight{background:#fef08a;color:#111;border-radius:2px;padding:0 2px;
     <div id="authTosNote" style="display:none;text-align:center;font-family:var(--font-ui);font-size:0.72rem;color:var(--muted);margin-top:0.6rem;line-height:1.6">By registering, you agree to the <a href="/terms.html" target="_blank" style="color:var(--accent);text-decoration:none">Terms of Service</a> and the <a href="/privacy.html" target="_blank" style="color:var(--accent);text-decoration:none">Privacy Policy</a></div>
     <div class="auth-switch">
       <span id="authSwitchText">Don't have an account?</span>
-      <a onclick="toggleAuthMode()">
+      <button type="button" class="auth-switch-btn" onclick="toggleAuthMode()">
         <span id="authSwitchLink">Register</span>
-      </a>
+      </button>
     </div>
     <div class="auth-switch" style="margin-top:0.4rem">
       <span id="authChangeText" style="display:none">Remember your password?</span>
